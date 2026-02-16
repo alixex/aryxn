@@ -29,7 +29,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { deriveKey } from "@/lib/crypto"
+import { deriveKey } from "@aryxn/crypto"
 import {
   exportConfig,
   importConfig,
