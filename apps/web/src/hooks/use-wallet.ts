@@ -1,4 +1,6 @@
 import { useWallet as useInternalWallet } from "@/providers/wallet-provider"
+export { useInternal as useInternalWalletHook } from "@/hooks/use-internal-wallet"
+export { useExternalWallets as useExternalWalletsHook } from "@/hooks/use-external-wallets"
 
 /**
  * The unified wallet hook for Aryxn.

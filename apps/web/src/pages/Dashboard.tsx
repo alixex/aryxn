@@ -1,6 +1,7 @@
-import { useWallet } from "@/hooks/use-wallet"
+import { useInternal } from "@/hooks/use-internal-wallet"
+import { useExternalWallets } from "@/hooks/use-external-wallets"
 import { useTranslation } from "@/i18n/config"
-import type { UploadRecord } from "@/lib/types"
+import type { UploadRecord, WalletRecord } from "@/lib/types"
 import { searchFiles, type FileIndex } from "@/lib/file-manager"
 import { useEffect, useState } from "react"
 import { HistoryTable } from "@/components/history-table"
@@ -42,9 +43,8 @@ function fileIndexToUploadRecord(file: FileIndex): UploadRecord {
 
 export default function DashboardPage() {
   const { t } = useTranslation()
-  const wallet = useWallet()
-  const walletManager = wallet.internal
-  const externalWallets = wallet.external
+  const walletManager = useInternal()
+  const externalWallets = useExternalWallets().external
   const [uploadHistory, setUploadHistory] = useState<UploadRecord[]>([])
   const { syncing, syncFromArweave } = useFileSync()
 
@@ -169,7 +169,8 @@ export default function DashboardPage() {
             <div className="text-foreground max-w-45 truncate text-sm font-bold">
               {walletManager.activeAddress
                 ? walletManager.wallets.find(
-                    (w) => w.address === walletManager.activeAddress,
+                    (w: WalletRecord) =>
+                      w.address === walletManager.activeAddress,
                   )?.alias || "Unnamed"
                 : t("common.noAccount")}
             </div>

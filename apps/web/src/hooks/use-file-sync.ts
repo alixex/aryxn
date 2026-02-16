@@ -4,9 +4,8 @@ import { useWallet } from "@/hooks/use-wallet"
 import { syncFilesFromArweaveDirect } from "@/lib/file-sync-direct"
 
 export function useFileSync() {
-  const wallet = useWallet()
-  const walletManager = wallet.internal
-  const externalWallets = wallet.external
+  const walletManager = useInternal()
+  const externalWallets = useExternalWallets().external
   const [syncing, setSyncing] = useState(false)
   const [uploadingManifest] = useState(false)
 

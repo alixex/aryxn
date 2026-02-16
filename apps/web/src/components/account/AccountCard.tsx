@@ -74,9 +74,17 @@ export function AccountCard({
   const isPaymentConnected = external?.isPaymentConnected
   const connector = external?.connector
   const paymentAddress = external?.paymentAddress
-  const { balances, loadingBalances, showBalances, refreshBalance, toggleShowBalance } = useAccounts()
+  const {
+    balances,
+    loadingBalances,
+    showBalances,
+    refreshBalance,
+    toggleShowBalance,
+  } = useAccounts()
 
-  const key = account.isExternal ? `external-${account.chain}-${account.address}` : `${account.chain}-${account.address}`
+  const key = account.isExternal
+    ? `external-${account.chain}-${account.address}`
+    : `${account.chain}-${account.address}`
   const balance = balances[key]
   const loading = loadingBalances[key]
   const showBalance = showBalances[key] || false
@@ -178,7 +186,13 @@ export function AccountCard({
                   loading={loading}
                   showBalance={showBalance}
                   onToggle={(s) => toggleShowBalance(key, s)}
-                  onRefresh={() => refreshBalance(account.chain, account.address, account.isExternal)}
+                  onRefresh={() =>
+                    refreshBalance(
+                      account.chain,
+                      account.address,
+                      account.isExternal,
+                    )
+                  }
                 />
               </div>
               {/* Show token balances for Ethereum, Solana and Sui accounts */}

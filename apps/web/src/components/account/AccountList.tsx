@@ -59,7 +59,9 @@ export function AccountList({
             onSelect={() => onSelect(account)}
             onCopyAddress={onCopyAddress}
             onShowSensitive={onShowSensitive}
-            onDisconnect={onDisconnect ? () => onDisconnect(account) : undefined}
+            onDisconnect={
+              onDisconnect ? () => onDisconnect(account) : undefined
+            }
           />
         )
       })}

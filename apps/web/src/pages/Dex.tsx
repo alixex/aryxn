@@ -31,19 +31,19 @@ import {
 import { useMultiHopSwap, SwapState } from "@/hooks/use-dex-swap"
 import { useInternalDexSwap } from "@/hooks/use-dex-swap-internal"
 import { SUPPORTED_TOKENS, type TokenInfo } from "@/lib/contracts/token-config"
-import { useWallet } from "@/providers/wallet-provider"
+import { useInternal } from "@/hooks/use-internal-wallet"
+import type { WalletRecord } from "@/lib/types"
 
 export default function DexPage() {
   const { t } = useTranslation()
   const { isConnected, address: externalAddress } = useConnection()
-  const wallet = useWallet()
-  const walletManager = wallet.internal
+  const walletManager = useInternal()
 
   // Check if internal wallet is available for Ethereum
   const hasInternalEthAccount =
     walletManager.isUnlocked &&
     !!walletManager.activeAddress &&
-    walletManager.wallets.find((w) => w.address === walletManager.activeAddress)
+    walletManager.wallets.find((w: WalletRecord) => w.address === walletManager.activeAddress)
       ?.chain === "ethereum"
 
   // Determine which wallet type to use
@@ -55,7 +55,7 @@ export default function DexPage() {
 
   // Get active account alias for display
   const activeAccountAlias = walletManager.wallets.find(
-    (w) => w.address === walletManager.activeAddress,
+    (w: WalletRecord) => w.address === walletManager.activeAddress,
   )?.alias
 
   // Input/Output token selection

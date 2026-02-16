@@ -1,5 +1,7 @@
 import { useState } from "react"
 import { useTranslation } from "@/i18n/config"
+import { useInternal } from "@/hooks/use-internal-wallet"
+import { useExternalWallets } from "@/hooks/use-external-wallets"
 import { useWallet } from "@/hooks/use-wallet"
 import { toast } from "sonner"
 import { useDisconnect } from "wagmi"
@@ -24,12 +26,12 @@ import AccountSidebar from "@/components/account/AccountSidebar"
 
 export default function AccountPage() {
   const { t } = useTranslation()
+  const walletManager = useInternal()
   const wallet = useWallet()
-  const walletManager = wallet.internal
   const { mutate: disconnectEVM } = useDisconnect()
 
   // 使用外部钱包 hook (已聚合进 wallet.external)
-  const externalWallets = wallet.external
+  const externalWallets = useExternalWallets().external
 
   // 敏感信息对话框
   const [showSensitiveDialog, setShowSensitiveDialog] = useState(false)
@@ -42,9 +44,7 @@ export default function AccountPage() {
   const [showCreateDialog, setShowCreateDialog] = useState(false)
   const [createChain, setCreateChain] = useState<string>("")
 
-  const {
-    getExternalAccounts,
-  } = useAccounts()
+  const { getExternalAccounts } = useAccounts()
 
   // 处理函数
   const handleUnlock = async (password: string) => {
@@ -134,8 +134,8 @@ export default function AccountPage() {
 
   // refreshBalance provided by useAccounts
 
-  // 渲染账户列表
-  const renderAccountList = (chain: string) => {
+  // AccountListTab component
+  const AccountListTab = ({ chain }: { chain: string }) => {
     type Account = {
       id?: string | number
       chain: string
@@ -164,14 +164,12 @@ export default function AccountPage() {
       const addrLower = account.address?.toLowerCase()
       if (!addrLower) return false
 
-      // If any synthesized active account has the same address, consider it active
       if (
         activeAccounts.some((a: any) => a.address?.toLowerCase() === addrLower)
       ) {
         return true
       }
 
-      // Fallback: internal active address equality
       return walletManager.activeAddress === account.address
     }
 
@@ -226,7 +224,9 @@ export default function AccountPage() {
         isActive={isActive}
         onSelect={handleSelect}
         onCopyAddress={copyAddress}
-        onShowSensitive={walletManager.isUnlocked ? handleShowSensitive : undefined}
+        onShowSensitive={
+          walletManager.isUnlocked ? handleShowSensitive : undefined
+        }
         onDisconnect={handleDisconnect}
       />
     )
@@ -277,31 +277,31 @@ export default function AccountPage() {
                     value="ethereum"
                     className="px-4 pt-4 pb-4 sm:px-6 sm:pb-6"
                   >
-                    {renderAccountList("ethereum")}
+                    <AccountListTab chain="ethereum" />
                   </TabsContent>
                   <TabsContent
                     value="bitcoin"
                     className="px-4 pt-4 pb-4 sm:px-6 sm:pb-6"
                   >
-                    {renderAccountList("bitcoin")}
+                    <AccountListTab chain="bitcoin" />
                   </TabsContent>
                   <TabsContent
                     value="solana"
                     className="px-4 pt-4 pb-4 sm:px-6 sm:pb-6"
                   >
-                    {renderAccountList("solana")}
+                    <AccountListTab chain="solana" />
                   </TabsContent>
                   <TabsContent
                     value="sui"
                     className="px-4 pt-4 pb-4 sm:px-6 sm:pb-6"
                   >
-                    {renderAccountList("sui")}
+                    <AccountListTab chain="sui" />
                   </TabsContent>
                   <TabsContent
                     value="arweave"
                     className="px-4 pt-4 pb-4 sm:px-6 sm:pb-6"
                   >
-                    {renderAccountList("arweave")}
+                    <AccountListTab chain="arweave" />
                   </TabsContent>
                 </Tabs>
               </CardContent>

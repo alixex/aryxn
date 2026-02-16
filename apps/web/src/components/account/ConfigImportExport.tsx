@@ -1,6 +1,6 @@
 import { useState, useRef } from "react"
 import { useTranslation } from "@/i18n/config"
-import { useWallet } from "@/providers/wallet-provider"
+import { useInternal } from "@/hooks/use-internal-wallet"
 import { toast } from "sonner"
 import {
   Download,
@@ -55,8 +55,7 @@ const getVaultId = async (key: Uint8Array) => {
 
 export function ConfigImportExport() {
   const { t } = useTranslation()
-  const wallet = useWallet()
-  const walletManager = wallet.internal
+  const walletManager = useInternal()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false)
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false)
