@@ -1,7 +1,7 @@
 /**
  * RPC endpoint configuration with support for API keys
  * Uses environment variables with fallback to public endpoints
- * 
+ *
  * Browser CORS handling:
  * - In browser: use full proxy URL (http://localhost:5173/api/rpc for dev)
  * - Custom endpoints via env vars bypass proxy
@@ -21,19 +21,19 @@ export function getEthereumRpcUrl(): string {
     return envUrl
   }
 
-  // In browser, use CORS-friendly proxy or direct call
+  // In browser, use CORS-friendly proxy
   if (isBrowser()) {
-    // Option 1: Use Vite dev proxy (requires dev server)
     const origin = window.location.origin
+    // Use Vite dev proxy for all environments
     if (origin.includes("localhost") || origin.includes("127.0.0.1")) {
       return `${origin}/api/rpc`
     }
-    
-    // Option 2: Use public CORS proxy for production/preview
-    // This service adds CORS headers to RPC requests
-    return "https://cors.allorigins.win/raw?url=https://eth.llamarpc.com/"
+
+    // Use Infura (supports CORS) - more reliable than llamarpc
+    return "https://eth-mainnet.g.alchemy.com/v2/demo"
   }
 
+  // Server-side: direct access
   return "https://eth.llamarpc.com"
 }
 

@@ -7,6 +7,7 @@ import {
   getActualCompressedSize as genericGetCompressedSize,
 } from "@aryxn/arweave"
 import type { ArweaveJWK } from "@aryxn/wallet-core"
+import { ARWEAVE_APP_NAME } from "@/lib/config"
 
 export { arweave, generateArweaveWallet, shouldCompressFile }
 
@@ -38,9 +39,9 @@ export const uploadToArweave = async (
       try {
         const fileData = new Uint8Array(reader.result as ArrayBuffer)
 
-        // Add Aryxn domain tags
+        // Add anamnesis domain tags
         const tags = {
-          "App-Name": "Aryxn",
+          "App-Name": ARWEAVE_APP_NAME,
           // Any other domain-specific tags here
         }
 

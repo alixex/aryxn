@@ -6,6 +6,11 @@
 import { arweave } from "@/lib/storage"
 import { db } from "@/lib/database"
 import { searchFiles } from "./file-manager"
+import {
+  MANIFEST_APP_NAME,
+  MANIFEST_VERSION,
+  INCREMENTAL_MANIFEST_VERSION,
+} from "@/lib/config"
 import type { WalletKey, ArweaveJWK } from "@aryxn/wallet-core"
 
 /**
@@ -111,9 +116,7 @@ export interface IncrementalManifest {
   deleted?: string[]
 }
 
-const MANIFEST_VERSION = "1.0.0" // 合并后的完整清单版本
-const MANIFEST_APP_NAME = "Aryxn-Manifest"
-const INCREMENTAL_MANIFEST_VERSION = "1.1.0" // 增量清单版本（统一方案）
+// 常量从 @/lib/config 导入
 
 /**
  * 估算清单文件的大小（字节）

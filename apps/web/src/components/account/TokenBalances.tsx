@@ -20,10 +20,7 @@ import { SOLANA_TOKENS, formatSolanaTokenAmount } from "@/lib/chain"
 import { SUI_TOKENS, formatSuiTokenAmount } from "@/lib/chain"
 import { ERC20_ABI } from "@/lib/contracts/multi-hop-swapper-abi"
 import { useTranslation } from "@/i18n/config"
-import {
-  getEthereumRpcUrl,
-  getSolanaRpcUrl,
-} from "@/lib/chain/rpc-config"
+import { getEthereumRpcUrl, getSolanaRpcUrl } from "@/lib/chain/rpc-config"
 
 interface TokenBalance {
   symbol: string

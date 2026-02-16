@@ -135,7 +135,10 @@ export function useMultiHopSwap({
         setGasPrice((Number(price) / 1e9).toFixed(2))
       } catch (err: any) {
         // Silently handle CORS and network errors
-        if (err?.message?.includes("CORS") || err?.message?.includes("Failed to fetch")) {
+        if (
+          err?.message?.includes("CORS") ||
+          err?.message?.includes("Failed to fetch")
+        ) {
           setGasPrice("50") // Fallback gas price in gwei
         } else {
           console.error("Failed to fetch gas price:", err)

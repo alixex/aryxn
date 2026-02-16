@@ -56,15 +56,15 @@ export async function getSolanaBalance(
     // Suppress console errors from RPC client in development
     const consoleError = console.error
     console.error = () => {}
-    
+
     try {
       const connection = createSolanaConnection(getSolanaRpcUrl())
       const publicKey = createSolanaPublicKey(address)
       const balance = await getSolBalance(connection, publicKey)
       const formatted = formatSolanaBalance(balance, 6)
-      
+
       console.error = consoleError // Restore console.error
-      
+
       return {
         balance: balance.toString(),
         formatted,

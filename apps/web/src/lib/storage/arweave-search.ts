@@ -9,7 +9,13 @@ import {
   type ArweaveSearchResult,
   type SearchOptions as BaseSearchOptions,
 } from "@aryxn/arweave"
-import { searchFiles, type FileIndex } from "@/lib/file"
+import {
+  searchFiles,
+  type FileIndex,
+  downloadManifest,
+  type FileManifest,
+} from "@/lib/file"
+import { ARWEAVE_APP_NAME } from "@/lib/config"
 
 // 扩展基础搜索选项，添加本地搜索特定选项
 export interface SearchOptions extends BaseSearchOptions {
@@ -26,7 +32,7 @@ export type { ArweaveSearchResult }
 function convertFileIndexToSearchResult(file: FileIndex): ArweaveSearchResult {
   // 从文件信息构建标签数组
   const tags: Array<{ name: string; value: string }> = [
-    { name: "App-Name", value: "Aryxn" },
+    { name: "App-Name", value: ARWEAVE_APP_NAME },
     { name: "Owner-Address", value: file.owner_address },
     { name: "File-Name", value: file.file_name },
     { name: "Content-Type", value: file.mime_type },
@@ -67,14 +73,59 @@ function convertFileIndexToSearchResult(file: FileIndex): ArweaveSearchResult {
 }
 
 /**
- * 混合搜索：优先本地搜索，必要时补充网络搜索
+ * 在清单文件中搜索文件
+ * 支持文件名、描述、交易 ID 和标签的搜索
+ */
+function searchInManifest(
+  manifest: FileManifest,
+  query: string,
+  limit: number = 20,
+): FileIndex[] {
+  const queryLower = query.toLowerCase()
+  const queryWords = queryLower.split(/\s+/).filter((w) => w.length > 0)
+
+  const results = manifest.files
+    .filter((file) => {
+      // 搜索文件名
+      if (file.file_name.toLowerCase().includes(queryLower)) {
+        return true
+      }
+
+      // 搜索描述
+      if (file.description?.toLowerCase().includes(queryLower)) {
+        return true
+      }
+
+      // 搜索交易 ID
+      if (file.tx_id.toLowerCase().includes(queryLower)) {
+        return true
+      }
+
+      // 搜索标签
+      if (file.tags?.some((tag) => tag.toLowerCase().includes(queryLower))) {
+        return true
+      }
+
+      // 搜索多个关键词（使用 AND 逻辑）
+      const fileText =
+        `${file.file_name} ${file.description || ""} ${file.tags?.join(" ") || ""}`.toLowerCase()
+      return queryWords.every((word) => fileText.includes(word))
+    })
+    .slice(0, limit)
+
+  return results as FileIndex[]
+}
+
+/**
+ * 混合搜索：优先本地搜索 → 清单搜索 → 网络搜索
  *
  * 搜索策略：
  * 1. 优先在本地数据库中搜索（如果提供了 ownerAddress）
- * 2. 如果本地搜索结果不足或没有结果，且满足以下条件之一，则进行网络搜索：
- *    - 查询的是交易 ID（43 字符）
- *    - 本地搜索结果数量少于 limit
- *    - 用户明确需要搜索网络上的所有文件（包括其他用户的文件）
+ * 2. 如果本地搜索结果不足，尝试清单文件搜索（获取所有历史文件）
+ * 3. 如果清单结果仍不足，进行网络搜索（查询 Arweave 网络）
+ *
+ * 搜索层级流程：
+ * 本地 DB (毫秒级) → 清单文件 (快速) → 网络搜索 (秒级)
  *
  * @param options 搜索选项
  * @returns 搜索结果数组
@@ -97,6 +148,7 @@ export async function searchArweaveTransactions(
   const queryTrimmed = query.trim()
   const results: ArweaveSearchResult[] = []
   const localResults: ArweaveSearchResult[] = []
+  const resultTxIds = new Set<string>()
 
   // 检查是否是交易 ID 格式（43 个字符的 base64url 字符串）
   const isTxId = /^[A-Za-z0-9_-]{43}$/.test(queryTrimmed)
@@ -110,6 +162,7 @@ export async function searchArweaveTransactions(
       })
 
       localResults.push(...localFiles.map(convertFileIndexToSearchResult))
+      localFiles.forEach((file) => resultTxIds.add(file.tx_id))
 
       console.log(`Found ${localResults.length} results in local database`)
 
@@ -124,45 +177,94 @@ export async function searchArweaveTransactions(
       }
     } catch (error) {
       console.warn("Local search failed:", error)
-      // 本地搜索失败，继续网络搜索
+      // 本地搜索失败，继续进行下一步搜索
     }
   }
 
-  // 策略 2: 网络搜索（在以下情况下进行）
-  // - 查询的是交易 ID（可能不在本地数据库中）
-  // - 本地搜索结果不足
+  // 策略 2: 清单文件搜索（如果本地结果不足）
+  // 清单包含所有历史文件，不受 10000 条交易限制
+  if (ownerAddress && localResults.length < limit) {
+    try {
+      console.log(
+        `Local search returned ${localResults.length} results, fetching manifest...`,
+      )
+
+      const manifest = await downloadManifest(ownerAddress)
+      if (manifest) {
+        const manifestFiles = searchInManifest(
+          manifest,
+          queryTrimmed,
+          limit * 2,
+        )
+
+        // 过滤掉已经在本地结果中的文件
+        const uniqueManifestFiles = manifestFiles.filter(
+          (file) => !resultTxIds.has(file.tx_id),
+        )
+
+        const manifestResults = uniqueManifestFiles.map(
+          convertFileIndexToSearchResult,
+        )
+        localResults.push(...manifestResults)
+        uniqueManifestFiles.forEach((file) => resultTxIds.add(file.tx_id))
+
+        console.log(
+          `Found ${manifestResults.length} additional results in manifest`,
+        )
+
+        // 如果通过清单获得了足够的结果
+        if (localResults.length >= limit) {
+          return localResults.slice(0, limit)
+        }
+      }
+    } catch (error) {
+      console.warn("Manifest search failed:", error)
+      // 清单搜索失败，继续网络搜索
+    }
+  }
+
+  // 策略 3: 网络搜索（在以下情况下进行）
+  // - 查询的是交易 ID（可能不在本地数据库和清单中）
+  // - 本地和清单搜索结果仍不足
   // - 需要搜索其他用户的文件
   const needsNetworkSearch =
     isTxId || // 交易 ID 查询总是需要网络搜索
-    localResults.length < limit || // 本地结果不足
+    localResults.length < limit || // 搜索结果仍不足
     !preferLocal || // 用户明确要求网络搜索
     !ownerAddress // 没有提供账户地址，无法本地搜索
 
   if (needsNetworkSearch) {
     try {
+      console.log(
+        `Insufficient results (${localResults.length}/${limit}), performing network search...`,
+      )
+
       const networkResults = await searchArweaveTransactionsNetwork({
         query: queryTrimmed,
-        limit: limit * 2, // 获取更多结果以便去重和合并
+        limit: Math.max(limit * 2, 50), // 获取足够的结果以便去重和合并
         sort,
       })
 
-      // 合并结果：优先本地结果，然后补充网络结果
-      const localTxIds = new Set(localResults.map((r) => r.id))
+      // 过滤掉已经有的结果，避免重复
       const uniqueNetworkResults = networkResults.filter(
-        (r) => !localTxIds.has(r.id),
+        (r) => !resultTxIds.has(r.id),
+      )
+
+      console.log(
+        `Network search returned ${uniqueNetworkResults.length} unique results`,
       )
 
       results.push(...localResults)
       results.push(...uniqueNetworkResults)
 
       console.log(
-        `Combined search: ${localResults.length} local + ${uniqueNetworkResults.length} network = ${results.length} total`,
+        `Combined search: ${localResults.length} local+manifest + ${uniqueNetworkResults.length} network = ${results.length} total`,
       )
 
       return results.slice(0, limit)
     } catch (error) {
       console.error("Network search failed:", error)
-      // 网络搜索失败，返回本地结果（如果有）
+      // 网络搜索失败，返回已有结果
       if (localResults.length > 0) {
         return localResults.slice(0, limit)
       }
@@ -170,9 +272,12 @@ export async function searchArweaveTransactions(
     }
   }
 
-  // 如果不需要网络搜索，直接返回本地结果
+  // 如果不需要网络搜索，直接返回本地和清单结果
   return localResults.slice(0, limit)
 }
 
 // 重新导出网络搜索函数以支持不需要本地数据的场景
 export { searchAppTransactions }
+
+// 导出清单搜索函数以供其他模块使用
+export { searchInManifest }

@@ -11,6 +11,7 @@ import { QueryClientProvider, QueryClient } from "@tanstack/react-query"
 import { type ReactNode, useEffect, useState, useMemo } from "react"
 import { useTranslation, isChineseLanguage } from "@/i18n/config"
 import { WalletProvider } from "@/providers/wallet-provider"
+import { ARWEAVE_APP_NAME } from "@/lib/config"
 import {
   getEthereumRpcUrl,
   getPolygonRpcUrl,
@@ -49,7 +50,7 @@ export function Providers({ children }: { children: ReactNode }) {
         },
       ],
       {
-        appName: "Aryxn",
+        appName: ARWEAVE_APP_NAME,
         projectId:
           import.meta.env.VITE_WALLETCONNECT_PROJECT_ID ||
           "00000000000000000000000000000000",

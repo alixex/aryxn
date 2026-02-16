@@ -5,6 +5,7 @@
 
 import { db } from "@/lib/database"
 import { calculateFileHash } from "./file-manager"
+import { ARWEAVE_APP_NAME } from "@/lib/config"
 import type { FileIndex } from "./file-manager"
 
 interface ArweaveTransaction {
@@ -155,7 +156,7 @@ export async function queryFileTransactions(
         query: queryString,
         variables: {
           owner: [ownerAddress],
-          appName: "Aryxn",
+          appName: ARWEAVE_APP_NAME,
           ownerAddress: ownerAddress,
           limit: pageSize,
           ...(cursor && { after: cursor }),
@@ -252,7 +253,7 @@ function extractFileInfoFromTransaction(
     )
 
     // 验证必要的标签
-    if (tags["App-Name"] !== "Aryxn") {
+    if (tags["App-Name"] !== ARWEAVE_APP_NAME) {
       return null
     }
 
