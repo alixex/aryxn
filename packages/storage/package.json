@@ -11,6 +11,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@aryxn/crypto": "workspace:*",
     "@sqlite.org/sqlite-wasm": "3.51.1-build2"
   },
   "devDependencies": {

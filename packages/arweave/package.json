@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@aryxn/crypto": "workspace:*",
+    "@aryxn/storage": "workspace:*",
     "@aryxn/wallet-core": "workspace:*",
     "arweave": "^1.15.5",
     "fflate": "^0.8.2"

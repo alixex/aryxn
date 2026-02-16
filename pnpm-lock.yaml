@@ -159,6 +159,9 @@ importers:
       '@aryxn/crypto':
         specifier: workspace:*
         version: link:../crypto
+      '@aryxn/storage':
+        specifier: workspace:*
+        version: link:../storage
       '@aryxn/wallet-core':
         specifier: workspace:*
         version: link:../wallet-core
@@ -272,6 +275,9 @@ importers:
 
   packages/storage:
     dependencies:
+      '@aryxn/crypto':
+        specifier: workspace:*
+        version: link:../crypto
       '@sqlite.org/sqlite-wasm':
         specifier: 3.51.1-build2
         version: 3.51.1-build2

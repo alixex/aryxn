@@ -12,3 +12,5 @@ export type {
   SqliteWorkerResponse,
   SqlitePromiser,
 } from "./types"
+
+export { persistEncrypted, loadEncrypted } from "./encrypted-cache"

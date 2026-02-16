@@ -14,13 +14,13 @@ interface SearchCacheConfig {
   defaultTtl?: number
 }
 
-const PERSIST_KEY = "@aryxn/arweave:search-cache"
+import {
+  encryptStringForStorage,
+  decryptStringFromStorage,
+} from "@aryxn/crypto"
+import { persistEncrypted, loadEncrypted } from "@aryxn/storage"
 
-function isBrowser(): boolean {
-  return (
-    typeof window !== "undefined" && typeof window.localStorage !== "undefined"
-  )
-}
+const PERSIST_KEY = "@aryxn/arweave:search-cache"
 
 /**
  * 搜索结果缓存管理器
@@ -116,12 +116,10 @@ export class SearchCache {
     }
   }
 
-  enablePersistence(masterKey: string) {
+  async enablePersistence(masterKey: string) {
     this.persistenceEnabled = true
     this.masterKey = masterKey
-    return this.loadPersisted().catch((e) => {
-      console.warn("Failed to load persisted cache:", e)
-    })
+    await this.loadPersisted()
   }
 
   disablePersistence() {
@@ -135,30 +133,12 @@ export class SearchCache {
   private async persist(): Promise<void> {
     if (!this.persistenceEnabled || !this.masterKey) return
 
-    const payload = JSON.stringify(Array.from(this.cache.entries()))
-
-    const encrypted = await encryptString(payload, this.masterKey)
-
-    if (isBrowser()) {
-      try {
-        window.localStorage.setItem(PERSIST_KEY, JSON.stringify(encrypted))
-      } catch (e) {
-        console.warn("Failed to write cache to localStorage:", e)
-      }
-    } else {
-      try {
-        // write to file in package root
-        const fs = await import("fs")
-        const path = await import("path")
-        const filePath = path.join(process.cwd(), ".arweave-search-cache.json")
-        await fs.promises.writeFile(
-          filePath,
-          JSON.stringify(encrypted),
-          "utf-8",
-        )
-      } catch (e) {
-        console.warn("Failed to write cache to file:", e)
-      }
+    try {
+      const payload = JSON.stringify(Array.from(this.cache.entries()))
+      const encrypted = await encryptStringForStorage(payload, this.masterKey)
+      await persistEncrypted(PERSIST_KEY, encrypted)
+    } catch (e) {
+      console.warn("Failed to persist cache:", e)
     }
   }
 
@@ -168,41 +148,17 @@ export class SearchCache {
   private async loadPersisted(): Promise<void> {
     if (!this.masterKey) return
 
-    let stored: any = null
-
-    if (isBrowser()) {
-      try {
-        const raw = window.localStorage.getItem(PERSIST_KEY)
-        if (!raw) return
-        stored = JSON.parse(raw)
-      } catch (e) {
-        console.warn("Failed to read cache from localStorage:", e)
-        return
-      }
-    } else {
-      try {
-        const fs = await import("fs")
-        const path = await import("path")
-        const filePath = path.join(process.cwd(), ".arweave-search-cache.json")
-        if (!fs.existsSync(filePath)) return
-        const raw = await fs.promises.readFile(filePath, "utf-8")
-        stored = JSON.parse(raw)
-      } catch (e) {
-        console.warn("Failed to read cache from file:", e)
-        return
-      }
-    }
-
-    if (!stored) return
-
     try {
-      const decrypted = await decryptString(stored, this.masterKey)
-      const entries: Array<[string, CacheEntry<unknown>]> =
-        JSON.parse(decrypted)
-      this.cache = new Map(entries)
-      this.accessOrder = entries.map(([k]) => k)
+      const stored = await loadEncrypted(PERSIST_KEY)
+      if (stored) {
+        const decrypted = await decryptStringFromStorage(stored, this.masterKey)
+        const entries: Array<[string, CacheEntry<unknown>]> =
+          JSON.parse(decrypted)
+        this.cache = new Map(entries)
+        this.accessOrder = entries.map(([k]) => k)
+      }
     } catch (e) {
-      console.warn("Failed to decrypt persisted cache:", e)
+      console.warn("Failed to load persisted cache:", e)
     }
   }
 
@@ -241,141 +197,4 @@ export async function enableSearchCachePersistence(masterKey: string) {
 
 export function disableSearchCachePersistence() {
   return globalSearchCache.disablePersistence()
-}
-
-/**
- * 加密/解密辅助（支持浏览器 SubtleCrypto 与 Node crypto）
- */
-async function getCrypto(): Promise<any> {
-  if (
-    typeof globalThis !== "undefined" &&
-    (globalThis as any).crypto &&
-    (globalThis as any).crypto.subtle
-  ) {
-    return (globalThis as any).crypto
-  }
-  try {
-    // Node >= 16: globalThis.crypto.webcrypto
-    // Fallback to require('crypto')
-    const nodeCrypto = await import("crypto")
-    return nodeCrypto
-  } catch (e) {
-    throw new Error("No crypto available for encryption")
-  }
-}
-
-async function deriveKeyFromPassphrase(passphrase: string, salt: Uint8Array) {
-  const c = await getCrypto()
-  // browser subtle
-  if ((c as any).subtle) {
-    const enc = new TextEncoder()
-    const baseKey = await (c as any).subtle.importKey(
-      "raw",
-      enc.encode(passphrase),
-      { name: "PBKDF2" },
-      false,
-      ["deriveKey"],
-    )
-    const key = await (c as any).subtle.deriveKey(
-      { name: "PBKDF2", salt, iterations: 100000, hash: "SHA-256" },
-      baseKey,
-      { name: "AES-GCM", length: 256 },
-      false,
-      ["encrypt", "decrypt"],
-    )
-    return key
-  }
-
-  // Node fallback: return HMAC-derived key buffer
-  const pbkdf2 = (await import("crypto")).pbkdf2Sync
-  const keyBuf = pbkdf2(passphrase, Buffer.from(salt), 100000, 32, "sha256")
-  return keyBuf
-}
-
-async function encryptString(plain: string, passphrase: string) {
-  const c = await getCrypto()
-  const salt = cryptoRandom(16)
-  const iv = cryptoRandom(12)
-
-  if ((c as any).subtle) {
-    const key = await deriveKeyFromPassphrase(passphrase, salt)
-    const enc = new TextEncoder()
-    const cipher = await (c as any).subtle.encrypt(
-      { name: "AES-GCM", iv },
-      key,
-      enc.encode(plain),
-    )
-    return {
-      salt: bufferToBase64(salt),
-      iv: bufferToBase64(iv),
-      data: bufferToBase64(new Uint8Array(cipher)),
-    }
-  }
-
-  // Node
-  const crypto = await import("crypto")
-  const keyBuf = (await deriveKeyFromPassphrase(passphrase, salt)) as Buffer
-  const cipher = crypto.createCipheriv("aes-256-gcm", keyBuf, iv)
-  const ct = Buffer.concat([cipher.update(plain, "utf8"), cipher.final()])
-  const tag = cipher.getAuthTag()
-  return {
-    salt: bufferToBase64(salt),
-    iv: bufferToBase64(iv),
-    tag: bufferToBase64(tag),
-    data: bufferToBase64(ct),
-  }
-}
-
-async function decryptString(obj: any, passphrase: string) {
-  const c = await getCrypto()
-  const salt = base64ToBuffer(obj.salt)
-  const iv = base64ToBuffer(obj.iv)
-
-  if ((c as any).subtle) {
-    const key = await deriveKeyFromPassphrase(passphrase, salt)
-    const cipherBuf = base64ToBuffer(obj.data)
-    const plainBuf = await (c as any).subtle.decrypt(
-      { name: "AES-GCM", iv },
-      key,
-      cipherBuf,
-    )
-    const dec = new TextDecoder()
-    return dec.decode(plainBuf)
-  }
-
-  const crypto = await import("crypto")
-  const keyBuf = (await deriveKeyFromPassphrase(passphrase, salt)) as Buffer
-  const decipher = crypto.createDecipheriv("aes-256-gcm", keyBuf, iv)
-  if (obj.tag) decipher.setAuthTag(base64ToBuffer(obj.tag))
-  const pt = Buffer.concat([
-    decipher.update(base64ToBuffer(obj.data)),
-    decipher.final(),
-  ])
-  return pt.toString("utf8")
-}
-
-function cryptoRandom(len: number): Uint8Array {
-  if (typeof crypto !== "undefined" && (crypto as any).getRandomValues) {
-    const a = new Uint8Array(len)
-    ;(crypto as any).getRandomValues(a)
-    return a
-  }
-  // Node fallback
-  const b = Buffer.from((require("crypto") as any).randomBytes(len))
-  return new Uint8Array(b)
-}
-
-function bufferToBase64(buf: Uint8Array | Buffer) {
-  if (typeof Buffer !== "undefined" && buf instanceof Buffer)
-    return buf.toString("base64")
-  return Buffer.from(buf).toString("base64")
-}
-
-function base64ToBuffer(s: string): Uint8Array {
-  if (typeof Buffer !== "undefined")
-    return new Uint8Array(Buffer.from(s, "base64"))
-  const bin = atob(s)
-  const arr = new Uint8Array(bin.length)
-  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i)
-  return arr
 }
