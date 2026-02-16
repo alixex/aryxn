@@ -4,7 +4,7 @@ import { Settings } from "lucide-react"
 import { useTranslation } from "@/i18n/config"
 import { UploadOptions } from "./UploadOptions"
 import { FeeEstimate } from "./FeeEstimate"
-import { useFeeCalculation } from "@/hooks/use-fee-calculation"
+import { useFeeCalculation } from "@/hooks/dex-hooks"
 import { shouldCompressFile } from "@/lib/compression"
 
 import type { PaymentToken } from "@/lib/payment-service"

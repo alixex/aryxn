@@ -28,8 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { useMultiHopSwap, SwapState } from "@/hooks/use-dex-swap"
-import { useInternalDexSwap } from "@/hooks/use-dex-swap-internal"
+import { useMultiHopSwap, SwapState, useInternalDexSwap } from "@/hooks/dex-hooks"
 import { SUPPORTED_TOKENS, type TokenInfo } from "@/lib/contracts/token-config"
 import { useInternal } from "@/hooks/account-hooks"
 import type { WalletRecord } from "@/lib/types"
