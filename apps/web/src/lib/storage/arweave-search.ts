@@ -74,7 +74,7 @@ function convertFileIndexToSearchResult(file: FileIndex): ArweaveSearchResult {
 
 /**
  * 在清单文件中搜索文件
- * 支持文件名、描述、交易 ID 和标签的搜索
+ * 支持文件名、描述、存储 ID 和标签的搜索
  */
 function searchInManifest(
   manifest: FileManifest,
@@ -96,7 +96,7 @@ function searchInManifest(
         return true
       }
 
-      // 搜索交易 ID
+      // 搜索存储 ID
       if (file.tx_id.toLowerCase().includes(queryLower)) {
         return true
       }
@@ -150,7 +150,7 @@ export async function searchArweaveTransactions(
   const localResults: ArweaveSearchResult[] = []
   const resultTxIds = new Set<string>()
 
-  // 检查是否是交易 ID 格式（43 个字符的 base64url 字符串）
+  // 检查是否是存储 ID 格式（43 个字符的 base64url 字符串）
   const isTxId = /^[A-Za-z0-9_-]{43}$/.test(queryTrimmed)
 
   // 策略 1: 优先本地搜索（如果提供了 ownerAddress 且 preferLocal 为 true）
@@ -166,7 +166,7 @@ export async function searchArweaveTransactions(
 
       console.log(`Found ${localResults.length} results in local database`)
 
-      // 如果查询的是交易 ID，且本地找到了，直接返回
+      // 如果查询的是存储 ID，且本地找到了，直接返回
       if (isTxId && localResults.length > 0) {
         return localResults.slice(0, limit)
       }
@@ -224,11 +224,11 @@ export async function searchArweaveTransactions(
   }
 
   // 策略 3: 网络搜索（在以下情况下进行）
-  // - 查询的是交易 ID（可能不在本地数据库和清单中）
+  // - 查询的是存储 ID（可能不在本地数据库和清单中）
   // - 本地和清单搜索结果仍不足
   // - 需要搜索其他用户的文件
   const needsNetworkSearch =
-    isTxId || // 交易 ID 查询总是需要网络搜索
+    isTxId || // 存储 ID 查询总是需要网络搜索
     localResults.length < limit || // 搜索结果仍不足
     !preferLocal || // 用户明确要求网络搜索
     !ownerAddress // 没有提供账户地址，无法本地搜索

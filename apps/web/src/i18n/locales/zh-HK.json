@@ -37,7 +37,7 @@
     "searchErrorHint": "提示：Arweave 搜尋只能查找最近的交易，如果找不到結果，請嘗試其他關鍵詞",
     "searchLimitHint": "提示：搜尋僅查找最近的交易（最多 5000 條），如果找不到結果，請嘗試其他關鍵詞",
     "searchCapabilities": "搜尋功能說明",
-    "searchCapabilitiesDesc": "• 支援檔案名稱和描述的部分匹配搜尋\n• 預設只搜尋自己上傳的檔案\n• 輸入交易 ID（43 字元）可搜尋任何檔案\n• 支援多詞搜尋（空格分隔）"
+    "searchCapabilitiesDesc": "• 支援檔案名稱和描述的部分匹配搜尋\n• 預設只搜尋自己上傳的檔案\n• 輸入儲存 ID（43 字元）可搜尋任何檔案\n• 支援多詞搜尋（空格分隔）"
   },
   "unlock": {
     "title": "開啟隱私金庫",
@@ -200,7 +200,7 @@
     "fileType": "檔案類型",
     "fileSize": "檔案大小",
     "time": "時間",
-    "txId": "交易 ID",
+    "txId": "儲存 ID",
     "protocol": "協定",
     "security": "安全性",
     "action": "操作",

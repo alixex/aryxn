@@ -37,7 +37,7 @@
     "searchErrorHint": "提示：Arweave 搜索只能查找最近的交易，如果找不到结果，请尝试其他关键词",
     "searchLimitHint": "提示：搜索仅查找最近的交易（最多 5000 条），如果找不到结果，请尝试其他关键词",
     "searchCapabilities": "搜索功能说明",
-    "searchCapabilitiesDesc": "• 支持文件名和描述的部分匹配搜索\n• 默认只搜索自己上传的文件\n• 输入交易 ID（43 字符）可搜索任何文件\n• 支持多词搜索（空格分隔）"
+    "searchCapabilitiesDesc": "• 支持文件名和描述的部分匹配搜索\n• 默认只搜索自己上传的文件\n• 输入存储 ID（43 字符）可搜索任何文件\n• 支持多词搜索（空格分隔）"
   },
   "unlock": {
     "title": "开启隐私金库",
@@ -204,7 +204,7 @@
     "fileType": "文件类型",
     "fileSize": "文件大小",
     "time": "时间",
-    "txId": "交易 ID",
+    "txId": "存储 ID",
     "protocol": "协议",
     "security": "安全性",
     "action": "操作",
