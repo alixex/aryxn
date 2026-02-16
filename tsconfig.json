@@ -3,10 +3,7 @@
     "skipLibCheck": true,
     "composite": true
   },
-  "files": [
-    "**/*.ts",
-    "**/*.tsx"
-  ],
+  "files": ["**/*.ts", "**/*.tsx"],
   "references": [
     { "path": "./apps/web" },
     { "path": "./packages/wallet-core" },

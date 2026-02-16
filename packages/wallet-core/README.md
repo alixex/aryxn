@@ -26,22 +26,25 @@ The core wallet logic for Aryxn, providing chain-agnostic primitives for wallet 
 
 #### Balance Queries (Cross-Chain)
 
-| Chain | Function | Client/Connection Required |
-| :--- | :--- | :--- |
-| **EVM** | `getEvmBalance(provider, address)` | `JsonRpcProvider` |
-| **Solana** | `getSolanaBalance(connection, pubKey)` | `Connection` |
-| **Sui** | `getSuiBalance(client, address)` | `SuiClient` |
+| Chain      | Function                               | Client/Connection Required |
+| :--------- | :------------------------------------- | :------------------------- |
+| **EVM**    | `getEvmBalance(provider, address)`     | `JsonRpcProvider`          |
+| **Solana** | `getSolanaBalance(connection, pubKey)` | `Connection`               |
+| **Sui**    | `getSuiBalance(client, address)`       | `SuiClient`                |
 
 #### EVM (Ethereum & L2s)
+
 - `createEvmProvider(url)` / `createEvmWallet(privateKey, provider)`
 - `formatEther(wei)` / `parseEther(eth)`
 - `formatUnits(value, decimals)` / `parseUnits(value, decimals)`
 
 #### Solana
+
 - `createSolanaConnection(endpoint)` / `createSolanaPublicKey(address)`
 - `formatSolanaBalance(lamports)` / `parseSolanaAmount(sol)`
 
 #### Sui
+
 - `createSuiClient(url)` / `getFullnodeUrl(network)`
 - `formatSuiBalance(mist)` / `parseSuiAmount(sui)`
 
@@ -63,10 +66,13 @@ console.log(info.chain) // "ethereum"
 ### Balance Check Example
 
 ```typescript
-import { createEvmProvider, getEvmBalance, formatEther } from "@aryxn/wallet-core"
+import {
+  createEvmProvider,
+  getEvmBalance,
+  formatEther,
+} from "@aryxn/wallet-core"
 
 const provider = createEvmProvider("https://mainnet.infura.io/v3/...")
 const balance = await getEvmBalance(provider, "0x...")
 console.log(formatEther(balance))
 ```
-

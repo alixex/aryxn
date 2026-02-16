@@ -24,11 +24,7 @@ Aryxn 项目的核心加密库。该包提供纯净的底层加密原语和针�
 ## 使用示例
 
 ```typescript
-import {
-  generateMnemonic,
-  deriveSolanaKey,
-  encryptData,
-} from "@aryxn/crypto"
+import { generateMnemonic, deriveSolanaKey, encryptData } from "@aryxn/crypto"
 
 // 生成助记词
 const mnemonic = generateMnemonic()

@@ -26,22 +26,25 @@ Aryxn 的核心钱包逻辑库，提供针对钱包创建、检测和账户管�
 
 #### 余额查询 (跨链)
 
-| 链 | 函数 | 所需客户端/连接 |
-| :--- | :--- | :--- |
-| **EVM** | `getEvmBalance(provider, address)` | `JsonRpcProvider` |
-| **Solana** | `getSolanaBalance(connection, pubKey)` | `Connection` |
-| **Sui** | `getSuiBalance(client, address)` | `SuiClient` |
+| 链         | 函数                                   | 所需客户端/连接   |
+| :--------- | :------------------------------------- | :---------------- |
+| **EVM**    | `getEvmBalance(provider, address)`     | `JsonRpcProvider` |
+| **Solana** | `getSolanaBalance(connection, pubKey)` | `Connection`      |
+| **Sui**    | `getSuiBalance(client, address)`       | `SuiClient`       |
 
 #### EVM (Ethereum & L2s)
+
 - `createEvmProvider(url)` / `createEvmWallet(privateKey, provider)`
 - `formatEther(wei)` / `parseEther(eth)`
 - `formatUnits(value, decimals)` / `parseUnits(value, decimals)`
 
 #### Solana
+
 - `createSolanaConnection(endpoint)` / `createSolanaPublicKey(address)`
 - `formatSolanaBalance(lamports)` / `parseSolanaAmount(sol)`
 
 #### Sui
+
 - `createSuiClient(url)` / `getFullnodeUrl(network)`
 - `formatSuiBalance(mist)` / `parseSuiAmount(sui)`
 
@@ -63,10 +66,13 @@ console.log(info.chain) // "ethereum"
 ### 余额查询示例
 
 ```typescript
-import { createEvmProvider, getEvmBalance, formatEther } from "@aryxn/wallet-core"
+import {
+  createEvmProvider,
+  getEvmBalance,
+  formatEther,
+} from "@aryxn/wallet-core"
 
 const provider = createEvmProvider("https://mainnet.infura.io/v3/...")
 const balance = await getEvmBalance(provider, "0x...")
 console.log(formatEther(balance))
 ```
-
