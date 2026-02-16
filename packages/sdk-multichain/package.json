@@ -1,0 +1,28 @@
+{
+  "name": "@aryxn/sdk-multichain",
+  "version": "1.0.0",
+  "description": "Unified SDK for cross-chain token swaps",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "oxlint src",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@aryxn/sdk-ethereum": "workspace:*",
+    "@aryxn/sdk-solana": "workspace:*",
+    "ethers": "^6.16.0",
+    "@solana/web3.js": "^1.98.4",
+    "@coral-xyz/anchor": "^0.30.1"
+  },
+  "devDependencies": {
+    "oxlint": "^1.38.0",
+    "typescript": "~5.9.3"
+  },
+  "files": [
+    "dist"
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "name": "@aryxn/sdk-solana",
+  "version": "1.0.0",
+  "description": "TypeScript SDK for Solana swaps",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "oxlint src",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.30.1",
+    "@solana/web3.js": "^1.98.4"
+  },
+  "devDependencies": {
+    "oxlint": "^1.38.0",
+    "typescript": "~5.9.3"
+  },
+  "files": [
+    "dist"
+  ]
+}

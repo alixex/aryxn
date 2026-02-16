@@ -1,0 +1,43 @@
+{
+  "name": "aryxn-workspace",
+  "private": true,
+  "version": "1.0.0",
+  "description": "A user-sovereignty-first vault for accounts and permanent files with integrated DEX.",
+  "license": "AGPL-3.0-or-later",
+  "author": "chaxus",
+  "homepage": "https://ranuts.github.io/aryxn/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ranuts/aryxn.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ranuts/aryxn/issues"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=10.0.0"
+  },
+  "packageManager": "pnpm@10.29.3",
+  "scripts": {
+    "dev": "pnpm --filter=@aryxn/web dev",
+    "build": "pnpm --filter=@aryxn/web build",
+    "build:contracts": "pnpm --filter='@aryxn/contracts-*' build",
+    "build:sdk": "pnpm --filter='@aryxn/sdk-*' build",
+    "build:all": "pnpm build:contracts && pnpm build:sdk && pnpm build",
+    "test:web": "pnpm --filter=@aryxn/web test",
+    "test:ethereum": "pnpm --filter=@aryxn/contracts-ethereum test",
+    "test:solana": "pnpm --filter=@aryxn/contracts-solana test",
+    "test:all": "pnpm test:web && pnpm test:ethereum && pnpm test:solana",
+    "deploy:ethereum": "pnpm --filter=@aryxn/contracts-ethereum deploy",
+    "deploy:solana": "pnpm --filter=@aryxn/contracts-solana deploy",
+    "lint": "pnpm --filter='./apps/*' lint && pnpm --filter='./packages/*' lint",
+    "type-check": "pnpm --filter='./apps/*' type-check && pnpm --filter='./packages/*' type-check",
+    "format": "prettier --write '**/*.{ts,tsx,js,jsx,json,md}'",
+    "preview": "pnpm --filter=@aryxn/web preview"
+  },
+  "devDependencies": {
+    "prettier": "^3.8.1",
+    "prettier-plugin-tailwindcss": "^0.7.2",
+    "vite-plugin-node-polyfills": "^0.24.0"
+  }
+}

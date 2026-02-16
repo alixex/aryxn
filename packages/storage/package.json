@@ -1,0 +1,23 @@
+{
+  "name": "@aryxn/storage",
+  "version": "1.0.0",
+  "description": "Data persistence layer for Aryxn",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "license": "AGPL-3.0-or-later",
+  "scripts": {
+    "dev": "tsc --watch",
+    "lint": "oxlint src",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@sqlite.org/sqlite-wasm": "3.51.1-build2"
+  },
+  "devDependencies": {
+    "oxlint": "^1.38.0",
+    "typescript": "~5.9.3"
+  },
+  "files": [
+    "dist"
+  ]
+}

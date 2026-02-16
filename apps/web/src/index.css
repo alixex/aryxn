@@ -1,0 +1,581 @@
+@import "tailwindcss";
+
+@theme {
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --color-chart-1: hsl(var(--chart-1));
+  --color-chart-2: hsl(var(--chart-2));
+  --color-chart-3: hsl(var(--chart-3));
+  --color-chart-4: hsl(var(--chart-4));
+  --color-chart-5: hsl(var(--chart-5));
+}
+
+@layer base {
+  :root {
+    /* Premium Black & White Core Colors - Light Mode */
+    --background: 0 0% 98%; /* Soft White #FAFAFA - breathing space */
+    --foreground: 220 2% 8%; /* Near Black #131416 - cool professional tone */
+    --card: 0 0% 100%; /* Pure White #FFFFFF - stands out from background */
+    --card-foreground: 220 2% 8%; /* Near Black with cool tone */
+    --popover: 0 0% 100%; /* Pure White */
+    --popover-foreground: 220 2% 8%; /* Near Black */
+
+    /* Primary - Deep Charcoal in Light Mode */
+    --primary: 220 3% 12%; /* Deep Gray-Black #1C1E21 - sophisticated */
+    --primary-foreground: 0 0% 100%; /* Pure White */
+    --primary-hover: 220 2% 18%; /* Slightly lighter on hover */
+
+    /* Secondary - Very Light Gray */
+    --secondary: 0 0% 96%; /* Very Light Gray #F5F5F5 */
+    --secondary-foreground: 220 2% 8%; /* Near Black */
+    --secondary-hover: 0 0% 94%; /* Slightly darker on hover */
+
+    /* Muted - Subtle Light Gray */
+    --muted: 0 0% 96%; /* Very Light Gray #F5F5F5 */
+    --muted-foreground: 220 1% 45%; /* Medium Gray with subtle cool tone */
+
+    /* Accent - Same as Secondary */
+    --accent: 0 0% 96%;
+    --accent-foreground: 220 2% 8%;
+
+    /* Destructive - Refined Dark Gray */
+    --destructive: 220 2% 15%; /* Dark Charcoal #252729 */
+    --destructive-foreground: 0 0% 100%;
+
+    /* Borders & Inputs - Ultra Light */
+    --border: 0 0% 92%; /* Ultra Light Border #EBEBEB - barely visible */
+    --input: 0 0% 92%; /* Ultra Light Input Border */
+    --ring: 220 2% 25%; /* Softer gray for focus ring */
+
+    /* Charts - 12-Level Grayscale System */
+    --chart-1: 220 2% 12%; /* Darkest */
+    --chart-2: 220 2% 25%;
+    --chart-3: 220 1% 38%;
+    --chart-4: 220 1% 50%;
+    --chart-5: 220 1% 62%; /* Lightest */
+
+    --radius: 0.5rem; /* 8px - Modern & Clean */
+
+    /* 12-Level Premium Grayscale Hierarchy */
+    --gray-50: 0 0% 98%; /* Almost White */
+    --gray-100: 0 0% 96%;
+    --gray-150: 0 0% 94%;
+    --gray-200: 0 0% 92%;
+    --gray-300: 220 1% 88%;
+    --gray-400: 220 1% 75%;
+    --gray-500: 220 1% 62%;
+    --gray-600: 220 1% 50%;
+    --gray-700: 220 2% 38%;
+    --gray-800: 220 2% 25%;
+    --gray-900: 220 2% 15%;
+    --gray-950: 220 2% 8%; /* Near Black */
+
+    /* Premium Grayscale Gradients */
+    --gradient-primary-start: 220 3% 12%;
+    --gradient-primary-end: 220 2% 25%;
+    --gradient-secondary-start: 0 0% 96%;
+    --gradient-secondary-end: 0 0% 100%;
+    --gradient-accent-start: 0 0% 92%;
+    --gradient-accent-end: 0 0% 100%;
+
+    /* Enhanced Glassmorphism - Light */
+    --glass-bg: 0 0% 100%;
+    --glass-border: 0 0% 92%;
+    --glass-blur: 16px;
+
+    /* Refined Monochrome Accent Colors */
+    --mono-darkest: 220 2% 8%; /* Near Black with cool tone */
+    --mono-dark: 220 2% 25%; /* Dark Charcoal */
+    --mono-medium: 220 1% 50%; /* Medium Gray */
+    --mono-light: 220 1% 75%; /* Light Gray */
+
+    /* Premium Multi-Layer Shadow System */
+    --shadow-xs: 0 1px 2px 0 hsl(220 2% 8% / 0.04);
+    --shadow-sm: 0 2px 4px -1px hsl(220 2% 8% / 0.06);
+    --shadow-md:
+      0 4px 8px -2px hsl(220 2% 8% / 0.08), 0 2px 4px -1px hsl(220 2% 8% / 0.04);
+    --shadow-lg:
+      0 8px 16px -4px hsl(220 2% 8% / 0.1), 0 4px 8px -2px hsl(220 2% 8% / 0.06);
+    --shadow-xl:
+      0 16px 32px -8px hsl(220 2% 8% / 0.12),
+      0 8px 16px -4px hsl(220 2% 8% / 0.08);
+
+    /* Shadows - Subtle Black/Gray based */
+    --shadow-primary: 220 2% 8%; /* Near Black shadows */
+    --shadow-secondary: 220 2% 25%;
+    --shadow-success: 220 2% 30%;
+    --shadow-warning: 220 1% 35%;
+    --shadow-danger: 220 2% 15%;
+
+    /* Animation timing */
+    --duration-instant: 100ms;
+    --duration-fast: 150ms;
+    --duration-normal: 250ms;
+    --duration-slow: 350ms;
+    --duration-slower: 500ms;
+
+    /* Easing functions */
+    --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-out: cubic-bezier(0, 0, 0.2, 1);
+    --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-sharp: cubic-bezier(0.4, 0, 0.6, 1);
+  }
+  .dark {
+    /* Premium Black & White Core Colors - Dark Mode */
+    --background: 220 2% 3%; /* Near Black #070809 - soft dark with cool tone */
+    --foreground: 0 0% 98%; /* Soft White #FAFAFA - easy on eyes */
+    --card: 220 2% 6%; /* Very Dark Gray #0E0F11 - stands out from background */
+    --card-foreground: 0 0% 98%; /* Soft White */
+    --popover: 220 2% 8%; /* Dark Gray #131416 */
+    --popover-foreground: 0 0% 98%; /* Soft White */
+
+    /* Primary - Refined White in Dark Mode */
+    --primary: 0 0% 98%; /* Soft White #FAFAFA - not harsh */
+    --primary-foreground: 220 2% 8%; /* Near Black */
+    --primary-hover: 0 0% 92%; /* Slightly darker on hover */
+
+    /* Secondary - Refined Dark Gray */
+    --secondary: 220 2% 10%; /* Dark Gray #191A1D */
+    --secondary-foreground: 0 0% 98%; /* Soft White */
+    --secondary-hover: 220 2% 12%; /* Slightly lighter on hover */
+
+    /* Muted - Subtle Dark Gray */
+    --muted: 220 2% 10%; /* Dark Gray #191A1D */
+    --muted-foreground: 220 1% 55%; /* Medium Gray with subtle cool tone */
+
+    /* Accent - Same as Secondary */
+    --accent: 220 2% 10%;
+    --accent-foreground: 0 0% 98%;
+
+    /* Destructive - Refined Light Gray */
+    --destructive: 0 0% 88%; /* Light Gray #E0E0E0 */
+    --destructive-foreground: 220 2% 8%; /* Near Black */
+
+    /* Borders & Inputs - Ultra Subtle */
+    --border: 220 2% 15%; /* Dark Border #25262A - barely visible */
+    --input: 220 2% 15%; /* Dark Input Border */
+    --ring: 0 0% 75%; /* Softer light gray for focus ring */
+
+    /* Charts - 12-Level Grayscale System (inverted) */
+    --chart-1: 0 0% 92%; /* Lightest */
+    --chart-2: 220 1% 75%;
+    --chart-3: 220 1% 62%;
+    --chart-4: 220 1% 50%;
+    --chart-5: 220 2% 38%; /* Darkest */
+
+    /* Premium Grayscale Gradients - Dark Mode */
+    --gradient-primary-start: 0 0% 98%;
+    --gradient-primary-end: 220 1% 75%;
+    --gradient-secondary-start: 220 2% 10%;
+    --gradient-secondary-end: 220 2% 3%;
+
+    /* Enhanced Glassmorphism - Dark */
+    --glass-bg: 220 2% 6%; /* #0E0F11 */
+    --glass-border: 220 2% 15%; /* #25262A */
+
+    /* 12-Level Premium Grayscale Hierarchy - Dark Mode */
+    --gray-50: 220 2% 3%; /* Near Black */
+    --gray-100: 220 2% 6%;
+    --gray-150: 220 2% 8%;
+    --gray-200: 220 2% 10%;
+    --gray-300: 220 2% 15%;
+    --gray-400: 220 1% 25%;
+    --gray-500: 220 1% 38%;
+    --gray-600: 220 1% 50%;
+    --gray-700: 220 1% 62%;
+    --gray-800: 220 1% 75%;
+    --gray-900: 220 1% 88%;
+    --gray-950: 0 0% 98%; /* Soft White */
+
+    /* Premium Multi-Layer Shadow System - Dark Mode */
+    --shadow-xs: 0 1px 2px 0 hsl(0 0% 0% / 0.12);
+    --shadow-sm: 0 2px 4px -1px hsl(0 0% 0% / 0.16);
+    --shadow-md:
+      0 4px 8px -2px hsl(0 0% 0% / 0.2), 0 2px 4px -1px hsl(0 0% 0% / 0.12);
+    --shadow-lg:
+      0 8px 16px -4px hsl(0 0% 0% / 0.24), 0 4px 8px -2px hsl(0 0% 0% / 0.16);
+    --shadow-xl:
+      0 16px 32px -8px hsl(0 0% 0% / 0.28), 0 8px 16px -4px hsl(0 0% 0% / 0.2);
+
+    /* Adjusted shadow colors for dark mode */
+    --shadow-primary: 0 0% 98%; /* Soft White shadows for dark mode */
+    --shadow-secondary: 220 1% 75%;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+}
+
+@layer utilities {
+  /**
+   * iOS safe-area support (e.g. iPhone with home indicator).
+   * Used by the mobile bottom navigation: `pb-safe`.
+   */
+  .pb-safe {
+    padding-bottom: constant(safe-area-inset-bottom);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Gradient backgrounds - Monochrome */
+  .bg-gradient-primary {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--gradient-primary-start)) 0%,
+      hsl(var(--gradient-primary-end)) 100%
+    );
+  }
+
+  .bg-gradient-secondary {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--gradient-secondary-start)) 0%,
+      hsl(var(--gradient-secondary-end)) 100%
+    );
+  }
+
+  .bg-gradient-accent {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--gradient-accent-start)) 0%,
+      hsl(var(--gradient-accent-end)) 100%
+    );
+  }
+
+  .bg-gradient-radial {
+    background: radial-gradient(
+      circle at 50% 0%,
+      hsl(var(--gradient-primary-start) / 0.05),
+      transparent 70%
+    );
+  }
+
+  /* Glassmorphism */
+  .glass {
+    background: hsl(var(--glass-bg) / 0.7);
+    backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid hsl(var(--glass-border) / 0.5);
+  }
+
+  .glass-strong {
+    background: hsl(var(--glass-bg) / 0.85);
+    backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid hsl(var(--glass-border) / 0.8);
+  }
+
+  /* Animated gradients - Monochrome */
+  .bg-gradient-animated {
+    background: linear-gradient(
+      270deg,
+      hsl(0 0% 0%),
+      hsl(0 0% 20%),
+      hsl(0 0% 10%)
+    );
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+  }
+
+  @keyframes gradientShift {
+    0%,
+    100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  /* Colored shadows */
+  .shadow-primary-glow {
+    box-shadow: 0 8px 32px -8px hsl(var(--shadow-primary) / 0.3);
+  }
+
+  .shadow-primary-glow-lg {
+    box-shadow: 0 16px 48px -12px hsl(var(--shadow-primary) / 0.4);
+  }
+
+  .shadow-secondary-glow {
+    box-shadow: 0 8px 32px -8px hsl(var(--shadow-secondary) / 0.3);
+  }
+
+  .shadow-success-glow {
+    box-shadow: 0 8px 32px -8px hsl(var(--shadow-success) / 0.3);
+  }
+
+  /* Entrance animations */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* Interactive animations */
+  @keyframes pulse-glow {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 hsl(var(--shadow-primary) / 0.4);
+    }
+    50% {
+      box-shadow: 0 0 20px 8px hsl(var(--shadow-primary) / 0);
+    }
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -200% center;
+    }
+    100% {
+      background-position: 200% center;
+    }
+  }
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes bounce-subtle {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-5px);
+    }
+  }
+
+  /* Loading states */
+  @keyframes skeleton-loading {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+
+  @keyframes spin-slow {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* Animation classes */
+  .animate-fade-in-up {
+    animation: fadeInUp var(--duration-normal) var(--ease-smooth);
+  }
+
+  .animate-fade-in-down {
+    animation: fadeInDown var(--duration-normal) var(--ease-smooth);
+  }
+
+  .animate-fade-in {
+    animation: fadeIn var(--duration-normal) var(--ease-smooth);
+  }
+
+  .animate-slide-in-right {
+    animation: slideInRight var(--duration-normal) var(--ease-smooth);
+  }
+
+  .animate-scale-in {
+    animation: scaleIn var(--duration-normal) var(--ease-smooth);
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 2s var(--ease-smooth) infinite;
+  }
+
+  /* Monochrome shimmer effect */
+  .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      hsl(0 0% 50% / 0.1) 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s ease-in-out infinite;
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .animate-bounce-subtle {
+    animation: bounce-subtle 1s ease-in-out infinite;
+  }
+
+  .animate-spin-slow {
+    animation: spin-slow 3s linear infinite;
+  }
+
+  /* Stagger delays for list animations */
+  .animate-delay-100 {
+    animation-delay: 100ms;
+  }
+  .animate-delay-200 {
+    animation-delay: 200ms;
+  }
+  .animate-delay-300 {
+    animation-delay: 300ms;
+  }
+  .animate-delay-400 {
+    animation-delay: 400ms;
+  }
+  .animate-delay-500 {
+    animation-delay: 500ms;
+  }
+
+  /* Page transitions */
+  .page-enter {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  .page-enter-active {
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+      opacity var(--duration-normal) var(--ease-smooth),
+      transform var(--duration-normal) var(--ease-smooth);
+  }
+
+  .page-exit {
+    opacity: 1;
+  }
+
+  .page-exit-active {
+    opacity: 0;
+    transition: opacity var(--duration-fast) var(--ease-smooth);
+  }
+
+  /* Touch feedback */
+  .touch-feedback {
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 100ms ease;
+  }
+
+  .touch-feedback:active {
+    transform: scale(0.97);
+  }
+
+  /* Larger touch targets */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Prevent text selection on interactive elements */
+  .no-select {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* Performance optimizations */
+  .gpu-accelerated {
+    transform: translateZ(0);
+    will-change: transform, opacity;
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

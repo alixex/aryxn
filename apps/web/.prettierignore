@@ -1,0 +1,22 @@
+# Dependencies
+node_modules
+
+# Build outputs
+dist
+dist-ssr
+build
+
+# Development
+.react-router
+.vscode
+.idea
+
+# Lock files
+pnpm-lock.yaml
+
+# System
+.DS_Store
+*.local
+
+# Generated
+.react-router

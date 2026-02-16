@@ -1,0 +1,14 @@
+{
+  "rules": {
+    "no-unused-vars": "off"
+  },
+  "ignorePatterns": [
+    "node_modules",
+    "dist",
+    "build",
+    "public/**/*",
+    "*.config.ts",
+    "*.config.js",
+    ".react-router"
+  ]
+}

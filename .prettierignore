@@ -1,0 +1,26 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Build outputs
+dist
+dist-ssr
+build
+out
+
+# Development
+.react-router
+.vscode
+.idea
+
+# Lock files & environment
+pnpm-lock.yaml
+.env
+.env.local
+
+# System
+.DS_Store
+*.local
+
+# Contracts (managed by Foundry)
+contracts/
