@@ -1,4 +1,3 @@
-import { MultiChainSwapper } from "@aryxn/sdk-multichain"
 import { estimateArweaveFee } from "@/lib/storage"
 
 /**
@@ -63,15 +62,8 @@ const CACHE_DURATION_MS = 60 * 1000 // 1 minute
  * Service to handle payment logic for uploads
  */
 export class PaymentService {
-  private swapper: MultiChainSwapper
-
   constructor() {
-    this.swapper = new MultiChainSwapper({
-      ethereumRpcUrl: "https://eth.llamarpc.com",
-      solanaRpcUrl: "https://api.mainnet-beta.solana.com",
-      ethereumContractAddress: "0x0000000000000000000000000000000000000000",
-      solanaProgramId: "UniversalRouter11111111111111111111111111",
-    })
+    // Constructor for future payment service initialization
   }
 
   /**

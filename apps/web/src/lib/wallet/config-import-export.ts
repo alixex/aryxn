@@ -5,7 +5,11 @@
 
 import { db } from "@/lib/database"
 import type { DbRow } from "@aryxn/storage"
-import type { WalletRecord, UploadRecord, VaultMetadata } from "@aryxn/wallet-core"
+import type {
+  WalletRecord,
+  UploadRecord,
+  VaultMetadata,
+} from "@aryxn/wallet-core"
 import { searchFiles, type FileIndex } from "@/lib/file"
 import {
   deriveKey,

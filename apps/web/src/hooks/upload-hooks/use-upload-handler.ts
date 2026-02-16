@@ -55,7 +55,7 @@ export function useUploadHandler() {
         }
 
         setStage(t("upload.uploading") || "Uploading...")
-        const { txId } = await uploadFile(
+        await uploadFile(
           file,
           activeArweave.address,
           activeArweave.isExternal

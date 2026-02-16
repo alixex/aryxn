@@ -6,11 +6,7 @@
 
 // Wallet export
 export type { ChainType, ExportOptions, ExportResult } from "./wallet-export"
-export {
-  prepareExport,
-  downloadFile,
-  exportWallet,
-} from "./wallet-export"
+export { prepareExport, downloadFile, exportWallet } from "./wallet-export"
 
 // Vault export/import
 export type { VaultExportData } from "./vault-export"
