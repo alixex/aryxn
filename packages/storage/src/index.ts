@@ -4,6 +4,7 @@ export {
   getOpfsFilesWithSize,
   deleteOpfsDatabaseFile,
 } from "./opfs"
+export { getStorageInfo, clearAllApplicationData } from "./browser"
 export type {
   SqlValue,
   OpfsFileInfo,

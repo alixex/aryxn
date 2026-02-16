@@ -181,4 +181,43 @@ export const db = {
   async rollback(): Promise<void> {
     await this.run("ROLLBACK")
   },
+  // Clear all application data from the SQLite database and OPFS
+  async clearAllData(): Promise<void> {
+    await initDatabase()
+    if (!dbPromiser || dbId === null) throw new Error("Database not initialized")
+
+    const tableDrops = [
+      "DROP TABLE IF EXISTS file_indexes_fts",
+      "DROP TABLE IF EXISTS file_tags",
+      "DROP TABLE IF EXISTS file_indexes",
+      "DROP TABLE IF EXISTS folders",
+      "DROP TABLE IF EXISTS index_manifests",
+      "DROP TABLE IF EXISTS wallets",
+      "DROP TABLE IF EXISTS vault_metadata",
+    ]
+
+    try {
+      for (const sql of tableDrops) {
+        try {
+          await dbPromiser("exec", { dbId, sql })
+        } catch (e) {
+          // ignore individual failures and continue
+          console.warn(`Failed to drop table with SQL: ${sql}`, e)
+        }
+      }
+
+      // Attempt to delete the OPFS database file if available
+      try {
+        const { deleteOpfsDatabaseFile } = await import("./opfs")
+        if (typeof deleteOpfsDatabaseFile === "function") {
+          await deleteOpfsDatabaseFile()
+        }
+      } catch (opfsErr) {
+        console.warn("Failed to delete OPFS database file:", opfsErr)
+      }
+    } catch (err) {
+      console.error("Failed to clear all data:", err)
+      throw err
+    }
+  },
 }
