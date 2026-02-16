@@ -3,9 +3,10 @@
  * 用于在不同设备间同步账户配置
  */
 
-import { db, type DbRow } from "./sqlite-db"
-import type { WalletRecord, UploadRecord, VaultMetadata } from "./types"
-import { searchFiles, type FileIndex } from "./file-manager"
+import { db } from "@/lib/database"
+import type { DbRow } from "@aryxn/storage"
+import type { WalletRecord, UploadRecord, VaultMetadata } from "@aryxn/wallet-core"
+import { searchFiles, type FileIndex } from "@/lib/file"
 import {
   deriveKey,
   encryptData,
@@ -14,7 +15,7 @@ import {
   fromBase64,
   toBytes,
   fromBytes,
-} from "./crypto"
+} from "@aryxn/crypto"
 
 const VAULT_SALT_LEGACY = new Uint8Array([
   0x61, 0x6e, 0x61, 0x6d, 0x6e, 0x65, 0x73, 0x69, 0x73, 0x2d, 0x76, 0x61, 0x75,
@@ -158,7 +159,7 @@ export async function importConfig(
     // 验证配置版本
     if (config.version !== CONFIG_VERSION) {
       errors.push(
-        `不支持的配置版本: ${config.version}，当前版本: ${CONFIG_VERSION}`,
+        `不支持的配置版本：${config.version}，当前版本：${CONFIG_VERSION}`,
       )
     }
 
@@ -244,7 +245,7 @@ export async function importConfig(
       for (const meta of config.vaultMetadata) {
         try {
           // 更新 key 中的 vaultId 为目标 vault
-          // vault 元数据的 key 格式通常是: "active_address_<vaultId>" 或 "use_external_<vaultId>"
+          // vault 元数据的 key 格式通常是："active_address_<vaultId>" 或 "use_external_<vaultId>"
           const oldKey = meta.key
           // 提取 key 的前缀部分（去掉旧的 vaultId）
           const keyPrefix = oldKey.replace(/_[a-f0-9]{16}$/, "")
@@ -368,7 +369,7 @@ export async function importConfig(
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
-    errors.push(`导入过程出错: ${errorMessage}`)
+    errors.push(`导入过程出错：${errorMessage}`)
   }
 
   return {
@@ -459,7 +460,7 @@ export function readConfigFromFile(file: File): Promise<ConfigExport> {
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : String(error)
-        reject(new Error(`读取配置文件失败: ${errorMessage}`))
+        reject(new Error(`读取配置文件失败：${errorMessage}`))
       }
     }
     reader.onerror = () => {

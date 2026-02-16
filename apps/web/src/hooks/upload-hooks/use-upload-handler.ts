@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react"
 import { toast } from "sonner"
 import { useTranslation } from "@/i18n/config"
-import { useWallet } from "./use-wallet"
+import { useWallet } from "@/hooks/account-hooks"
 import { uploadFile, uploadFiles } from "@/lib/file"
 import type { PaymentToken } from "@/lib/payment"
 import { paymentService } from "@/lib/payment"
@@ -155,7 +155,7 @@ export function useUploadHandler() {
 
         if (successCount > 0) {
           try {
-            const { scheduleManifestUpdate } = await import("@/lib/file-sync")
+            const { scheduleManifestUpdate } = await import("@/lib/file")
             scheduleManifestUpdate(
               activeArweave.address,
               activeArweave.isExternal

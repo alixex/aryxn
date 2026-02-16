@@ -1,6 +1,6 @@
-import { db } from "./sqlite-db"
+import { db } from "@/lib/database"
 import { type DbRow, type SqlValue } from "@aryxn/storage"
-import { uploadToArweave } from "./storage"
+import { uploadToArweave } from "@/lib/storage"
 import type { WalletKey } from "@aryxn/wallet-core"
 
 // 类型定义

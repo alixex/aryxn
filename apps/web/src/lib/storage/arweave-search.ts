@@ -9,7 +9,7 @@ import {
   type ArweaveSearchResult,
   type SearchOptions as BaseSearchOptions,
 } from "@aryxn/arweave"
-import { searchFiles, type FileIndex } from "./file-manager"
+import { searchFiles, type FileIndex } from "@/lib/file"
 
 // 扩展基础搜索选项，添加本地搜索特定选项
 export interface SearchOptions extends BaseSearchOptions {
@@ -72,7 +72,7 @@ function convertFileIndexToSearchResult(file: FileIndex): ArweaveSearchResult {
  * 搜索策略：
  * 1. 优先在本地数据库中搜索（如果提供了 ownerAddress）
  * 2. 如果本地搜索结果不足或没有结果，且满足以下条件之一，则进行网络搜索：
- *    - 查询的是交易ID（43字符）
+ *    - 查询的是交易 ID（43 字符）
  *    - 本地搜索结果数量少于 limit
  *    - 用户明确需要搜索网络上的所有文件（包括其他用户的文件）
  *
@@ -98,10 +98,10 @@ export async function searchArweaveTransactions(
   const results: ArweaveSearchResult[] = []
   const localResults: ArweaveSearchResult[] = []
 
-  // 检查是否是交易ID格式（43个字符的base64url字符串）
+  // 检查是否是交易 ID 格式（43 个字符的 base64url 字符串）
   const isTxId = /^[A-Za-z0-9_-]{43}$/.test(queryTrimmed)
 
-  // 策略1: 优先本地搜索（如果提供了 ownerAddress 且 preferLocal 为 true）
+  // 策略 1: 优先本地搜索（如果提供了 ownerAddress 且 preferLocal 为 true）
   if (preferLocal && ownerAddress) {
     try {
       const localFiles = await searchFiles(ownerAddress, {
@@ -113,7 +113,7 @@ export async function searchArweaveTransactions(
 
       console.log(`Found ${localResults.length} results in local database`)
 
-      // 如果查询的是交易ID，且本地找到了，直接返回
+      // 如果查询的是交易 ID，且本地找到了，直接返回
       if (isTxId && localResults.length > 0) {
         return localResults.slice(0, limit)
       }
@@ -128,12 +128,12 @@ export async function searchArweaveTransactions(
     }
   }
 
-  // 策略2: 网络搜索（在以下情况下进行）
-  // - 查询的是交易ID（可能不在本地数据库中）
+  // 策略 2: 网络搜索（在以下情况下进行）
+  // - 查询的是交易 ID（可能不在本地数据库中）
   // - 本地搜索结果不足
   // - 需要搜索其他用户的文件
   const needsNetworkSearch =
-    isTxId || // 交易ID查询总是需要网络搜索
+    isTxId || // 交易 ID 查询总是需要网络搜索
     localResults.length < limit || // 本地结果不足
     !preferLocal || // 用户明确要求网络搜索
     !ownerAddress // 没有提供账户地址，无法本地搜索

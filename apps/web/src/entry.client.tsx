@@ -11,7 +11,7 @@ import Dashboard from "./routes/dashboard"
 import Account from "./routes/account"
 import Settings from "./routes/settings"
 import Dex from "./routes/dex"
-import { initializeDatabase } from "./lib/sqlite-db"
+import { initializeDatabase } from "./lib/database"
 
 if (typeof window !== "undefined") {
   window.Buffer = window.Buffer || Buffer

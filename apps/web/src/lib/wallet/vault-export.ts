@@ -3,8 +3,9 @@
  * 用于在不同设备间同步账户配置
  */
 
-import { db, type DbRow } from "./sqlite-db"
-import type { WalletRecord, VaultMetadata } from "./types"
+import { db } from "@/lib/database"
+import type { DbRow } from "@aryxn/storage"
+import type { WalletRecord, VaultMetadata } from "@aryxn/wallet-core"
 
 export interface VaultExportData {
   version: string

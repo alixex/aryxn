@@ -9,7 +9,7 @@ import {
   getSuiBalance as getSuiBal,
   formatSuiBalance,
 } from "@aryxn/wallet-core"
-import { arweave } from "./storage"
+import { arweave } from "@/lib/storage"
 
 // RPC endpoints
 const ETHEREUM_RPC = "https://eth.llamarpc.com"

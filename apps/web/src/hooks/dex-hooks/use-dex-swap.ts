@@ -27,8 +27,9 @@ export interface SwapRoute {
 /**
  * Swap state constants
  * Using object literal instead of enum for erasableSyntaxOnly compatibility
+ * NOTE: This is duplicated from use-dex-swap-internal.ts - exported there instead
  */
-export const SwapState = {
+const SwapState = {
   IDLE: "idle",
   FETCHING_QUOTE: "fetching_quote",
   NEEDS_APPROVAL: "needs_approval",
@@ -40,7 +41,7 @@ export const SwapState = {
   ERROR: "error",
 } as const
 
-export type SwapState = (typeof SwapState)[keyof typeof SwapState]
+type SwapState = (typeof SwapState)[keyof typeof SwapState]
 
 interface UseMultiHopSwapParams {
   inputToken: Address

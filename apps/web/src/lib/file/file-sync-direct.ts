@@ -3,7 +3,7 @@
  * 不使用清单文件，直接从 Arweave 查询文件交易
  */
 
-import { db } from "./sqlite-db"
+import { db } from "@/lib/database"
 import { calculateFileHash } from "./file-manager"
 import type { FileIndex } from "./file-manager"
 

@@ -5,5 +5,17 @@
  * searching file information, and managing storage operations.
  */
 
-export * from "./storage"
-export * from "./arweave-search"
+export {
+  arweave,
+  generateArweaveWallet,
+  shouldCompressFile,
+  estimateArweaveFee,
+  uploadToArweave,
+  getActualCompressedSize,
+} from "./storage"
+
+export type { SearchOptions, ArweaveSearchResult } from "./arweave-search"
+export {
+  searchArweaveTransactions,
+  searchAppTransactions,
+} from "./arweave-search"

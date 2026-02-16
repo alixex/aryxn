@@ -3,10 +3,10 @@
  * 用于在不同设备间同步文件记录
  */
 
-import { arweave } from "./storage"
-import { db } from "./sqlite-db"
+import { arweave } from "@/lib/storage"
+import { db } from "@/lib/database"
 import { searchFiles } from "./file-manager"
-import type { WalletKey, ArweaveJWK } from "./types"
+import type { WalletKey, ArweaveJWK } from "@aryxn/wallet-core"
 
 /**
  * requestIdleCallback 的 polyfill（如果不支持则使用 setTimeout）

@@ -4,7 +4,7 @@
  */
 
 import { updateManifestAfterUpload } from "./file-sync"
-import type { WalletKey } from "./types"
+import type { WalletKey } from "@aryxn/wallet-core"
 
 interface ManifestUpdateConfig {
   /** 立即更新的阈值（文件数量） */
