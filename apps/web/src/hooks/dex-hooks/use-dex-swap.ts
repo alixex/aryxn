@@ -125,7 +125,7 @@ export function useMultiHopSwap({
     hash: swapHash,
   })
 
-  // Fetch gas price
+  // Fetch gas price with fallback
   useEffect(() => {
     const fetchGasPrice = async () => {
       if (!publicClient) return
@@ -133,8 +133,13 @@ export function useMultiHopSwap({
       try {
         const price = await publicClient.getGasPrice()
         setGasPrice((Number(price) / 1e9).toFixed(2))
-      } catch (err) {
-        console.error("Failed to fetch gas price:", err)
+      } catch (err: any) {
+        // Silently handle CORS and network errors
+        if (err?.message?.includes("CORS") || err?.message?.includes("Failed to fetch")) {
+          setGasPrice("50") // Fallback gas price in gwei
+        } else {
+          console.error("Failed to fetch gas price:", err)
+        }
       }
     }
 

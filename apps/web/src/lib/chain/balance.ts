@@ -10,11 +10,11 @@ import {
   formatSuiBalance,
 } from "@aryxn/wallet-core"
 import { arweave } from "@/lib/storage"
-
-// RPC endpoints
-const ETHEREUM_RPC = "https://eth.llamarpc.com"
-const SOLANA_RPC = "https://api.mainnet-beta.solana.com"
-const BITCOIN_API = "https://blockstream.info/api"
+import {
+  getEthereumRpcUrl,
+  getSolanaRpcUrl,
+  getBitcoinApiUrl,
+} from "./rpc-config"
 
 export interface BalanceResult {
   balance: string
@@ -23,14 +23,11 @@ export interface BalanceResult {
   error?: string
 }
 
-/**
- * Get balance for Ethereum address
- */
 export async function getEthereumBalance(
   address: string,
 ): Promise<BalanceResult> {
   try {
-    const provider = createEvmProvider(ETHEREUM_RPC)
+    const provider = createEvmProvider(getEthereumRpcUrl())
     const balance = await provider.getBalance(address)
     const formatted = formatEther(balance)
     return {
@@ -56,14 +53,25 @@ export async function getSolanaBalance(
   address: string,
 ): Promise<BalanceResult> {
   try {
-    const connection = createSolanaConnection(SOLANA_RPC)
-    const publicKey = createSolanaPublicKey(address)
-    const balance = await getSolBalance(connection, publicKey)
-    const formatted = formatSolanaBalance(balance, 6)
-    return {
-      balance: balance.toString(),
-      formatted,
-      symbol: "SOL",
+    // Suppress console errors from RPC client in development
+    const consoleError = console.error
+    console.error = () => {}
+    
+    try {
+      const connection = createSolanaConnection(getSolanaRpcUrl())
+      const publicKey = createSolanaPublicKey(address)
+      const balance = await getSolBalance(connection, publicKey)
+      const formatted = formatSolanaBalance(balance, 6)
+      
+      console.error = consoleError // Restore console.error
+      
+      return {
+        balance: balance.toString(),
+        formatted,
+        symbol: "SOL",
+      }
+    } finally {
+      console.error = consoleError // Ensure console.error is always restored
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
@@ -133,7 +141,7 @@ export async function getBitcoinBalance(
   address: string,
 ): Promise<BalanceResult> {
   try {
-    const response = await fetch(`${BITCOIN_API}/address/${address}`)
+    const response = await fetch(`${getBitcoinApiUrl()}/address/${address}`)
     if (!response.ok) {
       throw new Error("Failed to fetch Bitcoin balance")
     }

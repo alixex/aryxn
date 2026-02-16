@@ -11,6 +11,12 @@ import { QueryClientProvider, QueryClient } from "@tanstack/react-query"
 import { type ReactNode, useEffect, useState, useMemo } from "react"
 import { useTranslation, isChineseLanguage } from "@/i18n/config"
 import { WalletProvider } from "@/providers/wallet-provider"
+import {
+  getEthereumRpcUrl,
+  getPolygonRpcUrl,
+  getOptimismRpcUrl,
+  getArbitrumRpcUrl,
+} from "@/lib/chain/rpc-config"
 
 const chains = [mainnet, polygon, optimism, arbitrum] as const
 
@@ -57,12 +63,13 @@ export function Providers({ children }: { children: ReactNode }) {
       connectors,
       chains,
       transports: {
-        [mainnet.id]: http(),
-        [polygon.id]: http(),
-        [optimism.id]: http(),
-        [arbitrum.id]: http(),
+        [mainnet.id]: http(getEthereumRpcUrl()),
+        [polygon.id]: http(getPolygonRpcUrl()),
+        [optimism.id]: http(getOptimismRpcUrl()),
+        [arbitrum.id]: http(getArbitrumRpcUrl()),
       },
       ssr: false,
+      multiInjectedProviderDiscovery: false, // 禁用自动钱包检测以减少启动时的网络请求
     })
   }, [connectors])
 

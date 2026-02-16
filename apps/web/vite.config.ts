@@ -29,4 +29,18 @@ export default defineConfig({
     include: ["@metamask/sdk", "@rainbow-me/rainbowkit", "wagmi", "viem"],
     exclude: ["@sqlite.org/sqlite-wasm"],
   },
+  server: {
+    proxy: {
+      "/api/rpc": {
+        target: "https://eth.llamarpc.com",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/rpc/, ""),
+        configure: (proxy) => {
+          proxy.on("error", (err) => {
+            console.error("RPC proxy error:", err)
+          })
+        },
+      },
+    },
+  },
 })

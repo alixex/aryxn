@@ -21,6 +21,7 @@ import {
   formatTokenAmount,
 } from "@/lib/contracts/token-config"
 import { useInternal } from "@/hooks/account-hooks"
+import { getEthereumRpcUrl } from "@/lib/chain/rpc-config"
 
 export const SwapState = {
   IDLE: "idle",
@@ -86,7 +87,7 @@ export function useInternalDexSwap({
       return null
     }
 
-    const provider = createEvmProvider("https://eth.llamarpc.com")
+    const provider = createEvmProvider(getEthereumRpcUrl())
     // Use the active account's private key
     const privateKey = walletManager.activeWallet as string
     const wallet = createEvmWallet(privateKey, provider)

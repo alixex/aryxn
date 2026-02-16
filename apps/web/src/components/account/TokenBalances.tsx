@@ -20,6 +20,10 @@ import { SOLANA_TOKENS, formatSolanaTokenAmount } from "@/lib/chain"
 import { SUI_TOKENS, formatSuiTokenAmount } from "@/lib/chain"
 import { ERC20_ABI } from "@/lib/contracts/multi-hop-swapper-abi"
 import { useTranslation } from "@/i18n/config"
+import {
+  getEthereumRpcUrl,
+  getSolanaRpcUrl,
+} from "@/lib/chain/rpc-config"
 
 interface TokenBalance {
   symbol: string
@@ -35,9 +39,6 @@ interface TokenBalancesProps {
   isUnlocked: boolean
 }
 
-const ETHEREUM_RPC = "https://eth.llamarpc.com"
-const SOLANA_RPC = "https://api.mainnet-beta.solana.com"
-
 export function TokenBalances({
   address,
   chain,
@@ -50,7 +51,7 @@ export function TokenBalances({
   const [error, setError] = useState<string>("")
 
   const fetchEthereumBalances = async () => {
-    const provider = createEvmProvider(ETHEREUM_RPC)
+    const provider = createEvmProvider(getEthereumRpcUrl())
     const tokenBalances: TokenBalance[] = []
 
     // Fetch native ETH balance first
@@ -108,7 +109,7 @@ export function TokenBalances({
   }
 
   const fetchSolanaBalances = async () => {
-    const connection = createSolanaConnection(SOLANA_RPC)
+    const connection = createSolanaConnection(getSolanaRpcUrl())
     const publicKey = createSolanaPublicKey(address)
     const tokenBalances: TokenBalance[] = []
 
