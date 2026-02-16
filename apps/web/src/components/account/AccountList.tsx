@@ -1,7 +1,6 @@
 import { Wallet } from "lucide-react"
 import { useTranslation } from "@/i18n/config"
 import { AccountCard } from "./AccountCard"
-import { type BalanceResult } from "@/lib/balance"
 
 interface Account {
   id?: string | number
@@ -17,35 +16,21 @@ interface Account {
 interface AccountListProps {
   chain: string
   accounts: Account[]
-  balances: Record<string, BalanceResult | null>
-  loadingBalances: Record<string, boolean>
-  showBalances: Record<string, boolean>
   isActive: (account: Account) => boolean
   onSelect: (account: Account) => void
   onCopyAddress: (address: string) => void
   onShowSensitive?: (account: Account, type: "key" | "mnemonic") => void
   onDisconnect?: (account: Account) => void
-  onToggleBalance: (key: string, show: boolean) => void
-  onRefreshBalance: (
-    chain: string,
-    address: string,
-    isExternal?: boolean,
-  ) => Promise<void>
 }
 
 export function AccountList({
   chain,
   accounts,
-  balances,
-  loadingBalances,
-  showBalances,
   isActive,
   onSelect,
   onCopyAddress,
   onShowSensitive,
   onDisconnect,
-  onToggleBalance,
-  onRefreshBalance,
 }: AccountListProps) {
   const { t } = useTranslation()
 
@@ -65,35 +50,16 @@ export function AccountList({
   return (
     <div className="space-y-3">
       {accounts.map((account) => {
-        const key = account.isExternal
-          ? `external-${account.chain}-${account.address}`
-          : `${account.chain}-${account.address}`
-        const balance = balances[key]
-        const loading = loadingBalances[key]
         const active = isActive(account)
-
         return (
           <AccountCard
-            key={account.id || key}
+            key={account.id || `${account.chain}-${account.address}`}
             account={account}
             isActive={active}
-            balance={balance}
-            loading={loading}
-            showBalance={showBalances[key] || false}
-            onToggleBalance={(show) => onToggleBalance(key, show)}
-            onRefreshBalance={async () => {
-              await onRefreshBalance(
-                account.chain,
-                account.address,
-                account.isExternal,
-              )
-            }}
             onSelect={() => onSelect(account)}
             onCopyAddress={onCopyAddress}
             onShowSensitive={onShowSensitive}
-            onDisconnect={
-              onDisconnect ? () => onDisconnect(account) : undefined
-            }
+            onDisconnect={onDisconnect ? () => onDisconnect(account) : undefined}
           />
         )
       })}

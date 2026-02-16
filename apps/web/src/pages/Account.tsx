@@ -43,11 +43,6 @@ export default function AccountPage() {
   const [createChain, setCreateChain] = useState<string>("")
 
   const {
-    balances,
-    loadingBalances,
-    showBalances,
-    refreshBalance,
-    toggleShowBalance,
     getExternalAccounts,
   } = useAccounts()
 
@@ -228,20 +223,11 @@ export default function AccountPage() {
       <AccountList
         chain={chain}
         accounts={allAccounts}
-        balances={balances}
-        loadingBalances={loadingBalances}
-        showBalances={showBalances}
         isActive={isActive}
         onSelect={handleSelect}
         onCopyAddress={copyAddress}
-        onShowSensitive={
-          walletManager.isUnlocked ? handleShowSensitive : undefined
-        }
+        onShowSensitive={walletManager.isUnlocked ? handleShowSensitive : undefined}
         onDisconnect={handleDisconnect}
-        onToggleBalance={(key, show) => toggleShowBalance(key, show)}
-        onRefreshBalance={(chain, address, isExternal) =>
-          refreshBalance(chain, address, isExternal)
-        }
       />
     )
   }

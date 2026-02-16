@@ -21,6 +21,7 @@ import {
   BitcoinIcon,
 } from "@/components/icons"
 import { useWallet } from "@/hooks/use-wallet"
+import useAccounts from "@/hooks/useAccounts"
 
 interface Account {
   id?: string | number
@@ -36,16 +37,10 @@ interface Account {
 interface AccountCardProps {
   account: Account
   isActive: boolean
-  balance: BalanceResult | null
-  loading: boolean
-  showBalance: boolean
-  onToggleBalance: (show: boolean) => void
-  onRefreshBalance: () => Promise<void>
   onSelect: () => void
   onCopyAddress: (address: string) => void
   onShowSensitive?: (account: Account, type: "key" | "mnemonic") => void
   onDisconnect?: () => void
-  // external props are read from provider via `useWallet()`
 }
 
 const getChainIcon = (chain?: string) => {
@@ -68,11 +63,6 @@ const getChainIcon = (chain?: string) => {
 export function AccountCard({
   account,
   isActive,
-  balance,
-  loading,
-  showBalance,
-  onToggleBalance,
-  onRefreshBalance,
   onSelect,
   onCopyAddress,
   onShowSensitive,
@@ -84,6 +74,12 @@ export function AccountCard({
   const isPaymentConnected = external?.isPaymentConnected
   const connector = external?.connector
   const paymentAddress = external?.paymentAddress
+  const { balances, loadingBalances, showBalances, refreshBalance, toggleShowBalance } = useAccounts()
+
+  const key = account.isExternal ? `external-${account.chain}-${account.address}` : `${account.chain}-${account.address}`
+  const balance = balances[key]
+  const loading = loadingBalances[key]
+  const showBalance = showBalances[key] || false
 
   const displayAlias = (() => {
     if (account.alias) return account.alias
@@ -181,8 +177,8 @@ export function AccountCard({
                   balance={balance}
                   loading={loading}
                   showBalance={showBalance}
-                  onToggle={onToggleBalance}
-                  onRefresh={onRefreshBalance}
+                  onToggle={(s) => toggleShowBalance(key, s)}
+                  onRefresh={() => refreshBalance(account.chain, account.address, account.isExternal)}
                 />
               </div>
               {/* Show token balances for Ethereum, Solana and Sui accounts */}
