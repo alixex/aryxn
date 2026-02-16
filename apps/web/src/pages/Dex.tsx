@@ -36,7 +36,8 @@ import { useWallet } from "@/providers/wallet-provider"
 export default function DexPage() {
   const { t } = useTranslation()
   const { isConnected, address: externalAddress } = useConnection()
-  const walletManager = useWallet()
+  const wallet = useWallet()
+  const walletManager = wallet.internal
 
   // Check if internal wallet is available for Ethereum
   const hasInternalEthAccount =

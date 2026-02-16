@@ -188,24 +188,6 @@ interface WalletContextType {
   // Return mapping of chain -> accounts
   getAccountsByChain: () => Record<string, AccountInfo[]>
 
-  // LEGACY compatibility layer (to avoid breaking whole app at once)
-  // These will be deprecated in favor of .internal or .active
-  wallets: WalletRecord[]
-  isUnlocked: boolean
-  activeAddress: string | null
-  activeWallet: WalletKey | null
-  vaultId: string | null
-  masterKey: Uint8Array | null
-  unlock: (password: string) => Promise<boolean>
-  logout: () => void
-  addWallet: (input: WalletKey | string, alias: string) => Promise<void>
-  createWallet: (chain: WalletRecord["chain"], alias: string) => Promise<void>
-  selectWallet: (address: string) => Promise<void>
-  refreshWallets: () => Promise<void>
-  getDecryptedInfo: (
-    wallet: WalletRecord,
-    passwordConfirm: string,
-  ) => Promise<DecryptedData>
 }
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined)
@@ -355,7 +337,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   // --- Context Value ---
 
   // Grouped external actions (centralized, reused by UI and compatibility wrappers)
-  const externalActions = useMemo(
+  const externalActions = useMemo<WalletContextType["externalActions"]>(
     () => ({
       connect: async (chain: string) => {
         if (chain === "arweave" && external.connectArweave)
@@ -423,7 +405,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     [],
   )
 
-  const internalObj = {
+  const internalObj: WalletContextType["internal"] = {
     wallets: storage.wallets,
     isUnlocked: vault.isUnlocked,
     activeAddress: storage.activeAddress,
@@ -465,20 +447,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         // Return mapping of chain -> accounts
         getAccountsByChain: getAccountsByChain,
 
-        // Legacy compatibility (alias to `internal`)
-        wallets: internalObj.wallets,
-        isUnlocked: internalObj.isUnlocked,
-        activeAddress: internalObj.activeAddress,
-        activeWallet: internalObj.activeWallet,
-        vaultId: internalObj.vaultId,
-        masterKey: internalObj.masterKey,
-        unlock: internalObj.unlock,
-        logout: internalObj.logout,
-        addWallet: internalObj.addWallet,
-        createWallet: internalObj.createWallet,
-        selectWallet: internalObj.selectWallet,
-        refreshWallets: internalObj.refreshWallets,
-        getDecryptedInfo: internalObj.getDecryptedInfo,
+        // Note: legacy top-level aliases removed — use `internal` or helpers
       }}
     >
       {children}

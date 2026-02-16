@@ -53,7 +53,8 @@ export function useInternalDexSwap({
   decimalsOut,
   slippage,
 }: UseInternalSwapParams) {
-  const walletManager = useWallet()
+  const wallet = useWallet()
+  const walletManager = wallet.internal
   const [swapState, setSwapState] = useState<SwapState>(SwapState.IDLE)
   const [error, setError] = useState<string>("")
   const [inputBalance, setInputBalance] = useState<bigint>(0n)

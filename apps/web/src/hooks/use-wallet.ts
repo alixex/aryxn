@@ -16,12 +16,6 @@ export function useWallet() {
 
     /** External extension wallet management */
     external: context.external,
-
-    // Flattened common actions for convenience
-    isUnlocked: context.internal.isUnlocked,
-    unlock: context.internal.unlock,
-    logout: context.internal.logout,
-    refresh: context.internal.refreshWallets,
     // Account helpers (from provider)
     getLocalAccounts: (chain: string) => context.getLocalAccounts(chain),
     getExternalAccounts: (chain: string) => context.getExternalAccounts(chain),

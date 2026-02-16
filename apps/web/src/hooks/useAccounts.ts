@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState, useCallback } from "react"
-import { getBalance, type BalanceResult } from "@/lib/balance"
+import { type BalanceResult } from "@/lib/balance"
 import { useWallet } from "@/hooks/use-wallet"
 
 export function useAccounts() {
   const wallet = useWallet()
-  const walletManager = wallet.internal
-  const externalWallets = wallet.external
+  const internal = wallet.internal
   const [balances, setBalances] = useState<
     Record<string, BalanceResult | null>
   >({})
@@ -16,73 +15,24 @@ export function useAccounts() {
 
   const fetchedBalancesRef = useRef<Set<string>>(new Set())
 
-  // Fetch balances for local wallets
+  // Fetch balances for all accounts (local + external) using provider helpers
   useEffect(() => {
-    if (!walletManager.isUnlocked || walletManager.wallets.length === 0) return
+    const accountsByChain = wallet.getAccountsByChain()
+    const allAccounts = Object.values(accountsByChain).flat()
+    if (allAccounts.length === 0) return
 
-    const fetchBalances = async () => {
-      for (const wallet of walletManager.wallets) {
-        const key = `${wallet.chain}-${wallet.address}`
+    const fetchAll = async () => {
+      for (const account of allAccounts) {
+        const key = `${account.isExternal ? "external-" : ""}${account.chain}-${account.address}`
         if (fetchedBalancesRef.current.has(key)) continue
         fetchedBalancesRef.current.add(key)
 
         setLoadingBalances((prev) => ({ ...prev, [key]: true }))
         try {
-          const balance = await getBalance(wallet.chain, wallet.address)
-          setBalances((prev) => ({ ...prev, [key]: balance }))
+          const bal = await wallet.refreshBalance(account.chain, account.address)
+          setBalances((prev) => ({ ...prev, [key]: bal }))
         } catch (error) {
-          console.error(`Failed to fetch balance for ${wallet.address}:`, error)
-          setBalances((prev) => ({
-            ...prev,
-            [key]: {
-              balance: "0",
-              formatted: "0",
-              symbol: wallet.chain.toUpperCase(),
-              error: "Failed to fetch",
-            },
-          }))
-        } finally {
-          setLoadingBalances((prev) => ({ ...prev, [key]: false }))
-        }
-      }
-    }
-
-    fetchBalances()
-  }, [walletManager.isUnlocked, walletManager.wallets.length])
-
-  // External accounts helper
-  const getExternalAccounts = useCallback(
-    (chain?: string) => {
-      // prefer provider helpers when available
-      if (chain) return wallet.getExternalAccounts(chain)
-      const chains = ["ethereum", "bitcoin", "solana", "sui", "arweave"]
-      let out: any[] = []
-      for (const c of chains) out = out.concat(wallet.getExternalAccounts(c))
-      return out
-    },
-    [wallet],
-  )
-
-  // Fetch balances for external accounts
-  useEffect(() => {
-    const externalAccounts = getExternalAccounts()
-    if (externalAccounts.length === 0) return
-
-    const fetchExternalBalances = async () => {
-      for (const account of externalAccounts) {
-        const key = `external-${account.chain}-${account.address}`
-        if (fetchedBalancesRef.current.has(key)) continue
-        fetchedBalancesRef.current.add(key)
-
-        setLoadingBalances((prev) => ({ ...prev, [key]: true }))
-        try {
-          const balance = await getBalance(account.chain, account.address)
-          setBalances((prev) => ({ ...prev, [key]: balance }))
-        } catch (error) {
-          console.error(
-            `Failed to fetch balance for external ${account.address}:`,
-            error,
-          )
+          console.error(`Failed to fetch balance for ${account.address}:`, error)
           setBalances((prev) => ({
             ...prev,
             [key]: {
@@ -98,18 +48,8 @@ export function useAccounts() {
       }
     }
 
-    fetchExternalBalances()
-  }, [
-    externalWallets.isPaymentConnected,
-    externalWallets.paymentAddress,
-    externalWallets.isArConnected,
-    externalWallets.arAddress,
-    externalWallets.isSolConnected,
-    externalWallets.solAddress,
-    externalWallets.isSuiConnected,
-    externalWallets.suiAddress,
-    getExternalAccounts,
-  ])
+    fetchAll()
+  }, [wallet.getAccountsByChain])
 
   const refreshBalance = async (
     chain: string,
@@ -123,8 +63,8 @@ export function useAccounts() {
 
     setLoadingBalances((prev) => ({ ...prev, [key]: true }))
     try {
-      const balance = await getBalance(chain, address)
-      setBalances((prev) => ({ ...prev, [key]: balance }))
+      const bal = await wallet.refreshBalance(chain, address)
+      setBalances((prev) => ({ ...prev, [key]: bal }))
       fetchedBalancesRef.current.add(key)
     } catch (error) {
       console.error(`Failed to fetch balance for ${address}:`, error)
@@ -145,6 +85,17 @@ export function useAccounts() {
   const toggleShowBalance = (key: string, show: boolean) => {
     setShowBalances((prev) => ({ ...prev, [key]: show }))
   }
+
+  const getExternalAccounts = useCallback(
+    (chain?: string) => {
+      if (chain) return wallet.getExternalAccounts(chain)
+      const chains = ["ethereum", "bitcoin", "solana", "sui", "arweave"]
+      let out: any[] = []
+      for (const c of chains) out = out.concat(wallet.getExternalAccounts(c))
+      return out
+    },
+    [wallet],
+  )
 
   return {
     balances,
