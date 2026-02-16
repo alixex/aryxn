@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import {
   searchArweaveTransactions,
   type ArweaveSearchResult,
-} from "@/lib/arweave-search"
+} from "@/lib/storage"
 import { useTranslation, isSimplifiedChinese } from "@/i18n/config"
 import i18n from "@/i18n/config"
 import { useWallet } from "@/hooks/account-hooks"

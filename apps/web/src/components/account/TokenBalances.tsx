@@ -16,11 +16,8 @@ import {
   SUPPORTED_TOKENS,
   formatTokenAmount,
 } from "@/lib/contracts/token-config"
-import {
-  SOLANA_TOKENS,
-  formatSolanaTokenAmount,
-} from "@/lib/solana-token-config"
-import { SUI_TOKENS, formatSuiTokenAmount } from "@/lib/sui-token-config"
+import { SOLANA_TOKENS, formatSolanaTokenAmount } from "@/lib/chain"
+import { SUI_TOKENS, formatSuiTokenAmount } from "@/lib/chain"
 import { ERC20_ABI } from "@/lib/contracts/multi-hop-swapper-abi"
 import { useTranslation } from "@/i18n/config"
 

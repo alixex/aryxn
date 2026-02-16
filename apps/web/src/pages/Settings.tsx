@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useTranslation } from "@/i18n/config"
-import { db } from "@/lib/sqlite-db"
+import { db } from "@/lib/database"
 import { clearAllApplicationData } from "@aryxn/storage"
 import { toast } from "sonner"
 import LanguageSettings from "@/components/settings/LanguageSettings"

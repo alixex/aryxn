@@ -1,5 +1,5 @@
 import { useCallback } from "react"
-import { db } from "@/lib/sqlite-db"
+import { db } from "@/lib/database"
 import { encryptData, toBytes, toBase64 } from "@aryxn/crypto"
 import {
   type WalletRecord,

@@ -36,7 +36,7 @@ import {
   downloadConfig,
   readConfigFromFile,
   type ConfigExport,
-} from "@/lib/config-import-export"
+} from "@/lib/wallet"
 
 const VAULT_SALT_LEGACY = new Uint8Array([
   0x61, 0x6e, 0x61, 0x6d, 0x6e, 0x65, 0x73, 0x69, 0x73, 0x2d, 0x76, 0x61, 0x75,
@@ -201,7 +201,7 @@ export function ConfigImportExport() {
         setTimeout(async () => {
           try {
             const { syncFilesFromArweaveDirect } =
-              await import("@/lib/file-sync-direct")
+              await import("@/lib/file/file-sync-direct")
             // 获取最新的钱包列表
             const currentWallets = walletManager.wallets.filter(
               (w) => w.chain === "arweave",

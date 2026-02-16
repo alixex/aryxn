@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react"
-import { db } from "@/lib/sqlite-db"
+import { db } from "@/lib/database"
 import { type DbRow } from "@aryxn/storage"
 import type { WalletRecord, WalletKey } from "@aryxn/wallet-core"
 import { decryptData, fromBase64, fromBytes } from "@aryxn/crypto"

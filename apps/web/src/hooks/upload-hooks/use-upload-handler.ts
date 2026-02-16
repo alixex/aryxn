@@ -2,10 +2,10 @@ import { useState, useCallback } from "react"
 import { toast } from "sonner"
 import { useTranslation } from "@/i18n/config"
 import { useWallet } from "./use-wallet"
-import { uploadFile, uploadFiles } from "@/lib/file-manager"
-import type { PaymentToken } from "@/lib/payment-service"
-import { paymentService } from "@/lib/payment-service"
-import type { WalletKey } from "@/lib/types"
+import { uploadFile, uploadFiles } from "@/lib/file"
+import type { PaymentToken } from "@/lib/payment"
+import { paymentService } from "@/lib/payment"
+import type { WalletKey } from "@/lib/utils"
 
 export function useUploadHandler() {
   const { t } = useTranslation()

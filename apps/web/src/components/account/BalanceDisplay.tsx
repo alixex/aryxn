@@ -1,5 +1,5 @@
 import { Eye, EyeOff } from "lucide-react"
-import { type BalanceResult } from "@/lib/balance"
+import { type BalanceResult } from "@/lib/chain"
 import { useTranslation } from "@/i18n/config"
 
 interface BalanceDisplayProps {

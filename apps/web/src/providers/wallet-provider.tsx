@@ -5,7 +5,7 @@ import {
   useCallback,
   useMemo,
 } from "react"
-import { getBalance, type BalanceResult } from "@/lib/balance"
+import { getBalance, type BalanceResult } from "@/lib/chain"
 import { useVault } from "@/hooks/vault-hooks"
 import { useWalletStorage } from "@/hooks/vault-hooks"
 import { useWalletOps } from "@/hooks/vault-hooks"

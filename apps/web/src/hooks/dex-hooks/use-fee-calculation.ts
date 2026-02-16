@@ -1,10 +1,10 @@
 import { useState, useCallback } from "react"
 import { estimateArweaveFee } from "@/lib/storage"
-import { shouldCompressFile, compressData } from "@/lib/compression"
+import { shouldCompressFile, compressData } from "@/lib/utils"
 import { useTranslation } from "@/i18n/config"
-import { estimateManifestSize } from "@/lib/file-sync"
-import type { PaymentToken } from "@/lib/payment-service"
-import { paymentService } from "@/lib/payment-service"
+import { estimateManifestSize } from "@/lib/file"
+import type { PaymentToken } from "@/lib/payment"
+import { paymentService } from "@/lib/payment"
 
 export interface FeeEstimate {
   ar: number

@@ -2,7 +2,7 @@ import { useTranslation } from "@/i18n/config"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { ShieldCheck, Zap } from "lucide-react"
-import { shouldCompressFile } from "@/lib/compression"
+import { shouldCompressFile } from "@/lib/utils"
 
 interface UploadOptionsProps {
   encryptUpload: boolean

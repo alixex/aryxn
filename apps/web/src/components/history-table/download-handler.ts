@@ -1,4 +1,4 @@
-import type { UploadRecord } from "@/lib/types"
+import type { UploadRecord } from "@/lib/utils"
 import { toast } from "sonner"
 import type { TFunction } from "i18next"
 import {

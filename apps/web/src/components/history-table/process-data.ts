@@ -1,6 +1,6 @@
-import type { UploadRecord } from "@/lib/types"
+import type { UploadRecord } from "@/lib/utils"
 import { decryptData, fromBase64, toBase64 } from "@/lib/crypto"
-import { decompressData } from "@/lib/compression"
+import { decompressData } from "@/lib/utils"
 import {
   extractCompressionInfo,
   extractEncryptionParams,

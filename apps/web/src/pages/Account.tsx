@@ -8,8 +8,8 @@ import {
 } from "@/hooks/account-hooks"
 import { toast } from "sonner"
 import { useDisconnect } from "wagmi"
-import { db } from "@/lib/sqlite-db"
-import type { WalletRecord } from "@/lib/types"
+import { db } from "@/lib/database"
+import type { WalletRecord } from "@/lib/utils"
 import {
   Card,
   CardContent,

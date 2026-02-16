@@ -1,4 +1,4 @@
-import type { UploadRecord } from "@/lib/types"
+import type { UploadRecord } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Download, ExternalLink, Loader2, Shield } from "lucide-react"
 import { useState } from "react"

@@ -4,7 +4,7 @@ import { useTranslation } from "@/i18n/config"
 import { UploadButton } from "./UploadButton"
 import { UploadProgress } from "./UploadProgress"
 import { useUploadHandler } from "@/hooks/upload-hooks"
-import type { PaymentToken } from "@/lib/payment-service"
+import type { PaymentToken } from "@/lib/payment"
 
 interface UploadExecutionCardProps {
   file: File | null

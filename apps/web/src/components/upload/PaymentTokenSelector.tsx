@@ -7,11 +7,11 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Wallet, Coins } from "lucide-react"
-import type { PaymentToken } from "@/lib/payment-service"
-import { TOKEN_CONFIG } from "@/lib/payment-service"
+import type { PaymentToken } from "@/lib/payment"
+import { TOKEN_CONFIG } from "@/lib/payment"
 import { useWallet } from "@/hooks/account-hooks"
 import { useEffect, useState } from "react"
-import { getBalance } from "@/lib/balance"
+import { getBalance } from "@/lib/chain"
 
 interface PaymentTokenSelectorProps {
   selectedToken: PaymentToken

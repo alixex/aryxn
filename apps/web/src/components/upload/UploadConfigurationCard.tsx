@@ -5,9 +5,9 @@ import { useTranslation } from "@/i18n/config"
 import { UploadOptions } from "./UploadOptions"
 import { FeeEstimate } from "./FeeEstimate"
 import { useFeeCalculation } from "@/hooks/dex-hooks"
-import { shouldCompressFile } from "@/lib/compression"
+import { shouldCompressFile } from "@/lib/utils"
 
-import type { PaymentToken } from "@/lib/payment-service"
+import type { PaymentToken } from "@/lib/payment"
 import { PaymentTokenSelector } from "./PaymentTokenSelector"
 
 export interface UploadConfiguration {

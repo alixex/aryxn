@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button"
 import { ConnectButton } from "@rainbow-me/rainbowkit"
 import { BalanceDisplay } from "./BalanceDisplay"
 import { TokenBalances } from "./TokenBalances"
-import { type BalanceResult } from "@/lib/balance"
+import { type BalanceResult } from "@/lib/chain"
 import { useTranslation } from "@/i18n/config"
 import { toast } from "sonner"
 import {

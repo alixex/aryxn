@@ -11,7 +11,7 @@ import {
 import {
   searchArweaveTransactions,
   type ArweaveSearchResult,
-} from "@/lib/arweave-search"
+} from "@/lib/storage"
 import {
   useTranslation,
   isSimplifiedChinese,

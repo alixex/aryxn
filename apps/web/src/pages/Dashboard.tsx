@@ -1,7 +1,7 @@
 import { useInternal, useExternalWallets } from "@/hooks/account-hooks"
 import { useTranslation } from "@/i18n/config"
-import type { UploadRecord, WalletRecord } from "@/lib/types"
-import { searchFiles, type FileIndex } from "@/lib/file-manager"
+import type { UploadRecord, WalletRecord } from "@/lib/utils"
+import { searchFiles, type FileIndex } from "@/lib/file"
 import { useEffect, useState } from "react"
 import { HistoryTable } from "@/components/history-table"
 import {
@@ -116,7 +116,7 @@ export default function DashboardPage() {
     // 使用 scheduleAutoSync 在浏览器空闲时间自动同步
     const scheduleAutoSyncPromises = addresses.map(async (address) => {
       try {
-        const { scheduleAutoSync } = await import("@/lib/file-sync-direct")
+        const { scheduleAutoSync } = await import("@/lib/file/file-sync-direct")
         scheduleAutoSync(address, (result) => {
           // 同步完成后重新加载历史记录
           if (result.added > 0 || result.updated > 0) {

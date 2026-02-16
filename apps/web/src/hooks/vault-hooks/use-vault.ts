@@ -9,7 +9,7 @@ import {
   decryptData,
   fromBytes,
 } from "@aryxn/crypto"
-import { db } from "@/lib/sqlite-db"
+import { db } from "@/lib/database"
 import type { WalletRecord } from "@aryxn/wallet-core"
 
 export const VAULT_SALT_LEGACY = new Uint8Array([

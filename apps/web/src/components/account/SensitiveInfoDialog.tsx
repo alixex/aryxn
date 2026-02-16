@@ -11,8 +11,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Eye, EyeOff, ShieldAlert, Download } from "lucide-react"
 import { toast } from "sonner"
-import { exportWallet } from "@/lib/wallet-export"
-import type { WalletRecord } from "@/lib/types"
+import { exportWallet } from "@/lib/wallet"
+import type { WalletRecord } from "@/lib/utils"
 
 interface SensitiveInfoDialogProps {
   open: boolean

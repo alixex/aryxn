@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react"
-import { type BalanceResult } from "@/lib/balance"
+import { type BalanceResult } from "@/lib/chain"
 import { useWallet } from "./use-wallet"
 
 /**
