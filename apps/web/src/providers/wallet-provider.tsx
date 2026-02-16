@@ -6,13 +6,13 @@ import {
   useMemo,
 } from "react"
 import { getBalance, type BalanceResult } from "@/lib/balance"
-import { useVault } from "@/hooks/internal-wallet/use-vault"
-import { useWalletStorage } from "@/hooks/internal-wallet/use-wallet-storage"
-import { useWalletOps } from "@/hooks/internal-wallet/use-wallet-ops"
+import { useVault } from "@/hooks/account-hooks/internal-wallet/use-vault"
+import { useWalletStorage } from "@/hooks/account-hooks/internal-wallet/use-wallet-storage"
+import { useWalletOps } from "@/hooks/account-hooks/internal-wallet/use-wallet-ops"
 import {
   useExternalWallets,
   type UseExternalWalletsReturn,
-} from "@/hooks/external-wallet/use-external-wallets"
+} from "@/hooks/account-hooks/external-wallet/use-external-wallets"
 import type {
   WalletRecord,
   WalletKey,

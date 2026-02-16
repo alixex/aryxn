@@ -10,6 +10,7 @@ account-hooks/
 ├── use-internal-wallet.ts     # 内部钱包 hook（访问 vault）
 ├── use-external-wallets.ts    # 外部钱包 hook（访问浏览器扩展）
 ├── useAccounts.ts             # 账户列表和余额管理 hook
+├── README.md                  # 文档
 ├── index.ts                   # 统一导出
 ├── internal-wallet/           # 内部钱包实现细节
 │   ├── use-vault.ts           # 钱包库管理
