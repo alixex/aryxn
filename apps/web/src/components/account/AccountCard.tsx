@@ -85,6 +85,33 @@ export function AccountCard({
   const connector = external?.connector
   const paymentAddress = external?.paymentAddress
 
+  const displayAlias = (() => {
+    if (account.alias) return account.alias
+    if (account.isExternal) {
+      const addr = account.address || ""
+      switch (account.chain) {
+        case "ethereum": {
+          const isCurrent =
+            paymentAddress &&
+            addr.toLowerCase() === paymentAddress.toLowerCase()
+          if (isCurrent) return t("identities.evmWalletCurrent")
+          return t("identities.evmWalletAddress", {
+            address: `${addr.slice(0, 6)}...${addr.slice(-4)}`,
+          })
+        }
+        case "arweave":
+          return t("identities.arconnectWallet")
+        case "solana":
+          return t("identities.phantomWallet")
+        case "sui":
+          return t("identities.suiWallet")
+        default:
+          return t("identities.externalAccount")
+      }
+    }
+    return account.alias || account.address
+  })()
+
   return (
     <div
       className={`group relative cursor-pointer overflow-hidden rounded-2xl border-2 transition-all duration-300 ${
@@ -120,7 +147,7 @@ export function AccountCard({
             <div className="min-w-0 flex-1 space-y-1.5">
               <div className="flex flex-wrap items-center gap-2">
                 <h3 className="text-foreground truncate text-sm font-bold sm:text-base">
-                  {account.alias}
+                  {displayAlias}
                 </h3>
                 <div className="flex gap-1.5">
                   {isActive && (

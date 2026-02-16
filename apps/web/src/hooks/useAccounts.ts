@@ -1,13 +1,11 @@
 import { useEffect, useRef, useState, useCallback } from "react"
 import { getBalance, type BalanceResult } from "@/lib/balance"
+import { useWallet } from "@/hooks/use-wallet"
 
-type ExternalWallets = any
-type WalletManager = any
-
-export function useAccounts(
-  walletManager: WalletManager,
-  externalWallets: ExternalWallets,
-) {
+export function useAccounts() {
+  const wallet = useWallet()
+  const walletManager = wallet.internal
+  const externalWallets = wallet.external
   const [balances, setBalances] = useState<
     Record<string, BalanceResult | null>
   >({})
@@ -53,67 +51,17 @@ export function useAccounts(
   }, [walletManager.isUnlocked, walletManager.wallets.length])
 
   // External accounts helper
-  const getExternalAccounts = useCallback(() => {
-    const externalAccounts: Array<any> = []
-
-    if (
-      externalWallets.isPaymentConnected &&
-      externalWallets.allEVMAddresses &&
-      Array.isArray(externalWallets.allEVMAddresses) &&
-      externalWallets.allEVMAddresses.length > 0
-    ) {
-      externalWallets.allEVMAddresses.forEach((address: string) => {
-        if (address && typeof address === "string") {
-          const isActive =
-            address.toLowerCase() ===
-            externalWallets.paymentAddress?.toLowerCase()
-          externalAccounts.push({
-            id: `external-evm-${address}`,
-            chain: "ethereum",
-            address: address,
-            alias: isActive ? "" : "",
-            isExternal: true,
-            provider: "EVM",
-          })
-        }
-      })
-    }
-
-    if (externalWallets.isArConnected && externalWallets.arAddress) {
-      externalAccounts.push({
-        id: `external-arweave-${externalWallets.arAddress}`,
-        chain: "arweave",
-        address: externalWallets.arAddress,
-        alias: "",
-        isExternal: true,
-        provider: "ArConnect",
-      })
-    }
-
-    if (externalWallets.isSolConnected && externalWallets.solAddress) {
-      externalAccounts.push({
-        id: `external-solana-${externalWallets.solAddress}`,
-        chain: "solana",
-        address: externalWallets.solAddress,
-        alias: "",
-        isExternal: true,
-        provider: "Phantom",
-      })
-    }
-
-    if (externalWallets.isSuiConnected && externalWallets.suiAddress) {
-      externalAccounts.push({
-        id: `external-sui-${externalWallets.suiAddress}`,
-        chain: "sui",
-        address: externalWallets.suiAddress,
-        alias: "",
-        isExternal: true,
-        provider: "Sui Wallet",
-      })
-    }
-
-    return externalAccounts
-  }, [externalWallets])
+  const getExternalAccounts = useCallback(
+    (chain?: string) => {
+      // prefer provider helpers when available
+      if (chain) return wallet.getExternalAccounts(chain)
+      const chains = ["ethereum", "bitcoin", "solana", "sui", "arweave"]
+      let out: any[] = []
+      for (const c of chains) out = out.concat(wallet.getExternalAccounts(c))
+      return out
+    },
+    [wallet],
+  )
 
   // Fetch balances for external accounts
   useEffect(() => {

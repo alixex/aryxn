@@ -20,6 +20,112 @@ import type {
   DecryptedData,
 } from "@aryxn/wallet-core"
 
+// Standardized account shape exposed by the provider
+export type AccountInfo = {
+  id?: string | number
+  chain: string
+  address: string
+  alias?: string
+  isExternal: boolean
+  provider?: string
+}
+
+// Helper: build local accounts from storage for a chain
+function buildLocalForChain(
+  storage: ReturnType<typeof useWalletStorage>,
+  chain: string,
+): AccountInfo[] {
+  return storage.wallets
+    .filter((w: WalletRecord) => w.chain === chain)
+    .map((w: WalletRecord) => ({
+      id: w.id ?? undefined,
+      chain: w.chain,
+      address: w.address,
+      alias: (w as any).alias ?? undefined,
+      isExternal: false,
+    }))
+}
+
+// Helper: build external accounts for a chain from external hook
+function buildExternalForChainFromExternal(
+  external: UseExternalWalletsReturn,
+  chain: string,
+): AccountInfo[] {
+  const out: AccountInfo[] = []
+  if (chain === "ethereum") {
+    if (
+      external.isPaymentConnected &&
+      external.allEVMAddresses &&
+      Array.isArray(external.allEVMAddresses)
+    ) {
+      for (const address of external.allEVMAddresses) {
+        if (!address) continue
+        out.push({
+          id: `external-evm-${address}`,
+          chain: "ethereum",
+          address,
+          isExternal: true,
+          provider: "EVM",
+        })
+      }
+    }
+    return out
+  }
+
+  if (chain === "arweave") {
+    if (external.isArConnected && external.arAddress) {
+      out.push({
+        id: `external-arweave-${external.arAddress}`,
+        chain: "arweave",
+        address: external.arAddress,
+        isExternal: true,
+        provider: "ArConnect",
+      })
+    }
+    return out
+  }
+
+  if (chain === "solana") {
+    if (external.isSolConnected && external.solAddress) {
+      out.push({
+        id: `external-solana-${external.solAddress}`,
+        chain: "solana",
+        address: external.solAddress,
+        isExternal: true,
+        provider: "Phantom",
+      })
+    }
+    return out
+  }
+
+  if (chain === "sui") {
+    if (external.isSuiConnected && external.suiAddress) {
+      out.push({
+        id: `external-sui-${external.suiAddress}`,
+        chain: "sui",
+        address: external.suiAddress,
+        isExternal: true,
+        provider: "Sui Wallet",
+      })
+    }
+    return out
+  }
+
+  return out
+}
+
+// Helper: build all accounts for a chain combining storage + external
+function buildAllForChain(
+  storage: ReturnType<typeof useWalletStorage>,
+  external: UseExternalWalletsReturn,
+  chain: string,
+): AccountInfo[] {
+  return [
+    ...buildLocalForChain(storage, chain),
+    ...buildExternalForChainFromExternal(external, chain),
+  ]
+}
+
 interface WalletContextType {
   // Unified Active Account (aggregated)
   active: {
@@ -57,10 +163,17 @@ interface WalletContextType {
   // External Wallets (Extensions)
   external: UseExternalWalletsReturn
 
+  // Grouped external actions helpers
+  externalActions: {
+    connect: (chain: string) => Promise<any>
+    disconnect: (chain: string) => Promise<any>
+    getAddresses: (chain: string) => string[]
+  }
+
   // Helpers to retrieve accounts by chain
-  getLocalAccounts: (chain: string) => any[]
-  getExternalAccounts: (chain: string) => any[]
-  getAllAccounts: (chain: string) => any[]
+  getLocalAccounts: (chain: string) => AccountInfo[]
+  getExternalAccounts: (chain: string) => AccountInfo[]
+  getAllAccounts: (chain: string) => AccountInfo[]
 
   // Connect/disconnect external wallets by chain
   connectExternal: (chain: string) => Promise<any>
@@ -73,13 +186,7 @@ interface WalletContextType {
   ) => Promise<BalanceResult | null>
 
   // Return mapping of chain -> accounts
-  getAccountsByChain: () => Record<string, any[]>
-
-  // Refresh balance helper
-  refreshBalance?: (
-    chain: string,
-    address: string,
-  ) => Promise<BalanceResult | null>
+  getAccountsByChain: () => Record<string, AccountInfo[]>
 
   // LEGACY compatibility layer (to avoid breaking whole app at once)
   // These will be deprecated in favor of .internal or .active
@@ -160,35 +267,50 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 
   const active = useMemo(() => {
     const accounts: ActiveAccount[] = []
-
-    // External wallets priority
-    if (external.isArConnected && external.arAddress) {
-      accounts.push({
-        address: external.arAddress,
+    // External wallets priority (configurable list)
+    const externalPrioritySpecs: Array<{
+      chain: ActiveAccount["chain"]
+      isConnected: () => boolean
+      getAddress: () => string | null | undefined
+    }> = [
+      {
         chain: "arweave",
-        isExternal: true,
-      })
-    }
-    if (external.isSolConnected && external.solAddress) {
-      accounts.push({
-        address: external.solAddress,
+        isConnected: () => external.isArConnected,
+        getAddress: () => external.arAddress,
+      },
+      {
         chain: "solana",
-        isExternal: true,
-      })
-    }
-    if (external.isSuiConnected && external.suiAddress) {
-      accounts.push({
-        address: external.suiAddress,
+        isConnected: () => external.isSolConnected,
+        getAddress: () => external.solAddress,
+      },
+      {
         chain: "sui",
-        isExternal: true,
-      })
-    }
-    if (external.isPaymentConnected && external.paymentAddress) {
-      accounts.push({
-        address: external.paymentAddress,
+        isConnected: () => external.isSuiConnected,
+        getAddress: () => external.suiAddress,
+      },
+      {
         chain: "ethereum",
-        isExternal: true,
-      })
+        isConnected: () => external.isPaymentConnected,
+        getAddress: () => external.paymentAddress,
+      },
+    ]
+
+    for (const spec of externalPrioritySpecs) {
+      try {
+        if (spec.isConnected()) {
+          const addr = spec.getAddress()
+          if (addr) {
+            accounts.push({
+              address: addr,
+              chain: spec.chain,
+              isExternal: true,
+            })
+          }
+        }
+      } catch (e) {
+        // Defensive: continue if external provider shape changes
+        console.debug("external priority spec failed", e)
+      }
     }
 
     // Internal wallets fallback
@@ -232,296 +354,131 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 
   // --- Context Value ---
 
+  // Grouped external actions (centralized, reused by UI and compatibility wrappers)
+  const externalActions = useMemo(
+    () => ({
+      connect: async (chain: string) => {
+        if (chain === "arweave" && external.connectArweave)
+          return await external.connectArweave()
+        if (chain === "solana" && external.connectSolana)
+          return await external.connectSolana()
+        if (chain === "sui" && external.connectSui)
+          return await external.connectSui()
+        // EVM connection handled by wagmi/rainbowkit connectors in UI
+        return undefined
+      },
+      disconnect: async (chain: string) => {
+        if (chain === "arweave" && external.disconnectArweave)
+          return await external.disconnectArweave()
+        if (chain === "solana" && external.disconnectSolana)
+          return await external.disconnectSolana()
+        if (chain === "sui" && external.disconnectSui)
+          return await external.disconnectSui()
+        // EVM disconnect handled by wagmi
+        return undefined
+      },
+      getAddresses: (chain: string) =>
+        buildExternalForChainFromExternal(external, chain).map(
+          (a) => a.address,
+        ),
+    }),
+    [external],
+  )
+
+  const getLocalAccounts = useCallback(
+    (chain: string): AccountInfo[] => buildLocalForChain(storage, chain),
+    [storage],
+  )
+
+  const getExternalAccounts = useCallback(
+    (chain: string): AccountInfo[] =>
+      buildExternalForChainFromExternal(external, chain),
+    [external],
+  )
+
+  const getAllAccounts = useCallback(
+    (chain: string): AccountInfo[] =>
+      buildAllForChain(storage, external, chain),
+    [storage, external],
+  )
+
+  const getAccountsByChain = useCallback((): Record<string, AccountInfo[]> => {
+    const chains = ["ethereum", "bitcoin", "solana", "sui", "arweave"]
+    const out: Record<string, AccountInfo[]> = {}
+    for (const c of chains)
+      out[c] = getLocalAccounts(c).concat(getExternalAccounts(c))
+    return out
+  }, [getLocalAccounts, getExternalAccounts])
+
+  const refreshBalanceCb = useCallback(
+    async (chain: string, address: string): Promise<BalanceResult | null> => {
+      try {
+        const bal = await getBalance(chain as any, address)
+        return bal
+      } catch (e) {
+        console.error("refreshBalance failed", e)
+        return null
+      }
+    },
+    [],
+  )
+
+  const internalObj = {
+    wallets: storage.wallets,
+    isUnlocked: vault.isUnlocked,
+    activeAddress: storage.activeAddress,
+    activeWallet: storage.activeWallet,
+    vaultId: vault.vaultId,
+    masterKey: vault.masterKey,
+    hasSavedLocalAccount: storage.hasSavedLocalAccount,
+    systemSalt: vault.systemSalt,
+    unlock: vault.unlock,
+    logout,
+    addWallet,
+    createWallet,
+    selectWallet,
+    clearActiveWallet,
+    refreshWallets,
+    getDecryptedInfo: vault.getDecryptedInfo,
+  }
+
   return (
     <WalletContext.Provider
       value={{
         active,
-        internal: {
-          wallets: storage.wallets,
-          isUnlocked: vault.isUnlocked,
-          activeAddress: storage.activeAddress,
-          activeWallet: storage.activeWallet,
-          vaultId: vault.vaultId,
-          masterKey: vault.masterKey,
-          hasSavedLocalAccount: storage.hasSavedLocalAccount,
-          systemSalt: vault.systemSalt,
-          unlock: vault.unlock,
-          logout,
-          addWallet,
-          createWallet,
-          selectWallet,
-          clearActiveWallet,
-          refreshWallets,
-          getDecryptedInfo: vault.getDecryptedInfo,
-        },
+        internal: internalObj,
         external,
 
-        getLocalAccounts: (chain: string) => {
-          return storage.wallets
-            .filter((w) => w.chain === chain)
-            .map((w) => ({ ...w, id: w.id ?? undefined, isExternal: false }))
-        },
+        getLocalAccounts: getLocalAccounts,
 
-        getExternalAccounts: (chain: string) => {
-          const out: any[] = []
-          if (chain === "ethereum") {
-            if (
-              external.isPaymentConnected &&
-              external.allEVMAddresses &&
-              Array.isArray(external.allEVMAddresses)
-            ) {
-              for (const address of external.allEVMAddresses) {
-                if (!address) continue
-                out.push({
-                  id: `external-evm-${address}`,
-                  chain: "ethereum",
-                  address,
-                  isExternal: true,
-                  provider: "EVM",
-                })
-              }
-            }
-          }
-          if (
-            chain === "arweave" &&
-            external.isArConnected &&
-            external.arAddress
-          ) {
-            out.push({
-              id: `external-arweave-${external.arAddress}`,
-              chain: "arweave",
-              address: external.arAddress,
-              isExternal: true,
-              provider: "ArConnect",
-            })
-          }
-          if (
-            chain === "solana" &&
-            external.isSolConnected &&
-            external.solAddress
-          ) {
-            out.push({
-              id: `external-solana-${external.solAddress}`,
-              chain: "solana",
-              address: external.solAddress,
-              isExternal: true,
-              provider: "Phantom",
-            })
-          }
-          if (
-            chain === "sui" &&
-            external.isSuiConnected &&
-            external.suiAddress
-          ) {
-            out.push({
-              id: `external-sui-${external.suiAddress}`,
-              chain: "sui",
-              address: external.suiAddress,
-              isExternal: true,
-              provider: "Sui Wallet",
-            })
-          }
-          return out
-        },
+        getExternalAccounts: getExternalAccounts,
 
-        getAllAccounts: (chain: string) => {
-          const local = storage.wallets
-            .filter((w) => w.chain === chain)
-            .map((w) => ({ ...w, id: w.id ?? undefined, isExternal: false }))
-          const externalList = (() => {
-            const out: any[] = []
-            if (chain === "ethereum") {
-              if (
-                external.isPaymentConnected &&
-                external.allEVMAddresses &&
-                Array.isArray(external.allEVMAddresses)
-              ) {
-                for (const address of external.allEVMAddresses) {
-                  if (!address) continue
-                  out.push({
-                    id: `external-evm-${address}`,
-                    chain: "ethereum",
-                    address,
-                    isExternal: true,
-                    provider: "EVM",
-                  })
-                }
-              }
-            }
-            if (
-              chain === "arweave" &&
-              external.isArConnected &&
-              external.arAddress
-            ) {
-              out.push({
-                id: `external-arweave-${external.arAddress}`,
-                chain: "arweave",
-                address: external.arAddress,
-                isExternal: true,
-                provider: "ArConnect",
-              })
-            }
-            if (
-              chain === "solana" &&
-              external.isSolConnected &&
-              external.solAddress
-            ) {
-              out.push({
-                id: `external-solana-${external.solAddress}`,
-                chain: "solana",
-                address: external.solAddress,
-                isExternal: true,
-                provider: "Phantom",
-              })
-            }
-            if (
-              chain === "sui" &&
-              external.isSuiConnected &&
-              external.suiAddress
-            ) {
-              out.push({
-                id: `external-sui-${external.suiAddress}`,
-                chain: "sui",
-                address: external.suiAddress,
-                isExternal: true,
-                provider: "Sui Wallet",
-              })
-            }
-            return out
-          })()
-          return [...local, ...externalList]
-        },
-        // Connect to external wallets by chain
-        connectExternal: async (chain: string) => {
-          try {
-            if (chain === "arweave" && external.connectArweave)
-              return await external.connectArweave()
-            if (chain === "solana" && external.connectSolana)
-              return await external.connectSolana()
-            if (chain === "sui" && external.connectSui)
-              return await external.connectSui()
-            // EVM connection handled by wagmi/rainbowkit connectors in UI
-            return undefined
-          } catch (e) {
-            console.error("connectExternal failed", e)
-            throw e
-          }
-        },
+        getAllAccounts: getAllAccounts,
+        // External actions grouped (shared implementation)
+        externalActions: externalActions,
+        // Connect to external wallets by chain (compatibility wrapper)
+        connectExternal: externalActions.connect,
+        disconnectExternal: externalActions.disconnect,
 
-        disconnectExternal: async (chain: string) => {
-          try {
-            if (chain === "arweave" && external.disconnectArweave)
-              return await external.disconnectArweave()
-            if (chain === "solana" && external.disconnectSolana)
-              return await external.disconnectSolana()
-            if (chain === "sui" && external.disconnectSui)
-              return await external.disconnectSui()
-            // EVM disconnect handled by wagmi
-            return undefined
-          } catch (e) {
-            console.error("disconnectExternal failed", e)
-            throw e
-          }
-        },
-
-        refreshBalance: async (
-          chain: string,
-          address: string,
-        ): Promise<BalanceResult | null> => {
-          try {
-            const bal = await getBalance(chain as any, address)
-            return bal
-          } catch (e) {
-            console.error("refreshBalance failed", e)
-            return null
-          }
-        },
+        refreshBalance: refreshBalanceCb,
 
         // Return mapping of chain -> accounts
-        getAccountsByChain: () => {
-          const chains = ["ethereum", "bitcoin", "solana", "sui", "arweave"]
-          const out: Record<string, any[]> = {}
-          for (const c of chains) {
-            out[c] = (
-              storage.wallets
-                .filter((w) => w.chain === c)
-                .map((w) => ({
-                  ...w,
-                  id: w.id ?? undefined,
-                  isExternal: false,
-                })) as any[]
-            ).concat(
-              (() => {
-                const ext: any[] = []
-                if (
-                  c === "ethereum" &&
-                  external.isPaymentConnected &&
-                  external.allEVMAddresses &&
-                  Array.isArray(external.allEVMAddresses)
-                ) {
-                  for (const a of external.allEVMAddresses)
-                    if (a)
-                      ext.push({
-                        id: `external-evm-${a}`,
-                        chain: "ethereum",
-                        address: a,
-                        isExternal: true,
-                      })
-                }
-                if (
-                  c === "arweave" &&
-                  external.isArConnected &&
-                  external.arAddress
-                )
-                  ext.push({
-                    id: `external-arweave-${external.arAddress}`,
-                    chain: "arweave",
-                    address: external.arAddress,
-                    isExternal: true,
-                  })
-                if (
-                  c === "solana" &&
-                  external.isSolConnected &&
-                  external.solAddress
-                )
-                  ext.push({
-                    id: `external-solana-${external.solAddress}`,
-                    chain: "solana",
-                    address: external.solAddress,
-                    isExternal: true,
-                  })
-                if (
-                  c === "sui" &&
-                  external.isSuiConnected &&
-                  external.suiAddress
-                )
-                  ext.push({
-                    id: `external-sui-${external.suiAddress}`,
-                    chain: "sui",
-                    address: external.suiAddress,
-                    isExternal: true,
-                  })
-                return ext
-              })(),
-            )
-          }
-          return out
-        },
+        getAccountsByChain: getAccountsByChain,
 
-        // Legacy compatibility
-        wallets: storage.wallets,
-        isUnlocked: vault.isUnlocked,
-        activeAddress: storage.activeAddress,
-        activeWallet: storage.activeWallet,
-        vaultId: vault.vaultId,
-        masterKey: vault.masterKey,
-        unlock: vault.unlock,
-        logout,
-        addWallet,
-        createWallet,
-        selectWallet,
-        refreshWallets,
-        getDecryptedInfo: vault.getDecryptedInfo,
+        // Legacy compatibility (alias to `internal`)
+        wallets: internalObj.wallets,
+        isUnlocked: internalObj.isUnlocked,
+        activeAddress: internalObj.activeAddress,
+        activeWallet: internalObj.activeWallet,
+        vaultId: internalObj.vaultId,
+        masterKey: internalObj.masterKey,
+        unlock: internalObj.unlock,
+        logout: internalObj.logout,
+        addWallet: internalObj.addWallet,
+        createWallet: internalObj.createWallet,
+        selectWallet: internalObj.selectWallet,
+        refreshWallets: internalObj.refreshWallets,
+        getDecryptedInfo: internalObj.getDecryptedInfo,
       }}
     >
       {children}

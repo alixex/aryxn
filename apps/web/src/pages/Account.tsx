@@ -49,7 +49,7 @@ export default function AccountPage() {
     refreshBalance,
     toggleShowBalance,
     getExternalAccounts,
-  } = useAccounts(walletManager, externalWallets)
+  } = useAccounts()
 
   // 处理函数
   const handleUnlock = async (password: string) => {
