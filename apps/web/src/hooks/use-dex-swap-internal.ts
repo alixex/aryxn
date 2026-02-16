@@ -4,7 +4,7 @@
  */
 
 import { useState, useCallback, useEffect } from "react"
-import type { Address } from "@aryxn/wallet-core"
+import type { Address, WalletRecord } from "@aryxn/wallet-core"
 import {
   MULTI_HOP_SWAPPER_ABI,
   ERC20_ABI,
@@ -20,7 +20,7 @@ import {
   parseTokenAmount,
   formatTokenAmount,
 } from "@/lib/contracts/token-config"
-import { useWallet } from "@/providers/wallet-provider"
+import { useInternal } from "@/hooks/use-internal-wallet"
 
 export const SwapState = {
   IDLE: "idle",
@@ -76,7 +76,7 @@ export function useInternalDexSwap({
     walletManager.isUnlocked &&
     !!walletManager.activeAddress &&
     !!walletManager.activeWallet &&
-    walletManager.wallets.find((w) => w.address === walletManager.activeAddress)
+    walletManager.wallets.find((w: WalletRecord) => w.address === walletManager.activeAddress)
       ?.chain === "ethereum"
 
   // Get ethers provider and signer

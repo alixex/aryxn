@@ -297,7 +297,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     // Internal wallets fallback
     if (vault.isUnlocked && storage.activeAddress) {
       const activeIntWallet = storage.wallets.find(
-        (w) => w.address === storage.activeAddress,
+        (w: WalletRecord) => w.address === storage.activeAddress,
       )
       if (activeIntWallet) {
         const chainMapping: Record<string, ActiveAccount["chain"]> = {
