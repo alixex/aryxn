@@ -3,6 +3,8 @@
  * 提供通用的 Arweave GraphQL 搜索能力
  */
 
+import { getSearchCache } from "./search-cache"
+
 export interface ArweaveSearchResult {
   id: string
   owner: {
@@ -25,6 +27,8 @@ export interface SearchOptions {
   query: string
   limit?: number
   sort?: "HEIGHT_DESC" | "HEIGHT_ASC"
+  cache?: boolean // 是否使用缓存（默认 true）
+  cacheTtl?: number // 缓存生存时间（毫秒）
 }
 
 /**
@@ -35,12 +39,47 @@ export interface SearchOptions {
 export async function searchArweaveTransactionsNetwork(
   options: SearchOptions,
 ): Promise<ArweaveSearchResult[]> {
-  const { query, limit = 20, sort = "HEIGHT_DESC" } = options
+  const {
+    query,
+    limit = 20,
+    sort = "HEIGHT_DESC",
+    cache = true,
+    cacheTtl,
+  } = options
 
   if (!query.trim()) {
     return []
   }
 
+  // 检查缓存
+  if (cache) {
+    const searchCache = getSearchCache()
+    const cacheKey = searchCache.generateKey({ query, limit, sort })
+    const cachedResults = searchCache.get<ArweaveSearchResult[]>(cacheKey)
+
+    if (cachedResults !== null) {
+      console.log(`Search cache hit for query: "${query}"`)
+      return cachedResults
+    }
+
+    // 执行搜索并缓存结果
+    const results = await performSearch(query, limit, sort)
+    searchCache.set(cacheKey, results, cacheTtl)
+    return results
+  }
+
+  // 不使用缓存，直接搜索
+  return performSearch(query, limit, sort)
+}
+
+/**
+ * 执行实际的搜索逻辑
+ */
+async function performSearch(
+  query: string,
+  limit: number,
+  sort: "HEIGHT_DESC" | "HEIGHT_ASC",
+): Promise<ArweaveSearchResult[]> {
   const queryTrimmed = query.trim()
   const queryLower = queryTrimmed.toLowerCase()
 
@@ -218,11 +257,42 @@ export async function searchAppTransactions(
   appName: string,
   query: string,
   limit: number = 50,
+  cache: boolean = true,
+  cacheTtl?: number,
 ): Promise<ArweaveSearchResult[]> {
   if (!query.trim()) {
     return []
   }
 
+  // 检查缓存
+  if (cache) {
+    const searchCache = getSearchCache()
+    const cacheKey = searchCache.generateKey({ appName, query, limit })
+    const cachedResults = searchCache.get<ArweaveSearchResult[]>(cacheKey)
+
+    if (cachedResults !== null) {
+      console.log(`Search cache hit for app: "${appName}", query: "${query}"`)
+      return cachedResults
+    }
+
+    // 执行搜索并缓存结果
+    const results = await performAppSearch(appName, query, limit)
+    searchCache.set(cacheKey, results, cacheTtl)
+    return results
+  }
+
+  // 不使用缓存，直接搜索
+  return performAppSearch(appName, query, limit)
+}
+
+/**
+ * 执行实际的应用搜索逻辑
+ */
+async function performAppSearch(
+  appName: string,
+  query: string,
+  limit: number,
+): Promise<ArweaveSearchResult[]> {
   try {
     const graphqlQuery = {
       query: `

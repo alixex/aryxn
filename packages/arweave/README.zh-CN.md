@@ -75,3 +75,35 @@ results.forEach((tx) => {
   console.log(`大小: ${tx.data.size}`) // 数据大小（字节）
 })
 ```
+
+### 搜索缓存
+
+搜索结果默认缓存，避免重复的 GraphQL 查询：
+
+```typescript
+import {
+  searchArweaveTransactionsNetwork,
+  getSearchCache,
+} from "@aryxn/arweave"
+
+// 使用缓存（默认行为）
+const results = await searchArweaveTransactionsNetwork({
+  query: "my-file",
+  cache: true, // 启用缓存（默认值）
+  cacheTtl: 5 * 60 * 1000, // 5 分钟
+})
+
+// 绕过缓存获取最新结果
+const freshResults = await searchArweaveTransactionsNetwork({
+  query: "my-file",
+  cache: false,
+})
+
+// 查看缓存统计信息
+const cache = getSearchCache()
+const stats = cache.getStats()
+console.log(`缓存大小: ${stats.size}/${stats.maxSize}`)
+
+// 清空所有缓存
+cache.clear()
+```

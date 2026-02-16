@@ -12,3 +12,4 @@ export {
   type ArweaveSearchResult,
   type SearchOptions,
 } from "./search"
+export { SearchCache, getSearchCache, resetSearchCache } from "./search-cache"

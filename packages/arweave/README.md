@@ -75,3 +75,35 @@ results.forEach((tx) => {
   console.log(`Size: ${tx.data.size}`) // Data size in bytes
 })
 ```
+
+### Search Caching
+
+Search results are cached by default to avoid repeated GraphQL queries:
+
+```typescript
+import {
+  searchArweaveTransactionsNetwork,
+  getSearchCache,
+} from "@aryxn/arweave"
+
+// Use cache (default behavior)
+const results = await searchArweaveTransactionsNetwork({
+  query: "my-file",
+  cache: true, // Enable caching (default)
+  cacheTtl: 5 * 60 * 1000, // 5 minutes
+})
+
+// Bypass cache for fresh results
+const freshResults = await searchArweaveTransactionsNetwork({
+  query: "my-file",
+  cache: false,
+})
+
+// Inspect cache statistics
+const cache = getSearchCache()
+const stats = cache.getStats()
+console.log(`Cache size: ${stats.size}/${stats.maxSize}`)
+
+// Clear all cache
+cache.clear()
+```
