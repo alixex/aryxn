@@ -4,7 +4,6 @@ import { useWallet } from "@/hooks/use-wallet"
 
 export function useAccounts() {
   const wallet = useWallet()
-  const internal = wallet.internal
   const [balances, setBalances] = useState<
     Record<string, BalanceResult | null>
   >({})
@@ -29,10 +28,16 @@ export function useAccounts() {
 
         setLoadingBalances((prev) => ({ ...prev, [key]: true }))
         try {
-          const bal = await wallet.refreshBalance(account.chain, account.address)
+          const bal = await wallet.refreshBalance(
+            account.chain,
+            account.address,
+          )
           setBalances((prev) => ({ ...prev, [key]: bal }))
         } catch (error) {
-          console.error(`Failed to fetch balance for ${account.address}:`, error)
+          console.error(
+            `Failed to fetch balance for ${account.address}:`,
+            error,
+          )
           setBalances((prev) => ({
             ...prev,
             [key]: {

@@ -166,7 +166,7 @@ export default function DashboardPage() {
             <div className="text-muted-foreground mb-0.5 text-[10px] font-bold tracking-wider uppercase">
               {t("common.activeAccountLabel")}
             </div>
-            <div className="text-foreground max-w-[180px] truncate text-sm font-bold">
+            <div className="text-foreground max-w-45 truncate text-sm font-bold">
               {walletManager.activeAddress
                 ? walletManager.wallets.find(
                     (w) => w.address === walletManager.activeAddress,

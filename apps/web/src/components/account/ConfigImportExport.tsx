@@ -233,7 +233,7 @@ export function ConfigImportExport() {
             console.warn("Failed to sync files:", error)
             // 同步失败不影响导入流程
           }
-        }, 500) // 延迟500ms确保钱包列表已更新
+        }, 500) // 延迟 500ms 确保钱包列表已更新
 
         // 清空状态
         setSelectedConfig(null)

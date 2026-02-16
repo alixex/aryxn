@@ -187,7 +187,6 @@ interface WalletContextType {
 
   // Return mapping of chain -> accounts
   getAccountsByChain: () => Record<string, AccountInfo[]>
-
 }
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined)
