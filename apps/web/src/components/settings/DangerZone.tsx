@@ -53,7 +53,11 @@ export default function DangerZone({
                 "This will permanently delete all data including files, folders, accounts, and settings. This action cannot be undone.",
               )}
             </p>
-            <Button variant="destructive" onClick={() => setOpen(true)} className="w-full sm:w-auto">
+            <Button
+              variant="destructive"
+              onClick={() => setOpen(true)}
+              className="w-full sm:w-auto"
+            >
               <Trash2 className="mr-2 h-4 w-4" />
               {t("settings.clearDataButton", "Clear All Data")}
             </Button>
@@ -79,19 +83,33 @@ export default function DangerZone({
             <ul className="text-muted-foreground list-disc space-y-1 pl-5 text-sm">
               <li>{t("settings.confirmItem1", "All files and folders")}</li>
               <li>{t("settings.confirmItem2", "All account information")}</li>
-              <li>{t("settings.confirmItem3", "All settings and preferences")}</li>
-              <li>{t("settings.confirmItem4", "All local database records")}</li>
+              <li>
+                {t("settings.confirmItem3", "All settings and preferences")}
+              </li>
+              <li>
+                {t("settings.confirmItem4", "All local database records")}
+              </li>
             </ul>
             <p className="text-destructive pt-2 text-sm font-semibold">
               {t("settings.confirmWarning", "This action cannot be undone!")}
             </p>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)} disabled={isClearing}>
+            <Button
+              variant="outline"
+              onClick={() => setOpen(false)}
+              disabled={isClearing}
+            >
               {t("settings.cancel", "Cancel")}
             </Button>
-            <Button variant="destructive" onClick={onConfirmClear} disabled={isClearing}>
-              {isClearing ? t("settings.clearing", "Clearing...") : t("settings.confirmButton", "Yes, Clear All Data")}
+            <Button
+              variant="destructive"
+              onClick={onConfirmClear}
+              disabled={isClearing}
+            >
+              {isClearing
+                ? t("settings.clearing", "Clearing...")
+                : t("settings.confirmButton", "Yes, Clear All Data")}
             </Button>
           </DialogFooter>
         </DialogContent>

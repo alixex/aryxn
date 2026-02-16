@@ -1,5 +1,11 @@
 import { Globe } from "lucide-react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { useTranslation } from "@/i18n/config"
 

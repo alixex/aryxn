@@ -20,7 +20,7 @@ import {
   SuiIcon,
   BitcoinIcon,
 } from "@/components/icons"
-import type { WalletConnector } from "@/types/global"
+import { useWallet } from "@/hooks/use-wallet"
 
 interface Account {
   id?: string | number
@@ -45,10 +45,7 @@ interface AccountCardProps {
   onCopyAddress: (address: string) => void
   onShowSensitive?: (account: Account, type: "key" | "mnemonic") => void
   onDisconnect?: () => void
-  // External account props
-  isPaymentConnected?: boolean
-  connector?: WalletConnector
-  paymentAddress?: string
+  // external props are read from provider via `useWallet()`
 }
 
 const getChainIcon = (chain?: string) => {
@@ -80,10 +77,13 @@ export function AccountCard({
   onCopyAddress,
   onShowSensitive,
   onDisconnect,
-  isPaymentConnected,
-  connector,
 }: AccountCardProps) {
   const { t } = useTranslation()
+  const wallet = useWallet()
+  const external = wallet.external
+  const isPaymentConnected = external?.isPaymentConnected
+  const connector = external?.connector
+  const paymentAddress = external?.paymentAddress
 
   return (
     <div

@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button"
 import { ConnectButton } from "@rainbow-me/rainbowkit"
 import { ExternalLink } from "lucide-react"
 import { useTranslation } from "@/i18n/config"
+import { useWallet } from "@/hooks/use-wallet"
 import {
   EthereumIcon,
   ArweaveIcon,
@@ -9,44 +10,28 @@ import {
   SuiIcon,
 } from "@/components/icons"
 
-interface ExternalWalletConnectorProps {
-  // EVM
-  isPaymentConnected: boolean
-  paymentAddress?: string
-  allEVMAddresses: string[]
-  // Arweave
-  isArConnected: boolean
-  arAddress: string | null
-  connectArweave: () => void
-  // Solana
-  isSolConnected: boolean
-  solAddress: string | null
-  connectSolana: () => void
-  disconnectSolana: () => void
-  // Sui
-  isSuiConnected: boolean
-  suiAddress: string | null
-  connectSui: () => void
-  disconnectSui: () => void
-}
-
-export function ExternalWalletConnector({
-  isPaymentConnected,
-  paymentAddress,
-  allEVMAddresses,
-  isArConnected,
-  arAddress,
-  connectArweave,
-  isSolConnected,
-  solAddress,
-  connectSolana,
-  disconnectSolana,
-  isSuiConnected,
-  suiAddress,
-  connectSui,
-  disconnectSui,
-}: ExternalWalletConnectorProps) {
+export function ExternalWalletConnector() {
   const { t } = useTranslation()
+  const wallet = useWallet()
+  const external = wallet.external
+
+  const isPaymentConnected = external.isPaymentConnected
+  const paymentAddress = external.paymentAddress
+  const allEVMAddresses = external.allEVMAddresses || []
+
+  const isArConnected = external.isArConnected
+  const arAddress = external.arAddress
+  const connectArweave = external.connectArweave
+
+  const isSolConnected = external.isSolConnected
+  const solAddress = external.solAddress
+  const connectSolana = external.connectSolana
+  const disconnectSolana = external.disconnectSolana
+
+  const isSuiConnected = external.isSuiConnected
+  const suiAddress = external.suiAddress
+  const connectSui = external.connectSui
+  const disconnectSui = external.disconnectSui
   return (
     <div className="space-y-4">
       <p className="text-muted-foreground mb-4 text-xs">

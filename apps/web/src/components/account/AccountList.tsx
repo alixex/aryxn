@@ -2,7 +2,6 @@ import { Wallet } from "lucide-react"
 import { useTranslation } from "@/i18n/config"
 import { AccountCard } from "./AccountCard"
 import { type BalanceResult } from "@/lib/balance"
-import type { WalletConnector } from "@/types/global"
 
 interface Account {
   id?: string | number
@@ -32,10 +31,6 @@ interface AccountListProps {
     address: string,
     isExternal?: boolean,
   ) => Promise<void>
-  // External account props
-  isPaymentConnected?: boolean
-  connector?: WalletConnector
-  paymentAddress?: string
 }
 
 export function AccountList({
@@ -51,9 +46,6 @@ export function AccountList({
   onDisconnect,
   onToggleBalance,
   onRefreshBalance,
-  isPaymentConnected,
-  connector,
-  paymentAddress,
 }: AccountListProps) {
   const { t } = useTranslation()
 
@@ -102,9 +94,6 @@ export function AccountList({
             onDisconnect={
               onDisconnect ? () => onDisconnect(account) : undefined
             }
-            isPaymentConnected={isPaymentConnected}
-            connector={connector}
-            paymentAddress={paymentAddress}
           />
         )
       })}

@@ -105,22 +105,26 @@ export async function clearAllApplicationData(): Promise<void> {
   if (typeof window !== "undefined" && "indexedDB" in window) {
     try {
       const databases = await indexedDB.databases()
-      const deletePromises = databases.map((info) =>
-        new Promise<void>((resolve) => {
-          const req = indexedDB.deleteDatabase(info.name!)
-          req.onsuccess = () => resolve()
-          req.onerror = () => resolve()
-          req.onblocked = () => {
-            setTimeout(() => {
-              const r = indexedDB.deleteDatabase(info.name!)
-              r.onsuccess = () => resolve()
-              r.onerror = () => resolve()
-            }, 100)
-          }
-          setTimeout(() => resolve(), 2000)
-        }),
+      const deletePromises = databases.map(
+        (info) =>
+          new Promise<void>((resolve) => {
+            const req = indexedDB.deleteDatabase(info.name!)
+            req.onsuccess = () => resolve()
+            req.onerror = () => resolve()
+            req.onblocked = () => {
+              setTimeout(() => {
+                const r = indexedDB.deleteDatabase(info.name!)
+                r.onsuccess = () => resolve()
+                r.onerror = () => resolve()
+              }, 100)
+            }
+            setTimeout(() => resolve(), 2000)
+          }),
       )
-      await Promise.race([Promise.all(deletePromises), new Promise((r) => setTimeout(r, 5000))])
+      await Promise.race([
+        Promise.all(deletePromises),
+        new Promise((r) => setTimeout(r, 5000)),
+      ])
     } catch (e) {
       console.warn("Failed to clear IndexedDB:", e)
     }

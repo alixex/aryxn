@@ -18,40 +18,11 @@ import { ExternalWalletConnector } from "./ExternalWalletConnector"
 interface AddAccountSectionProps {
   onAddAccount: (input: string, alias: string) => Promise<void>
   onCreateAccount: (chain: string) => Promise<void>
-  // External wallet props
-  isPaymentConnected: boolean
-  paymentAddress?: string
-  allEVMAddresses: string[]
-  isArConnected: boolean
-  arAddress: string | null
-  connectArweave: () => void
-  isSolConnected: boolean
-  solAddress: string | null
-  connectSolana: () => void
-  disconnectSolana: () => void
-  isSuiConnected: boolean
-  suiAddress: string | null
-  connectSui: () => void
-  disconnectSui: () => void
 }
 
 export function AddAccountSection({
   onAddAccount,
   onCreateAccount,
-  isPaymentConnected,
-  paymentAddress,
-  allEVMAddresses,
-  isArConnected,
-  arAddress,
-  connectArweave,
-  isSolConnected,
-  solAddress,
-  connectSolana,
-  disconnectSolana,
-  isSuiConnected,
-  suiAddress,
-  connectSui,
-  disconnectSui,
 }: AddAccountSectionProps) {
   const { t } = useTranslation()
   const [newAccountInput, setNewAccountInput] = useState("")
@@ -190,22 +161,7 @@ export function AddAccountSection({
             </TabsContent>
 
             <TabsContent value="connect" className="mt-0">
-              <ExternalWalletConnector
-                isPaymentConnected={isPaymentConnected}
-                paymentAddress={paymentAddress}
-                allEVMAddresses={allEVMAddresses}
-                isArConnected={isArConnected}
-                arAddress={arAddress}
-                connectArweave={connectArweave}
-                isSolConnected={isSolConnected}
-                solAddress={solAddress}
-                connectSolana={connectSolana}
-                disconnectSolana={disconnectSolana}
-                isSuiConnected={isSuiConnected}
-                suiAddress={suiAddress}
-                connectSui={connectSui}
-                disconnectSui={disconnectSui}
-              />
+              <ExternalWalletConnector />
             </TabsContent>
           </div>
         </Tabs>

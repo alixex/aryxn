@@ -22,6 +22,15 @@ export function useWallet() {
     unlock: context.internal.unlock,
     logout: context.internal.logout,
     refresh: context.internal.refreshWallets,
+    // Account helpers (from provider)
+    getLocalAccounts: (chain: string) => context.getLocalAccounts(chain),
+    getExternalAccounts: (chain: string) => context.getExternalAccounts(chain),
+    getAllAccounts: (chain: string) => context.getAllAccounts(chain),
+    connectExternal: (chain: string) => context.connectExternal(chain),
+    disconnectExternal: (chain: string) => context.disconnectExternal(chain),
+    refreshBalance: (chain: string, address: string) =>
+      context.refreshBalance(chain, address),
+    getAccountsByChain: () => context.getAccountsByChain(),
   }
 }
 

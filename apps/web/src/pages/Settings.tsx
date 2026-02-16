@@ -47,7 +47,9 @@ export default function SettingsPage() {
       setStorageInfo(info)
     } catch (error) {
       console.error("Failed to load storage info:", error)
-      toast.error(t("settings.storageInfoError", "Failed to load storage information"))
+      toast.error(
+        t("settings.storageInfoError", "Failed to load storage information"),
+      )
     } finally {
       setIsLoadingStorage(false)
     }
@@ -79,7 +81,10 @@ export default function SettingsPage() {
       try {
         const loadInfoPromise = loadStorageInfo()
         const loadInfoTimeout = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error("Load storage info timeout")), 5000),
+          setTimeout(
+            () => reject(new Error("Load storage info timeout")),
+            5000,
+          ),
         )
         await Promise.race([loadInfoPromise, loadInfoTimeout])
 
@@ -132,7 +137,8 @@ export default function SettingsPage() {
       clearTimeout(timeoutId)
 
       console.error("Failed to clear data:", error)
-      const errorMessage = error instanceof Error ? error.message : String(error)
+      const errorMessage =
+        error instanceof Error ? error.message : String(error)
 
       if (errorMessage.includes("timeout")) {
         toast.error(
@@ -142,7 +148,9 @@ export default function SettingsPage() {
           ),
         )
       } else {
-        toast.error(t("settings.clearError", "Failed to clear data. Please try again."))
+        toast.error(
+          t("settings.clearError", "Failed to clear data. Please try again."),
+        )
       }
 
       setShowConfirmDialog(false)
@@ -168,7 +176,11 @@ export default function SettingsPage() {
 
       <LanguageSettings />
 
-      <StorageSettingsCard storageInfo={storageInfo} isLoading={isLoadingStorage} onRefresh={loadStorageInfo} />
+      <StorageSettingsCard
+        storageInfo={storageInfo}
+        isLoading={isLoadingStorage}
+        onRefresh={loadStorageInfo}
+      />
 
       <DangerZone
         onRequestClear={() => setShowConfirmDialog(true)}

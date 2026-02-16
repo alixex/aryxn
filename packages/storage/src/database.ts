@@ -184,7 +184,8 @@ export const db = {
   // Clear all application data from the SQLite database and OPFS
   async clearAllData(): Promise<void> {
     await initDatabase()
-    if (!dbPromiser || dbId === null) throw new Error("Database not initialized")
+    if (!dbPromiser || dbId === null)
+      throw new Error("Database not initialized")
 
     const tableDrops = [
       "DROP TABLE IF EXISTS file_indexes_fts",
