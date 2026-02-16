@@ -6,3 +6,9 @@ export {
   shouldCompressFile,
   getActualCompressedSize,
 } from "./compression"
+export {
+  searchArweaveTransactionsNetwork,
+  searchAppTransactions,
+  type ArweaveSearchResult,
+  type SearchOptions,
+} from "./search"

@@ -7,8 +7,11 @@ A simplified, tag-agnostic wrapper for the Arweave protocol. This package handle
 - **Uploads**: Handles data transaction creation, signing, and posting to Arweave.
 - **Compression**: Includes utilities to detect compressibility and estimate fees based on compressed size.
 - **Fee Estimation**: Accurate fee calculation for both raw and compressed data.
+- **Search**: Provides Arweave GraphQL query capabilities for searching transactions by tags, content, and app names.
 
 ## API Reference
+
+### Upload & Fee Management
 
 | Function                               | Description                                                               |
 | :------------------------------------- | :------------------------------------------------------------------------ |
@@ -18,7 +21,21 @@ A simplified, tag-agnostic wrapper for the Arweave protocol. This package handle
 | `compressData(data)`                   | Compresses data using `fflate` (GZIP).                                    |
 | `decompressData(data)`                 | Decompresses GZIP data.                                                   |
 
+### Search & Query
+
+| Function                           | Description                                    |
+| :--------------------------------- | :--------------------------------------------- |
+| `searchArweaveTransactionsNetwork` | Search transactions on Arweave by tags/content |
+| `searchAppTransactions`            | Search transactions for a specific app         |
+
+**Types:**
+
+- `ArweaveSearchResult` - Transaction search result with metadata
+- `SearchOptions` - Query options for search operations
+
 ## Usage
+
+### Upload & Compression
 
 ```typescript
 import { uploadToArweave, estimateArweaveFee } from "@aryxn/arweave"
@@ -30,4 +47,31 @@ const fee = await estimateArweaveFee(fileSize)
 const txId = await uploadToArweave(data, walletKey, [
   { name: "Content-Type", value: "image/png" },
 ])
+```
+
+### Search Transactions
+
+```typescript
+import {
+  searchArweaveTransactionsNetwork,
+  searchAppTransactions,
+} from "@aryxn/arweave"
+
+// Search for specific app transactions
+const arweaveResults = await searchAppTransactions("Aryxn", "filename", 50)
+
+// Search Arweave network with strategies
+const results = await searchArweaveTransactionsNetwork({
+  query: "my-file",
+  limit: 20,
+  sort: "HEIGHT_DESC",
+})
+
+// Results include transaction details
+results.forEach((tx) => {
+  console.log(`TX: ${tx.id}`) // Transaction ID
+  console.log(`Owner: ${tx.owner.address}`) // Uploader address
+  console.log(`Tags: ${tx.tags.length}`) // Transaction metadata
+  console.log(`Size: ${tx.data.size}`) // Data size in bytes
+})
 ```
