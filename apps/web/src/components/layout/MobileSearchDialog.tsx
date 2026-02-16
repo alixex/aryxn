@@ -13,7 +13,7 @@ import {
 } from "@/lib/arweave-search"
 import { useTranslation, isSimplifiedChinese } from "@/i18n/config"
 import i18n from "@/i18n/config"
-import { useWallet } from "@/hooks/use-wallet"
+import { useWallet } from "@/hooks/account-hooks"
 
 interface MobileSearchDialogProps {
   open: boolean

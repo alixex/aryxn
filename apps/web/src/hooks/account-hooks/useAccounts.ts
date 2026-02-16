@@ -1,7 +1,18 @@
 import { useEffect, useRef, useState, useCallback } from "react"
 import { type BalanceResult } from "@/lib/balance"
-import { useWallet } from "@/hooks/use-wallet"
+import { useWallet } from "./use-wallet"
 
+/**
+ * Manage account list and balance information.
+ * 管理账户列表和余额信息
+ *
+ * @example
+ * const {
+ *   balances,
+ *   loadingBalances,
+ *   refreshBalance,
+ * } = useAccounts()
+ */
 export function useAccounts() {
   const wallet = useWallet()
   const [balances, setBalances] = useState<
@@ -103,11 +114,17 @@ export function useAccounts() {
   )
 
   return {
+    /** 账户余额缓存 */
     balances,
+    /** 余额加载状态 */
     loadingBalances,
+    /** 余额显示状态 */
     showBalances,
+    /** 刷新单个账户余额 */
     refreshBalance,
+    /** 切换余额显示状态 */
     toggleShowBalance,
+    /** 获取外部账户 */
     getExternalAccounts,
   }
 }

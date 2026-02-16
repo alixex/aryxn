@@ -1,5 +1,4 @@
-import { useInternal } from "@/hooks/use-internal-wallet"
-import { useExternalWallets } from "@/hooks/use-external-wallets"
+import { useInternal, useExternalWallets } from "@/hooks/account-hooks"
 import { useTranslation } from "@/i18n/config"
 import type { UploadRecord, WalletRecord } from "@/lib/types"
 import { searchFiles, type FileIndex } from "@/lib/file-manager"

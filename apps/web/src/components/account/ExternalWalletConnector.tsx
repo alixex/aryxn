@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { ConnectButton } from "@rainbow-me/rainbowkit"
 import { ExternalLink } from "lucide-react"
 import { useTranslation } from "@/i18n/config"
-import { useWallet } from "@/hooks/use-wallet"
+import { useWallet } from "@/hooks/account-hooks"
 import {
   EthereumIcon,
   ArweaveIcon,

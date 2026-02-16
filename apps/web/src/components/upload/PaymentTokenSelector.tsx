@@ -9,7 +9,7 @@ import {
 import { Wallet, Coins } from "lucide-react"
 import type { PaymentToken } from "@/lib/payment-service"
 import { TOKEN_CONFIG } from "@/lib/payment-service"
-import { useWallet } from "@/hooks/use-wallet"
+import { useWallet } from "@/hooks/account-hooks"
 import { useEffect, useState } from "react"
 import { getBalance } from "@/lib/balance"
 

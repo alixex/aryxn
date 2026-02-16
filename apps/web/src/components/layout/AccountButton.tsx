@@ -2,7 +2,7 @@ import { Link } from "react-router-dom"
 import { ConnectButton } from "@rainbow-me/rainbowkit"
 import { UserCircle, CreditCard, Settings, User } from "lucide-react"
 import { useTranslation } from "@/i18n/config"
-import { useWallet } from "@/hooks/use-wallet"
+import { useWallet } from "@/hooks/account-hooks"
 import { shortenedAddress } from "@/lib/utils"
 import {
   ArweaveIcon,

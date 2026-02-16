@@ -7,7 +7,7 @@ import { UploadConfigurationCard } from "@/components/upload/UploadConfiguration
 import type { UploadConfiguration } from "@/components/upload/UploadConfigurationCard"
 import { AccountSelector } from "@/components/upload/AccountSelector"
 import { UploadExecutionCard } from "@/components/upload/UploadExecutionCard"
-import { useWallet } from "@/hooks/use-wallet"
+import { useWallet } from "@/hooks/account-hooks"
 import { ArweaveFeeInfo } from "@/components/upload/ArweaveFeeInfo"
 import { SecurityNotice } from "@/components/upload/SecurityNotice"
 

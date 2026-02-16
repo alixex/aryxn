@@ -20,7 +20,7 @@ import {
   parseTokenAmount,
   formatTokenAmount,
 } from "@/lib/contracts/token-config"
-import { useInternal } from "@/hooks/use-internal-wallet"
+import { useInternal } from "@/hooks/account-hooks"
 
 export const SwapState = {
   IDLE: "idle",

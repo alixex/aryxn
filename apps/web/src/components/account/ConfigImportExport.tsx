@@ -1,6 +1,6 @@
 import { useState, useRef } from "react"
 import { useTranslation } from "@/i18n/config"
-import { useInternal } from "@/hooks/use-internal-wallet"
+import { useInternal } from "@/hooks/account-hooks"
 import { toast } from "sonner"
 import {
   Download,

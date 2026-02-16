@@ -31,7 +31,7 @@ import {
 import { useMultiHopSwap, SwapState } from "@/hooks/use-dex-swap"
 import { useInternalDexSwap } from "@/hooks/use-dex-swap-internal"
 import { SUPPORTED_TOKENS, type TokenInfo } from "@/lib/contracts/token-config"
-import { useInternal } from "@/hooks/use-internal-wallet"
+import { useInternal } from "@/hooks/account-hooks"
 import type { WalletRecord } from "@/lib/types"
 
 export default function DexPage() {

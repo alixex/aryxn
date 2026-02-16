@@ -20,8 +20,7 @@ import {
   SuiIcon,
   BitcoinIcon,
 } from "@/components/icons"
-import { useWallet } from "@/hooks/use-wallet"
-import useAccounts from "@/hooks/useAccounts"
+import { useWallet, useAccounts } from "@/hooks/account-hooks"
 
 interface Account {
   id?: string | number

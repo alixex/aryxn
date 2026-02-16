@@ -18,7 +18,7 @@ import {
   isTraditionalChinese,
 } from "@/i18n/config"
 import i18n from "@/i18n/config"
-import { useWallet } from "@/hooks/use-wallet"
+import { useWallet } from "@/hooks/account-hooks"
 
 export function ArweaveSearch() {
   const { t } = useTranslation()

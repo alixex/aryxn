@@ -1,11 +1,8 @@
 import { useState } from "react"
 import { useTranslation } from "@/i18n/config"
-import { useInternal } from "@/hooks/use-internal-wallet"
-import { useExternalWallets } from "@/hooks/use-external-wallets"
-import { useWallet } from "@/hooks/use-wallet"
+import { useInternal, useExternalWallets, useWallet, useAccounts } from "@/hooks/account-hooks"
 import { toast } from "sonner"
 import { useDisconnect } from "wagmi"
-import useAccounts from "@/hooks/useAccounts"
 import { db } from "@/lib/sqlite-db"
 import type { WalletRecord } from "@/lib/types"
 import {

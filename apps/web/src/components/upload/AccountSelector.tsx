@@ -10,7 +10,7 @@ import {
   Download,
 } from "lucide-react"
 import { generateArweaveWallet } from "@/lib/storage"
-import { useWallet } from "@/hooks/use-wallet"
+import { useWallet } from "@/hooks/account-hooks"
 import { toast } from "sonner"
 
 interface AccountSelectorProps {

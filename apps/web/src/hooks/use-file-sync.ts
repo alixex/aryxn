@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react"
 import { toast } from "sonner"
-import { useWallet } from "@/hooks/use-wallet"
+import { useInternal, useExternalWallets } from "@/hooks/account-hooks"
 import { syncFilesFromArweaveDirect } from "@/lib/file-sync-direct"
 
 export function useFileSync() {
