@@ -393,7 +393,7 @@ async function syncVaultToArweave(vaultId, masterKey) {
   // 上传到 Arweave
   const txId = await uploadToArweave(vault, wallet)
 
-  // 返回交易 ID 用于其他设备恢复
+  // 返回存储 ID 用于其他设备恢复
   return txId
 }
 ```

@@ -135,7 +135,7 @@ console.log(`同步 ${synced} 个文件`)
 ```typescript
 interface FileIndex {
   id: string // 本地唯一 ID
-  tx_id: string // Arweave 交易 ID
+  tx_id: string // Arweave 存储 ID
   file_name: string // 文件名
   file_hash: string // 文件哈希
   file_size: number // 文件大小（字节）

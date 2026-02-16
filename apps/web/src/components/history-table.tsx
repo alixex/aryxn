@@ -143,7 +143,7 @@ export function HistoryTable({
                     {formatDateTime(r.createdAt)}
                   </span>
                 </td>
-                {/* 交易 ID */}
+                {/* 存储 ID */}
                 <td className="hidden truncate px-4 py-4 sm:px-6 xl:table-cell">
                   <a
                     href={`https://arweave.net/${r.txId}`}

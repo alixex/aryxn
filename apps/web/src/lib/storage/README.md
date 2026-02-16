@@ -77,7 +77,7 @@ const txId = await uploadToArweave(file, wallet, {
   tags: { app: "aryxn", type: "document" },
 })
 
-console.log(`文件已上传，交易 ID: ${txId}`)
+console.log(`文件已上传，存储 ID: ${txId}`)
 ```
 
 ### 场景 2: 估算上传费用
@@ -163,7 +163,7 @@ interface UploadOptions {
 
 ```typescript
 interface ArweaveFile {
-  id: string // 交易 ID
+  id: string // 存储 ID
   owner: string // 所有者地址
   data_size: number // 文件大小
   timestamp: number // 上传时间
@@ -199,7 +199,7 @@ interface TransactionStatus {
   ↓
 上传到 Arweave
   ↓
-获取交易 ID
+获取存储 ID
   ↓
 等待确认（约 10-30 分钟）
   ↓
