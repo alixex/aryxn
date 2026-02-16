@@ -96,7 +96,9 @@ export function useWalletStorage(
           const savedAddress = activeAddressRecord?.value
 
           if (savedAddress && typeof savedAddress === "string") {
-            const wallet = wallets.find((w: WalletRecord) => w.address === savedAddress)
+            const wallet = wallets.find(
+              (w: WalletRecord) => w.address === savedAddress,
+            )
             if (wallet) {
               const { ciphertext, nonce } = JSON.parse(wallet.encryptedKey)
               const decrypted = await decryptData(

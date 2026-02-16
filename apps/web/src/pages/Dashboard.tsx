@@ -21,7 +21,7 @@ import {
 } from "lucide-react"
 import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
-import { useFileSync } from "@/hooks/use-file-sync"
+import { useFileSync } from "@/hooks/upload-hooks"
 
 // 将 FileIndex 转换为 UploadRecord 格式（用于兼容 HistoryTable）
 function fileIndexToUploadRecord(file: FileIndex): UploadRecord {

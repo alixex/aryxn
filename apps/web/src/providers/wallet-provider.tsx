@@ -6,9 +6,9 @@ import {
   useMemo,
 } from "react"
 import { getBalance, type BalanceResult } from "@/lib/balance"
-import { useVault } from "@/hooks/account-hooks/internal-wallet/use-vault"
-import { useWalletStorage } from "@/hooks/account-hooks/internal-wallet/use-wallet-storage"
-import { useWalletOps } from "@/hooks/account-hooks/internal-wallet/use-wallet-ops"
+import { useVault } from "@/hooks/vault-hooks"
+import { useWalletStorage } from "@/hooks/vault-hooks"
+import { useWalletOps } from "@/hooks/vault-hooks"
 import {
   useExternalWallets,
   type UseExternalWalletsReturn,

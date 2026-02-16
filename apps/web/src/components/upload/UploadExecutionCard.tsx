@@ -3,7 +3,7 @@ import { Upload } from "lucide-react"
 import { useTranslation } from "@/i18n/config"
 import { UploadButton } from "./UploadButton"
 import { UploadProgress } from "./UploadProgress"
-import { useUploadHandler } from "@/hooks/use-upload-handler"
+import { useUploadHandler } from "@/hooks/upload-hooks"
 import type { PaymentToken } from "@/lib/payment-service"
 
 interface UploadExecutionCardProps {

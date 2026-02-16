@@ -1,6 +1,11 @@
 import { useState } from "react"
 import { useTranslation } from "@/i18n/config"
-import { useInternal, useExternalWallets, useWallet, useAccounts } from "@/hooks/account-hooks"
+import {
+  useInternal,
+  useExternalWallets,
+  useWallet,
+  useAccounts,
+} from "@/hooks/account-hooks"
 import { toast } from "sonner"
 import { useDisconnect } from "wagmi"
 import { db } from "@/lib/sqlite-db"

@@ -6,6 +6,7 @@
  * - Fee calculations
  * - Token approvals
  * - Token balance queries
+ * - Transaction history tracking
  *
  * Supports both external wallets (wagmi) and internal wallets (ethers.js)
  */
@@ -16,3 +17,4 @@ export * from "./use-swap-quote"
 export * from "./use-fee-calculation"
 export * from "./use-token-approval"
 export * from "./use-token-balance"
+export * from "./use-transaction-history"

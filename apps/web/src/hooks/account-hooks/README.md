@@ -27,6 +27,7 @@ account-hooks/
 ## 核心 Hooks 说明
 
 ### `useWallet()` (推荐)
+
 统一的钱包接口，提供对内部账户、外部账户、活跃账户的访问，以及账户操作辅助函数。
 
 ```typescript
@@ -42,6 +43,7 @@ const wallet = useWallet()
 ```
 
 ### `useInternal()`
+
 直接访问内部钱包（vault）管理接口。
 
 ```typescript
@@ -56,6 +58,7 @@ const walletManager = useInternal()
 ```
 
 ### `useExternalWallets()`
+
 访问外部钱包（浏览器扩展）状态和操作。
 
 ```typescript
@@ -70,29 +73,32 @@ const { external, actions } = useExternalWallets()
 ```
 
 ### `useAccounts()`
+
 管理账户列表和余额信息。
 
 ```typescript
 import { useAccounts } from "@/hooks/account-hooks"
 
 const {
-  balances,           // 余额缓存
-  loadingBalances,    // 加载状态
-  showBalances,       // 显示/隐藏状态
-  refreshBalance,     // 刷新单个余额
-  getExternalAccounts // 获取外部账户
+  balances, // 余额缓存
+  loadingBalances, // 加载状态
+  showBalances, // 显示/隐藏状态
+  refreshBalance, // 刷新单个余额
+  getExternalAccounts, // 获取外部账户
 } = useAccounts()
 ```
 
 ## 使用指南
 
 ### 场景 1: 获取所有账户并显示列表
+
 ```typescript
 const wallet = useWallet()
 const allAccounts = wallet.getAllAccounts("ethereum")
 ```
 
 ### 场景 2: 解锁内部钱包并操作
+
 ```typescript
 const walletManager = useInternal()
 await walletManager.unlock(password)
@@ -100,6 +106,7 @@ await walletManager.addWallet(privateKey, alias)
 ```
 
 ### 场景 3: 连接/断开外部钱包
+
 ```typescript
 const { actions } = useExternalWallets()
 await actions.connect("ethereum")
@@ -107,6 +114,7 @@ await actions.disconnect("ethereum")
 ```
 
 ### 场景 4: 获取和刷新余额
+
 ```typescript
 const { balances, refreshBalance } = useAccounts()
 const balance = balances["ethereum-0x123..."]

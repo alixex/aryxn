@@ -28,7 +28,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { useMultiHopSwap, SwapState, useInternalDexSwap } from "@/hooks/dex-hooks"
+import {
+  useMultiHopSwap,
+  SwapState,
+  useInternalDexSwap,
+} from "@/hooks/dex-hooks"
 import { SUPPORTED_TOKENS, type TokenInfo } from "@/lib/contracts/token-config"
 import { useInternal } from "@/hooks/account-hooks"
 import type { WalletRecord } from "@/lib/types"
@@ -42,8 +46,9 @@ export default function DexPage() {
   const hasInternalEthAccount =
     walletManager.isUnlocked &&
     !!walletManager.activeAddress &&
-    walletManager.wallets.find((w: WalletRecord) => w.address === walletManager.activeAddress)
-      ?.chain === "ethereum"
+    walletManager.wallets.find(
+      (w: WalletRecord) => w.address === walletManager.activeAddress,
+    )?.chain === "ethereum"
 
   // Determine which wallet type to use
   const useInternalWallet = hasInternalEthAccount && !isConnected

@@ -76,8 +76,9 @@ export function useInternalDexSwap({
     walletManager.isUnlocked &&
     !!walletManager.activeAddress &&
     !!walletManager.activeWallet &&
-    walletManager.wallets.find((w: WalletRecord) => w.address === walletManager.activeAddress)
-      ?.chain === "ethereum"
+    walletManager.wallets.find(
+      (w: WalletRecord) => w.address === walletManager.activeAddress,
+    )?.chain === "ethereum"
 
   // Get ethers provider and signer
   const getProviderAndSigner = useCallback(async () => {
