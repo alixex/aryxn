@@ -253,13 +253,13 @@ export default function DexPage() {
 
   return (
     <div className="mesh-gradient relative min-h-screen">
-      <div className="animate-in fade-in slide-in-from-bottom-4 mx-auto max-w-6xl space-y-8 px-4 py-8 duration-1000">
+      <div className="animate-in fade-in slide-in-from-bottom-4 mx-auto max-w-6xl space-y-6 px-3 py-6 duration-1000 sm:space-y-8 sm:px-4 sm:py-8">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-col gap-3">
-            <h2 className="flex items-center gap-3 text-4xl font-extrabold tracking-tighter sm:text-5xl">
-              <div className="bg-gradient-secondary glow-gold rounded-2xl p-2.5 text-white shadow-xl ring-1 ring-white/20">
+            <h2 className="flex items-center gap-3 text-3xl font-extrabold tracking-tighter sm:text-4xl lg:text-5xl">
+              <div className="bg-gradient-secondary glow-gold rounded-xl p-2 text-white shadow-xl ring-1 ring-white/20 sm:rounded-2xl sm:p-2.5">
                 <TrendingUp
-                  className="h-7 w-7 sm:h-8 sm:w-8"
+                  className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8"
                   aria-hidden="true"
                 />
               </div>

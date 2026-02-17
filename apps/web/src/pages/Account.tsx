@@ -236,7 +236,7 @@ export default function AccountPage() {
 
   return (
     <div className="mesh-gradient relative min-h-screen">
-      <div className="animate-in fade-in slide-in-from-bottom-4 mx-auto max-w-6xl space-y-8 px-4 py-8 duration-1000">
+      <div className="animate-in fade-in slide-in-from-bottom-4 mx-auto max-w-6xl space-y-6 px-3 py-6 duration-1000 sm:space-y-8 sm:px-4 sm:py-8">
         <AccountHeader
           t={t}
           isUnlocked={walletManager.isUnlocked}
