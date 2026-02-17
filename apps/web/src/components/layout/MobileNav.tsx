@@ -46,7 +46,7 @@ export function MobileNav({ items }: MobileNavProps) {
                   </span>
                 )}
               </div>
-              <span className="text-[10px] font-bold tracking-wide uppercase">
+              <span className="sr-only text-[10px] font-bold tracking-wide uppercase">
                 {item.label}
               </span>
             </Link>
