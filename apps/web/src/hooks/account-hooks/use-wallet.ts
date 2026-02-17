@@ -1,3 +1,4 @@
+import { useMemo } from "react"
 import { useWallet as useInternalWallet } from "@/providers/wallet-provider"
 
 /**
@@ -25,33 +26,37 @@ import { useWallet as useInternalWallet } from "@/providers/wallet-provider"
 export function useWallet() {
   const context = useInternalWallet()
 
-  return {
-    /** 综合活跃账户（优先级：外部钱包 > 内部钱包） */
-    active: context.active,
+  return useMemo(
+    () => ({
+      /** 综合活跃账户（优先级：外部钱包 > 内部钱包） */
+      active: context.active,
 
-    /** 内部钱包/库管理接口 */
-    internal: context.internal,
+      /** 内部钱包/库管理接口 */
+      internal: context.internal,
 
-    /** 外部钱包/扩展状态 */
-    external: context.external,
+      /** 外部钱包/扩展状态 */
+      external: context.external,
 
-    // ===== Account Helpers (账户辅助函数) =====
-    /** 获取指定链的本地账户 */
-    getLocalAccounts: (chain: string) => context.getLocalAccounts(chain),
-    /** 获取指定链的外部账户 */
-    getExternalAccounts: (chain: string) => context.getExternalAccounts(chain),
-    /** 获取指定链的所有账户（本地 + 外部） */
-    getAllAccounts: (chain: string) => context.getAllAccounts(chain),
-    /** 连接外部钱包 */
-    connectExternal: (chain: string) => context.connectExternal(chain),
-    /** 断开外部钱包连接 */
-    disconnectExternal: (chain: string) => context.disconnectExternal(chain),
-    /** 刷新账户余额 */
-    refreshBalance: (chain: string, address: string) =>
-      context.refreshBalance(chain, address),
-    /** 获取所有链的账户映射 */
-    getAccountsByChain: () => context.getAccountsByChain(),
-  }
+      // ===== Account Helpers (账户辅助函数) =====
+      /** 获取指定链的本地账户 */
+      getLocalAccounts: (chain: string) => context.getLocalAccounts(chain),
+      /** 获取指定链的外部账户 */
+      getExternalAccounts: (chain: string) =>
+        context.getExternalAccounts(chain),
+      /** 获取指定链的所有账户（本地 + 外部） */
+      getAllAccounts: (chain: string) => context.getAllAccounts(chain),
+      /** 连接外部钱包 */
+      connectExternal: (chain: string) => context.connectExternal(chain),
+      /** 断开外部钱包连接 */
+      disconnectExternal: (chain: string) => context.disconnectExternal(chain),
+      /** 刷新账户余额 */
+      refreshBalance: (chain: string, address: string) =>
+        context.refreshBalance(chain, address),
+      /** 获取所有链的账户映射 */
+      getAccountsByChain: () => context.getAccountsByChain(),
+    }),
+    [context],
+  )
 }
 
 export type UseWalletReturn = ReturnType<typeof useWallet>

@@ -39,6 +39,10 @@ interface TokenBalancesProps {
   isUnlocked: boolean
 }
 
+// Global cache to prevent re-fetching across remounts
+const globalFetchCache = new Map<string, number>()
+const GLOBAL_COOLDOWN = 30000
+
 export function TokenBalances({
   address,
   chain,
@@ -158,24 +162,26 @@ export function TokenBalances({
     return tokenBalances
   }
 
-  const [lastFetchTime, setLastFetchTime] = useState<number>(0)
   const [backoffTime, setBackoffTime] = useState<number>(0)
-  const COOLDOWN_PERIOD = 30000 // 30 seconds default cooldown
 
   const fetchBalances = async (force = false) => {
     if (!isUnlocked || !address) return
 
-    // Antigravity: Multi-layer protection against infinite loops
-    // 1. Throttle requests if they happened too recently (unless forced)
+    const cacheKey = `${chain}-${address}`
     const now = Date.now()
-    const currentCooldown = COOLDOWN_PERIOD + backoffTime
-    if (!force && lastFetchTime > 0 && now - lastFetchTime < currentCooldown) {
-      console.debug(`Skipping balance fetch for ${address}, cooling down...`)
+    const lastFetch = globalFetchCache.get(cacheKey) || 0
+    const currentCooldown = GLOBAL_COOLDOWN + backoffTime
+
+    // Antigravity: Global protection against remount loops
+    if (!force && lastFetch > 0 && now - lastFetch < currentCooldown) {
+      console.debug(
+        `[TokenBalances] Skipping fetch for ${address}, global cooldown active (${Math.ceil((currentCooldown - (now - lastFetch)) / 1000)}s left)`,
+      )
       return
     }
 
     setLoading(true)
-    setLastFetchTime(now)
+    globalFetchCache.set(cacheKey, now) // Set immediately to block parallel mounts
 
     try {
       let tokenBalances: TokenBalance[] = []

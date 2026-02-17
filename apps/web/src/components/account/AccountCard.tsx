@@ -19,7 +19,7 @@ import {
   SuiIcon,
   BitcoinIcon,
 } from "@/components/icons"
-import { useWallet, useAccounts } from "@/hooks/account-hooks"
+import { useWallet } from "@/hooks/account-hooks"
 
 interface Account {
   id?: string | number
@@ -32,6 +32,8 @@ interface Account {
   createdAt?: number
 }
 
+import type { BalanceResult } from "@/lib/chain"
+
 interface AccountCardProps {
   account: Account
   isActive: boolean
@@ -39,6 +41,12 @@ interface AccountCardProps {
   onCopyAddress: (address: string) => void
   onShowSensitive?: (account: Account, type: "key" | "mnemonic") => void
   onDisconnect?: () => void
+  // New props for lifting state
+  balance?: BalanceResult | null
+  loading?: boolean
+  showBalance?: boolean
+  onToggleBalance?: (show: boolean) => void
+  onRefreshBalance?: () => void
 }
 
 const getChainIcon = (chain?: string) => {
@@ -65,6 +73,11 @@ export function AccountCard({
   onCopyAddress,
   onShowSensitive,
   onDisconnect,
+  balance,
+  loading,
+  showBalance = false,
+  onToggleBalance,
+  onRefreshBalance,
 }: AccountCardProps) {
   const { t } = useTranslation()
   const wallet = useWallet()
@@ -72,20 +85,6 @@ export function AccountCard({
   const isPaymentConnected = external?.isPaymentConnected
   const connector = external?.connector
   const paymentAddress = external?.paymentAddress
-  const {
-    balances,
-    loadingBalances,
-    showBalances,
-    refreshBalance,
-    toggleShowBalance,
-  } = useAccounts()
-
-  const key = account.isExternal
-    ? `external-${account.chain}-${account.address}`
-    : `${account.chain}-${account.address}`
-  const balance = balances[key]
-  const loading = loadingBalances[key]
-  const showBalance = showBalances[key] || false
 
   const displayAlias = (() => {
     if (account.alias) return account.alias
@@ -187,16 +186,14 @@ export function AccountCard({
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-6">
                   <BalanceDisplay
                     chain={account.chain}
-                    balance={balance}
-                    loading={loading}
+                    balance={balance || null}
+                    loading={loading || false}
                     showBalance={showBalance}
-                    onToggle={(s) => toggleShowBalance(key, s)}
-                    onRefresh={() =>
-                      refreshBalance(
-                        account.chain,
-                        account.address,
-                        account.isExternal,
-                      )
+                    onToggle={onToggleBalance || (() => {})}
+                    onRefresh={
+                      onRefreshBalance
+                        ? async () => onRefreshBalance()
+                        : async () => {}
                     }
                   />
 

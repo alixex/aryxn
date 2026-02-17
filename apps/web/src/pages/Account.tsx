@@ -3,8 +3,9 @@ import { useTranslation } from "@/i18n/config"
 import { useInternal, useWallet, useAccounts } from "@/hooks/account-hooks"
 import { toast } from "sonner"
 import { useDisconnect } from "wagmi"
-import { db } from "@/lib/database"
+
 import type { WalletRecord } from "@/lib/utils"
+
 import {
   Card,
   CardContent,
@@ -14,12 +15,13 @@ import {
 } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { UnlockForm } from "@/components/account/UnlockForm"
-import { AccountList } from "@/components/account/AccountList"
+
 import { AddAccountSection } from "@/components/account/AddAccountSection"
 import { SensitiveInfoDialog } from "@/components/account/SensitiveInfoDialog"
 import { CreateAccountDialog } from "@/components/account/CreateAccountDialog"
 import AccountHeader from "@/components/account/AccountHeader"
 import AccountSidebar from "@/components/account/AccountSidebar"
+import { AccountListTab } from "@/components/account/AccountListTab"
 
 export default function AccountPage() {
   const { t } = useTranslation()
@@ -41,7 +43,14 @@ export default function AccountPage() {
   const [showCreateDialog, setShowCreateDialog] = useState(false)
   const [createChain, setCreateChain] = useState<string>("")
 
-  const { getExternalAccounts } = useAccounts()
+  const {
+    getExternalAccounts,
+    balances,
+    loadingBalances,
+    showBalances,
+    refreshBalance,
+    toggleShowBalance,
+  } = useAccounts()
 
   // 处理函数
   const handleUnlock = async (password: string) => {
@@ -129,130 +138,6 @@ export default function AccountPage() {
     }
   }
 
-  // No changes to refreshBalanceCb logic here, handled in hooks
-
-  // 1. Move AccountListTab outside to prevent remounts on every parent render
-  // 2. Use stable props for the list rendering
-  interface Account {
-    id?: string | number
-    chain: string
-    address: string
-    alias: string
-    isExternal: boolean
-    encryptedKey?: string
-    vaultId?: string
-    createdAt?: number
-  }
-
-  interface AccountListTabProps {
-    chain: string
-    wallet: any
-    walletManager: any
-    externalWallets: any
-    getExternalAccounts: () => any[]
-    onShowSensitive: (account: any, type: "key" | "mnemonic") => void
-    onCopyAddress: (address: string) => void
-    onDisconnectEVM: () => void
-    t: any
-  }
-
-  function AccountListTab({
-    chain,
-    wallet,
-    walletManager,
-    externalWallets,
-    getExternalAccounts,
-    onShowSensitive,
-    onCopyAddress,
-    onDisconnectEVM,
-    t,
-  }: AccountListTabProps) {
-    const localAccounts = wallet.getLocalAccounts
-      ? wallet.getLocalAccounts(chain)
-      : walletManager.wallets
-          .filter((w: any) => w.chain === chain)
-          .map((w: any) => ({ ...w, id: w.id ?? undefined, isExternal: false }))
-
-    const externalAccounts = wallet.getExternalAccounts
-      ? wallet.getExternalAccounts(chain)
-      : getExternalAccounts().filter((acc) => acc.chain === chain)
-
-    const allAccounts = [
-      ...(localAccounts || []),
-      ...(externalAccounts || []),
-    ] as Account[]
-
-    const isActive = (account: Account) => {
-      const activeAccounts = wallet.active?.accounts || []
-      const addrLower = account.address?.toLowerCase()
-      if (!addrLower) return false
-
-      if (
-        activeAccounts.some((a: any) => a.address?.toLowerCase() === addrLower)
-      ) {
-        return true
-      }
-
-      return walletManager.activeAddress === account.address
-    }
-
-    const handleSelect = (account: Account) => {
-      if (account.isExternal) {
-        if (!isActive(account)) {
-          if (
-            account.chain === "ethereum" &&
-            account.address.toLowerCase() !==
-              externalWallets.paymentAddress?.toLowerCase()
-          ) {
-            toast.info(t("identities.switchAccountHint"), {
-              duration: 2000,
-            })
-          } else {
-            walletManager.clearActiveWallet()
-            toast.success(t("identities.switchedToExternal"))
-          }
-        }
-      } else {
-        if (!isActive(account)) {
-          walletManager.selectWallet(account.address)
-        }
-      }
-    }
-
-    const handleDisconnect = async (account: Account) => {
-      if (account.chain === "ethereum") {
-        onDisconnectEVM()
-        if (!walletManager.activeAddress && walletManager.vaultId) {
-          try {
-            await db.run("DELETE FROM vault_metadata WHERE key = ?", [
-              `use_external_${walletManager.vaultId}`,
-            ])
-          } catch (e) {
-            console.error("Failed to clear external account state:", e)
-          }
-        }
-      } else if (account.chain === "arweave") {
-        externalWallets.disconnectArweave()
-      } else if (account.chain === "solana") {
-        externalWallets.disconnectSolana()
-      } else if (account.chain === "sui") {
-        externalWallets.disconnectSui()
-      }
-    }
-
-    return (
-      <AccountList
-        chain={chain}
-        accounts={allAccounts}
-        isActive={isActive}
-        onSelect={handleSelect}
-        onCopyAddress={onCopyAddress}
-        onShowSensitive={walletManager.isUnlocked ? onShowSensitive : undefined}
-        onDisconnect={handleDisconnect}
-      />
-    )
-  }
-
   return (
     <div className="mesh-gradient relative min-h-screen">
       <div className="animate-in fade-in slide-in-from-bottom-4 mx-auto max-w-6xl space-y-6 px-3 py-6 duration-1000 sm:space-y-8 sm:px-4 sm:py-8">
@@ -313,6 +198,11 @@ export default function AccountPage() {
                         onCopyAddress={copyAddress}
                         onDisconnectEVM={disconnectEVM}
                         t={t}
+                        balances={balances}
+                        loadingBalances={loadingBalances}
+                        showBalances={showBalances}
+                        onRefreshBalance={refreshBalance}
+                        onToggleBalance={toggleShowBalance}
                       />
                     </TabsContent>
                     <TabsContent
@@ -329,6 +219,11 @@ export default function AccountPage() {
                         onCopyAddress={copyAddress}
                         onDisconnectEVM={disconnectEVM}
                         t={t}
+                        balances={balances}
+                        loadingBalances={loadingBalances}
+                        showBalances={showBalances}
+                        onRefreshBalance={refreshBalance}
+                        onToggleBalance={toggleShowBalance}
                       />
                     </TabsContent>
                     <TabsContent
@@ -345,6 +240,11 @@ export default function AccountPage() {
                         onCopyAddress={copyAddress}
                         onDisconnectEVM={disconnectEVM}
                         t={t}
+                        balances={balances}
+                        loadingBalances={loadingBalances}
+                        showBalances={showBalances}
+                        onRefreshBalance={refreshBalance}
+                        onToggleBalance={toggleShowBalance}
                       />
                     </TabsContent>
                     <TabsContent
@@ -361,6 +261,11 @@ export default function AccountPage() {
                         onCopyAddress={copyAddress}
                         onDisconnectEVM={disconnectEVM}
                         t={t}
+                        balances={balances}
+                        loadingBalances={loadingBalances}
+                        showBalances={showBalances}
+                        onRefreshBalance={refreshBalance}
+                        onToggleBalance={toggleShowBalance}
                       />
                     </TabsContent>
                     <TabsContent
@@ -377,6 +282,11 @@ export default function AccountPage() {
                         onCopyAddress={copyAddress}
                         onDisconnectEVM={disconnectEVM}
                         t={t}
+                        balances={balances}
+                        loadingBalances={loadingBalances}
+                        showBalances={showBalances}
+                        onRefreshBalance={refreshBalance}
+                        onToggleBalance={toggleShowBalance}
                       />
                     </TabsContent>
                   </Tabs>

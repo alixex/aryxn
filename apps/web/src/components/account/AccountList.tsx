@@ -1,6 +1,7 @@
 import { Wallet } from "lucide-react"
 import { useTranslation } from "@/i18n/config"
 import { AccountCard } from "./AccountCard"
+import type { BalanceResult } from "@/lib/chain"
 
 interface Account {
   id?: string | number
@@ -21,6 +22,16 @@ interface AccountListProps {
   onCopyAddress: (address: string) => void
   onShowSensitive?: (account: Account, type: "key" | "mnemonic") => void
   onDisconnect?: (account: Account) => void
+  // New props for lifting state
+  balances: Record<string, BalanceResult | null>
+  loadingBalances: Record<string, boolean>
+  showBalances: Record<string, boolean>
+  onRefreshBalance: (
+    chain: string,
+    address: string,
+    isExternal: boolean,
+  ) => void
+  onToggleBalance: (key: string, show: boolean) => void
 }
 
 export function AccountList({
@@ -31,6 +42,11 @@ export function AccountList({
   onCopyAddress,
   onShowSensitive,
   onDisconnect,
+  balances,
+  loadingBalances,
+  showBalances,
+  onRefreshBalance,
+  onToggleBalance,
 }: AccountListProps) {
   const { t } = useTranslation()
 
@@ -53,6 +69,10 @@ export function AccountList({
     <div className="space-y-3">
       {accounts.map((account) => {
         const active = isActive(account)
+        const key = account.isExternal
+          ? `external-${account.chain}-${account.address}`
+          : `${account.chain}-${account.address}`
+
         return (
           <AccountCard
             key={account.id || `${account.chain}-${account.address}`}
@@ -63,6 +83,17 @@ export function AccountList({
             onShowSensitive={onShowSensitive}
             onDisconnect={
               onDisconnect ? () => onDisconnect(account) : undefined
+            }
+            balance={balances[key]}
+            loading={loadingBalances[key]}
+            showBalance={showBalances[key]}
+            onToggleBalance={(show) => onToggleBalance(key, show)}
+            onRefreshBalance={() =>
+              onRefreshBalance(
+                account.chain,
+                account.address,
+                account.isExternal,
+              )
             }
           />
         )

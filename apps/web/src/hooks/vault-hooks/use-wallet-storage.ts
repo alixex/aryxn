@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react"
+import { useState, useCallback, useEffect, useMemo } from "react"
 import { db } from "@/lib/database"
 import { type DbRow } from "@aryxn/storage"
 import type { WalletRecord, WalletKey } from "@aryxn/wallet-core"
@@ -191,19 +191,31 @@ export function useWalletStorage(
     setHasSavedLocalAccount(false)
   }, [vaultId])
 
-  return {
-    wallets,
-    activeAddress,
-    activeWallet,
-    useExternal,
-    hasSavedLocalAccount,
-    loadWallets,
-    saveActiveAccount,
-    clearPersistence,
-    setWallets,
-    setActiveAddress,
-    setActiveWallet,
-    setUseExternal,
-    setHasSavedLocalAccount,
-  }
+  return useMemo(
+    () => ({
+      wallets,
+      activeAddress,
+      activeWallet,
+      useExternal,
+      hasSavedLocalAccount,
+      loadWallets,
+      saveActiveAccount,
+      clearPersistence,
+      setWallets,
+      setActiveAddress,
+      setActiveWallet,
+      setUseExternal,
+      setHasSavedLocalAccount,
+    }),
+    [
+      wallets,
+      activeAddress,
+      activeWallet,
+      useExternal,
+      hasSavedLocalAccount,
+      loadWallets,
+      saveActiveAccount,
+      clearPersistence,
+    ],
+  )
 }

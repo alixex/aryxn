@@ -25,10 +25,17 @@ export function useAccounts() {
 
   const fetchedBalancesRef = useRef<Set<string>>(new Set())
 
-  // Fetch balances for all accounts (local + external) using provider helpers
+  // Generate a stable signature for accounts to prevent infinite loops
+  // caused by unstable object references from useWallet
+  const accountsByChain = wallet.getAccountsByChain()
+  const allAccounts = Object.values(accountsByChain).flat()
+  const accountsSignature = JSON.stringify(
+    allAccounts.map(
+      (a) => `${a.chain}-${a.address}-${a.isExternal ? "ext" : "int"}`,
+    ),
+  )
+
   useEffect(() => {
-    const accountsByChain = wallet.getAccountsByChain()
-    const allAccounts = Object.values(accountsByChain).flat()
     if (allAccounts.length === 0) return
 
     const fetchAll = async () => {
@@ -66,7 +73,8 @@ export function useAccounts() {
     }
 
     fetchAll()
-  }, [wallet.getAccountsByChain])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accountsSignature])
 
   const refreshBalance = async (
     chain: string,

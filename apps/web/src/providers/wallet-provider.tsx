@@ -4,6 +4,7 @@ import {
   type ReactNode,
   useCallback,
   useMemo,
+  useRef,
 } from "react"
 import { getBalance, type BalanceResult } from "@/lib/chain"
 import { useVault } from "@/hooks/vault-hooks"
@@ -391,19 +392,58 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     return out
   }, [getLocalAccounts, getExternalAccounts])
 
+  // Global request deduplication cache
+  const pendingRequests = useRef<Map<string, Promise<BalanceResult | null>>>(
+    new Map(),
+  )
+  const resultCache = useRef<
+    Map<string, { data: BalanceResult | null; timestamp: number }>
+  >(new Map())
+  const CACHE_TTL = 30000 // 30 seconds
+
   const refreshBalanceCb = useCallback(
     async (chain: string, address: string): Promise<BalanceResult | null> => {
-      try {
-        const bal = await getBalance(chain as any, address)
-        // Ensure timestamp is set on the return value
-        if (bal) {
-          bal.timestamp = Date.now()
-        }
-        return bal
-      } catch (e) {
-        console.error("refreshBalance failed", e)
-        return null
+      const cacheKey = `${chain}-${address}`
+      const now = Date.now()
+
+      // 1. Return cached result if fresh
+      const cached = resultCache.current.get(cacheKey)
+      if (cached && now - cached.timestamp < CACHE_TTL) {
+        // console.debug(`[WalletProvider] Returning cached balance for ${address}`)
+        return cached.data
       }
+
+      // 2. Return pending promise if already in flight
+      if (pendingRequests.current.has(cacheKey)) {
+        console.debug(
+          `[WalletProvider] Deduping in-flight request for ${address}`,
+        )
+        return pendingRequests.current.get(cacheKey)!
+      }
+
+      // 3. Make new request
+      const promise = (async () => {
+        try {
+          const bal = await getBalance(chain as any, address)
+          if (bal) {
+            bal.timestamp = Date.now()
+          }
+          // Update cache
+          resultCache.current.set(cacheKey, {
+            data: bal,
+            timestamp: Date.now(),
+          })
+          return bal
+        } catch (e) {
+          console.error("refreshBalance failed", e)
+          return null
+        } finally {
+          pendingRequests.current.delete(cacheKey)
+        }
+      })()
+
+      pendingRequests.current.set(cacheKey, promise)
+      return promise
     },
     [],
   )
