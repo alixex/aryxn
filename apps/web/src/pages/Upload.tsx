@@ -49,9 +49,9 @@ export default function UploadPage() {
     <div className="mx-auto max-w-6xl space-y-6 py-4 sm:space-y-8 sm:py-8">
       <div className="flex flex-col gap-3">
         <h2 className="flex items-center gap-2 text-3xl font-bold tracking-tight sm:text-4xl">
-          <div className="bg-gradient-primary shrink-0 rounded p-1.5 text-white">
+          <div className="bg-gradient-primary glow-purple rounded-lg p-2 text-white shadow-lg">
             <svg
-              className="h-5 w-5 sm:h-6 sm:w-6"
+              className="h-6 w-6 sm:h-7 sm:w-7"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"

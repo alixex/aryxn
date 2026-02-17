@@ -152,8 +152,8 @@ export default function DashboardPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-2">
           <h2 className="flex items-center gap-2 text-3xl font-bold tracking-tight sm:text-4xl">
-            <div className="bg-gradient-primary flex-shrink-0 rounded p-1.5 text-white">
-              <LayoutDashboard className="h-5 w-5 sm:h-6 sm:w-6" />
+            <div className="bg-gradient-primary glow-purple rounded-lg p-2 text-white shadow-lg">
+              <LayoutDashboard className="h-6 w-6 sm:h-7 sm:w-7" />
             </div>
             <span className="bg-gradient-primary gradient-text inline-block align-middle leading-tight">
               {t("common.dashboard")}
