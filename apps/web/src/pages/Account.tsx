@@ -129,32 +129,58 @@ export default function AccountPage() {
     }
   }
 
-  // refreshBalance provided by useAccounts
+  // No changes to refreshBalanceCb logic here, handled in hooks
 
-  // AccountListTab component
-  const AccountListTab = ({ chain }: { chain: string }) => {
-    type Account = {
-      id?: string | number
-      chain: string
-      address: string
-      alias: string
-      isExternal: boolean
-      encryptedKey?: string
-      vaultId?: string
-      createdAt?: number
-    }
+  // 1. Move AccountListTab outside to prevent remounts on every parent render
+  // 2. Use stable props for the list rendering
+  interface Account {
+    id?: string | number
+    chain: string
+    address: string
+    alias: string
+    isExternal: boolean
+    encryptedKey?: string
+    vaultId?: string
+    createdAt?: number
+  }
 
+  interface AccountListTabProps {
+    chain: string
+    wallet: any
+    walletManager: any
+    externalWallets: any
+    getExternalAccounts: () => any[]
+    onShowSensitive: (account: any, type: "key" | "mnemonic") => void
+    onCopyAddress: (address: string) => void
+    onDisconnectEVM: () => void
+    t: any
+  }
+
+  function AccountListTab({
+    chain,
+    wallet,
+    walletManager,
+    externalWallets,
+    getExternalAccounts,
+    onShowSensitive,
+    onCopyAddress,
+    onDisconnectEVM,
+    t,
+  }: AccountListTabProps) {
     const localAccounts = wallet.getLocalAccounts
       ? wallet.getLocalAccounts(chain)
       : walletManager.wallets
-          .filter((w) => w.chain === chain)
-          .map((w) => ({ ...w, id: w.id ?? undefined, isExternal: false }))
+          .filter((w: any) => w.chain === chain)
+          .map((w: any) => ({ ...w, id: w.id ?? undefined, isExternal: false }))
+
     const externalAccounts = wallet.getExternalAccounts
       ? wallet.getExternalAccounts(chain)
       : getExternalAccounts().filter((acc) => acc.chain === chain)
-    const allAccounts = wallet.getAllAccounts
-      ? (wallet.getAllAccounts(chain) as Account[])
-      : ([...localAccounts, ...externalAccounts] as Account[])
+
+    const allAccounts = [
+      ...(localAccounts || []),
+      ...(externalAccounts || []),
+    ] as Account[]
 
     const isActive = (account: Account) => {
       const activeAccounts = wallet.active?.accounts || []
@@ -195,7 +221,7 @@ export default function AccountPage() {
 
     const handleDisconnect = async (account: Account) => {
       if (account.chain === "ethereum") {
-        disconnectEVM()
+        onDisconnectEVM()
         if (!walletManager.activeAddress && walletManager.vaultId) {
           try {
             await db.run("DELETE FROM vault_metadata WHERE key = ?", [
@@ -220,10 +246,8 @@ export default function AccountPage() {
         accounts={allAccounts}
         isActive={isActive}
         onSelect={handleSelect}
-        onCopyAddress={copyAddress}
-        onShowSensitive={
-          walletManager.isUnlocked ? handleShowSensitive : undefined
-        }
+        onCopyAddress={onCopyAddress}
+        onShowSensitive={walletManager.isUnlocked ? onShowSensitive : undefined}
         onDisconnect={handleDisconnect}
       />
     )
@@ -279,31 +303,81 @@ export default function AccountPage() {
                       value="ethereum"
                       className="px-4 pt-4 pb-4 sm:px-6 sm:pb-6"
                     >
-                      <AccountListTab chain="ethereum" />
+                      <AccountListTab
+                        chain="ethereum"
+                        wallet={wallet}
+                        walletManager={walletManager}
+                        externalWallets={externalWallets}
+                        getExternalAccounts={getExternalAccounts}
+                        onShowSensitive={handleShowSensitive}
+                        onCopyAddress={copyAddress}
+                        onDisconnectEVM={disconnectEVM}
+                        t={t}
+                      />
                     </TabsContent>
                     <TabsContent
                       value="bitcoin"
                       className="px-4 pt-4 pb-4 sm:px-6 sm:pb-6"
                     >
-                      <AccountListTab chain="bitcoin" />
+                      <AccountListTab
+                        chain="bitcoin"
+                        wallet={wallet}
+                        walletManager={walletManager}
+                        externalWallets={externalWallets}
+                        getExternalAccounts={getExternalAccounts}
+                        onShowSensitive={handleShowSensitive}
+                        onCopyAddress={copyAddress}
+                        onDisconnectEVM={disconnectEVM}
+                        t={t}
+                      />
                     </TabsContent>
                     <TabsContent
                       value="solana"
                       className="px-4 pt-4 pb-4 sm:px-6 sm:pb-6"
                     >
-                      <AccountListTab chain="solana" />
+                      <AccountListTab
+                        chain="solana"
+                        wallet={wallet}
+                        walletManager={walletManager}
+                        externalWallets={externalWallets}
+                        getExternalAccounts={getExternalAccounts}
+                        onShowSensitive={handleShowSensitive}
+                        onCopyAddress={copyAddress}
+                        onDisconnectEVM={disconnectEVM}
+                        t={t}
+                      />
                     </TabsContent>
                     <TabsContent
                       value="sui"
                       className="px-4 pt-4 pb-4 sm:px-6 sm:pb-6"
                     >
-                      <AccountListTab chain="sui" />
+                      <AccountListTab
+                        chain="sui"
+                        wallet={wallet}
+                        walletManager={walletManager}
+                        externalWallets={externalWallets}
+                        getExternalAccounts={getExternalAccounts}
+                        onShowSensitive={handleShowSensitive}
+                        onCopyAddress={copyAddress}
+                        onDisconnectEVM={disconnectEVM}
+                        t={t}
+                      />
                     </TabsContent>
                     <TabsContent
                       value="arweave"
                       className="px-4 pt-4 pb-4 sm:px-6 sm:pb-6"
                     >
-                      <AccountListTab chain="arweave" />
+                      <AccountListTab
+                        chain="arweave"
+                        wallet={wallet}
+                        walletManager={walletManager}
+                        externalWallets={externalWallets}
+                        getExternalAccounts={getExternalAccounts}
+                        onShowSensitive={handleShowSensitive}
+                        onCopyAddress={copyAddress}
+                        onDisconnectEVM={disconnectEVM}
+                        t={t}
+                      />
                     </TabsContent>
                   </Tabs>
                 </CardContent>

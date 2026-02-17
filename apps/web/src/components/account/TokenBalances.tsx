@@ -23,6 +23,7 @@ import { ERC20_ABI } from "@/lib/contracts/multi-hop-swapper-abi"
 import { useTranslation } from "@/i18n/config"
 import { getEthereumRpcUrl, getSolanaRpcUrl } from "@/lib/chain/rpc-config"
 import { formatTimestamp } from "@/lib/utils"
+import { toast } from "sonner"
 
 interface TokenBalance {
   symbol: string
@@ -157,10 +158,24 @@ export function TokenBalances({
     return tokenBalances
   }
 
-  const fetchBalances = async () => {
+  const [lastFetchTime, setLastFetchTime] = useState<number>(0)
+  const [backoffTime, setBackoffTime] = useState<number>(0)
+  const COOLDOWN_PERIOD = 30000 // 30 seconds default cooldown
+
+  const fetchBalances = async (force = false) => {
     if (!isUnlocked || !address) return
 
+    // Antigravity: Multi-layer protection against infinite loops
+    // 1. Throttle requests if they happened too recently (unless forced)
+    const now = Date.now()
+    const currentCooldown = COOLDOWN_PERIOD + backoffTime
+    if (!force && lastFetchTime > 0 && now - lastFetchTime < currentCooldown) {
+      console.debug(`Skipping balance fetch for ${address}, cooling down...`)
+      return
+    }
+
     setLoading(true)
+    setLastFetchTime(now)
 
     try {
       let tokenBalances: TokenBalance[] = []
@@ -175,20 +190,37 @@ export function TokenBalances({
 
       setBalances(tokenBalances)
       setLastUpdated(Date.now())
+      // Successful fetch resets backoff
+      setBackoffTime(0)
     } catch (err: any) {
       console.error("Failed to fetch token balances:", err)
+
+      // Antigravity: Handle 429 specifically with exponential backoff
+      if (err?.message?.includes("429") || err?.status === 429) {
+        setBackoffTime((prev) => Math.min(prev + 60000, 300000)) // Max 5 min backoff
+        toast.error(
+          t(
+            "common.rateLimitError",
+            "Rate limited by RPC provider. Retrying later...",
+          ),
+        )
+      }
     } finally {
       setLoading(false)
     }
   }
 
   useEffect(() => {
+    let active = true
     if (
       isUnlocked &&
       address &&
       ["ethereum", "solana", "sui"].includes(chain)
     ) {
-      fetchBalances()
+      if (active) fetchBalances()
+    }
+    return () => {
+      active = false
     }
   }, [isUnlocked, address, chain])
 
