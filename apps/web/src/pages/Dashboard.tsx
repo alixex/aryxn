@@ -325,11 +325,8 @@ export default function DashboardPage() {
               {uploadHistory.length === 0 ? (
                 <EmptyState
                   icon={<FileText className="h-12 w-12" />}
-                  title={t("history.noFiles", "还没有上传记录")}
-                  description={t(
-                    "history.noFilesDesc",
-                    "开始上传您的第一个文件到区块链",
-                  )}
+                  title={t("history.emptyTitle")}
+                  description={t("history.emptyDesc")}
                   action={
                     <Link to="/upload">
                       <Button className="mt-2">

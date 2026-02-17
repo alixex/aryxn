@@ -213,6 +213,8 @@
     "encrypted": "已加密",
     "public": "公开",
     "noRecords": "暂无文件记录",
+    "emptyTitle": "还没有上传记录",
+    "emptyDesc": "开始上传您的第一个文件到区块链",
     "errorOwner": "此文件不属于当前账户，请切换到正确的账户后重试。",
     "errorLocked": "账户已锁定，请先解锁后再下载文件。",
     "successDownload": "文件下载成功",

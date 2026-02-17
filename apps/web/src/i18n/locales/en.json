@@ -213,6 +213,8 @@
     "encrypted": "Encrypted",
     "public": "Public",
     "noRecords": "No file records yet",
+    "emptyTitle": "No upload records yet",
+    "emptyDesc": "Start uploading your first file to the blockchain",
     "errorOwner": "This file does not belong to the current account. Please switch to the correct account and try again.",
     "errorLocked": "Account is locked. Please unlock your account before downloading files.",
     "successDownload": "File downloaded successfully",

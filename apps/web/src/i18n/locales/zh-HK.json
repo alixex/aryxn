@@ -209,6 +209,8 @@
     "encrypted": "已加密",
     "public": "公開",
     "noRecords": "暫無檔案記錄",
+    "emptyTitle": "還沒有上傳記錄",
+    "emptyDesc": "開始上傳您的第一個檔案到區塊鏈",
     "errorOwner": "此檔案不屬於目前帳戶，請切換到正確的帳戶後重試。",
     "errorLocked": "帳戶已鎖定，請先解鎖後再下載檔案。",
     "successDownload": "檔案下載成功",
