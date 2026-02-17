@@ -15,7 +15,7 @@ export function EmptyState({
 }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center py-12 text-center">
-      <div className="bg-muted/50 text-muted-foreground mb-4 rounded-full p-4">
+      <div className="from-primary/10 to-secondary/10 text-primary ring-primary/20 mb-4 rounded-full bg-gradient-to-br p-6 ring-1">
         {icon}
       </div>
       <h3 className="text-foreground mb-2 text-lg font-semibold">{title}</h3>

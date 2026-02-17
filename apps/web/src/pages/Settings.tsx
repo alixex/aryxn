@@ -193,7 +193,7 @@ export default function SettingsPage() {
               {t("settings.title", "Settings")}
             </span>
           </h2>
-          <p className="text-muted-foreground max-w-lg text-base leading-relaxed font-medium">
+          <p className="text-subtitle-muted max-w-lg text-base leading-relaxed font-medium">
             {t("settings.description", "Manage your application settings")}
           </p>
         </div>

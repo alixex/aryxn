@@ -191,7 +191,7 @@ export default function DashboardPage() {
                 {t("common.dashboard")}
               </span>
             </h2>
-            <p className="text-muted-foreground max-w-lg text-base leading-relaxed font-medium">
+            <p className="text-subtitle-muted max-w-lg text-base leading-relaxed font-medium">
               {t("history.desc")}
             </p>
           </div>
@@ -235,7 +235,7 @@ export default function DashboardPage() {
               <p className="mb-2 text-base leading-relaxed font-bold">
                 {t("history.needAccountSetup")}
               </p>
-              <p className="text-muted-foreground mb-3 text-sm leading-relaxed">
+              <p className="text-subtitle-muted mb-3 text-sm leading-relaxed">
                 {t("history.accountSetupHint")}
               </p>
               <Link to="/account">

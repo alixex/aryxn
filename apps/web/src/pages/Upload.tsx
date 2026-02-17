@@ -87,7 +87,7 @@ export default function UploadPage() {
               {t("common.upload")}
             </span>
           </h2>
-          <p className="text-muted-foreground max-w-lg text-base leading-relaxed font-medium">
+          <p className="text-subtitle-muted max-w-lg text-base leading-relaxed font-medium">
             {t("upload.arweaveDesc")}
           </p>
         </div>

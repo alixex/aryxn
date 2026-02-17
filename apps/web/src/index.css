@@ -221,6 +221,14 @@
       inset 0 1px 1px hsl(var(--foreground) / 0.05);
     position: relative;
     overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .glass-premium:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 20px 40px -15px hsl(var(--primary) / 0.3),
+      inset 0 1px 1px hsl(var(--foreground) / 0.05);
   }
 
   .glass-premium::before {
@@ -568,6 +576,29 @@
   .gpu-accelerated {
     transform: translateZ(0);
     will-change: transform, opacity;
+  }
+
+  /* Improved text contrast for subtitles */
+  .text-subtitle {
+    color: hsl(var(--foreground) / 0.75);
+  }
+
+  .text-subtitle-muted {
+    color: hsl(var(--muted-foreground) / 0.85);
+  }
+
+  /* Button interaction enhancements */
+  .btn-interactive {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .btn-interactive:active {
+    transform: scale(0.95);
+  }
+
+  .btn-interactive:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
   }
 
   /* Reduced motion support */
