@@ -1,6 +1,6 @@
 import { useTranslation } from "@/i18n/config"
 import { Calculator, Loader2, Zap } from "lucide-react"
-import { formatFileSize } from "@/lib/utils"
+import { formatFileSize, formatTimestamp } from "@/lib/utils"
 import type { FeeEstimate } from "@/hooks/dex-hooks"
 import type { PaymentToken } from "@/lib/payment"
 
@@ -45,6 +45,11 @@ export function FeeEstimate({
           </span>
           {calculatingFee && (
             <Loader2 className="text-foreground h-3 w-3 animate-spin" />
+          )}
+          {!calculatingFee && estimatedFee?.timestamp && (
+            <span className="text-muted-foreground/50 ml-auto text-[10px] font-medium">
+              {formatTimestamp(estimatedFee.timestamp)}
+            </span>
           )}
         </div>
       </div>

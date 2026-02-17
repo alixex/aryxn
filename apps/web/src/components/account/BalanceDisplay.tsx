@@ -1,6 +1,7 @@
 import { Eye, EyeOff } from "lucide-react"
 import { type BalanceResult } from "@/lib/chain"
 import { useTranslation } from "@/i18n/config"
+import { formatTimestamp } from "@/lib/utils"
 
 interface BalanceDisplayProps {
   chain: string
@@ -65,10 +66,7 @@ export function BalanceDisplay({
           </div>
           {showBalance && balance?.timestamp && (
             <span className="text-muted-foreground/60 text-[10px] font-medium">
-              {new Date(balance.timestamp).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
+              {formatTimestamp(balance.timestamp)}
             </span>
           )}
         </div>

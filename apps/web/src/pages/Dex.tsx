@@ -35,7 +35,7 @@ import {
 } from "@/hooks/dex-hooks"
 import { SUPPORTED_TOKENS, type TokenInfo } from "@/lib/contracts/token-config"
 import { useInternal } from "@/hooks/account-hooks"
-import type { WalletRecord } from "@/lib/utils"
+import { type WalletRecord, formatTimestamp } from "@/lib/utils"
 
 export default function DexPage() {
   const { t } = useTranslation()
@@ -103,14 +103,13 @@ export default function DexPage() {
     executeSwap,
     swapHash,
     swapSuccess,
+    lastUpdated,
   } = useInternalWallet ? internalSwap : externalSwap
 
   // Swap tokens (flip input/output)
   const handleSwapTokens = () => {
     setInputToken(outputToken)
     setOutputToken(inputToken)
-    // 保留输入金额，提供更流畅的体验
-    // setInputAmount("") - 不再清空
   }
 
   // Set max amount
@@ -405,6 +404,11 @@ export default function DexPage() {
                         >
                           MAX
                         </button>
+                        {lastUpdated && (
+                          <div className="text-muted-foreground/50 mt-1 text-[10px]">
+                            {formatTimestamp(lastUpdated)}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>

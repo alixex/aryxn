@@ -395,6 +395,10 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     async (chain: string, address: string): Promise<BalanceResult | null> => {
       try {
         const bal = await getBalance(chain as any, address)
+        // Ensure timestamp is set on the return value
+        if (bal) {
+          bal.timestamp = Date.now()
+        }
         return bal
       } catch (e) {
         console.error("refreshBalance failed", e)
@@ -404,51 +408,82 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     [],
   )
 
-  const internalObj: WalletContextType["internal"] = {
-    wallets: storage.wallets,
-    isUnlocked: vault.isUnlocked,
-    activeAddress: storage.activeAddress,
-    activeWallet: storage.activeWallet,
-    vaultId: vault.vaultId,
-    masterKey: vault.masterKey,
-    hasSavedLocalAccount: storage.hasSavedLocalAccount,
-    systemSalt: vault.systemSalt,
-    unlock: vault.unlock,
-    logout,
-    addWallet,
-    createWallet,
-    selectWallet,
-    clearActiveWallet,
-    refreshWallets,
-    getDecryptedInfo: vault.getDecryptedInfo,
-  }
+  const internalObj = useMemo<WalletContextType["internal"]>(
+    () => ({
+      wallets: storage.wallets,
+      isUnlocked: vault.isUnlocked,
+      activeAddress: storage.activeAddress,
+      activeWallet: storage.activeWallet,
+      vaultId: vault.vaultId,
+      masterKey: vault.masterKey,
+      hasSavedLocalAccount: storage.hasSavedLocalAccount,
+      systemSalt: vault.systemSalt,
+      unlock: vault.unlock,
+      logout,
+      addWallet,
+      createWallet,
+      selectWallet,
+      clearActiveWallet,
+      refreshWallets,
+      getDecryptedInfo: vault.getDecryptedInfo,
+    }),
+    [
+      storage.wallets,
+      vault.isUnlocked,
+      storage.activeAddress,
+      storage.activeWallet,
+      vault.vaultId,
+      vault.masterKey,
+      storage.hasSavedLocalAccount,
+      vault.systemSalt,
+      vault.unlock,
+      logout,
+      addWallet,
+      createWallet,
+      selectWallet,
+      clearActiveWallet,
+      refreshWallets,
+      vault.getDecryptedInfo,
+    ],
+  )
+
+  const contextValue = useMemo<WalletContextType>(
+    () => ({
+      active,
+      internal: internalObj,
+      external,
+
+      getLocalAccounts: getLocalAccounts,
+
+      getExternalAccounts: getExternalAccounts,
+
+      getAllAccounts: getAllAccounts,
+      // External actions grouped (shared implementation)
+      externalActions: externalActions,
+      // Connect to external wallets by chain (compatibility wrapper)
+      connectExternal: externalActions.connect,
+      disconnectExternal: externalActions.disconnect,
+
+      refreshBalance: refreshBalanceCb,
+
+      // Return mapping of chain -> accounts
+      getAccountsByChain: getAccountsByChain,
+    }),
+    [
+      active,
+      internalObj,
+      external,
+      getLocalAccounts,
+      getExternalAccounts,
+      getAllAccounts,
+      externalActions,
+      refreshBalanceCb,
+      getAccountsByChain,
+    ],
+  )
 
   return (
-    <WalletContext.Provider
-      value={{
-        active,
-        internal: internalObj,
-        external,
-
-        getLocalAccounts: getLocalAccounts,
-
-        getExternalAccounts: getExternalAccounts,
-
-        getAllAccounts: getAllAccounts,
-        // External actions grouped (shared implementation)
-        externalActions: externalActions,
-        // Connect to external wallets by chain (compatibility wrapper)
-        connectExternal: externalActions.connect,
-        disconnectExternal: externalActions.disconnect,
-
-        refreshBalance: refreshBalanceCb,
-
-        // Return mapping of chain -> accounts
-        getAccountsByChain: getAccountsByChain,
-
-        // Note: legacy top-level aliases removed — use `internal` or helpers
-      }}
-    >
+    <WalletContext.Provider value={contextValue}>
       {children}
     </WalletContext.Provider>
   )

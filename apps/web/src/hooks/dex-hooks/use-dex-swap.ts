@@ -78,6 +78,7 @@ export function useMultiHopSwap({
     balance: inputBalance,
     formattedBalance,
     refetch: refetchBalance,
+    lastUpdated,
   } = useTokenBalance({
     tokenAddress: inputToken,
     decimals: decimalsIn,
@@ -340,5 +341,6 @@ export function useMultiHopSwap({
     // Transaction
     swapHash,
     swapSuccess,
+    lastUpdated,
   }
 }

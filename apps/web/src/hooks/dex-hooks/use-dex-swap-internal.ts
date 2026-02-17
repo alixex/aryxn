@@ -65,6 +65,7 @@ export function useInternalDexSwap({
   const [swapHash, setSwapHash] = useState<string | undefined>(undefined)
   const [swapSuccess, setSwapSuccess] = useState(false)
   const [allowance, setAllowance] = useState<bigint>(0n)
+  const [lastUpdated, setLastUpdated] = useState<number | null>(null)
 
   // Parse input amount
   const amountIn =
@@ -109,6 +110,7 @@ export function useInternalDexSwap({
       try {
         const balance = await tokenContract.balanceOf(wallet.address)
         setInputBalance(BigInt(balance.toString()))
+        setLastUpdated(Date.now())
       } catch (err) {
         console.error("Failed to fetch balance:", err)
         setInputBalance(0n)
@@ -388,6 +390,7 @@ export function useInternalDexSwap({
         )
         const balance = await tokenContract.balanceOf(internalWallet.address)
         setInputBalance(BigInt(balance.toString()))
+        setLastUpdated(Date.now())
       } else {
         throw new Error("Transaction failed")
       }
@@ -426,5 +429,6 @@ export function useInternalDexSwap({
     swapHash,
     swapSuccess,
     isWalletReady,
+    lastUpdated,
   }
 }

@@ -5,7 +5,7 @@
  * and compression utilities.
  */
 
-export { cn, formatFileSize, shortenedAddress } from "./utils"
+export { cn, formatFileSize, shortenedAddress, formatTimestamp } from "./utils"
 export {
   compressData,
   decompressData,

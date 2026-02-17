@@ -131,4 +131,4 @@ export function useAccounts() {
   }
 }
 
-export default useAccounts
+// No default export as per naming conventions

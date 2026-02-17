@@ -22,6 +22,7 @@ import { SUI_TOKENS, formatSuiTokenAmount } from "@/lib/chain"
 import { ERC20_ABI } from "@/lib/contracts/multi-hop-swapper-abi"
 import { useTranslation } from "@/i18n/config"
 import { getEthereumRpcUrl, getSolanaRpcUrl } from "@/lib/chain/rpc-config"
+import { formatTimestamp } from "@/lib/utils"
 
 interface TokenBalance {
   symbol: string
@@ -244,10 +245,7 @@ export function TokenBalances({
       </div>
       {lastUpdated && (
         <span className="text-muted-foreground/50 ml-1 text-[9px] font-medium">
-          {new Date(lastUpdated).toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
+          {formatTimestamp(lastUpdated)}
         </span>
       )}
     </div>

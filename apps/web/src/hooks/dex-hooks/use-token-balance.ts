@@ -20,6 +20,7 @@ interface TokenBalanceResult {
   isLoading: boolean
   error: Error | null
   refetch: () => void
+  lastUpdated: number | null
 }
 
 /**
@@ -48,9 +49,17 @@ export function useTokenBalance({
     },
   })
 
+  const [lastUpdated, setLastUpdated] = useState<number | null>(null)
+
   const refetch = () => {
     refetchContract()
   }
+
+  useEffect(() => {
+    if (balance !== undefined) {
+      setLastUpdated(Date.now())
+    }
+  }, [balance])
 
   const balanceValue = balance ?? 0n
   const formattedBalance = formatTokenAmount(balanceValue, decimals)
@@ -61,6 +70,7 @@ export function useTokenBalance({
     isLoading,
     error: error as Error | null,
     refetch,
+    lastUpdated,
   }
 }
 

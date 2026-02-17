@@ -16,6 +16,7 @@ export interface FeeEstimate {
   manifestFeeAR?: number // 清单文件费用
   manifestSize?: number // 清单文件大小
   estimatedFeesByToken?: Partial<Record<PaymentToken, number>>
+  timestamp?: number // 计算时间戳
 }
 
 export function useFeeCalculation() {
@@ -154,6 +155,7 @@ export function useFeeCalculation() {
           manifestFeeAR,
           manifestSize,
           estimatedFeesByToken,
+          timestamp: Date.now(),
         })
         setFeeError(null)
       } catch (error) {
@@ -328,6 +330,7 @@ export function useFeeCalculation() {
           manifestFeeAR,
           manifestSize,
           estimatedFeesByToken,
+          timestamp: Date.now(),
         })
         setFeeError(null)
       } catch (error) {

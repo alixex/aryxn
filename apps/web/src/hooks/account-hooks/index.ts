@@ -7,7 +7,7 @@
 export { useWallet, type UseWalletReturn } from "./use-wallet"
 export { useInternal } from "./use-internal-wallet"
 export { useExternalWallets } from "./use-external-wallets"
-export { useAccounts, default as useAccountsDefault } from "./useAccounts"
+export { useAccounts } from "./useAccounts"
 
 // Re-export from external-wallet subdirectory
 export * from "./external-wallet/use-external-wallets"
