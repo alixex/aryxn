@@ -156,11 +156,14 @@ export default function DashboardPage() {
     0,
   )
   const lastUploadTime = uploadHistory[0]?.createdAt
-    ? new Date(uploadHistory[0].createdAt).toLocaleDateString("zh-CN", {
-        month: "short",
-        day: "numeric",
-      })
-    : "无"
+    ? new Date(uploadHistory[0].createdAt).toLocaleDateString(
+        t("common.locale"),
+        {
+          month: "short",
+          day: "numeric",
+        },
+      )
+    : t("common.none")
 
   // 格式化文件大小
   const formatBytes = (bytes: number) => {

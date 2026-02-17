@@ -1,5 +1,6 @@
 import { File, FileText, Image, Video, Music, Archive } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
+import { useTranslation } from "@/i18n/config"
 
 interface FilePreviewProps {
   file: File
@@ -7,6 +8,7 @@ interface FilePreviewProps {
 }
 
 export function FilePreview({ file, className }: FilePreviewProps) {
+  const { t } = useTranslation()
   const formatBytes = (bytes: number) => {
     if (bytes === 0) return "0 B"
     const k = 1024
@@ -58,9 +60,13 @@ export function FilePreview({ file, className }: FilePreviewProps) {
             </p>
             <div className="text-muted-foreground mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs">
               <span>{formatBytes(file.size)}</span>
-              <span>{file.type || "Unknown type"}</span>
               <span>
-                {new Date(file.lastModified).toLocaleDateString("zh-CN")}
+                {file.type || t("upload.unknownType", "Unknown type")}
+              </span>
+              <span>
+                {new Date(file.lastModified).toLocaleDateString(
+                  t("common.locale", "zh-CN"),
+                )}
               </span>
             </div>
           </div>

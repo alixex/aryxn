@@ -1,6 +1,8 @@
 {
   "common": {
     "appName": "Aryxn",
+    "locale": "zh-CN",
+    "none": "无",
     "dashboard": "数据管理",
     "upload": "上传",
     "dex": "DEX 交换",

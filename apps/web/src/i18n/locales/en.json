@@ -1,6 +1,8 @@
 {
   "common": {
     "appName": "Aryxn",
+    "locale": "en-US",
+    "none": "None",
     "dashboard": "Data Management",
     "upload": "Upload",
     "dex": "DEX",
