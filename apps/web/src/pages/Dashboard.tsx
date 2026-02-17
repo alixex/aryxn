@@ -124,11 +124,12 @@ export default function DashboardPage() {
     const scheduleAutoSyncPromises = addresses.map(async (address) => {
       try {
         const { scheduleAutoSync } = await import("@/lib/file/file-sync-direct")
-        scheduleAutoSync(address, (result) => {
-          // 同步完成后重新加载历史记录
-          if (result.added > 0 || result.updated > 0) {
-            loadUploadHistory()
-          }
+        scheduleAutoSync(address, () => {
+          // 只要有文件处理完成（每批次），就刷新列表
+          // result.added/updated 大于 0 表示有变更
+          // 但为了用户体验，只要有回调（表示有进度），我们都尝试刷新一下
+          // 实际上 scheduleAutoSync 现在传递的是 onBatchComplete
+          loadUploadHistory()
         })
       } catch (error) {
         console.warn(`Failed to schedule auto sync for ${address}:`, error)

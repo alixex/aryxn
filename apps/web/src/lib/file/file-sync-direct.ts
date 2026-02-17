@@ -512,7 +512,7 @@ function requestIdleCallbackPolyfill(
  */
 export function scheduleAutoSync(
   ownerAddress: string,
-  onComplete?: (result: {
+  onBatchComplete?: (batchResult: {
     added: number
     updated: number
     skipped: number
@@ -527,13 +527,13 @@ export function scheduleAutoSync(
     async () => {
       try {
         console.log("[scheduleAutoSync] Starting automatic sync in idle time")
-        const result = await syncFilesFromArweaveDirect(ownerAddress)
+        const result = await syncFilesFromArweaveDirect(
+          ownerAddress,
+          onBatchComplete,
+        )
         console.log(
           `[scheduleAutoSync] Sync completed: added ${result.added}, updated ${result.updated}, skipped ${result.skipped}, errors ${result.errors}`,
         )
-        if (onComplete) {
-          onComplete(result)
-        }
       } catch (error) {
         console.warn("[scheduleAutoSync] Failed to sync files:", error)
       }
@@ -548,7 +548,12 @@ export function scheduleAutoSync(
  */
 export async function syncFilesFromArweaveDirect(
   ownerAddress: string,
-  onProgress?: (current: number, total: number | null) => void,
+  onBatchComplete?: (batchResult: {
+    added: number
+    updated: number
+    skipped: number
+    errors: number
+  }) => void,
 ): Promise<{
   added: number
   updated: number
@@ -563,7 +568,6 @@ export async function syncFilesFromArweaveDirect(
     const transactions = await queryFileTransactions(
       ownerAddress,
       undefined, // 不限制数量，查询所有文件
-      onProgress,
     )
 
     console.log(`Found ${transactions.length} file transactions`)
@@ -603,6 +607,17 @@ export async function syncFilesFromArweaveDirect(
           stats.skipped += result.skipped
           stats.errors += result.errors
           processedInBatch++
+        }
+
+        // 批次处理完成，通知回调
+        if (processedInBatch > 0 && onBatchComplete) {
+          // 只要有处理，就通知回调触发 UI 刷新
+          onBatchComplete({
+            added: 1, // 只要有处理，就假设有更新，触发 UI 刷新
+            updated: 0,
+            skipped: 0,
+            errors: 0,
+          })
         }
 
         // 如果还有待处理的交易，继续调度下一批
