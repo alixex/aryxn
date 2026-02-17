@@ -75,7 +75,7 @@ export function HistoryTable({
     <div className="border-border bg-card overflow-hidden rounded-xl border">
       <div className="overflow-x-auto">
         <table className="w-full table-fixed text-left text-sm">
-          <thead className="border-border bg-secondary/50 text-muted-foreground border-b text-[10px] font-bold tracking-wider uppercase sm:text-xs">
+          <thead className="glass-strong border-accent/20 bg-card/60 text-muted-foreground border-b-2 text-[10px] font-bold tracking-wider uppercase backdrop-blur-md sm:text-xs">
             <tr>
               <th className="w-[200px] px-4 py-3 sm:px-6">
                 {t("history.fileName")}

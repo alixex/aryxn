@@ -38,15 +38,17 @@ export default function StorageSettingsCard({
 
   return (
     <Card className="glass-premium hover:shadow-primary/5 border-none shadow-2xl transition-all duration-500">
-      <CardHeader>
+      <CardHeader className="glass-strong animate-fade-in-down border-accent/30 bg-card/60 rounded-t-2xl border-b-2 p-6 shadow-lg">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <HardDrive className="text-muted-foreground h-5 w-5" />
+            <div className="rounded-lg bg-cyan-400/20 p-2">
+              <HardDrive className="h-5 w-5 text-cyan-400" />
+            </div>
             <div>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="text-foreground text-lg font-bold">
                 {t("settings.storageSettings", "Storage Settings")}
               </CardTitle>
-              <CardDescription className="mt-1">
+              <CardDescription className="text-muted-foreground text-xs font-medium">
                 {t(
                   "settings.storageSettingsDesc",
                   "Manage storage usage and clear application data",
@@ -59,6 +61,7 @@ export default function StorageSettingsCard({
             size="sm"
             onClick={onRefresh}
             disabled={isLoading}
+            className="border-accent/20 hover:bg-accent/10"
           >
             <RefreshCw
               className={`mr-2 h-4 w-4 ${isLoading ? "animate-spin" : ""}`}

@@ -54,10 +54,10 @@ export function FileSelectionCard({
 
   return (
     <Card className="glass-premium hover:shadow-primary/5 border-none shadow-2xl transition-all duration-500">
-      <CardHeader className="border-border border-b pb-4 sm:pb-6">
-        <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-          <div className="bg-secondary flex h-8 w-8 items-center justify-center rounded-lg">
-            <FileText className="text-foreground h-4 w-4" />
+      <CardHeader className="glass-strong animate-fade-in-down border-accent/30 bg-card/60 rounded-t-2xl border-b-2 p-6 shadow-lg">
+        <CardTitle className="text-foreground flex items-center gap-3 text-lg font-bold sm:text-xl">
+          <div className="rounded-lg bg-cyan-400/20 p-2">
+            <FileText className="h-5 w-5 text-cyan-400" />
           </div>
           {t("upload.selectFiles")}
         </CardTitle>

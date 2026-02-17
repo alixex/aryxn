@@ -280,12 +280,12 @@ export function ConfigImportExport() {
 
   return (
     <>
-      <Card className="border-border shadow-sm">
-        <CardHeader className="border-border bg-secondary/50 border-b pb-3">
-          <CardTitle className="text-foreground text-base">
+      <Card className="glass-premium animate-fade-in-down border-none shadow-2xl transition-all duration-500">
+        <CardHeader className="glass-strong animate-fade-in-down border-accent/30 bg-card/60 rounded-t-2xl border-b-2 p-6 shadow-lg">
+          <CardTitle className="text-foreground text-base font-bold">
             {t("identities.configSync")}
           </CardTitle>
-          <CardDescription className="text-muted-foreground text-xs">
+          <CardDescription className="text-muted-foreground text-xs font-medium">
             {t("identities.configSyncDesc")}
           </CardDescription>
         </CardHeader>

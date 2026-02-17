@@ -29,13 +29,15 @@ export default function DangerZone({
     <>
       <div className="glass-premium hover:shadow-destructive/10 mt-6 mb-8 border-none p-6 shadow-2xl transition-all duration-500">
         <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <AlertTriangle className="text-destructive h-5 w-5" />
+          <div className="glass-strong border-destructive/30 bg-destructive/10 -mx-6 -mt-6 mb-6 flex items-center gap-3 rounded-t-2xl border-b-2 p-6">
+            <div className="bg-destructive/20 rounded-lg p-2">
+              <AlertTriangle className="text-destructive h-5 w-5" />
+            </div>
             <div>
-              <h3 className="text-destructive text-sm font-semibold">
+              <h3 className="text-destructive text-sm font-bold tracking-wider uppercase">
                 {t("settings.dangerZone", "Danger Zone")}
               </h3>
-              <p className="text-muted-foreground mt-0.5 text-xs">
+              <p className="text-destructive/70 text-xs font-medium">
                 {t(
                   "settings.dangerZoneDesc",
                   "Irreversible actions. Please proceed with caution.",

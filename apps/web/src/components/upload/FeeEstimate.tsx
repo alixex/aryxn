@@ -37,10 +37,12 @@ export function FeeEstimate({
 
   return (
     <div className="border-border bg-card overflow-hidden rounded-xl border">
-      <div className="border-border bg-secondary/50 border-b px-4 py-3">
-        <div className="flex items-center gap-2">
-          <Calculator className="text-foreground h-4 w-4" />
-          <span className="text-foreground text-sm font-semibold">
+      <div className="glass-strong animate-fade-in-down border-accent/30 bg-card/60 rounded-t-xl border-b-2 p-4 shadow-lg">
+        <div className="flex items-center gap-3">
+          <div className="bg-accent/20 rounded-lg p-1.5">
+            <Calculator className="text-foreground h-4 w-4" />
+          </div>
+          <span className="text-foreground text-sm font-bold">
             {t("upload.estimatedFee")}
           </span>
           {calculatingFee && (

@@ -319,8 +319,8 @@ export default function DexPage() {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Main Swap Card */}
           <div className="lg:col-span-2">
-            <Card className="glass-premium hover:shadow-primary/5 border-none shadow-2xl transition-all duration-500">
-              <CardHeader className="border-border bg-secondary border-b pb-4">
+            <Card className="glass-premium animate-fade-in-down border-none shadow-2xl transition-all duration-500">
+              <CardHeader className="glass-strong animate-fade-in-down border-accent/30 bg-card/60 rounded-t-2xl border-b-2 p-6 shadow-lg">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-foreground text-lg font-bold">
                     {t("dex.swap")}

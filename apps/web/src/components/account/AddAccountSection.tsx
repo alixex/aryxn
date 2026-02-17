@@ -61,15 +61,17 @@ export function AddAccountSection({
 
   return (
     <Card className="glass-premium hover:shadow-primary/5 border-none shadow-2xl transition-all duration-500">
-      <CardHeader className="border-border bg-secondary/50 border-b pb-3">
-        <CardTitle className="text-foreground flex items-center gap-2 text-base">
-          <Plus className="text-foreground h-4 w-4" />
+      <CardHeader className="glass-strong animate-fade-in-down border-accent/30 bg-card/60 rounded-t-2xl border-b-2 p-6 shadow-lg">
+        <CardTitle className="text-foreground flex items-center gap-3 text-base font-bold">
+          <div className="rounded-lg bg-cyan-400/20 p-2">
+            <Plus className="h-5 w-5 text-cyan-400" />
+          </div>
           {t("identities.addNew")}
         </CardTitle>
       </CardHeader>
       <CardContent className="p-0">
         <Tabs defaultValue="import" className="w-full">
-          <TabsList className="bg-secondary mx-4 mt-4 mb-0 h-auto w-auto rounded-lg p-1">
+          <TabsList className="bg-accent/10 mx-6 mt-6 mb-2 h-auto w-auto rounded-xl p-1.5 shadow-inner">
             <TabsTrigger
               value="import"
               className="data-[state=active]:bg-card rounded-md px-4 py-2 text-xs font-semibold data-[state=active]:text-cyan-400 data-[state=active]:shadow-sm"

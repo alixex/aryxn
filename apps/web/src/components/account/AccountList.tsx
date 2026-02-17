@@ -37,9 +37,11 @@ export function AccountList({
   if (accounts.length === 0) {
     return (
       <div className="space-y-3">
-        <div className="border-border bg-secondary/50 rounded-xl border-2 border-dashed py-12 text-center">
-          <Wallet className="text-muted-foreground/30 mx-auto mb-3 h-8 w-8" />
-          <p className="text-muted-foreground text-sm italic">
+        <div className="glass-strong animate-fade-in-down border-accent/20 bg-card/40 flex flex-col items-center justify-center rounded-2xl border-2 border-dashed py-12 text-center shadow-lg transition-all duration-500">
+          <div className="bg-accent/10 mb-4 rounded-full p-4">
+            <Wallet className="text-foreground/40 h-10 w-10" />
+          </div>
+          <p className="text-muted-foreground max-w-[200px] text-sm font-medium italic">
             {t("identities.emptyState", { chain })}
           </p>
         </div>

@@ -274,8 +274,8 @@ export default function DashboardPage() {
         )}
 
         <div className="grid grid-cols-1 gap-6 sm:gap-8">
-          <Card className="border-border overflow-hidden shadow-sm">
-            <CardHeader className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 sm:pb-6">
+          <Card className="glass-premium animate-fade-in-down border-none shadow-2xl transition-all duration-500">
+            <CardHeader className="glass-strong border-accent/30 bg-card/60 flex flex-col space-y-4 rounded-t-2xl border-b-2 p-6 shadow-lg sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
               <div className="space-y-1">
                 <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
                   <History className="text-foreground h-5 w-5" />

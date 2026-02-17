@@ -246,7 +246,7 @@ export default function AccountPage() {
           <div className="grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-3">
             <div className="space-y-6 sm:space-y-8 lg:col-span-2">
               <Card className="glass-premium hover:shadow-primary/5 border-none shadow-2xl transition-all duration-500 sm:rounded-2xl">
-                <CardHeader className="border-border bg-secondary/50 border-b pb-3 sm:px-6">
+                <CardHeader className="glass-strong animate-fade-in-down border-accent/30 bg-card/60 flex flex-col space-y-1.5 rounded-t-2xl border-b-2 p-6 shadow-lg">
                   <CardTitle className="text-foreground text-base">
                     {t("identities.title")}
                   </CardTitle>

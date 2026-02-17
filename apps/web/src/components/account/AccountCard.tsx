@@ -116,10 +116,10 @@ export function AccountCard({
 
   return (
     <div
-      className={`group relative cursor-pointer overflow-hidden rounded-2xl border-2 transition-all duration-300 ${
+      className={`glass-strong animate-fade-in-down group relative cursor-pointer overflow-hidden rounded-2xl border-2 p-5 shadow-lg transition-all duration-300 sm:p-6 ${
         isActive
-          ? "border-ring bg-card scale-[1.01] shadow-md"
-          : "border-border bg-card hover:border-ring hover:-translate-y-1 hover:shadow-md"
+          ? "bg-card/80 scale-[1.01] border-cyan-400 shadow-cyan-900/20"
+          : "border-accent/30 bg-card/60 hover:-translate-y-1 hover:border-cyan-400/50 hover:shadow-xl"
       }`}
       onClick={(e) => {
         const target = e.target as HTMLElement
@@ -130,9 +130,9 @@ export function AccountCard({
       }}
     >
       {isActive && (
-        <div className="bg-primary absolute top-0 left-0 h-full w-1" />
+        <div className="absolute top-0 left-0 h-full w-1 bg-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.5)]" />
       )}
-      <div className="p-4 sm:p-5">
+      <div className="">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex min-w-0 flex-1 items-start gap-3 sm:gap-4">
             <div
