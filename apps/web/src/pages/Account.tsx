@@ -273,7 +273,7 @@ export default function AccountPage() {
                           <TabsTrigger
                             key={chain}
                             value={chain}
-                            className="data-[state=active]:bg-background data-[state=active]:text-foreground rounded-md px-4 py-2 text-xs font-semibold capitalize data-[state=active]:shadow-sm"
+                            className="data-[state=active]:bg-background rounded-md px-4 py-2 text-xs font-semibold capitalize data-[state=active]:text-cyan-400 data-[state=active]:shadow-sm"
                           >
                             {chain}
                           </TabsTrigger>

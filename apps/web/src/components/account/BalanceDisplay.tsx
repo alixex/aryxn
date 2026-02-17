@@ -36,7 +36,7 @@ export function BalanceDisplay({
     <div className="flex items-center gap-2">
       <button
         onClick={handleToggle}
-        className="text-muted-foreground hover:text-foreground shrink-0 p-1 transition-colors"
+        className="text-muted-foreground shrink-0 p-1 transition-colors hover:text-cyan-400"
         title={
           showBalance
             ? t("identities.hideBalance")

@@ -304,7 +304,7 @@ export default function DexPage() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8"
+                  className="h-8 w-8 hover:text-cyan-400"
                   aria-label={t("common.account")}
                 >
                   <Wallet
@@ -330,7 +330,7 @@ export default function DexPage() {
                     variant="ghost"
                     size="sm"
                     onClick={() => setShowSettings(!showSettings)}
-                    className="h-8 w-8 rounded-full p-0"
+                    className="h-8 w-8 rounded-full p-0 hover:text-cyan-400"
                     aria-label={t("dex.settingsButton", "Toggle settings")}
                     aria-expanded={showSettings}
                   >
@@ -355,7 +355,7 @@ export default function DexPage() {
                       {[0.5, 1.0, 2.0].map((val) => (
                         <Button
                           key={val}
-                          variant={slippage === val ? "default" : "outline"}
+                          variant={slippage === val ? "default" : "secondary"}
                           size="sm"
                           onClick={() => setSlippage(val)}
                           className="flex-1"
@@ -397,7 +397,7 @@ export default function DexPage() {
                         </span>{" "}
                         <button
                           onClick={handleMaxClick}
-                          className="bg-secondary text-foreground hover:bg-accent ml-2 rounded px-2 py-1 text-[10px] font-bold transition-colors"
+                          className="bg-secondary text-foreground ml-2 rounded px-2 py-1 text-[10px] font-bold transition-colors hover:text-cyan-400"
                           aria-label={t(
                             "dex.setMaxAmount",
                             "Set maximum amount",
@@ -458,7 +458,7 @@ export default function DexPage() {
                     variant="outline"
                     size="sm"
                     onClick={handleSwapTokens}
-                    className="border-border bg-background hover:border-ring hover:bg-accent h-10 w-10 rounded-full border-2 shadow-md transition-all hover:scale-110"
+                    className="border-border bg-background hover:bg-accent h-10 w-10 rounded-full border-2 shadow-md transition-all hover:scale-110 hover:border-cyan-400/50"
                     aria-label={t("dex.swapTokens", "Swap token positions")}
                   >
                     <ArrowDownUp className="text-foreground h-5 w-5" />
@@ -621,7 +621,7 @@ export default function DexPage() {
                           href={`https://etherscan.io/tx/${swapHash}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-muted-foreground hover:text-foreground mt-1 inline-block text-sm underline"
+                          className="text-muted-foreground mt-1 inline-block text-sm underline hover:text-cyan-400"
                         >
                           {t("dex.viewOnEtherscan")}
                         </a>

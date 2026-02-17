@@ -171,7 +171,7 @@ export function AccountCard({
                     e.stopPropagation()
                     onCopyAddress(account.address)
                   }}
-                  className="text-muted-foreground hover:text-foreground shrink-0 cursor-pointer p-1 transition-colors"
+                  className="text-muted-foreground shrink-0 cursor-pointer p-1 transition-colors hover:text-cyan-400"
                   title={t("common.copy")}
                 >
                   <Copy className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
@@ -279,7 +279,7 @@ export function AccountCard({
                                 toast.error(t("identities.switchAccountFailed"))
                               }
                             }}
-                            className="text-foreground hover:bg-accent h-8 px-3 text-xs font-semibold"
+                            className="text-foreground hover:bg-accent h-8 px-3 text-xs font-semibold hover:text-cyan-400"
                             title={t("identities.switchAccount")}
                           >
                             <UserCheck className="mr-1.5 h-3.5 w-3.5" />
@@ -293,7 +293,7 @@ export function AccountCard({
                             e.stopPropagation()
                             openAccountModal()
                           }}
-                          className="text-muted-foreground hover:bg-accent hover:text-foreground h-8 w-8 p-0"
+                          className="text-muted-foreground hover:bg-accent h-8 w-8 p-0 hover:text-cyan-400"
                           title={t("identities.manageAccount")}
                         >
                           <ExternalLink className="h-4 w-4" />
@@ -322,7 +322,7 @@ export function AccountCard({
                       variant="ghost"
                       size="sm"
                       onClick={() => onShowSensitive(account, "key")}
-                      className="text-muted-foreground hover:bg-accent hover:text-foreground h-8 w-8 p-0"
+                      className="text-muted-foreground hover:bg-accent h-8 w-8 p-0 hover:text-cyan-400"
                       title={t("identities.viewSensitive")}
                     >
                       <Key className="h-4 w-4" />
@@ -332,7 +332,7 @@ export function AccountCard({
                         variant="ghost"
                         size="sm"
                         onClick={() => onShowSensitive(account, "mnemonic")}
-                        className="text-muted-foreground hover:bg-accent hover:text-foreground h-8 w-8 p-0"
+                        className="text-muted-foreground hover:bg-accent h-8 w-8 p-0 hover:text-cyan-400"
                         title={t("identities.mnemonic")}
                       >
                         <FileText className="h-4 w-4" />
