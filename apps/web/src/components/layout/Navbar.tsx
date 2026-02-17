@@ -59,7 +59,7 @@ export function Navbar() {
             <Button
               variant="ghost"
               size="icon"
-              className="hover:bg-primary/20 hover:text-primary lg:hidden"
+              className="hover:bg-primary/20 hover:text-cyan-400 lg:hidden"
               onClick={() => setMobileSearchOpen(true)}
               aria-label="Search"
             >
@@ -85,7 +85,7 @@ export function Navbar() {
               variant="ghost"
               size="icon"
               asChild
-              className="hover:bg-primary/20 hover:text-primary hidden md:flex"
+              className="hover:bg-primary/20 hidden hover:text-cyan-400 md:flex"
               aria-label={t("common.settings", "Settings")}
             >
               <Link to="/settings">

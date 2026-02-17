@@ -214,7 +214,7 @@ export default function DashboardPage() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="hover:text-primary hover:bg-primary/20 h-8 w-8"
+                className="hover:bg-primary/20 h-8 w-8 hover:text-cyan-400"
                 aria-label={t("common.account")}
               >
                 <Lock

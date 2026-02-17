@@ -149,7 +149,7 @@ export function HistoryTable({
                     href={`https://arweave.net/${r.txId}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="group/tx text-foreground hover:text-primary block truncate font-mono text-xs hover:underline"
+                    className="group/tx text-foreground block truncate font-mono text-xs hover:text-cyan-400 hover:underline"
                     title={r.txId}
                   >
                     <span className="inline-block truncate">
