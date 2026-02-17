@@ -18,10 +18,16 @@ import {
   RefreshCw,
   AlertCircle,
   ArrowRight,
+  Upload,
+  HardDrive,
+  Clock,
+  FileText,
 } from "lucide-react"
 import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { useFileSync } from "@/hooks/upload-hooks"
+import { EmptyState } from "@/components/ui/empty-state"
+import { StatCard } from "@/components/ui/stat-card"
 
 // 将 FileIndex 转换为 UploadRecord 格式（用于兼容 HistoryTable）
 function fileIndexToUploadRecord(file: FileIndex): UploadRecord {
@@ -143,6 +149,28 @@ export default function DashboardPage() {
     }
   }
 
+  // 计算统计数据
+  const totalFiles = uploadHistory.length
+  const totalSize = uploadHistory.reduce(
+    (sum, file) => sum + (file.fileSize || 0),
+    0,
+  )
+  const lastUploadTime = uploadHistory[0]?.createdAt
+    ? new Date(uploadHistory[0].createdAt).toLocaleDateString("zh-CN", {
+        month: "short",
+        day: "numeric",
+      })
+    : "无"
+
+  // 格式化文件大小
+  const formatBytes = (bytes: number) => {
+    if (bytes === 0) return "0 B"
+    const k = 1024
+    const sizes = ["B", "KB", "MB", "GB", "TB"]
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i]
+  }
+
   // 检查是否需要显示账户管理提示
   const needsAccountSetup =
     !walletManager.isUnlocked && !externalWallets.isArConnected
@@ -219,6 +247,27 @@ export default function DashboardPage() {
         </div>
       )}
 
+      {/* Statistics Cards */}
+      {!needsAccountSetup && uploadHistory.length > 0 && (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <StatCard
+            icon={<Upload className="h-5 w-5" />}
+            label={t("history.totalFiles", "总文件数")}
+            value={totalFiles}
+          />
+          <StatCard
+            icon={<HardDrive className="h-5 w-5" />}
+            label={t("history.totalStorage", "总存储空间")}
+            value={formatBytes(totalSize)}
+          />
+          <StatCard
+            icon={<Clock className="h-5 w-5" />}
+            label={t("history.lastUpload", "最近上传")}
+            value={lastUploadTime}
+          />
+        </div>
+      )}
+
       <div className="grid grid-cols-1 gap-6 sm:gap-8">
         <Card className="border-border overflow-hidden shadow-sm">
           <CardHeader className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 sm:pb-6">
@@ -262,13 +311,32 @@ export default function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent className="p-0 sm:p-6 sm:pt-0">
-            <div className="overflow-x-auto">
-              <HistoryTable
-                records={uploadHistory || []}
-                masterKey={walletManager.masterKey}
-                activeAddress={walletManager.activeAddress}
+            {uploadHistory.length === 0 ? (
+              <EmptyState
+                icon={<FileText className="h-12 w-12" />}
+                title={t("history.noFiles", "还没有上传记录")}
+                description={t(
+                  "history.noFilesDesc",
+                  "开始上传您的第一个文件到区块链",
+                )}
+                action={
+                  <Link to="/upload">
+                    <Button className="mt-2">
+                      <Upload className="mr-2 h-4 w-4" />
+                      {t("common.upload", "立即上传")}
+                    </Button>
+                  </Link>
+                }
               />
-            </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <HistoryTable
+                  records={uploadHistory || []}
+                  masterKey={walletManager.masterKey}
+                  activeAddress={walletManager.activeAddress}
+                />
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { useTranslation } from "@/i18n/config"
 import { UploadWarning } from "@/components/upload/UploadWarning"
 import { FileSelectionCard } from "@/components/upload/FileSelectionCard"
@@ -10,6 +10,8 @@ import { UploadExecutionCard } from "@/components/upload/UploadExecutionCard"
 import { useWallet } from "@/hooks/account-hooks"
 import { ArweaveFeeInfo } from "@/components/upload/ArweaveFeeInfo"
 import { SecurityNotice } from "@/components/upload/SecurityNotice"
+import { Steps } from "@/components/ui/steps"
+import { FilePreview } from "@/components/ui/file-preview"
 
 export default function UploadPage() {
   const { t } = useTranslation()
@@ -39,6 +41,22 @@ export default function UploadPage() {
     (selectedFiles.file || selectedFiles.files.length > 0) && hasArweaveAccount,
   )
   const isDisabled = !hasArweaveAccount
+
+  // Calculate current step
+  const currentStep = useMemo(() => {
+    if (!selectedFiles.file && selectedFiles.files.length === 0) return 0
+    if (!uploadConfig.encryptUpload && !uploadConfig.compressUpload) return 1
+    if (!canUpload) return 2
+    return 3
+  }, [selectedFiles, uploadConfig, canUpload])
+
+  // Define upload steps
+  const uploadSteps = [
+    { title: t("upload.step1", "选择文件") },
+    { title: t("upload.step2", "配置选项") },
+    { title: t("upload.step3", "确认账户") },
+    { title: t("upload.step4", "开始上传") },
+  ]
 
   // Reset file selection after successful upload
   const handleUploadComplete = () => {
@@ -78,7 +96,15 @@ export default function UploadPage() {
         hasExternalWallet={isExternalArweave}
       />
 
+      {/* Upload Steps Indicator */}
+      {hasArweaveAccount && (
+        <Steps steps={uploadSteps} currentStep={currentStep} />
+      )}
+
       <FileSelectionCard disabled={isDisabled} onChange={setSelectedFiles} />
+
+      {/* File Preview */}
+      {selectedFiles.file && <FilePreview file={selectedFiles.file} />}
 
       <UploadConfigurationCard
         file={selectedFiles.file}
