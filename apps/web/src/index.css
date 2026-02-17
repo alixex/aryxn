@@ -42,100 +42,68 @@
 
 @layer base {
   :root {
-    /* Premium Black & White Core Colors - Light Mode */
-    --background: 0 0% 98%; /* Soft White #FAFAFA - breathing space */
-    --foreground: 220 2% 8%; /* Near Black #131416 - cool professional tone */
-    --card: 0 0% 100%; /* Pure White #FFFFFF - stands out from background */
-    --card-foreground: 220 2% 8%; /* Near Black with cool tone */
-    --popover: 0 0% 100%; /* Pure White */
-    --popover-foreground: 220 2% 8%; /* Near Black */
+    /* Modern Dark Mode - Premium Dark Theme */
+    --background: 220 13% 9%; /* Deep Space #0D1117 - very dark blue */
+    --foreground: 0 0% 96%; /* Near White #F5F5F5 - excellent contrast */
+    --card: 220 16% 15%; /* Dark Navy #1A1F2F - card surfaces */
+    --card-foreground: 0 0% 96%; /* Near White */
+    --popover: 220 14% 12%; /* Darker card #0E1419 */
+    --popover-foreground: 0 0% 96%; /* Near White */
 
-    /* Primary - Deep Charcoal in Light Mode */
-    --primary: 220 3% 12%; /* Deep Gray-Black #1C1E21 - sophisticated */
+    /* Primary - Electric Violet / Indigo */
+    --primary: 270 80% 56%; /* Vibrant Purple #9D4EDD - modern, energetic */
     --primary-foreground: 0 0% 100%; /* Pure White */
-    --primary-hover: 220 2% 18%; /* Slightly lighter on hover */
+    --primary-hover: 270 80% 46%; /* Darker on hover */
 
-    /* Secondary - Very Light Gray */
-    --secondary: 0 0% 96%; /* Very Light Gray #F5F5F5 */
-    --secondary-foreground: 220 2% 8%; /* Near Black */
-    --secondary-hover: 0 0% 94%; /* Slightly darker on hover */
+    /* Secondary - Cyan / Electric Blue */
+    --secondary: 180 90% 45%; /* Bright Cyan #00E5FF - accent color */
+    --secondary-foreground: 220 13% 9%; /* Dark foreground */
+    --secondary-hover: 180 90% 35%; /* Darker on hover */
 
-    /* Muted - Subtle Light Gray */
-    --muted: 0 0% 96%; /* Very Light Gray #F5F5F5 */
-    --muted-foreground: 220 1% 45%; /* Medium Gray with subtle cool tone */
+    /* Muted - Soft Gray-Blue */
+    --muted: 220 14% 28%; /* Medium gray #3A4556 */
+    --muted-foreground: 220 8% 65%; /* Light gray text */
 
-    /* Accent - Same as Secondary */
-    --accent: 0 0% 96%;
-    --accent-foreground: 220 2% 8%;
+    /* Accent - Golden / Warm Yellow */
+    --accent: 45 96% 56%; /* Golden Yellow #FFD60A - highlights */
+    --accent-foreground: 220 13% 9%; /* Dark foreground */
 
-    /* Destructive - Refined Dark Gray */
-    --destructive: 220 2% 15%; /* Dark Charcoal #252729 */
+    /* Destructive - Warm Red */
+    --destructive: 0 84% 60%; /* Vibrant Red #FF6B6B */
     --destructive-foreground: 0 0% 100%;
 
-    /* Borders & Inputs - Ultra Light */
-    --border: 0 0% 92%; /* Ultra Light Border #EBEBEB - barely visible */
-    --input: 0 0% 92%; /* Ultra Light Input Border */
-    --ring: 220 2% 25%; /* Softer gray for focus ring */
+    /* Borders & Inputs - Transparent Blue */
+    --border: 220 20% 25%; /* Subtle border #1E273C */
+    --input: 220 16% 22%; /* Input border #1A2130 */
+    --ring: 270 80% 56%; /* Primary color for focus ring */
 
-    /* Charts - 12-Level Grayscale System */
-    --chart-1: 220 2% 12%; /* Darkest */
-    --chart-2: 220 2% 25%;
-    --chart-3: 220 1% 38%;
-    --chart-4: 220 1% 50%;
-    --chart-5: 220 1% 62%; /* Lightest */
+    /* Charts - Modern Color Palette */
+    --chart-1: 270 80% 56%; /* Purple */
+    --chart-2: 180 90% 45%; /* Cyan */
+    --chart-3: 45 96% 56%; /* Gold */
+    --chart-4: 0 84% 60%; /* Red */
+    --chart-5: 120 70% 50%; /* Green */
 
-    --radius: 0.5rem; /* 8px - Modern & Clean */
+    --radius: 0.75rem; /* 12px - Modern & Smooth */
 
-    /* 12-Level Premium Grayscale Hierarchy */
-    --gray-50: 0 0% 98%; /* Almost White */
-    --gray-100: 0 0% 96%;
-    --gray-150: 0 0% 94%;
-    --gray-200: 0 0% 92%;
-    --gray-300: 220 1% 88%;
-    --gray-400: 220 1% 75%;
-    --gray-500: 220 1% 62%;
-    --gray-600: 220 1% 50%;
-    --gray-700: 220 2% 38%;
-    --gray-800: 220 2% 25%;
-    --gray-900: 220 2% 15%;
-    --gray-950: 220 2% 8%; /* Near Black */
+    /* Color Palette - Expanded Dark Mode */
+    --gray-50: 220 16% 95%;
+    --gray-100: 220 16% 90%;
+    --gray-150: 220 16% 85%;
+    --gray-200: 220 16% 75%;
+    --gray-300: 220 14% 65%;
+    --gray-400: 220 12% 50%;
+    --gray-500: 220 12% 40%;
+    --gray-600: 220 14% 28%;
+    --gray-700: 220 16% 20%;
+    --gray-800: 220 16% 15%;
+    --gray-900: 220 13% 9%;
 
-    /* Premium Grayscale Gradients */
-    --gradient-primary-start: 220 3% 12%;
-    --gradient-primary-end: 220 2% 25%;
-    --gradient-secondary-start: 0 0% 96%;
-    --gradient-secondary-end: 0 0% 100%;
-    --gradient-accent-start: 0 0% 92%;
-    --gradient-accent-end: 0 0% 100%;
-
-    /* Enhanced Glassmorphism - Light */
-    --glass-bg: 0 0% 100%;
-    --glass-border: 0 0% 92%;
-    --glass-blur: 16px;
-
-    /* Refined Monochrome Accent Colors */
-    --mono-darkest: 220 2% 8%; /* Near Black with cool tone */
-    --mono-dark: 220 2% 25%; /* Dark Charcoal */
-    --mono-medium: 220 1% 50%; /* Medium Gray */
-    --mono-light: 220 1% 75%; /* Light Gray */
-
-    /* Premium Multi-Layer Shadow System */
-    --shadow-xs: 0 1px 2px 0 hsl(220 2% 8% / 0.04);
-    --shadow-sm: 0 2px 4px -1px hsl(220 2% 8% / 0.06);
-    --shadow-md:
-      0 4px 8px -2px hsl(220 2% 8% / 0.08), 0 2px 4px -1px hsl(220 2% 8% / 0.04);
-    --shadow-lg:
-      0 8px 16px -4px hsl(220 2% 8% / 0.1), 0 4px 8px -2px hsl(220 2% 8% / 0.06);
-    --shadow-xl:
-      0 16px 32px -8px hsl(220 2% 8% / 0.12),
-      0 8px 16px -4px hsl(220 2% 8% / 0.08);
-
-    /* Shadows - Subtle Black/Gray based */
-    --shadow-primary: 220 2% 8%; /* Near Black shadows */
-    --shadow-secondary: 220 2% 25%;
-    --shadow-success: 220 2% 30%;
-    --shadow-warning: 220 1% 35%;
-    --shadow-danger: 220 2% 15%;
+    /* Modern Gradients */
+    --gradient-primary-start: 270 80% 56%;
+    --gradient-primary-end: 180 90% 45%;
+    --gradient-secondary-start: 45 96% 56%;
+    --gradient-secondary-end: 270 80% 56%;
 
     /* Animation timing */
     --duration-instant: 100ms;
@@ -149,87 +117,6 @@
     --ease-out: cubic-bezier(0, 0, 0.2, 1);
     --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
     --ease-sharp: cubic-bezier(0.4, 0, 0.6, 1);
-  }
-  .dark {
-    /* Premium Black & White Core Colors - Dark Mode */
-    --background: 220 2% 3%; /* Near Black #070809 - soft dark with cool tone */
-    --foreground: 0 0% 98%; /* Soft White #FAFAFA - easy on eyes */
-    --card: 220 2% 6%; /* Very Dark Gray #0E0F11 - stands out from background */
-    --card-foreground: 0 0% 98%; /* Soft White */
-    --popover: 220 2% 8%; /* Dark Gray #131416 */
-    --popover-foreground: 0 0% 98%; /* Soft White */
-
-    /* Primary - Refined White in Dark Mode */
-    --primary: 0 0% 98%; /* Soft White #FAFAFA - not harsh */
-    --primary-foreground: 220 2% 8%; /* Near Black */
-    --primary-hover: 0 0% 92%; /* Slightly darker on hover */
-
-    /* Secondary - Refined Dark Gray */
-    --secondary: 220 2% 10%; /* Dark Gray #191A1D */
-    --secondary-foreground: 0 0% 98%; /* Soft White */
-    --secondary-hover: 220 2% 12%; /* Slightly lighter on hover */
-
-    /* Muted - Subtle Dark Gray */
-    --muted: 220 2% 10%; /* Dark Gray #191A1D */
-    --muted-foreground: 220 1% 55%; /* Medium Gray with subtle cool tone */
-
-    /* Accent - Same as Secondary */
-    --accent: 220 2% 10%;
-    --accent-foreground: 0 0% 98%;
-
-    /* Destructive - Refined Light Gray */
-    --destructive: 0 0% 88%; /* Light Gray #E0E0E0 */
-    --destructive-foreground: 220 2% 8%; /* Near Black */
-
-    /* Borders & Inputs - Ultra Subtle */
-    --border: 220 2% 15%; /* Dark Border #25262A - barely visible */
-    --input: 220 2% 15%; /* Dark Input Border */
-    --ring: 0 0% 75%; /* Softer light gray for focus ring */
-
-    /* Charts - 12-Level Grayscale System (inverted) */
-    --chart-1: 0 0% 92%; /* Lightest */
-    --chart-2: 220 1% 75%;
-    --chart-3: 220 1% 62%;
-    --chart-4: 220 1% 50%;
-    --chart-5: 220 2% 38%; /* Darkest */
-
-    /* Premium Grayscale Gradients - Dark Mode */
-    --gradient-primary-start: 0 0% 98%;
-    --gradient-primary-end: 220 1% 75%;
-    --gradient-secondary-start: 220 2% 10%;
-    --gradient-secondary-end: 220 2% 3%;
-
-    /* Enhanced Glassmorphism - Dark */
-    --glass-bg: 220 2% 6%; /* #0E0F11 */
-    --glass-border: 220 2% 15%; /* #25262A */
-
-    /* 12-Level Premium Grayscale Hierarchy - Dark Mode */
-    --gray-50: 220 2% 3%; /* Near Black */
-    --gray-100: 220 2% 6%;
-    --gray-150: 220 2% 8%;
-    --gray-200: 220 2% 10%;
-    --gray-300: 220 2% 15%;
-    --gray-400: 220 1% 25%;
-    --gray-500: 220 1% 38%;
-    --gray-600: 220 1% 50%;
-    --gray-700: 220 1% 62%;
-    --gray-800: 220 1% 75%;
-    --gray-900: 220 1% 88%;
-    --gray-950: 0 0% 98%; /* Soft White */
-
-    /* Premium Multi-Layer Shadow System - Dark Mode */
-    --shadow-xs: 0 1px 2px 0 hsl(0 0% 0% / 0.12);
-    --shadow-sm: 0 2px 4px -1px hsl(0 0% 0% / 0.16);
-    --shadow-md:
-      0 4px 8px -2px hsl(0 0% 0% / 0.2), 0 2px 4px -1px hsl(0 0% 0% / 0.12);
-    --shadow-lg:
-      0 8px 16px -4px hsl(0 0% 0% / 0.24), 0 4px 8px -2px hsl(0 0% 0% / 0.16);
-    --shadow-xl:
-      0 16px 32px -8px hsl(0 0% 0% / 0.28), 0 8px 16px -4px hsl(0 0% 0% / 0.2);
-
-    /* Adjusted shadow colors for dark mode */
-    --shadow-primary: 0 0% 98%; /* Soft White shadows for dark mode */
-    --shadow-secondary: 220 1% 75%;
   }
 }
 
@@ -257,49 +144,94 @@
   .bg-gradient-primary {
     background: linear-gradient(
       135deg,
-      hsl(var(--gradient-primary-start)) 0%,
-      hsl(var(--gradient-primary-end)) 100%
+      hsl(270 80% 56%) 0%,
+      hsl(180 90% 45%) 100%
     );
   }
 
   .bg-gradient-secondary {
     background: linear-gradient(
       135deg,
-      hsl(var(--gradient-secondary-start)) 0%,
-      hsl(var(--gradient-secondary-end)) 100%
+      hsl(45 96% 56%) 0%,
+      hsl(270 80% 56%) 100%
     );
   }
 
   .bg-gradient-accent {
     background: linear-gradient(
       135deg,
-      hsl(var(--gradient-accent-start)) 0%,
-      hsl(var(--gradient-accent-end)) 100%
+      hsl(180 90% 45%) 0%,
+      hsl(320 90% 60%) 100%
     );
   }
 
   .bg-gradient-radial {
     background: radial-gradient(
       circle at 50% 0%,
-      hsl(var(--gradient-primary-start) / 0.05),
+      hsl(270 80% 56% / 0.15),
       transparent 70%
     );
   }
 
-  /* Glassmorphism */
+  /* Enhanced Glassmorphism */
   .glass {
-    background: hsl(var(--glass-bg) / 0.7);
-    backdrop-filter: blur(var(--glass-blur));
-    border: 1px solid hsl(var(--glass-border) / 0.5);
+    background: hsl(220 16% 20% / 0.6);
+    backdrop-filter: blur(24px) saturate(150%);
+    border: 1px solid hsl(270 60% 50% / 0.2);
+    box-shadow: inset 0 1px 0 hsl(180 90% 45% / 0.1);
   }
 
   .glass-strong {
-    background: hsl(var(--glass-bg) / 0.85);
-    backdrop-filter: blur(16px) saturate(180%);
-    border: 1px solid hsl(var(--glass-border) / 0.8);
+    background: hsl(220 16% 20% / 0.8);
+    backdrop-filter: blur(32px) saturate(180%);
+    border: 1px solid hsl(270 60% 50% / 0.4);
+    box-shadow: inset 0 1px 0 hsl(180 90% 45% / 0.15);
   }
 
-  /* Animated gradients - Monochrome */
+  /* Neon Glow Effects */
+  .glow-purple {
+    box-shadow: 0 0 30px hsl(270 80% 56% / 0.4), 0 0 60px hsl(270 80% 56% / 0.2);
+  }
+
+  .glow-cyan {
+    box-shadow: 0 0 30px hsl(180 90% 45% / 0.4), 0 0 60px hsl(180 90% 45% / 0.2);
+  }
+
+  .glow-gold {
+    box-shadow: 0 0 20px hsl(45 96% 56% / 0.3), 0 0 40px hsl(45 96% 56% / 0.15);
+  }
+
+  /* Gradient text effects - fixes display of bg-gradient-primary with bg-clip-text */
+  .bg-gradient-primary.bg-clip-text,
+  .bg-gradient-secondary.bg-clip-text,
+  .bg-gradient-accent.bg-clip-text {
+    /* Ensures background is visible and properly clipped to text */
+    display: inline-block;
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+    /* Fallback for when gradient doesn't show */
+    text-shadow: none;
+  }
+
+  /* Strong helper class to force gradient clipping on text-bearing elements.
+     Use on the element that directly contains the text (e.g. the <span> around
+     a heading) to ensure -webkit-text-fill-color and background-clip are not
+     accidentally overridden by other utilities like `flex` or `text-color`.
+  */
+  .gradient-text {
+    display: inline-block;
+    background-size: 200% 200%;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    color: transparent !important;
+    text-shadow: none !important;
+  }
+
+  /* Animated gradients */
   .bg-gradient-animated {
     background: linear-gradient(
       270deg,

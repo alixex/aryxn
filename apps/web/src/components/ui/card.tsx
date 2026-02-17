@@ -12,11 +12,12 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
     <div
       ref={ref}
       className={cn(
-        "text-card-foreground rounded-lg border transition-all duration-300",
-        variant === "glass" && "glass",
-        variant === "default" && "border-border bg-card shadow-sm",
+        "text-card-foreground rounded-xl border transition-all duration-300",
+        variant === "glass" && "glass-strong",
+        variant === "default" &&
+          "border-border/50 bg-card/40 hover:border-primary/30 shadow-lg backdrop-blur-sm",
         interactive &&
-          "hover:border-foreground/20 cursor-pointer hover:-translate-y-1 hover:shadow-md",
+          "hover:border-primary/50 hover:bg-card/60 group cursor-pointer hover:-translate-y-1 hover:shadow-xl",
         className,
       )}
       {...props}

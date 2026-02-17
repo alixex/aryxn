@@ -44,17 +44,17 @@ export function HydrateFallback(_props?: {
   // No browser-specific APIs, no dynamic content, no conditional rendering
   // Props are accepted but not used to match React Router's expected signature
   return (
-    <div className="bg-background flex min-h-screen items-center justify-center">
+    <div className="bg-background bg-gradient-radial flex min-h-screen items-center justify-center">
       <div className="flex flex-col items-center gap-4">
         <div className="relative">
-          <div className="border-border border-t-primary h-16 w-16 animate-spin rounded-full border-4"></div>
+          <div className="border-border/30 border-t-primary glow-purple h-16 w-16 animate-spin rounded-full border-4"></div>
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="bg-gradient-primary h-8 w-8 rounded-full"></div>
+            <div className="bg-gradient-primary h-8 w-8 rounded-full shadow-lg"></div>
           </div>
         </div>
         <div className="text-center">
-          <p className="text-foreground text-sm font-medium">Loading...</p>
-          <p className="text-muted-foreground mt-1 text-xs">
+          <p className="text-foreground text-sm font-semibold">Loading...</p>
+          <p className="text-muted-foreground mt-2 text-xs">
             Preparing your vault
           </p>
         </div>
@@ -83,17 +83,17 @@ export default function App() {
   // 这样可以避免页面闪烁（先显示 HTML 中的 loading，然后清空，再显示 React 的 loading）
   if (!mounted) {
     return (
-      <div className="bg-background flex min-h-screen items-center justify-center">
+      <div className="bg-background bg-gradient-radial flex min-h-screen items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="relative">
-            <div className="border-border border-t-primary h-16 w-16 animate-spin rounded-full border-4"></div>
+            <div className="border-border/30 border-t-primary glow-purple h-16 w-16 animate-spin rounded-full border-4"></div>
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="bg-gradient-primary h-8 w-8 rounded-full"></div>
+              <div className="bg-gradient-primary h-8 w-8 rounded-full shadow-lg"></div>
             </div>
           </div>
           <div className="text-center">
-            <p className="text-foreground text-sm font-medium">Loading...</p>
-            <p className="text-muted-foreground mt-1 text-xs">
+            <p className="text-foreground text-sm font-semibold">Loading...</p>
+            <p className="text-muted-foreground mt-2 text-xs">
               Preparing your vault
             </p>
           </div>

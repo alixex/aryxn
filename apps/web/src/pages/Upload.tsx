@@ -47,9 +47,26 @@ export default function UploadPage() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 py-4 sm:space-y-8 sm:py-8">
-      <div className="flex flex-col gap-2">
-        <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-          {t("common.upload")}
+      <div className="flex flex-col gap-3">
+        <h2 className="flex items-center gap-2 text-3xl font-bold tracking-tight sm:text-4xl">
+          <div className="bg-gradient-primary shrink-0 rounded p-1.5 text-white">
+            <svg
+              className="h-5 w-5 sm:h-6 sm:w-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+              />
+            </svg>
+          </div>
+          <span className="bg-gradient-primary gradient-text inline-block align-middle leading-tight">
+            {t("common.upload")}
+          </span>
         </h2>
         <p className="text-muted-foreground text-sm sm:text-base">
           {t("upload.arweaveDesc")}

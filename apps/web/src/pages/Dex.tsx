@@ -255,15 +255,17 @@ export default function DexPage() {
     <div className="mx-auto max-w-6xl space-y-6 py-4 sm:space-y-8 sm:py-8">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-col gap-2">
-          <h2 className="flex items-center gap-3 text-2xl font-bold tracking-tight sm:text-3xl">
-            <div className="bg-primary text-primary-foreground rounded-lg p-2 shadow-lg">
+        <div className="flex flex-col gap-3">
+          <h2 className="flex items-center gap-3 text-3xl font-bold tracking-tight sm:text-4xl">
+            <div className="bg-gradient-secondary glow-gold rounded-lg p-2 text-white shadow-lg">
               <TrendingUp
                 className="h-6 w-6 sm:h-7 sm:w-7"
                 aria-hidden="true"
               />
             </div>
-            {t("dex.title")}
+            <span className="bg-gradient-secondary gradient-text inline-block align-middle leading-tight">
+              {t("dex.title")}
+            </span>
           </h2>
           <p className="text-muted-foreground text-sm sm:text-base">
             {t("dex.description")}

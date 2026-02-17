@@ -151,16 +151,20 @@ export default function DashboardPage() {
     <div className="mx-auto max-w-6xl space-y-6 py-4 sm:space-y-8 sm:py-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-2">
-          <h2 className="flex items-center gap-2 text-2xl font-bold tracking-tight sm:text-3xl">
-            <LayoutDashboard className="text-foreground h-7 w-7 sm:h-8 sm:w-8" />
-            {t("common.dashboard")}
+          <h2 className="flex items-center gap-2 text-3xl font-bold tracking-tight sm:text-4xl">
+            <div className="bg-gradient-primary flex-shrink-0 rounded p-1.5 text-white">
+              <LayoutDashboard className="h-5 w-5 sm:h-6 sm:w-6" />
+            </div>
+            <span className="bg-gradient-primary gradient-text inline-block align-middle leading-tight">
+              {t("common.dashboard")}
+            </span>
           </h2>
           <p className="text-muted-foreground text-sm sm:text-base">
             {t("history.desc")}
           </p>
         </div>
 
-        <div className="border-border bg-background flex items-center gap-3 rounded-xl border p-3 shadow-xs sm:px-4 sm:py-2">
+        <div className="glass border-primary/20 bg-card/40 hover:border-primary/40 flex items-center gap-3 rounded-xl border p-3 shadow-lg transition-all sm:px-4 sm:py-2">
           <div className="flex-1 sm:text-right">
             <div className="text-muted-foreground mb-0.5 text-[10px] font-bold tracking-wider uppercase">
               {t("common.activeAccountLabel")}
@@ -178,7 +182,7 @@ export default function DashboardPage() {
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8"
+              className="hover:text-primary hover:bg-primary/20 h-8 w-8"
               aria-label={t("common.account")}
             >
               <Lock
@@ -191,9 +195,9 @@ export default function DashboardPage() {
       </div>
 
       {needsAccountSetup && (
-        <div className="glass-strong animate-fade-in-down border-muted bg-card flex items-start gap-4 rounded-2xl border-2 p-6 shadow-lg">
-          <div className="bg-muted flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
-            <AlertCircle className="text-muted-foreground h-5 w-5" />
+        <div className="glass-strong animate-fade-in-down border-accent/30 bg-card/60 flex items-start gap-4 rounded-2xl border-2 p-6 shadow-lg">
+          <div className="bg-accent/20 flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
+            <AlertCircle className="text-accent h-5 w-5" />
           </div>
           <div className="flex-1">
             <p className="mb-2 text-base leading-relaxed font-bold">

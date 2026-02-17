@@ -13,16 +13,17 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       <input
         type={type}
         className={cn(
-          "bg-background flex h-10 w-full rounded-lg border-2 px-3 py-2 text-base transition-all duration-200 md:text-sm",
-          "placeholder:text-muted-foreground",
-          "file:text-foreground file:border-0 file:bg-transparent file:text-sm file:font-medium",
-          "focus:border-ring focus:ring-ring/10 focus:ring-4 focus:outline-none",
-          "disabled:bg-muted disabled:cursor-not-allowed disabled:opacity-50",
+          "bg-card/40 flex h-10 w-full rounded-lg border-2 px-4 py-2 text-base backdrop-blur-sm transition-all duration-200 md:text-sm",
+          "placeholder:text-muted-foreground/60",
+          "file:text-foreground file:border-0 file:bg-transparent file:text-sm file:font-semibold",
+          "focus:border-primary focus:ring-primary/20 focus:bg-card/60 focus:ring-4 focus:outline-none",
+          "disabled:bg-muted/30 disabled:cursor-not-allowed disabled:opacity-50",
+          "hover:border-primary/30 hover:bg-card/50 transition-colors",
           error &&
-            "border-destructive focus:border-destructive focus:ring-destructive/10",
+            "border-destructive focus:border-destructive focus:ring-destructive/20",
           success &&
-            "border-foreground/50 focus:border-foreground focus:ring-foreground/10",
-          !error && !success && "border-border",
+            "border-secondary focus:border-secondary focus:ring-secondary/20",
+          !error && !success && "border-border/50",
           className,
         )}
         ref={ref}

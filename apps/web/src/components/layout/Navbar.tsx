@@ -42,7 +42,7 @@ export function Navbar() {
 
   return (
     <>
-      <header className="border-border bg-background/80 sticky top-0 z-40 border-b shadow-sm backdrop-blur-xl transition-shadow duration-300">
+      <header className="border-border/30 bg-background/60 glass-strong sticky top-0 z-40 border-b shadow-lg backdrop-blur-xl transition-shadow duration-300">
         <div className="container mx-auto flex h-16 max-w-6xl items-center justify-between gap-2 px-4 sm:gap-4 lg:px-8">
           {/* 左侧：Logo + 搜索框 */}
           <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-4">
@@ -59,7 +59,7 @@ export function Navbar() {
             <Button
               variant="ghost"
               size="icon"
-              className="lg:hidden"
+              className="hover:bg-primary/20 hover:text-primary lg:hidden"
               onClick={() => setMobileSearchOpen(true)}
               aria-label="Search"
             >
@@ -70,7 +70,7 @@ export function Navbar() {
             <DesktopNav items={desktopNavItems} />
 
             {/* 分隔线（导航项和语言切换器之间） */}
-            <NavDivider className="bg-border mx-1 hidden h-8 w-px lg:block" />
+            <NavDivider className="bg-border/20 mx-1 hidden h-8 w-px lg:block" />
 
             {/* 语言切换器（移动端隐藏，因为底部导航已有） */}
             <div className="hidden md:block">
@@ -78,14 +78,14 @@ export function Navbar() {
             </div>
 
             {/* 分隔线（语言切换器和设置按钮之间） */}
-            <NavDivider className="bg-border mx-1 hidden h-8 w-px md:block" />
+            <NavDivider className="bg-border/20 mx-1 hidden h-8 w-px md:block" />
 
             {/* 设置按钮 */}
             <Button
               variant="ghost"
               size="icon"
               asChild
-              className="hidden md:flex"
+              className="hover:bg-primary/20 hover:text-primary hidden md:flex"
               aria-label={t("common.settings", "Settings")}
             >
               <Link to="/settings">
@@ -94,7 +94,7 @@ export function Navbar() {
             </Button>
 
             {/* 分隔线（设置按钮和账户按钮之间） */}
-            <NavDivider className="bg-border mx-1 hidden h-8 w-px md:block" />
+            <NavDivider className="bg-border/20 mx-1 hidden h-8 w-px md:block" />
 
             {/* 账户按钮 */}
             <AccountButton />
