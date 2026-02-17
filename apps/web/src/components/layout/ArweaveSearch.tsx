@@ -48,6 +48,28 @@ export function ArweaveSearch() {
     }
   }, [])
 
+  // Keyboard shortcuts: "/" or "Cmd+K" to focus
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      // Ignore if already typing in an input
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement ||
+        e.target instanceof HTMLSelectElement
+      ) {
+        return
+      }
+
+      if (e.key === "/" || ((e.metaKey || e.ctrlKey) && e.key === "k")) {
+        e.preventDefault()
+        inputRef.current?.focus()
+      }
+    }
+
+    document.addEventListener("keydown", handleGlobalKeyDown)
+    return () => document.removeEventListener("keydown", handleGlobalKeyDown)
+  }, [])
+
   const handleSearch = useCallback(async () => {
     if (!query.trim()) {
       setResults([])
@@ -133,11 +155,10 @@ export function ArweaveSearch() {
     <div ref={searchRef} className="relative w-full lg:max-w-md lg:flex-1">
       <div className="flex items-center gap-2">
         <div className="relative flex-1">
-          <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
           <Input
             ref={inputRef}
             type="text"
-            placeholder={t("common.searchArweave")}
+            placeholder={`${t("common.searchArweave")} (Cmd+K)`}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -148,6 +169,7 @@ export function ArweaveSearch() {
             }}
             className="border-border bg-card focus-visible:border-ring focus-visible:ring-ring/20 w-full pr-20 pl-10 text-sm focus-visible:ring-1 sm:pr-24 sm:text-base"
           />
+          <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 z-10 h-4 w-4 -translate-y-1/2" />
           {query && (
             <button
               onClick={handleClear}

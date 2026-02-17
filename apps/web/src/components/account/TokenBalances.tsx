@@ -51,6 +51,7 @@ export function TokenBalances({
   const { t } = useTranslation()
   const [balances, setBalances] = useState<TokenBalance[]>([])
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [lastUpdated, setLastUpdated] = useState<number | null>(null)
 
   const fetchEthereumBalances = async () => {
@@ -181,6 +182,7 @@ export function TokenBalances({
     }
 
     setLoading(true)
+    setError(null)
     globalFetchCache.set(cacheKey, now) // Set immediately to block parallel mounts
 
     try {
@@ -201,15 +203,26 @@ export function TokenBalances({
     } catch (err: any) {
       console.error("Failed to fetch token balances:", err)
 
-      // Antigravity: Handle 429 specifically with exponential backoff
-      if (err?.message?.includes("429") || err?.status === 429) {
+      // Antigravity: Handle 429/403 specifically with exponential backoff
+      if (
+        err?.message?.includes("429") ||
+        err?.status === 429 ||
+        err?.message?.includes("403") ||
+        err?.status === 403
+      ) {
         setBackoffTime((prev) => Math.min(prev + 60000, 300000)) // Max 5 min backoff
-        toast.error(
-          t(
-            "common.rateLimitError",
-            "Rate limited by RPC provider. Retrying later...",
-          ),
+        // If 403, maybe force a longer initial backoff?
+        if (err?.status === 403 || err?.message?.includes("403")) {
+          setBackoffTime((prev) => Math.max(prev, 120000)) // Min 2 min for 403
+        }
+        const msg = t(
+          "common.rateLimitError",
+          "Rate limited or access denied by RPC provider. Retrying later...",
         )
+        setError(msg)
+        toast.error(msg)
+      } else {
+        setError(t("common.fetchError", "Failed to load balances"))
       }
     } finally {
       setLoading(false)
@@ -247,7 +260,30 @@ export function TokenBalances({
     )
   }
 
-  if (activeBalances.length === 0) return null
+  if (activeBalances.length === 0) {
+    if (error) {
+      return (
+        <div className="mt-2 flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <span className="text-destructive text-[10px] font-medium tracking-wider uppercase">
+              {error}
+            </span>
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                fetchBalances(true)
+              }}
+              className="text-muted-foreground hover:text-primary p-1 transition-colors"
+              title={t("common.retry", "Retry")}
+            >
+              <RefreshCw className="h-3 w-3" />
+            </button>
+          </div>
+        </div>
+      )
+    }
+    return null
+  }
 
   return (
     <div className="mt-2 flex flex-col gap-2">
