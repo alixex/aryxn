@@ -166,7 +166,7 @@ export default function SettingsPage() {
   return (
     <div className="mx-auto max-w-6xl space-y-6 py-4 sm:space-y-8 sm:py-8">
       <div className="flex flex-col gap-3">
-        <h2 className="bg-gradient-accent flex items-center gap-3 bg-clip-text text-3xl font-bold tracking-tight text-transparent sm:text-4xl">
+        <h2 className="flex items-center gap-3 text-3xl font-bold tracking-tight sm:text-4xl">
           <div className="bg-gradient-accent glow-cyan rounded-lg p-2 text-white shadow-lg">
             <svg
               className="h-6 w-6 sm:h-7 sm:w-7"
@@ -188,7 +188,7 @@ export default function SettingsPage() {
               />
             </svg>
           </div>
-          <span className="bg-gradient-accent gradient-text inline-block align-middle leading-tight">
+          <span className="bg-gradient-accent inline-block bg-clip-text align-middle leading-tight text-transparent">
             {t("settings.title", "Settings")}
           </span>
         </h2>
