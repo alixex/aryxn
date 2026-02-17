@@ -10,9 +10,9 @@ import { useVault } from "@/hooks/vault-hooks"
 import { useWalletStorage } from "@/hooks/vault-hooks"
 import { useWalletOps } from "@/hooks/vault-hooks"
 import {
-  useExternalWallets,
+  useExternalAggregation,
   type UseExternalWalletsReturn,
-} from "@/hooks/account-hooks/external-wallet/use-external-wallets"
+} from "@/hooks/account-hooks/external-wallet/use-external-aggregation"
 import type {
   WalletRecord,
   WalletKey,
@@ -202,7 +202,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const ops = useWalletOps()
 
   // 4. External Wallets Integration
-  const external = useExternalWallets()
+  const external = useExternalAggregation()
 
   // --- Actions ---
 

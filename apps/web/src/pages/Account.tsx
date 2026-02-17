@@ -1,11 +1,6 @@
 import { useState } from "react"
 import { useTranslation } from "@/i18n/config"
-import {
-  useInternal,
-  useExternalWallets,
-  useWallet,
-  useAccounts,
-} from "@/hooks/account-hooks"
+import { useInternal, useWallet, useAccounts } from "@/hooks/account-hooks"
 import { toast } from "sonner"
 import { useDisconnect } from "wagmi"
 import { db } from "@/lib/database"
@@ -32,8 +27,8 @@ export default function AccountPage() {
   const wallet = useWallet()
   const { mutate: disconnectEVM } = useDisconnect()
 
-  // 使用外部钱包 hook (已聚合进 wallet.external)
-  const externalWallets = useExternalWallets().external
+  // 使用外部钱包状态 (已聚合进 wallet.external)
+  const externalWallets = wallet.external
 
   // 敏感信息对话框
   const [showSensitiveDialog, setShowSensitiveDialog] = useState(false)

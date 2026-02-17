@@ -1,11 +1,12 @@
 import { useState, useCallback } from "react"
 import { toast } from "sonner"
-import { useInternal, useExternalWallets } from "@/hooks/account-hooks"
+import { useWallet } from "@/hooks/account-hooks"
 import { syncFilesFromArweaveDirect } from "@/lib/file"
 
 export function useFileSync() {
-  const walletManager = useInternal()
-  const externalWallets = useExternalWallets().external
+  const wallet = useWallet()
+  const walletManager = wallet.internal
+  const externalWallets = wallet.external
   const [syncing, setSyncing] = useState(false)
   const [uploadingManifest] = useState(false)
 

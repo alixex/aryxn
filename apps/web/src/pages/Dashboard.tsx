@@ -1,4 +1,4 @@
-import { useInternal, useExternalWallets } from "@/hooks/account-hooks"
+import { useWallet } from "@/hooks/account-hooks"
 import { useTranslation } from "@/i18n/config"
 import type { UploadRecord, WalletRecord } from "@/lib/utils"
 import { searchFiles, type FileIndex } from "@/lib/file"
@@ -48,8 +48,9 @@ function fileIndexToUploadRecord(file: FileIndex): UploadRecord {
 
 export default function DashboardPage() {
   const { t } = useTranslation()
-  const walletManager = useInternal()
-  const externalWallets = useExternalWallets().external
+  const wallet = useWallet()
+  const walletManager = wallet.internal
+  const externalWallets = wallet.external
   const [uploadHistory, setUploadHistory] = useState<UploadRecord[]>([])
   const { syncing, syncFromArweave } = useFileSync()
 

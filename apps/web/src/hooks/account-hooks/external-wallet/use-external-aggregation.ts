@@ -36,10 +36,10 @@ export interface UseExternalWalletsReturn {
 }
 
 /**
- * Aggregated external wallets hook
+ * Aggregated external wallets hook (Provider use only)
  * Combines Arweave, Solana, Sui, and EVM wallet hooks into a single interface
  */
-export function useExternalWallets(): UseExternalWalletsReturn {
+export function useExternalAggregation(): UseExternalWalletsReturn {
   const arweave = useArweaveWallet()
   const solana = useSolanaWallet()
   const sui = useSuiWallet()

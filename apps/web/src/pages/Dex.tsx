@@ -34,8 +34,8 @@ import {
   useInternalDexSwap,
 } from "@/hooks/dex-hooks"
 import { SUPPORTED_TOKENS, type TokenInfo } from "@/lib/contracts/token-config"
-import { useInternal } from "@/hooks/account-hooks"
-import { type WalletRecord, formatTimestamp } from "@/lib/utils"
+import { useInternal, formatTimestamp } from "@/hooks/account-hooks"
+import type { WalletRecord } from "@/lib/utils"
 
 export default function DexPage() {
   const { t } = useTranslation()
