@@ -64,12 +64,12 @@
     --primary-hover: 270 80% 46%;
     /* Darker on hover */
 
-    /* Secondary - Cyan / Electric Blue */
-    --secondary: 180 90% 45%;
-    /* Bright Cyan #00E5FF - accent color */
-    --secondary-foreground: 220 13% 9%;
-    /* Dark foreground */
-    --secondary-hover: 180 90% 35%;
+    /* Secondary - Deep Blue */
+    --secondary: 220 90% 55%;
+    /* Electric Blue #3B82F6 - accent color */
+    --secondary-foreground: 0 0% 100%;
+    /* White foreground */
+    --secondary-hover: 220 90% 45%;
     /* Darker on hover */
 
     /* Muted - Soft Gray-Blue */
@@ -100,8 +100,8 @@
     /* Charts - Modern Color Palette */
     --chart-1: 270 80% 56%;
     /* Purple */
-    --chart-2: 180 90% 45%;
-    /* Cyan */
+    --chart-2: 220 90% 55%;
+    /* Blue */
     --chart-3: 45 96% 56%;
     /* Gold */
     --chart-4: 0 84% 60%;
@@ -127,9 +127,9 @@
 
     /* Modern Gradients */
     --gradient-primary-start: 270 80% 56%;
-    --gradient-primary-end: 180 90% 45%;
-    --gradient-secondary-start: 45 96% 56%;
-    --gradient-secondary-end: 270 80% 56%;
+    --gradient-primary-end: 220 90% 55%;
+    --gradient-secondary-start: 260 85% 65%;
+    --gradient-secondary-end: 220 90% 55%;
 
     /* Animation timing */
     --duration-instant: 100ms;
@@ -172,19 +172,19 @@
   .bg-gradient-primary {
     background: linear-gradient(135deg,
         hsl(270 80% 56%) 0%,
-        hsl(180 90% 45%) 100%);
+        hsl(220 90% 55%) 100%);
   }
 
   .bg-gradient-secondary {
     background: linear-gradient(135deg,
-        hsl(45 96% 56%) 0%,
-        hsl(270 80% 56%) 100%);
+        hsl(260 85% 65%) 0%,
+        hsl(220 90% 55%) 100%);
   }
 
   .bg-gradient-accent {
     background: linear-gradient(135deg,
-        hsl(180 90% 45%) 0%,
-        hsl(320 90% 60%) 100%);
+        hsl(220 90% 55%) 0%,
+        hsl(270 80% 56%) 100%);
   }
 
   .bg-gradient-radial {
@@ -237,9 +237,9 @@
     background-color: hsl(var(--background));
     background-image:
       radial-gradient(at 0% 0%, hsl(var(--primary) / 0.15) 0px, transparent 50%),
-      radial-gradient(at 100% 0%, hsl(var(--secondary) / 0.1) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, hsl(220 90% 55% / 0.1) 0px, transparent 50%),
       radial-gradient(at 100% 100%, hsl(var(--primary) / 0.1) 0px, transparent 50%),
-      radial-gradient(at 0% 100%, hsl(270 80% 56% / 0.15) 0px, transparent 50%);
+      radial-gradient(at 0% 100%, hsl(260 85% 65% / 0.12) 0px, transparent 50%);
   }
 
   /* Neon Glow Effects */
@@ -247,8 +247,8 @@
     box-shadow: 0 0 30px hsl(270 80% 56% / 0.4), 0 0 60px hsl(270 80% 56% / 0.2);
   }
 
-  .glow-cyan {
-    box-shadow: 0 0 30px hsl(180 90% 45% / 0.4), 0 0 60px hsl(180 90% 45% / 0.2);
+  .glow-blue {
+    box-shadow: 0 0 30px hsl(220 90% 55% / 0.4), 0 0 60px hsl(220 90% 55% / 0.2);
   }
 
   .glow-gold {

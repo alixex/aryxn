@@ -168,7 +168,7 @@ export default function SettingsPage() {
       <div className="animate-in fade-in slide-in-from-bottom-4 mx-auto max-w-6xl space-y-8 px-4 py-8 duration-1000">
         <div className="flex flex-col gap-3">
           <h2 className="flex items-center gap-3 text-4xl font-extrabold tracking-tighter sm:text-5xl">
-            <div className="bg-gradient-accent glow-cyan rounded-2xl p-2.5 text-white shadow-xl ring-1 ring-white/20">
+            <div className="bg-gradient-primary glow-purple rounded-2xl p-2.5 text-white shadow-xl ring-1 ring-white/20">
               <svg
                 className="h-7 w-7 sm:h-8 sm:w-8"
                 fill="none"
