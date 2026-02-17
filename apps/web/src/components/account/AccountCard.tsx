@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button"
 import { ConnectButton } from "@rainbow-me/rainbowkit"
 import { BalanceDisplay } from "./BalanceDisplay"
 import { TokenBalances } from "./TokenBalances"
-import { type BalanceResult } from "@/lib/chain"
 import { useTranslation } from "@/i18n/config"
 import { toast } from "sonner"
 import {
@@ -178,33 +177,41 @@ export function AccountCard({
                   <Copy className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                 </button>
               </div>
-              <div className="pt-1">
-                <BalanceDisplay
-                  chain={account.chain}
-                  balance={balance}
-                  loading={loading}
-                  showBalance={showBalance}
-                  onToggle={(s) => toggleShowBalance(key, s)}
-                  onRefresh={() =>
-                    refreshBalance(
-                      account.chain,
-                      account.address,
-                      account.isExternal,
-                    )
-                  }
-                />
-              </div>
-              {/* Show token balances for Ethereum, Solana and Sui accounts */}
-              {(account.chain === "ethereum" ||
-                account.chain === "solana" ||
-                account.chain === "sui") &&
-                !account.isExternal && (
-                  <TokenBalances
-                    address={account.address}
+              <div className="border-border/40 mt-3 space-y-2 border-t pt-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground/60 text-[10px] font-bold tracking-wider uppercase">
+                    {t("identities.tokenAssets")}
+                  </span>
+                </div>
+
+                <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-4">
+                  <BalanceDisplay
                     chain={account.chain}
-                    isUnlocked={true}
+                    balance={balance}
+                    loading={loading}
+                    showBalance={showBalance}
+                    onToggle={(s) => toggleShowBalance(key, s)}
+                    onRefresh={() =>
+                      refreshBalance(
+                        account.chain,
+                        account.address,
+                        account.isExternal,
+                      )
+                    }
                   />
-                )}
+
+                  {/* Show token balances for Ethereum, Solana and Sui accounts */}
+                  {(account.chain === "ethereum" ||
+                    account.chain === "solana" ||
+                    account.chain === "sui") && (
+                    <TokenBalances
+                      address={account.address}
+                      chain={account.chain}
+                      isUnlocked={true}
+                    />
+                  )}
+                </div>
+              </div>
             </div>
           </div>
           <div

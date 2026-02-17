@@ -1,6 +1,7 @@
 /**
  * Token balances display component - Multi-chain support
  * Shows token balances for Ethereum (ERC20), Solana (SPL), and Sui networks
+ * Simplified version: only shows USDT and USDC
  */
 
 import { useState, useEffect } from "react"
@@ -11,7 +12,7 @@ import {
   createSolanaPublicKey,
   createSuiClient,
 } from "@aryxn/wallet-core"
-import { Eye, EyeOff, RefreshCw, TrendingUp, Coins } from "lucide-react"
+import { RefreshCw } from "lucide-react"
 import {
   SUPPORTED_TOKENS,
   formatTokenAmount,
@@ -44,36 +45,17 @@ export function TokenBalances({
   const { t } = useTranslation()
   const [balances, setBalances] = useState<TokenBalance[]>([])
   const [loading, setLoading] = useState(false)
-  const [showBalances, setShowBalances] = useState(false)
-  const [error, setError] = useState<string>("")
 
   const fetchEthereumBalances = async () => {
     const provider = createEvmProvider(getEthereumRpcUrl())
     const tokenBalances: TokenBalance[] = []
 
-    // Fetch native ETH balance first
-    try {
-      const ethBalance = await provider.getBalance(address)
-      tokenBalances.push({
-        symbol: "ETH",
-        name: "Ethereum",
-        balance: ethBalance,
-        formatted: formatTokenAmount(ethBalance, 18, 4),
-        decimals: 18,
-      })
-    } catch (err) {
-      console.error(`Failed to fetch ETH balance:`, err)
-      tokenBalances.push({
-        symbol: "ETH",
-        name: "Ethereum",
-        balance: 0n,
-        formatted: "0",
-        decimals: 18,
-      })
-    }
+    // Only fetch USDT and USDC
+    const filteredTokens = SUPPORTED_TOKENS.filter(
+      (t) => t.symbol === "USDT" || t.symbol === "USDC",
+    )
 
-    // Fetch ERC20 token balances
-    for (const token of SUPPORTED_TOKENS) {
+    for (const token of filteredTokens) {
       try {
         const tokenContract = createEvmContract(
           token.address,
@@ -87,18 +69,11 @@ export function TokenBalances({
           symbol: token.symbol,
           name: token.name,
           balance: balanceBigInt,
-          formatted: formatTokenAmount(balanceBigInt, token.decimals, 4),
+          formatted: formatTokenAmount(balanceBigInt, token.decimals, 2), // Fewer decimals for compact view
           decimals: token.decimals,
         })
       } catch (err) {
         console.error(`Failed to fetch ${token.symbol} balance:`, err)
-        tokenBalances.push({
-          symbol: token.symbol,
-          name: token.name,
-          balance: 0n,
-          formatted: "0",
-          decimals: token.decimals,
-        })
       }
     }
 
@@ -110,7 +85,12 @@ export function TokenBalances({
     const publicKey = createSolanaPublicKey(address)
     const tokenBalances: TokenBalance[] = []
 
-    for (const token of SOLANA_TOKENS) {
+    // Only fetch USDT and USDC
+    const filteredTokens = SOLANA_TOKENS.filter(
+      (t) => t.symbol === "USDT" || t.symbol === "USDC",
+    )
+
+    for (const token of filteredTokens) {
       try {
         const mintPubkey = createSolanaPublicKey(token.mint)
         const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
@@ -128,18 +108,11 @@ export function TokenBalances({
           symbol: token.symbol,
           name: token.name,
           balance,
-          formatted: formatSolanaTokenAmount(balance, token.decimals, 4),
+          formatted: formatSolanaTokenAmount(balance, token.decimals, 2),
           decimals: token.decimals,
         })
       } catch (err) {
         console.error(`Failed to fetch ${token.symbol} balance:`, err)
-        tokenBalances.push({
-          symbol: token.symbol,
-          name: token.name,
-          balance: 0n,
-          formatted: "0",
-          decimals: token.decimals,
-        })
       }
     }
 
@@ -150,9 +123,13 @@ export function TokenBalances({
     const client = createSuiClient("mainnet")
     const tokenBalances: TokenBalance[] = []
 
-    for (const token of SUI_TOKENS) {
+    // Only fetch USDT and USDC
+    const filteredTokens = SUI_TOKENS.filter(
+      (t) => t.symbol === "USDT" || t.symbol === "USDC",
+    )
+
+    for (const token of filteredTokens) {
       try {
-        // Get all coins of this type owned by the address
         const coins = await client.getCoins({
           owner: address,
           coinType: token.type,
@@ -167,18 +144,11 @@ export function TokenBalances({
           symbol: token.symbol,
           name: token.name,
           balance: totalBalance,
-          formatted: formatSuiTokenAmount(totalBalance, token.decimals, 4),
+          formatted: formatSuiTokenAmount(totalBalance, token.decimals, 2),
           decimals: token.decimals,
         })
       } catch (err) {
         console.error(`Failed to fetch ${token.symbol} balance:`, err)
-        tokenBalances.push({
-          symbol: token.symbol,
-          name: token.name,
-          balance: 0n,
-          formatted: "0",
-          decimals: token.decimals,
-        })
       }
     }
 
@@ -189,7 +159,6 @@ export function TokenBalances({
     if (!isUnlocked || !address) return
 
     setLoading(true)
-    setError("")
 
     try {
       let tokenBalances: TokenBalance[] = []
@@ -200,189 +169,75 @@ export function TokenBalances({
         tokenBalances = await fetchSolanaBalances()
       } else if (chain === "sui") {
         tokenBalances = await fetchSuiBalances()
-      } else {
-        // Other chains not supported yet
-        setBalances([])
-        return
       }
 
       setBalances(tokenBalances)
     } catch (err: any) {
       console.error("Failed to fetch token balances:", err)
-      setError(err.message || "Failed to fetch balances")
     } finally {
       setLoading(false)
     }
   }
 
   useEffect(() => {
-    if (showBalances && isUnlocked) {
+    if (
+      isUnlocked &&
+      address &&
+      ["ethereum", "solana", "sui"].includes(chain)
+    ) {
       fetchBalances()
     }
-  }, [showBalances, isUnlocked, address, chain])
+  }, [isUnlocked, address, chain])
 
   // Don't show for unsupported chains
   if (!isUnlocked || !["ethereum", "solana", "sui"].includes(chain)) return null
 
-  const nonZeroBalances = balances.filter((b) => b.balance > 0n)
-  const hasTokens = nonZeroBalances.length > 0
+  const activeBalances = balances.filter((b) => b.balance > 0n)
+
+  // If loading and no balances yet, show a subtle loading state
+  if (loading && activeBalances.length === 0) {
+    return (
+      <div className="mt-2 flex items-center gap-2 opacity-50">
+        <RefreshCw className="h-3 w-3 animate-spin" />
+        <span className="text-[10px] font-medium tracking-wider uppercase">
+          {t("common.loading")}
+        </span>
+      </div>
+    )
+  }
+
+  if (activeBalances.length === 0) return null
 
   return (
-    <div className="mt-4">
-      {/* Header */}
-      <div
-        className={`group relative overflow-hidden rounded-xl border transition-all duration-300 ${
-          showBalances
-            ? "border-border bg-card shadow-md"
-            : "border-border bg-secondary/50 hover:border-ring hover:bg-secondary"
-        }`}
-      >
-        <button
-          onClick={() => setShowBalances(!showBalances)}
-          className="w-full p-3 text-left transition-all"
+    <div className="mt-2 flex flex-wrap gap-2">
+      {activeBalances.map((token) => (
+        <div
+          key={token.symbol}
+          className="bg-secondary/30 border-border/50 hover:bg-secondary/50 flex items-center gap-2 rounded-lg border px-2 py-1 shadow-sm transition-all"
         >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div
-                className={`flex h-8 w-8 items-center justify-center rounded-lg transition-all ${
-                  showBalances
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "bg-secondary text-muted-foreground group-hover:bg-muted"
-                }`}
-              >
-                {showBalances ? (
-                  <TrendingUp className="h-4 w-4" />
-                ) : (
-                  <Coins className="h-4 w-4" />
-                )}
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`text-sm font-semibold ${
-                      showBalances ? "text-foreground" : "text-muted-foreground"
-                    }`}
-                  >
-                    {t("identities.tokenAssets")}
-                  </span>
-                  {showBalances && hasTokens && (
-                    <span className="bg-primary text-primary-foreground rounded-full px-2 py-0.5 text-[10px] font-bold">
-                      {nonZeroBalances.length}
-                    </span>
-                  )}
-                </div>
-                {showBalances && (
-                  <p className="text-muted-foreground text-xs">
-                    {chain === "ethereum"
-                      ? "ERC20"
-                      : chain === "solana"
-                        ? "SPL"
-                        : "Sui"}{" "}
-                    {t("identities.tokenAssets")}
-                  </p>
-                )}
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              {showBalances && !loading && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    fetchBalances()
-                  }}
-                  className="text-foreground hover:bg-accent rounded-lg p-1.5 transition-all"
-                  aria-label={t("identities.refreshBalance")}
-                >
-                  <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
-                </button>
-              )}
-              <div
-                className={`rounded-lg p-1.5 transition-all ${
-                  showBalances
-                    ? "bg-secondary text-foreground"
-                    : "text-muted-foreground group-hover:text-foreground"
-                }`}
-              >
-                {showBalances ? (
-                  <EyeOff className="h-3.5 w-3.5" />
-                ) : (
-                  <Eye className="h-3.5 w-3.5" />
-                )}
-              </div>
-            </div>
+          <div className="bg-primary/20 text-primary flex h-5 w-5 items-center justify-center rounded-full text-[8px] font-bold">
+            {token.symbol === "USDT" ? "T" : "C"}
           </div>
-        </button>
-
-        {/* Content */}
-        {showBalances && (
-          <div className="border-border border-t p-3">
-            {loading && balances.length === 0 ? (
-              <div className="flex items-center justify-center py-6">
-                <RefreshCw className="text-foreground mr-2 h-4 w-4 animate-spin" />
-                <span className="text-muted-foreground text-xs">
-                  {t("common.loading")}…
-                </span>
-              </div>
-            ) : error ? (
-              <div className="bg-destructive/10 rounded-lg p-3 text-center">
-                <p className="text-destructive text-xs">{error}</p>
-              </div>
-            ) : balances.length > 0 ? (
-              <div className="space-y-2">
-                {hasTokens ? (
-                  <div className="grid grid-cols-1 gap-2">
-                    {nonZeroBalances.map((token) => (
-                      <div
-                        key={token.symbol}
-                        className="group/token border-border bg-card hover:border-ring flex items-center justify-between rounded-lg border p-2.5 transition-all hover:shadow-sm"
-                      >
-                        <div className="flex items-center gap-2.5">
-                          <div className="bg-primary text-primary-foreground flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-bold shadow-sm">
-                            {token.symbol.slice(0, 2)}
-                          </div>
-                          <div className="min-w-0">
-                            <div className="text-foreground text-xs font-semibold">
-                              {token.symbol}
-                            </div>
-                            <div className="text-muted-foreground truncate text-[10px]">
-                              {token.name}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-foreground text-sm font-bold">
-                            {token.formatted}
-                          </div>
-                          <div className="text-muted-foreground text-[10px] font-medium">
-                            {token.symbol}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center py-6">
-                    <div className="bg-secondary mb-2 flex h-12 w-12 items-center justify-center rounded-full">
-                      <Coins className="text-muted-foreground h-6 w-6" />
-                    </div>
-                    <p className="text-muted-foreground text-xs">
-                      {t("identities.noTokens")}
-                    </p>
-                  </div>
-                )}
-                {balances.length > nonZeroBalances.length && (
-                  <div className="bg-secondary mt-2 rounded-lg px-2 py-1.5 text-center">
-                    <p className="text-muted-foreground text-[10px]">
-                      {balances.length - nonZeroBalances.length}{" "}
-                      {t("identities.hiddenZeroBalance")}
-                    </p>
-                  </div>
-                )}
-              </div>
-            ) : null}
+          <div className="flex items-baseline gap-1">
+            <span className="text-foreground text-xs leading-none font-bold">
+              {token.formatted}
+            </span>
+            <span className="text-muted-foreground text-[9px] leading-none font-bold uppercase">
+              {token.symbol}
+            </span>
           </div>
-        )}
-      </div>
+        </div>
+      ))}
+      <button
+        onClick={(e) => {
+          e.stopPropagation()
+          fetchBalances()
+        }}
+        className="text-muted-foreground hover:text-primary p-1 transition-colors"
+        title={t("identities.refreshBalance")}
+      >
+        <RefreshCw className={`h-3 w-3 ${loading ? "animate-spin" : ""}`} />
+      </button>
     </div>
   )
 }
