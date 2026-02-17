@@ -184,7 +184,7 @@ export function AccountCard({
                   </span>
                 </div>
 
-                <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-6">
                   <BalanceDisplay
                     chain={account.chain}
                     balance={balance}
@@ -204,11 +204,13 @@ export function AccountCard({
                   {(account.chain === "ethereum" ||
                     account.chain === "solana" ||
                     account.chain === "sui") && (
-                    <TokenBalances
-                      address={account.address}
-                      chain={account.chain}
-                      isUnlocked={true}
-                    />
+                    <div className="flex-1">
+                      <TokenBalances
+                        address={account.address}
+                        chain={account.chain}
+                        isUnlocked={true}
+                      />
+                    </div>
                   )}
                 </div>
               </div>

@@ -158,7 +158,6 @@
 }
 
 @layer utilities {
-
   /**
    * iOS safe-area support (e.g. iPhone with home indicator).
    * Used by the mobile bottom navigation: `pb-safe`.
@@ -170,27 +169,35 @@
 
   /* Gradient backgrounds - Monochrome */
   .bg-gradient-primary {
-    background: linear-gradient(135deg,
-        hsl(270 80% 56%) 0%,
-        hsl(220 90% 55%) 100%);
+    background: linear-gradient(
+      135deg,
+      hsl(270 80% 56%) 0%,
+      hsl(220 90% 55%) 100%
+    );
   }
 
   .bg-gradient-secondary {
-    background: linear-gradient(135deg,
-        hsl(260 85% 65%) 0%,
-        hsl(220 90% 55%) 100%);
+    background: linear-gradient(
+      135deg,
+      hsl(260 85% 65%) 0%,
+      hsl(220 90% 55%) 100%
+    );
   }
 
   .bg-gradient-accent {
-    background: linear-gradient(135deg,
-        hsl(220 90% 55%) 0%,
-        hsl(270 80% 56%) 100%);
+    background: linear-gradient(
+      135deg,
+      hsl(220 90% 55%) 0%,
+      hsl(270 80% 56%) 100%
+    );
   }
 
   .bg-gradient-radial {
-    background: radial-gradient(circle at 50% 0%,
-        hsl(270 80% 56% / 0.15),
-        transparent 70%);
+    background: radial-gradient(
+      circle at 50% 0%,
+      hsl(270 80% 56% / 0.15),
+      transparent 70%
+    );
   }
 
   /* Enhanced Glassmorphism */
@@ -209,9 +216,11 @@
   }
 
   .glass-premium {
-    background: linear-gradient(135deg,
-        hsl(var(--card) / 0.7),
-        hsl(var(--card) / 0.4));
+    background: linear-gradient(
+      135deg,
+      hsl(var(--card) / 0.7),
+      hsl(var(--card) / 0.4)
+    );
     backdrop-filter: blur(24px) saturate(160%);
     border: 1px solid hsl(var(--foreground) / 0.1);
     border-top: 1px solid hsl(var(--foreground) / 0.2);
@@ -244,23 +253,37 @@
   .mesh-gradient {
     background-color: hsl(var(--background));
     background-image:
-      radial-gradient(at 0% 0%, hsl(var(--primary) / 0.15) 0px, transparent 50%),
+      radial-gradient(
+        at 0% 0%,
+        hsl(var(--primary) / 0.15) 0px,
+        transparent 50%
+      ),
       radial-gradient(at 100% 0%, hsl(220 90% 55% / 0.1) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, hsl(var(--primary) / 0.1) 0px, transparent 50%),
+      radial-gradient(
+        at 100% 100%,
+        hsl(var(--primary) / 0.1) 0px,
+        transparent 50%
+      ),
       radial-gradient(at 0% 100%, hsl(260 85% 65% / 0.12) 0px, transparent 50%);
   }
 
   /* Neon Glow Effects */
   .glow-purple {
-    box-shadow: 0 0 30px hsl(270 80% 56% / 0.4), 0 0 60px hsl(270 80% 56% / 0.2);
+    box-shadow:
+      0 0 30px hsl(270 80% 56% / 0.4),
+      0 0 60px hsl(270 80% 56% / 0.2);
   }
 
   .glow-blue {
-    box-shadow: 0 0 30px hsl(220 90% 55% / 0.4), 0 0 60px hsl(220 90% 55% / 0.2);
+    box-shadow:
+      0 0 30px hsl(220 90% 55% / 0.4),
+      0 0 60px hsl(220 90% 55% / 0.2);
   }
 
   .glow-gold {
-    box-shadow: 0 0 20px hsl(45 96% 56% / 0.3), 0 0 40px hsl(45 96% 56% / 0.15);
+    box-shadow:
+      0 0 20px hsl(45 96% 56% / 0.3),
+      0 0 40px hsl(45 96% 56% / 0.15);
   }
 
   /* Gradient text effects - fixes display of bg-gradient-primary with bg-clip-text */
@@ -295,16 +318,17 @@
 
   /* Animated gradients */
   .bg-gradient-animated {
-    background: linear-gradient(270deg,
-        hsl(0 0% 0%),
-        hsl(0 0% 20%),
-        hsl(0 0% 10%));
+    background: linear-gradient(
+      270deg,
+      hsl(0 0% 0%),
+      hsl(0 0% 20%),
+      hsl(0 0% 10%)
+    );
     background-size: 400% 400%;
     animation: gradientShift 15s ease infinite;
   }
 
   @keyframes gradientShift {
-
     0%,
     100% {
       background-position: 0% 50%;
@@ -393,7 +417,6 @@
 
   /* Interactive animations */
   @keyframes pulse-glow {
-
     0%,
     100% {
       box-shadow: 0 0 0 0 hsl(var(--shadow-primary) / 0.4);
@@ -415,7 +438,6 @@
   }
 
   @keyframes float {
-
     0%,
     100% {
       transform: translateY(0px);
@@ -427,7 +449,6 @@
   }
 
   @keyframes bounce-subtle {
-
     0%,
     100% {
       transform: translateY(0);
@@ -486,10 +507,12 @@
 
   /* Monochrome shimmer effect */
   .animate-shimmer {
-    background: linear-gradient(90deg,
-        transparent 0%,
-        hsl(0 0% 50% / 0.1) 50%,
-        transparent 100%);
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      hsl(0 0% 50% / 0.1) 50%,
+      transparent 100%
+    );
     background-size: 200% 100%;
     animation: shimmer 2s ease-in-out infinite;
   }
@@ -603,7 +626,6 @@
 
   /* Reduced motion support */
   @media (prefers-reduced-motion: reduce) {
-
     *,
     *::before,
     *::after {

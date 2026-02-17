@@ -45,6 +45,7 @@ export function TokenBalances({
   const { t } = useTranslation()
   const [balances, setBalances] = useState<TokenBalance[]>([])
   const [loading, setLoading] = useState(false)
+  const [lastUpdated, setLastUpdated] = useState<number | null>(null)
 
   const fetchEthereumBalances = async () => {
     const provider = createEvmProvider(getEthereumRpcUrl())
@@ -172,6 +173,7 @@ export function TokenBalances({
       }
 
       setBalances(tokenBalances)
+      setLastUpdated(Date.now())
     } catch (err: any) {
       console.error("Failed to fetch token balances:", err)
     } finally {
@@ -209,35 +211,45 @@ export function TokenBalances({
   if (activeBalances.length === 0) return null
 
   return (
-    <div className="mt-2 flex flex-wrap gap-2">
-      {activeBalances.map((token) => (
-        <div
-          key={token.symbol}
-          className="bg-secondary/30 border-border/50 hover:bg-secondary/50 flex items-center gap-2 rounded-lg border px-2 py-1 shadow-sm transition-all"
+    <div className="mt-2 flex flex-col gap-2">
+      <div className="flex flex-wrap gap-2">
+        {activeBalances.map((token) => (
+          <div
+            key={token.symbol}
+            className="bg-secondary/30 border-border/50 hover:bg-secondary/50 flex items-center gap-2 rounded-lg border px-2 py-1 shadow-sm transition-all"
+          >
+            <div className="bg-primary/20 text-primary flex h-5 w-5 items-center justify-center rounded-full text-[8px] font-bold">
+              {token.symbol === "USDT" ? "T" : "C"}
+            </div>
+            <div className="flex items-baseline gap-1">
+              <span className="text-foreground text-xs leading-none font-bold">
+                {token.formatted}
+              </span>
+              <span className="text-muted-foreground text-[9px] leading-none font-bold uppercase">
+                {token.symbol}
+              </span>
+            </div>
+          </div>
+        ))}
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            fetchBalances()
+          }}
+          className="text-muted-foreground hover:text-primary p-1 transition-colors"
+          title={t("identities.refreshBalance")}
         >
-          <div className="bg-primary/20 text-primary flex h-5 w-5 items-center justify-center rounded-full text-[8px] font-bold">
-            {token.symbol === "USDT" ? "T" : "C"}
-          </div>
-          <div className="flex items-baseline gap-1">
-            <span className="text-foreground text-xs leading-none font-bold">
-              {token.formatted}
-            </span>
-            <span className="text-muted-foreground text-[9px] leading-none font-bold uppercase">
-              {token.symbol}
-            </span>
-          </div>
-        </div>
-      ))}
-      <button
-        onClick={(e) => {
-          e.stopPropagation()
-          fetchBalances()
-        }}
-        className="text-muted-foreground hover:text-primary p-1 transition-colors"
-        title={t("identities.refreshBalance")}
-      >
-        <RefreshCw className={`h-3 w-3 ${loading ? "animate-spin" : ""}`} />
-      </button>
+          <RefreshCw className={`h-3 w-3 ${loading ? "animate-spin" : ""}`} />
+        </button>
+      </div>
+      {lastUpdated && (
+        <span className="text-muted-foreground/50 ml-1 text-[9px] font-medium">
+          {new Date(lastUpdated).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+        </span>
+      )}
     </div>
   )
 }

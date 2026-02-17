@@ -20,6 +20,7 @@ export interface BalanceResult {
   balance: string
   formatted: string
   symbol: string
+  timestamp?: number
   error?: string
 }
 

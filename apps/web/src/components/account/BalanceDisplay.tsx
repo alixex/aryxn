@@ -54,13 +54,23 @@ export function BalanceDisplay({
           {t("common.loading")}
         </span>
       ) : (
-        <div className="flex items-baseline gap-1.5">
-          <span className="text-foreground text-sm font-bold">
-            {showBalance && balance ? balance.formatted : "****"}
-          </span>
-          <span className="text-muted-foreground text-xs font-medium uppercase">
-            {balance?.symbol || chain.toUpperCase()}
-          </span>
+        <div className="flex flex-col">
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-foreground text-sm font-bold">
+              {showBalance && balance ? balance.formatted : "****"}
+            </span>
+            <span className="text-muted-foreground text-xs font-medium uppercase">
+              {balance?.symbol || chain.toUpperCase()}
+            </span>
+          </div>
+          {showBalance && balance?.timestamp && (
+            <span className="text-muted-foreground/60 text-[10px] font-medium">
+              {new Date(balance.timestamp).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </span>
+          )}
         </div>
       )}
     </div>

@@ -43,6 +43,7 @@ export function useAccounts() {
             account.chain,
             account.address,
           )
+          if (bal) bal.timestamp = Date.now()
           setBalances((prev) => ({ ...prev, [key]: bal }))
         } catch (error) {
           console.error(
@@ -80,6 +81,7 @@ export function useAccounts() {
     setLoadingBalances((prev) => ({ ...prev, [key]: true }))
     try {
       const bal = await wallet.refreshBalance(chain, address)
+      if (bal) bal.timestamp = Date.now()
       setBalances((prev) => ({ ...prev, [key]: bal }))
       fetchedBalancesRef.current.add(key)
     } catch (error) {
