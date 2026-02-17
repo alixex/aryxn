@@ -71,9 +71,16 @@ export function FeeEstimate({
                 {t("upload.feeInAR")}
               </div>
               <div className="text-foreground text-2xl font-bold">
-                {selectedToken === "AR"
-                  ? `${estimatedFee.ar.toFixed(6)} AR`
-                  : `${estimatedFee.estimatedFeesByToken?.[selectedToken]?.toFixed(6) || "0.000000"} ${selectedToken}`}
+                {selectedToken === "AR" ? (
+                  `${estimatedFee.ar.toFixed(6)} AR`
+                ) : estimatedFee.estimatedFeesByToken?.[selectedToken]
+                    ?.error ? (
+                  <span className="text-destructive text-sm">
+                    {t("common.error", "Error")}
+                  </span>
+                ) : (
+                  `${estimatedFee.estimatedFeesByToken?.[selectedToken]?.amount.toFixed(6) || "0.000000"} ${selectedToken}`
+                )}
               </div>
               {selectedToken !== "AR" && (
                 <div className="text-muted-foreground mt-1 text-xs">
@@ -89,7 +96,7 @@ export function FeeEstimate({
                     <span className="text-foreground font-medium">
                       {selectedToken === "AR"
                         ? `${(estimatedFee.ar - estimatedFee.manifestFeeAR).toFixed(6)} AR`
-                        : `${((estimatedFee.estimatedFeesByToken?.[selectedToken] || 0) * ((estimatedFee.ar - estimatedFee.manifestFeeAR) / estimatedFee.ar)).toFixed(6)} ${selectedToken}`}
+                        : `${((estimatedFee.estimatedFeesByToken?.[selectedToken]?.amount || 0) * ((estimatedFee.ar - estimatedFee.manifestFeeAR) / estimatedFee.ar)).toFixed(6)} ${selectedToken}`}
                     </span>
                   </div>
                 )}

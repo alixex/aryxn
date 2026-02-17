@@ -6,6 +6,11 @@ import { estimateManifestSize } from "@/lib/file"
 import type { PaymentToken } from "@/lib/payment"
 import { paymentService } from "@/lib/payment"
 
+export interface TokenFeeEstimate {
+  amount: number
+  error?: string
+}
+
 export interface FeeEstimate {
   ar: number
   dataSize: number
@@ -15,7 +20,7 @@ export interface FeeEstimate {
   savedFeeAR?: number
   manifestFeeAR?: number // 清单文件费用
   manifestSize?: number // 清单文件大小
-  estimatedFeesByToken?: Partial<Record<PaymentToken, number>>
+  estimatedFeesByToken?: Partial<Record<PaymentToken, TokenFeeEstimate>>
   timestamp?: number // 计算时间戳
 }
 
@@ -124,7 +129,9 @@ export function useFeeCalculation() {
         const totalAR = fee.ar + (manifestFeeAR || 0)
 
         // 计算其它代币的代币费用
-        const estimatedFeesByToken: Partial<Record<PaymentToken, number>> = {}
+        const estimatedFeesByToken: Partial<
+          Record<PaymentToken, TokenFeeEstimate>
+        > = {}
         const tokens: PaymentToken[] = [
           "ETH",
           "SOL",
@@ -135,11 +142,19 @@ export function useFeeCalculation() {
         ]
 
         for (const token of tokens) {
-          const estimate = await paymentService.estimateFeeInToken(
-            dataSize + (manifestSize || 0),
-            token,
-          )
-          estimatedFeesByToken[token] = estimate.tokenAmount
+          try {
+            const estimate = await paymentService.estimateFeeInToken(
+              dataSize + (manifestSize || 0),
+              token,
+            )
+            estimatedFeesByToken[token] = { amount: estimate.tokenAmount }
+          } catch (err) {
+            console.warn(`Failed to estimate fee for ${token}:`, err)
+            estimatedFeesByToken[token] = {
+              amount: 0,
+              error: err instanceof Error ? err.message : "Calculation failed",
+            }
+          }
         }
 
         setEstimatedFee({
@@ -300,7 +315,9 @@ export function useFeeCalculation() {
         const totalARWithManifest = totalAR + (manifestFeeAR || 0)
 
         // 计算其它代币的代币费用
-        const estimatedFeesByToken: Partial<Record<PaymentToken, number>> = {}
+        const estimatedFeesByToken: Partial<
+          Record<PaymentToken, TokenFeeEstimate>
+        > = {}
         const tokens: PaymentToken[] = [
           "ETH",
           "SOL",
@@ -311,11 +328,19 @@ export function useFeeCalculation() {
         ]
 
         for (const token of tokens) {
-          const estimate = await paymentService.estimateFeeInToken(
-            totalDataSize + (manifestSize || 0),
-            token,
-          )
-          estimatedFeesByToken[token] = estimate.tokenAmount
+          try {
+            const estimate = await paymentService.estimateFeeInToken(
+              totalDataSize + (manifestSize || 0),
+              token,
+            )
+            estimatedFeesByToken[token] = { amount: estimate.tokenAmount }
+          } catch (err) {
+            console.warn(`Failed to estimate batch fee for ${token}:`, err)
+            estimatedFeesByToken[token] = {
+              amount: 0,
+              error: err instanceof Error ? err.message : "Calculation failed",
+            }
+          }
         }
 
         setEstimatedFee({

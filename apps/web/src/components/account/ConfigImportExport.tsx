@@ -303,7 +303,10 @@ export function ConfigImportExport() {
               }}
             >
               <DialogTrigger asChild>
-                <Button variant="outline" className="w-full sm:flex-1">
+                <Button
+                  variant="outline"
+                  className="border-primary/80 bg-primary/5 hover:bg-primary/10 hover:border-primary w-full sm:flex-1"
+                >
                   <Download className="mr-2 h-4 w-4 shrink-0" />
                   <span className="truncate">{t("identities.export")}</span>
                 </Button>
@@ -459,7 +462,10 @@ export function ConfigImportExport() {
               }}
             >
               <DialogTrigger asChild>
-                <Button variant="outline" className="w-full sm:flex-1">
+                <Button
+                  variant="outline"
+                  className="border-primary/80 bg-primary/5 hover:bg-primary/10 hover:border-primary w-full sm:flex-1"
+                >
                   <Upload className="mr-2 h-4 w-4 shrink-0" />
                   <span className="truncate">{t("identities.import")}</span>
                 </Button>
@@ -506,7 +512,7 @@ export function ConfigImportExport() {
                       <Button
                         onClick={handleImportClick}
                         disabled={isImporting}
-                        className="w-full"
+                        className="border-primary/80 bg-primary/5 hover:bg-primary/10 hover:border-primary w-full"
                         variant="outline"
                       >
                         <Upload className="mr-2 h-4 w-4" />
@@ -515,14 +521,14 @@ export function ConfigImportExport() {
                     </>
                   ) : (
                     <>
-                      <div className="rounded-lg border border-green-200 bg-green-50/50 p-3">
+                      <div className="rounded-lg border border-green-200 bg-green-50 p-3">
                         <div className="flex items-center gap-2">
                           <CheckCircle2 className="h-4 w-4 text-green-600" />
                           <span className="text-sm font-semibold text-green-900">
                             {t("identities.configFileSelected")}
                           </span>
                         </div>
-                        <p className="mt-1 text-xs text-green-700">
+                        <p className="mt-1 text-xs text-green-800">
                           {t("identities.importPasswordHint")}
                         </p>
                       </div>
