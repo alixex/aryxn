@@ -32,7 +32,7 @@
     "deploy:solana": "pnpm --filter=@aryxn/contracts-solana deploy",
     "lint": "pnpm --filter='./apps/*' lint && pnpm --filter='./packages/*' lint",
     "type-check": "pnpm --filter='./apps/*' type-check && pnpm --filter='./packages/*' type-check",
-    "format": "prettier --write '**/*.{ts,tsx,js,jsx,json,md}'",
+    "format": "prettier --write '**/*.{ts,tsx,js,jsx,json,md,css,html}'",
     "preview": "pnpm --filter=@aryxn/web preview"
   },
   "devDependencies": {
