@@ -179,26 +179,19 @@ export default function DashboardPage() {
     !walletManager.isUnlocked && !externalWallets.isArConnected
 
   return (
-    <div className="relative min-h-screen">
-      {/* Gradient Background */}
-      <div className="fixed inset-0 -z-10">
-        <div className="from-primary/5 to-secondary/5 absolute inset-0 bg-gradient-to-br via-transparent" />
-        <div className="bg-primary/10 absolute top-0 left-0 h-96 w-96 rounded-full blur-3xl" />
-        <div className="bg-secondary/10 absolute right-0 bottom-0 h-96 w-96 rounded-full blur-3xl" />
-      </div>
-
-      <div className="mx-auto max-w-6xl space-y-6 py-4 sm:space-y-8 sm:py-8">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-col gap-2">
-            <h2 className="flex items-center gap-2 text-3xl font-bold tracking-tight sm:text-4xl">
-              <div className="bg-gradient-primary glow-purple rounded-lg p-2 text-white shadow-lg">
-                <LayoutDashboard className="h-6 w-6 sm:h-7 sm:w-7" />
+    <div className="mesh-gradient relative min-h-screen">
+      <div className="animate-in fade-in slide-in-from-bottom-4 mx-auto max-w-6xl space-y-8 px-4 py-8 duration-1000">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-3">
+            <h2 className="flex items-center gap-3 text-4xl font-extrabold tracking-tighter sm:text-5xl">
+              <div className="bg-gradient-primary glow-purple rounded-2xl p-2.5 text-white shadow-xl ring-1 ring-white/20">
+                <LayoutDashboard className="h-7 w-7 sm:h-8 sm:w-8" />
               </div>
-              <span className="bg-gradient-primary gradient-text inline-block align-middle leading-tight">
+              <span className="bg-gradient-primary gradient-text leading-tight">
                 {t("common.dashboard")}
               </span>
             </h2>
-            <p className="text-muted-foreground text-sm sm:text-base">
+            <p className="text-muted-foreground max-w-lg text-base leading-relaxed font-medium">
               {t("history.desc")}
             </p>
           </div>

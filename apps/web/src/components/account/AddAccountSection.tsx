@@ -60,7 +60,7 @@ export function AddAccountSection({
   ]
 
   return (
-    <Card className="border-border overflow-hidden shadow-sm">
+    <Card className="glass-premium hover:shadow-primary/5 border-none shadow-2xl transition-all duration-500">
       <CardHeader className="border-border bg-secondary/50 border-b pb-3">
         <CardTitle className="text-foreground flex items-center gap-2 text-base">
           <Plus className="text-foreground h-4 w-4" />

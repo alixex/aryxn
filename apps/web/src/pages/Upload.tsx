@@ -64,74 +64,81 @@ export default function UploadPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 py-4 sm:space-y-8 sm:py-8">
-      <div className="flex flex-col gap-3">
-        <h2 className="flex items-center gap-2 text-3xl font-bold tracking-tight sm:text-4xl">
-          <div className="bg-gradient-primary glow-purple rounded-lg p-2 text-white shadow-lg">
-            <svg
-              className="h-6 w-6 sm:h-7 sm:w-7"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-              />
-            </svg>
-          </div>
-          <span className="bg-gradient-primary gradient-text inline-block align-middle leading-tight">
-            {t("common.upload")}
-          </span>
-        </h2>
-        <p className="text-muted-foreground text-sm sm:text-base">
-          {t("upload.arweaveDesc")}
-        </p>
+    <div className="mesh-gradient relative min-h-screen">
+      <div className="animate-in fade-in slide-in-from-bottom-4 mx-auto max-w-6xl space-y-8 px-4 py-8 duration-1000">
+        <div className="flex flex-col gap-3">
+          <h2 className="flex items-center gap-3 text-4xl font-extrabold tracking-tighter sm:text-5xl">
+            <div className="bg-gradient-primary glow-purple rounded-2xl p-2.5 text-white shadow-xl ring-1 ring-white/20">
+              <svg
+                className="h-7 w-7 sm:h-8 sm:w-8"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                />
+              </svg>
+            </div>
+            <span className="bg-gradient-primary gradient-text leading-tight">
+              {t("common.upload")}
+            </span>
+          </h2>
+          <p className="text-muted-foreground max-w-lg text-base leading-relaxed font-medium">
+            {t("upload.arweaveDesc")}
+          </p>
+        </div>
+
+        <div className="grid gap-6">
+          <UploadWarning
+            isLocked={!hasArweaveAccount}
+            hasExternalWallet={isExternalArweave}
+          />
+
+          {/* Upload Steps Indicator */}
+          {hasArweaveAccount && (
+            <Steps steps={uploadSteps} currentStep={currentStep} />
+          )}
+
+          <FileSelectionCard
+            disabled={isDisabled}
+            onChange={setSelectedFiles}
+          />
+
+          {/* File Preview */}
+          {selectedFiles.file && <FilePreview file={selectedFiles.file} />}
+
+          <UploadConfigurationCard
+            file={selectedFiles.file}
+            files={selectedFiles.files}
+            isUnlocked={hasArweaveAccount}
+            ownerAddress={ownerAddress}
+            onChange={setUploadConfig}
+          />
+
+          <AccountSelector file={selectedFiles.file} />
+
+          {hasArweaveAccount && (
+            <UploadExecutionCard
+              file={selectedFiles.file}
+              files={selectedFiles.files}
+              multipleMode={selectedFiles.multipleMode}
+              encryptUpload={uploadConfig.encryptUpload}
+              compressUpload={uploadConfig.compressUpload}
+              paymentToken={uploadConfig.paymentToken}
+              canUpload={canUpload}
+              onUploadComplete={handleUploadComplete}
+            />
+          )}
+
+          <ArweaveFeeInfo />
+
+          <SecurityNotice />
+        </div>
       </div>
-
-      <UploadWarning
-        isLocked={!hasArweaveAccount}
-        hasExternalWallet={isExternalArweave}
-      />
-
-      {/* Upload Steps Indicator */}
-      {hasArweaveAccount && (
-        <Steps steps={uploadSteps} currentStep={currentStep} />
-      )}
-
-      <FileSelectionCard disabled={isDisabled} onChange={setSelectedFiles} />
-
-      {/* File Preview */}
-      {selectedFiles.file && <FilePreview file={selectedFiles.file} />}
-
-      <UploadConfigurationCard
-        file={selectedFiles.file}
-        files={selectedFiles.files}
-        isUnlocked={hasArweaveAccount}
-        ownerAddress={ownerAddress}
-        onChange={setUploadConfig}
-      />
-
-      <AccountSelector file={selectedFiles.file} />
-
-      {hasArweaveAccount && (
-        <UploadExecutionCard
-          file={selectedFiles.file}
-          files={selectedFiles.files}
-          multipleMode={selectedFiles.multipleMode}
-          encryptUpload={uploadConfig.encryptUpload}
-          compressUpload={uploadConfig.compressUpload}
-          paymentToken={uploadConfig.paymentToken}
-          canUpload={canUpload}
-          onUploadComplete={handleUploadComplete}
-        />
-      )}
-
-      <ArweaveFeeInfo />
-
-      <SecurityNotice />
     </div>
   )
 }

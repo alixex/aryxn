@@ -12,10 +12,10 @@ export default function AccountHeader({ t, isUnlocked, onLogout }: Props) {
   return (
     <div className="flex flex-col gap-4 px-4 sm:flex-row sm:items-center sm:justify-between sm:px-0">
       <div className="flex flex-col gap-3">
-        <h2 className="flex items-center gap-3 text-3xl font-bold tracking-tight sm:text-4xl">
-          <div className="bg-gradient-primary glow-purple rounded-lg p-2 text-white shadow-lg">
+        <h2 className="flex items-center gap-3 text-4xl font-extrabold tracking-tighter sm:text-5xl">
+          <div className="bg-gradient-primary glow-purple rounded-2xl p-2.5 text-white shadow-xl ring-1 ring-white/20">
             <svg
-              className="h-6 w-6 sm:h-7 sm:w-7"
+              className="h-7 w-7 sm:h-8 sm:w-8"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -28,7 +28,7 @@ export default function AccountHeader({ t, isUnlocked, onLogout }: Props) {
               />
             </svg>
           </div>
-          <span className="bg-gradient-primary gradient-text inline-block align-middle leading-tight">
+          <span className="bg-gradient-primary gradient-text leading-tight">
             {t("common.account")}
           </span>
         </h2>

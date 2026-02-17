@@ -81,7 +81,7 @@ export function AccountSelector({ file }: AccountSelectorProps) {
 
   if (!walletManager.isUnlocked && !externalWallets.isArConnected) {
     return (
-      <div className="border-border bg-card space-y-4 rounded-xl border px-6 py-8 text-center shadow-sm">
+      <div className="glass-premium hover:shadow-primary/5 space-y-4 border-none px-6 py-8 text-center shadow-2xl transition-all duration-500">
         <div className="bg-secondary mx-auto flex h-12 w-12 items-center justify-center rounded-full">
           <Lock className="text-foreground h-6 w-6" />
         </div>
@@ -102,7 +102,7 @@ export function AccountSelector({ file }: AccountSelectorProps) {
 
   if (!hasAnyArweave) {
     return (
-      <div className="border-border bg-card space-y-6 rounded-xl border px-6 py-8 text-center shadow-sm">
+      <div className="glass-premium hover:shadow-primary/5 space-y-6 border-none px-6 py-8 text-center shadow-2xl transition-all duration-500">
         <div className="bg-secondary mx-auto flex h-12 w-12 items-center justify-center rounded-full">
           <Wallet className="text-foreground h-6 w-6" />
         </div>
@@ -171,7 +171,7 @@ export function AccountSelector({ file }: AccountSelectorProps) {
   return (
     <div className="space-y-4">
       {activeArweave && (
-        <div className="border-border bg-card flex items-center gap-3 rounded-xl border p-4">
+        <div className="glass-premium hover:shadow-primary/5 flex items-center gap-3 border-none p-4 shadow-2xl transition-all duration-500">
           <div className="bg-secondary flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
             <Wallet className="text-foreground h-5 w-5" />
           </div>

@@ -13,7 +13,7 @@ export default function LanguageSettings() {
   const { t } = useTranslation()
 
   return (
-    <Card>
+    <Card className="glass-premium hover:shadow-primary/5 border-none shadow-2xl transition-all duration-500">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Globe className="h-5 w-5" />

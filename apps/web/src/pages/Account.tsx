@@ -235,35 +235,41 @@ export default function AccountPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 py-4 sm:space-y-8 sm:py-8">
-      <AccountHeader
-        t={t}
-        isUnlocked={walletManager.isUnlocked}
-        onLogout={walletManager.logout}
-      />
+    <div className="mesh-gradient relative min-h-screen">
+      <div className="animate-in fade-in slide-in-from-bottom-4 mx-auto max-w-6xl space-y-8 px-4 py-8 duration-1000">
+        <AccountHeader
+          t={t}
+          isUnlocked={walletManager.isUnlocked}
+          onLogout={walletManager.logout}
+        />
 
-      {!walletManager.isUnlocked ? (
-        <div className="px-4 sm:px-0">
-          <UnlockForm onUnlock={handleUnlock} />
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-3">
-          <div className="space-y-6 sm:space-y-8 lg:col-span-2">
-            <Card className="border-border overflow-hidden shadow-sm sm:rounded-2xl">
-              <CardHeader className="border-border bg-secondary/50 border-b pb-3 sm:px-6">
-                <CardTitle className="text-foreground text-base">
-                  {t("identities.title")}
-                </CardTitle>
-                <CardDescription className="text-muted-foreground text-xs">
-                  {t("identities.desc")}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-0">
-                <Tabs defaultValue="ethereum" className="w-full">
-                  <div className="overflow-x-auto px-4 pt-4 sm:px-6">
-                    <TabsList className="bg-muted mb-0 flex h-auto w-max flex-nowrap justify-start gap-1 rounded-lg p-1 sm:w-auto sm:flex-wrap">
-                      {["ethereum", "bitcoin", "solana", "sui", "arweave"].map(
-                        (chain) => (
+        {!walletManager.isUnlocked ? (
+          <div className="px-4 sm:px-0">
+            <UnlockForm onUnlock={handleUnlock} />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-3">
+            <div className="space-y-6 sm:space-y-8 lg:col-span-2">
+              <Card className="glass-premium hover:shadow-primary/5 border-none shadow-2xl transition-all duration-500 sm:rounded-2xl">
+                <CardHeader className="border-border bg-secondary/50 border-b pb-3 sm:px-6">
+                  <CardTitle className="text-foreground text-base">
+                    {t("identities.title")}
+                  </CardTitle>
+                  <CardDescription className="text-muted-foreground text-xs">
+                    {t("identities.desc")}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <Tabs defaultValue="ethereum" className="w-full">
+                    <div className="overflow-x-auto px-4 pt-4 sm:px-6">
+                      <TabsList className="bg-muted mb-0 flex h-auto w-max flex-nowrap justify-start gap-1 rounded-lg p-1 sm:w-auto sm:flex-wrap">
+                        {[
+                          "ethereum",
+                          "bitcoin",
+                          "solana",
+                          "sui",
+                          "arweave",
+                        ].map((chain) => (
                           <TabsTrigger
                             key={chain}
                             value={chain}
@@ -271,70 +277,70 @@ export default function AccountPage() {
                           >
                             {chain}
                           </TabsTrigger>
-                        ),
-                      )}
-                    </TabsList>
-                  </div>
-                  <TabsContent
-                    value="ethereum"
-                    className="px-4 pt-4 pb-4 sm:px-6 sm:pb-6"
-                  >
-                    <AccountListTab chain="ethereum" />
-                  </TabsContent>
-                  <TabsContent
-                    value="bitcoin"
-                    className="px-4 pt-4 pb-4 sm:px-6 sm:pb-6"
-                  >
-                    <AccountListTab chain="bitcoin" />
-                  </TabsContent>
-                  <TabsContent
-                    value="solana"
-                    className="px-4 pt-4 pb-4 sm:px-6 sm:pb-6"
-                  >
-                    <AccountListTab chain="solana" />
-                  </TabsContent>
-                  <TabsContent
-                    value="sui"
-                    className="px-4 pt-4 pb-4 sm:px-6 sm:pb-6"
-                  >
-                    <AccountListTab chain="sui" />
-                  </TabsContent>
-                  <TabsContent
-                    value="arweave"
-                    className="px-4 pt-4 pb-4 sm:px-6 sm:pb-6"
-                  >
-                    <AccountListTab chain="arweave" />
-                  </TabsContent>
-                </Tabs>
-              </CardContent>
-            </Card>
+                        ))}
+                      </TabsList>
+                    </div>
+                    <TabsContent
+                      value="ethereum"
+                      className="px-4 pt-4 pb-4 sm:px-6 sm:pb-6"
+                    >
+                      <AccountListTab chain="ethereum" />
+                    </TabsContent>
+                    <TabsContent
+                      value="bitcoin"
+                      className="px-4 pt-4 pb-4 sm:px-6 sm:pb-6"
+                    >
+                      <AccountListTab chain="bitcoin" />
+                    </TabsContent>
+                    <TabsContent
+                      value="solana"
+                      className="px-4 pt-4 pb-4 sm:px-6 sm:pb-6"
+                    >
+                      <AccountListTab chain="solana" />
+                    </TabsContent>
+                    <TabsContent
+                      value="sui"
+                      className="px-4 pt-4 pb-4 sm:px-6 sm:pb-6"
+                    >
+                      <AccountListTab chain="sui" />
+                    </TabsContent>
+                    <TabsContent
+                      value="arweave"
+                      className="px-4 pt-4 pb-4 sm:px-6 sm:pb-6"
+                    >
+                      <AccountListTab chain="arweave" />
+                    </TabsContent>
+                  </Tabs>
+                </CardContent>
+              </Card>
 
-            <div className="px-4 sm:px-0">
-              <AddAccountSection
-                onAddAccount={handleAddAccount}
-                onCreateAccount={handleCreateAccount}
-              />
+              <div className="px-4 sm:px-0">
+                <AddAccountSection
+                  onAddAccount={handleAddAccount}
+                  onCreateAccount={handleCreateAccount}
+                />
+              </div>
             </div>
+
+            <AccountSidebar t={t} walletManager={walletManager} />
           </div>
+        )}
 
-          <AccountSidebar t={t} walletManager={walletManager} />
-        </div>
-      )}
+        <SensitiveInfoDialog
+          open={showSensitiveDialog}
+          onOpenChange={setShowSensitiveDialog}
+          account={sensitiveAccount}
+          type={viewType}
+          onVerify={verifyAndShow}
+        />
 
-      <SensitiveInfoDialog
-        open={showSensitiveDialog}
-        onOpenChange={setShowSensitiveDialog}
-        account={sensitiveAccount}
-        type={viewType}
-        onVerify={verifyAndShow}
-      />
-
-      <CreateAccountDialog
-        open={showCreateDialog}
-        onOpenChange={setShowCreateDialog}
-        chain={createChain}
-        onConfirm={handleConfirmCreateAccount}
-      />
+        <CreateAccountDialog
+          open={showCreateDialog}
+          onOpenChange={setShowCreateDialog}
+          chain={createChain}
+          onConfirm={handleConfirmCreateAccount}
+        />
+      </div>
     </div>
   )
 }

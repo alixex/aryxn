@@ -27,7 +27,7 @@ export default function DangerZone({
 
   return (
     <>
-      <div className="border-destructive/30 border-t pt-6">
+      <div className="glass-premium hover:shadow-destructive/10 mt-6 mb-8 border-none p-6 shadow-2xl transition-all duration-500">
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <AlertTriangle className="text-destructive h-5 w-5" />

@@ -5,7 +5,7 @@ export function SecurityNotice() {
   const { t } = useTranslation()
 
   return (
-    <div className="glass border-border bg-card flex items-start gap-4 rounded-2xl border-2 p-6">
+    <div className="glass-premium hover:shadow-primary/5 flex items-start gap-4 border-none p-6 shadow-2xl transition-all duration-500">
       <div className="bg-secondary flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
         <ShieldCheck className="text-foreground h-5 w-5" />
       </div>

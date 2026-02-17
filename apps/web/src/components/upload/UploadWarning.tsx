@@ -16,7 +16,7 @@ export function UploadWarning({
 
   if (isLocked && !hasExternalWallet) {
     return (
-      <div className="border-muted bg-card flex items-start gap-4 rounded-xl border-2 p-5 text-sm shadow-lg">
+      <div className="glass-premium hover:shadow-primary/5 flex items-start gap-4 border-none p-5 text-sm shadow-2xl transition-all duration-500">
         <div className="bg-muted flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
           <AlertCircle className="text-muted-foreground h-5 w-5" />
         </div>

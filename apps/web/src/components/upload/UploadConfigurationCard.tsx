@@ -91,7 +91,7 @@ export function UploadConfigurationCard({
   }
 
   return (
-    <Card className="border-border overflow-hidden rounded-2xl shadow-lg transition-all duration-300 hover:shadow-xl">
+    <Card className="glass-premium hover:shadow-primary/5 border-none shadow-2xl transition-all duration-500">
       <CardHeader className="border-border border-b pb-4 sm:pb-6">
         <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
           <div className="bg-secondary flex h-8 w-8 items-center justify-center rounded-lg">

@@ -13,9 +13,9 @@ import ServiceWorkerInfo from "./storage/ServiceWorkerInfo"
 import CacheStorageInfo from "./storage/CacheStorageInfo"
 import OpfsFilesList from "./storage/OpfsFilesList"
 
-type StorageInfo = Awaited<
-  ReturnType<typeof import("@/lib/sqlite-db").db.getStorageInfo>
->
+import { db } from "@/lib/database"
+
+type StorageInfo = Awaited<ReturnType<typeof db.getStorageInfo>>
 
 export default function StorageSettingsCard({
   storageInfo,
@@ -37,7 +37,7 @@ export default function StorageSettingsCard({
   }
 
   return (
-    <Card className="border-destructive/30">
+    <Card className="glass-premium hover:shadow-primary/5 border-none shadow-2xl transition-all duration-500">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -97,7 +97,7 @@ export default function StorageSettingsCard({
                         <span className="capitalize">
                           {key.replace(/-/g, " ")}
                         </span>
-                        <span>{formatBytes(value)}</span>
+                        <span>{formatBytes(value as number)}</span>
                       </div>
                     ),
                   )}

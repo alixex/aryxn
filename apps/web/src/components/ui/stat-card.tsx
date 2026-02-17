@@ -19,61 +19,52 @@ export function StatCard({
   trend,
   trendUp,
   className,
-  variant = "purple",
 }: StatCardProps) {
-  const gradientClasses = {
-    purple: "bg-gradient-primary",
-    cyan: "from-cyan-500 to-blue-500 bg-gradient-to-br",
-    gold: "from-amber-500 to-orange-500 bg-gradient-to-br",
-  }
-
-  const glowClasses = {
-    purple: "glow-purple",
-    cyan: "glow-cyan",
-    gold: "glow-gold",
-  }
-
   return (
     <Card
       className={cn(
-        "group border-border/50 relative overflow-hidden backdrop-blur-sm transition-all duration-300",
-        "hover:border-primary/30 hover:-translate-y-1 hover:shadow-2xl",
-        "bg-card/80",
+        "glass-premium group relative overflow-hidden transition-all duration-500",
+        "hover:border-primary/40 hover:-translate-y-1.5 hover:shadow-2xl",
+        "after:absolute after:inset-0 after:z-10 after:translate-x-[-150%] after:bg-gradient-to-r after:from-transparent after:via-white/10 after:to-transparent after:transition-transform after:duration-[800ms] hover:after:translate-x-[150%]",
         className,
       )}
     >
-      {/* Gradient overlay on hover */}
-      <div className="from-primary/5 absolute inset-0 bg-gradient-to-br to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-
       <CardContent className="relative flex items-center gap-4 p-6">
-        {/* Icon with gradient background */}
+        {/* Icon with refined styling */}
         <div
           className={cn(
-            gradientClasses[variant],
-            glowClasses[variant],
-            "flex-shrink-0 rounded-xl p-3.5 text-white shadow-lg transition-all duration-300",
-            "group-hover:scale-110 group-hover:shadow-2xl",
+            "bg-gradient-primary glow-purple",
+            "flex-shrink-0 rounded-xl p-3.5 text-white shadow-lg transition-all duration-500",
+            "group-hover:scale-110 group-hover:shadow-[0_0_30px_rgba(157,78,221,0.6)]",
           )}
         >
-          {icon}
+          <div className="transition-transform duration-500 group-hover:rotate-12">
+            {icon}
+          </div>
         </div>
 
-        {/* Content */}
+        {/* Content with smoother typography */}
         <div className="min-w-0 flex-1">
-          <p className="text-muted-foreground group-hover:text-foreground truncate text-sm font-medium transition-colors">
+          <p className="text-muted-foreground group-hover:text-foreground text-xs font-bold tracking-widest uppercase transition-colors duration-300">
             {label}
           </p>
-          <p className="text-foreground mt-1 truncate text-3xl font-bold transition-all duration-300 group-hover:scale-105">
+          <p className="text-foreground mt-0.5 truncate text-3xl font-extrabold tracking-tight transition-all duration-500 group-hover:scale-[1.02]">
             {value}
           </p>
           {trend && (
             <p
               className={cn(
-                "mt-1 text-xs font-semibold transition-all duration-300",
+                "mt-1.5 text-xs font-bold transition-all duration-500",
                 trendUp ? "text-emerald-400" : "text-rose-400",
-                "group-hover:translate-x-1",
+                "flex items-center gap-1 group-hover:translate-x-1",
               )}
             >
+              <span
+                className={cn(
+                  "h-1 w-1 rounded-full",
+                  trendUp ? "bg-emerald-400" : "bg-rose-400",
+                )}
+              />
               {trend}
             </p>
           )}
