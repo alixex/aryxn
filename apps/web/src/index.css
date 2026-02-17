@@ -43,48 +43,74 @@
 @layer base {
   :root {
     /* Modern Dark Mode - Premium Dark Theme */
-    --background: 220 13% 9%; /* Deep Space #0D1117 - very dark blue */
-    --foreground: 0 0% 96%; /* Near White #F5F5F5 - excellent contrast */
-    --card: 220 16% 15%; /* Dark Navy #1A1F2F - card surfaces */
-    --card-foreground: 0 0% 96%; /* Near White */
-    --popover: 220 14% 12%; /* Darker card #0E1419 */
-    --popover-foreground: 0 0% 96%; /* Near White */
+    --background: 220 13% 9%;
+    /* Deep Space #0D1117 - very dark blue */
+    --foreground: 0 0% 96%;
+    /* Near White #F5F5F5 - excellent contrast */
+    --card: 220 16% 15%;
+    /* Dark Navy #1A1F2F - card surfaces */
+    --card-foreground: 0 0% 96%;
+    /* Near White */
+    --popover: 220 14% 12%;
+    /* Darker card #0E1419 */
+    --popover-foreground: 0 0% 96%;
+    /* Near White */
 
     /* Primary - Electric Violet / Indigo */
-    --primary: 270 80% 56%; /* Vibrant Purple #9D4EDD - modern, energetic */
-    --primary-foreground: 0 0% 100%; /* Pure White */
-    --primary-hover: 270 80% 46%; /* Darker on hover */
+    --primary: 270 80% 56%;
+    /* Vibrant Purple #9D4EDD - modern, energetic */
+    --primary-foreground: 0 0% 100%;
+    /* Pure White */
+    --primary-hover: 270 80% 46%;
+    /* Darker on hover */
 
     /* Secondary - Cyan / Electric Blue */
-    --secondary: 180 90% 45%; /* Bright Cyan #00E5FF - accent color */
-    --secondary-foreground: 220 13% 9%; /* Dark foreground */
-    --secondary-hover: 180 90% 35%; /* Darker on hover */
+    --secondary: 180 90% 45%;
+    /* Bright Cyan #00E5FF - accent color */
+    --secondary-foreground: 220 13% 9%;
+    /* Dark foreground */
+    --secondary-hover: 180 90% 35%;
+    /* Darker on hover */
 
     /* Muted - Soft Gray-Blue */
-    --muted: 220 14% 28%; /* Medium gray #3A4556 */
-    --muted-foreground: 220 8% 65%; /* Light gray text */
+    --muted: 220 14% 28%;
+    /* Medium gray #3A4556 */
+    --muted-foreground: 220 8% 65%;
+    /* Light gray text */
 
     /* Accent - Golden / Warm Yellow */
-    --accent: 45 96% 56%; /* Golden Yellow #FFD60A - highlights */
-    --accent-foreground: 220 13% 9%; /* Dark foreground */
+    --accent: 45 96% 56%;
+    /* Golden Yellow #FFD60A - highlights */
+    --accent-foreground: 220 13% 9%;
+    /* Dark foreground */
 
     /* Destructive - Warm Red */
-    --destructive: 0 84% 60%; /* Vibrant Red #FF6B6B */
+    --destructive: 0 84% 60%;
+    /* Vibrant Red #FF6B6B */
     --destructive-foreground: 0 0% 100%;
 
     /* Borders & Inputs - Transparent Blue */
-    --border: 220 20% 25%; /* Subtle border #1E273C */
-    --input: 220 16% 22%; /* Input border #1A2130 */
-    --ring: 270 80% 56%; /* Primary color for focus ring */
+    --border: 220 20% 25%;
+    /* Subtle border #1E273C */
+    --input: 220 16% 22%;
+    /* Input border #1A2130 */
+    --ring: 270 80% 56%;
+    /* Primary color for focus ring */
 
     /* Charts - Modern Color Palette */
-    --chart-1: 270 80% 56%; /* Purple */
-    --chart-2: 180 90% 45%; /* Cyan */
-    --chart-3: 45 96% 56%; /* Gold */
-    --chart-4: 0 84% 60%; /* Red */
-    --chart-5: 120 70% 50%; /* Green */
+    --chart-1: 270 80% 56%;
+    /* Purple */
+    --chart-2: 180 90% 45%;
+    /* Cyan */
+    --chart-3: 45 96% 56%;
+    /* Gold */
+    --chart-4: 0 84% 60%;
+    /* Red */
+    --chart-5: 120 70% 50%;
+    /* Green */
 
-    --radius: 0.75rem; /* 12px - Modern & Smooth */
+    --radius: 0.75rem;
+    /* 12px - Modern & Smooth */
 
     /* Color Palette - Expanded Dark Mode */
     --gray-50: 220 16% 95%;
@@ -124,6 +150,7 @@
   * {
     border-color: hsl(var(--border));
   }
+
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
@@ -131,6 +158,7 @@
 }
 
 @layer utilities {
+
   /**
    * iOS safe-area support (e.g. iPhone with home indicator).
    * Used by the mobile bottom navigation: `pb-safe`.
@@ -142,35 +170,27 @@
 
   /* Gradient backgrounds - Monochrome */
   .bg-gradient-primary {
-    background: linear-gradient(
-      135deg,
-      hsl(270 80% 56%) 0%,
-      hsl(180 90% 45%) 100%
-    );
+    background: linear-gradient(135deg,
+        hsl(270 80% 56%) 0%,
+        hsl(180 90% 45%) 100%);
   }
 
   .bg-gradient-secondary {
-    background: linear-gradient(
-      135deg,
-      hsl(45 96% 56%) 0%,
-      hsl(270 80% 56%) 100%
-    );
+    background: linear-gradient(135deg,
+        hsl(45 96% 56%) 0%,
+        hsl(270 80% 56%) 100%);
   }
 
   .bg-gradient-accent {
-    background: linear-gradient(
-      135deg,
-      hsl(180 90% 45%) 0%,
-      hsl(320 90% 60%) 100%
-    );
+    background: linear-gradient(135deg,
+        hsl(180 90% 45%) 0%,
+        hsl(320 90% 60%) 100%);
   }
 
   .bg-gradient-radial {
-    background: radial-gradient(
-      circle at 50% 0%,
-      hsl(270 80% 56% / 0.15),
-      transparent 70%
-    );
+    background: radial-gradient(circle at 50% 0%,
+        hsl(270 80% 56% / 0.15),
+        transparent 70%);
   }
 
   /* Enhanced Glassmorphism */
@@ -224,30 +244,30 @@
   .gradient-text {
     display: inline-block;
     background-size: 200% 200%;
-    -webkit-background-clip: text !important;
-    -webkit-text-fill-color: transparent !important;
-    background-clip: text !important;
-    color: transparent !important;
-    text-shadow: none !important;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+    text-shadow: none;
   }
 
   /* Animated gradients */
   .bg-gradient-animated {
-    background: linear-gradient(
-      270deg,
-      hsl(0 0% 0%),
-      hsl(0 0% 20%),
-      hsl(0 0% 10%)
-    );
+    background: linear-gradient(270deg,
+        hsl(0 0% 0%),
+        hsl(0 0% 20%),
+        hsl(0 0% 10%));
     background-size: 400% 400%;
     animation: gradientShift 15s ease infinite;
   }
 
   @keyframes gradientShift {
+
     0%,
     100% {
       background-position: 0% 50%;
     }
+
     50% {
       background-position: 100% 50%;
     }
@@ -276,6 +296,7 @@
       opacity: 0;
       transform: translateY(20px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -287,6 +308,7 @@
       opacity: 0;
       transform: translateY(-20px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -297,6 +319,7 @@
     from {
       opacity: 0;
     }
+
     to {
       opacity: 1;
     }
@@ -307,6 +330,7 @@
       opacity: 0;
       transform: translateX(-20px);
     }
+
     to {
       opacity: 1;
       transform: translateX(0);
@@ -318,6 +342,7 @@
       opacity: 0;
       transform: scale(0.95);
     }
+
     to {
       opacity: 1;
       transform: scale(1);
@@ -326,10 +351,12 @@
 
   /* Interactive animations */
   @keyframes pulse-glow {
+
     0%,
     100% {
       box-shadow: 0 0 0 0 hsl(var(--shadow-primary) / 0.4);
     }
+
     50% {
       box-shadow: 0 0 20px 8px hsl(var(--shadow-primary) / 0);
     }
@@ -339,26 +366,31 @@
     0% {
       background-position: -200% center;
     }
+
     100% {
       background-position: 200% center;
     }
   }
 
   @keyframes float {
+
     0%,
     100% {
       transform: translateY(0px);
     }
+
     50% {
       transform: translateY(-10px);
     }
   }
 
   @keyframes bounce-subtle {
+
     0%,
     100% {
       transform: translateY(0);
     }
+
     50% {
       transform: translateY(-5px);
     }
@@ -369,6 +401,7 @@
     0% {
       background-position: 200% 0;
     }
+
     100% {
       background-position: -200% 0;
     }
@@ -378,6 +411,7 @@
     from {
       transform: rotate(0deg);
     }
+
     to {
       transform: rotate(360deg);
     }
@@ -410,12 +444,10 @@
 
   /* Monochrome shimmer effect */
   .animate-shimmer {
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      hsl(0 0% 50% / 0.1) 50%,
-      transparent 100%
-    );
+    background: linear-gradient(90deg,
+        transparent 0%,
+        hsl(0 0% 50% / 0.1) 50%,
+        transparent 100%);
     background-size: 200% 100%;
     animation: shimmer 2s ease-in-out infinite;
   }
@@ -436,15 +468,19 @@
   .animate-delay-100 {
     animation-delay: 100ms;
   }
+
   .animate-delay-200 {
     animation-delay: 200ms;
   }
+
   .animate-delay-300 {
     animation-delay: 300ms;
   }
+
   .animate-delay-400 {
     animation-delay: 400ms;
   }
+
   .animate-delay-500 {
     animation-delay: 500ms;
   }
@@ -502,12 +538,13 @@
 
   /* Reduced motion support */
   @media (prefers-reduced-motion: reduce) {
+
     *,
     *::before,
     *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms;
+      animation-iteration-count: 1;
+      transition-duration: 0.01ms;
     }
   }
 }
