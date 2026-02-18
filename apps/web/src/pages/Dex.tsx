@@ -5,7 +5,7 @@ import { useTranslation } from "@/i18n/config"
 import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useInternal } from "@/hooks/account-hooks"
+import { useWallet } from "@/hooks/account-hooks"
 import type { WalletRecord } from "@/lib/utils"
 // Components
 import { SwapCard } from "@/components/dex/SwapCard"
@@ -16,23 +16,18 @@ import { TransactionHistory } from "@/components/dex/TransactionHistory"
 export default function DexPage() {
   const { t } = useTranslation()
   const { isConnected, address: externalAddress } = useConnection()
-  const walletManager = useInternal()
+  const wallet = useWallet()
+  const walletManager = wallet.internal
+  const activeEvm = wallet.active.evm
 
   // Check if internal wallet is available for Ethereum
-  const hasInternalEthAccount =
-    walletManager.isUnlocked &&
-    !!walletManager.activeAddress &&
-    walletManager.wallets.find(
-      (w: WalletRecord) => w.address === walletManager.activeAddress,
-    )?.chain === "ethereum"
+  const hasInternalEthAccount = !!activeEvm && !activeEvm.isExternal
 
-  const isWalletReady = isConnected || hasInternalEthAccount
-  const displayAddress = isConnected
-    ? externalAddress
-    : walletManager.activeAddress
+  const isWalletReady = isConnected || !!activeEvm
+  const displayAddress = isConnected ? externalAddress : activeEvm?.address
 
   // Get active account alias for display
-  const activeAccountAlias = walletManager.wallets.find(
+  const activeAccountAlias = wallet.internal.wallets.find(
     (w: WalletRecord) => w.address === walletManager.activeAddress,
   )?.alias
 

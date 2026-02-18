@@ -19,25 +19,21 @@ import {
   useInternalDexSwap,
 } from "@/hooks/dex-hooks"
 import { SUPPORTED_TOKENS, type TokenInfo } from "@/lib/contracts/token-config"
-import { useInternal, formatTimestamp } from "@/hooks/account-hooks"
-import type { WalletRecord } from "@/lib/utils"
+import { useWallet, formatTimestamp } from "@/hooks/account-hooks"
 
 export function SwapCard() {
   const { t } = useTranslation()
   const { isConnected } = useConnection()
-  const walletManager = useInternal()
+  const wallet = useWallet()
+  const walletManager = wallet.internal
+  const activeEvm = wallet.active.evm
 
   // Check if internal wallet is available for Ethereum
-  const hasInternalEthAccount =
-    walletManager.isUnlocked &&
-    !!walletManager.activeAddress &&
-    walletManager.wallets.find(
-      (w: WalletRecord) => w.address === walletManager.activeAddress,
-    )?.chain === "ethereum"
+  const hasInternalEthAccount = !!activeEvm && !activeEvm.isExternal
 
   // Determine which wallet type to use
   const useInternalWallet = hasInternalEthAccount && !isConnected
-  const isWalletReady = isConnected || hasInternalEthAccount
+  const isWalletReady = isConnected || !!activeEvm
 
   // Input/Output token selection
   const [inputToken, setInputToken] = useState<TokenInfo>(SUPPORTED_TOKENS[0])
