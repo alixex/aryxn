@@ -5,7 +5,7 @@
     "none": "無",
     "dashboard": "資料管理",
     "upload": "上傳",
-    "dex": "DEX 交換",
+    "dex": "交換",
     "account": "帳戶管理",
     "activeAccount": "隱私層已開啟",
     "accountLocked": "隱私層已鎖定 (可選)",
@@ -361,7 +361,7 @@
     "storageInfoError": "載入儲存資訊失敗"
   },
   "dex": {
-    "title": "DEX 交換",
+    "title": "交換",
     "description": "基於 Uniswap V3 的多跳代幣交換",
     "from": "從",
     "to": "至",

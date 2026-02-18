@@ -25,7 +25,7 @@ export function Navbar() {
 
   const navItems = [
     { path: "/", label: t("common.upload"), icon: Upload },
-    { path: "/dex", label: t("common.dex"), icon: Zap },
+    { path: "/swap", label: t("common.dex"), icon: Zap },
     { path: "/dashboard", label: t("common.dashboard"), icon: LayoutDashboard },
     {
       path: "/settings",

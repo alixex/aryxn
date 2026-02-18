@@ -5,7 +5,7 @@
     "none": "无",
     "dashboard": "数据管理",
     "upload": "上传",
-    "dex": "DEX 交换",
+    "dex": "交换",
     "account": "账户管理",
     "activeAccount": "隐私层已开启",
     "accountLocked": "隐私层已锁定 (可选)",
@@ -315,7 +315,7 @@
     "configuration": "配置设置",
     "paymentMethod": "支付方式",
     "paymentToken": "支付代币",
-    "processingPayment": "正在通过 DEX 处理支付...",
+    "processingPayment": "正在处理交换支付...",
     "preparing": "准备上传中..."
   },
   "settings": {
@@ -379,7 +379,7 @@
     "storageInfoError": "加载存储信息失败"
   },
   "dex": {
-    "title": "DEX 交换",
+    "title": "交换",
     "description": "基于 Uniswap V3 的多跳交换",
     "from": "从",
     "to": "至",
@@ -426,7 +426,7 @@
     "securityFeature2": "内置滑点保护机制",
     "securityFeature3": "非托管 - 您完全控制自己的项目",
     "howItWorksTitle": "工作原理",
-    "howItWorksDesc": "我们的 DEX 使用 MultiHopSwapper 合约通过 Uniswap V3 执行交换，自动选择最优路径为您获得最佳结果。",
+    "howItWorksDesc": "我们的交换模块使用 MultiHopSwapper 合约通过 Uniswap V3 执行交换，自动选择最优路径为您获得最佳结果。",
     "swapDetails": "交换详情",
     "directSwap": "直接交换",
     "hops": "跳",

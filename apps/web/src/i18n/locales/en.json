@@ -5,7 +5,7 @@
     "none": "None",
     "dashboard": "Data Management",
     "upload": "Upload",
-    "dex": "DEX",
+    "dex": "Swap",
     "account": "Account",
     "settings": "Settings",
     "activeAccount": "Secure Vault Active",
@@ -315,7 +315,7 @@
     "configuration": "Configuration",
     "paymentMethod": "Payment Method",
     "paymentToken": "Payment Token",
-    "processingPayment": "Processing payment via DEX...",
+    "processingPayment": "Processing swap payment...",
     "preparing": "Preparing upload..."
   },
   "settings": {
@@ -379,7 +379,7 @@
     "storageInfoError": "Failed to load storage information"
   },
   "dex": {
-    "title": "DEX Swap",
+    "title": "Swap",
     "description": "Multi-hop exchange powered by Uniswap V3",
     "from": "From",
     "to": "To",
@@ -426,7 +426,7 @@
     "securityFeature2": "Slippage protection built-in",
     "securityFeature3": "Non-custodial - you control your items",
     "howItWorksTitle": "How It Works",
-    "howItWorksDesc": "Our DEX uses the MultiHopSwapper contract to execute swaps via Uniswap V3, automatically routing through the most efficient path to get you the best results.",
+    "howItWorksDesc": "Our swap module uses the MultiHopSwapper contract to execute swaps via Uniswap V3, automatically routing through the most efficient path to get you the best results.",
     "swapDetails": "Swap Details",
     "directSwap": "Direct Swap",
     "hops": "Hops",

@@ -33,7 +33,7 @@ initDatabaseWithSchema()
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/upload" element={<Upload />} />
-              <Route path="/dex" element={<Dex />} />
+              <Route path="/swap" element={<Dex />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/account" element={<Account />} />
               <Route path="/settings" element={<Settings />} />
