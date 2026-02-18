@@ -28,7 +28,7 @@ export function TransactionHistory() {
     if (address) {
       SYNC_CHAINS.forEach((chain) => syncWithChain(chain, address))
     }
-  }, [address])
+  }, [address, syncWithChain])
 
   const handleRefresh = () => {
     if (address) {

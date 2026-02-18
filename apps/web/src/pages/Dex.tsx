@@ -17,7 +17,6 @@ export default function DexPage() {
   const { t } = useTranslation()
   const { isConnected, address: externalAddress } = useConnection()
   const wallet = useWallet()
-  const walletManager = wallet.internal
   const activeEvm = wallet.active.evm
 
   // Check if internal wallet is available for Ethereum
@@ -27,9 +26,11 @@ export default function DexPage() {
   const displayAddress = isConnected ? externalAddress : activeEvm?.address
 
   // Get active account alias for display
-  const activeAccountAlias = wallet.internal.wallets.find(
-    (w: WalletRecord) => w.address === walletManager.activeAddress,
-  )?.alias
+  const activeAccountAlias = hasInternalEthAccount
+    ? wallet.internal.wallets.find(
+        (w: WalletRecord) => w.address === activeEvm?.address,
+      )?.alias
+    : undefined
 
   const [activeTab, setActiveTab] = useState("swap")
 

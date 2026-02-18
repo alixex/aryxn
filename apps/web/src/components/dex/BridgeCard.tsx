@@ -89,7 +89,7 @@ export function BridgeCard() {
   const [inputToken, setInputToken] = useState<TokenInfo>(SUPPORTED_TOKENS[0])
   const [inputAmount, setInputAmount] = useState("")
 
-  const { loading, quote, getQuote } = useBridge()
+  const { loading, quote, getQuote, executeBridge } = useBridge()
 
   // Debounced quote fetching
   useEffect(() => {
@@ -240,12 +240,7 @@ export function BridgeCard() {
           className="h-14 w-full rounded-xl text-lg font-bold shadow-lg transition-all hover:scale-[1.02]"
           disabled={!inputAmount || loading}
           onClick={() =>
-            useBridge().executeBridge(
-              sourceChain,
-              destChain,
-              inputToken.symbol,
-              inputAmount,
-            )
+            executeBridge(sourceChain, destChain, inputToken.symbol, inputAmount)
           }
         >
           {loading ? "Processing..." : "Bridge Assets"}
