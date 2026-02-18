@@ -64,4 +64,20 @@ export type { Address, Hash, Abi } from "viem"
 export type { PublicKey } from "@solana/web3.js"
 
 // Re-export Sui types
-export type { SuiClient } from "@mysten/sui/client"
+import { SuiClient } from "@mysten/sui/client"
+export type { SuiClient }
+
+// Balance types
+export interface BalanceResult {
+  balance: string
+  formatted: string
+  symbol: string
+  timestamp?: number
+  error?: string
+}
+
+export interface BalanceOptions {
+  rpcUrl?: string
+  tokenAddress?: string
+  decimals?: number
+}

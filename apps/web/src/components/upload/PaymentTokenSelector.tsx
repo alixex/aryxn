@@ -12,7 +12,6 @@ import { TOKEN_CONFIG } from "@/lib/payment"
 import { useWallet } from "@/hooks/account-hooks"
 import { useEffect, useState, useMemo } from "react"
 import { getBalance } from "@/lib/chain"
-import { cn } from "@/lib/utils"
 import { TOKEN_ADDRESSES } from "@/lib/contracts/addresses"
 
 interface PaymentTokenSelectorProps {

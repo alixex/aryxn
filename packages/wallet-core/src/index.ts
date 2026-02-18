@@ -34,6 +34,11 @@ export {
   formatSolanaBalance,
   parseSolanaAmount,
 } from "./solana"
+// Balance module
+export { getBalance } from "./balance"
+export { getArweaveBalance } from "./arweave"
+export { getBitcoinBalance } from "./bitcoin"
+
 export {
   createSuiClient,
   createSuiClientWithUrl,
@@ -42,3 +47,5 @@ export {
   parseSuiAmount,
   getFullnodeUrl,
 } from "./sui"
+
+export type { BalanceResult, BalanceOptions } from "./types"

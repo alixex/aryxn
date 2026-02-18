@@ -27,18 +27,35 @@ export const createSolanaPublicKey = (address: string) => {
   return new PublicKey(address)
 }
 
+import { BalanceResult } from "./types"
+
 /**
  * Get SOL balance for a public key
  * @param connection - Solana connection
  * @param publicKey - The public key to query
- * @returns Balance in lamports as bigint
+ * @returns BalanceResult
  */
 export const getSolanaBalance = async (
   connection: Connection,
   publicKey: PublicKey,
-): Promise<bigint> => {
-  const balance = await connection.getBalance(publicKey)
-  return BigInt(balance)
+): Promise<BalanceResult> => {
+  try {
+    const balance = await connection.getBalance(publicKey)
+    const formatted = formatSolanaBalance(BigInt(balance))
+    return {
+      balance: balance.toString(),
+      formatted,
+      symbol: "SOL",
+    }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    return {
+      balance: "0",
+      formatted: "0",
+      symbol: "SOL",
+      error: errorMessage,
+    }
+  }
 }
 
 /**

@@ -26,18 +26,36 @@ export const createSuiClientWithUrl = (rpcUrl: string) => {
   return new SuiClient({ url: rpcUrl })
 }
 
+import { BalanceResult } from "./types"
+
 /**
  * Get SUI balance for an address
  * @param client - Sui client
  * @param address - The Sui address to query
- * @returns Balance in MIST as bigint
+ * @returns BalanceResult
  */
 export const getSuiBalance = async (
   client: SuiClient,
   address: string,
-): Promise<bigint> => {
-  const balance = await client.getBalance({ owner: address })
-  return BigInt(balance.totalBalance)
+): Promise<BalanceResult> => {
+  try {
+    const balance = await client.getBalance({ owner: address })
+    const totalBalance = BigInt(balance.totalBalance)
+    const formatted = formatSuiBalance(totalBalance)
+    return {
+      balance: totalBalance.toString(),
+      formatted,
+      symbol: "SUI",
+    }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    return {
+      balance: "0",
+      formatted: "0",
+      symbol: "SUI",
+      error: errorMessage,
+    }
+  }
 }
 
 /**

@@ -15,17 +15,66 @@ export const createEvmProvider = (rpcUrl: string) => {
   return new JsonRpcProvider(rpcUrl)
 }
 
+import { BalanceResult } from "./types"
+
 /**
- * Get ETH balance for an address
+ * Get ETH or ERC20 balance for an address
  * @param provider - EVM provider
  * @param address - The address to query
- * @returns Balance in wei as bigint
+ * @param tokenAddress - Optional ERC20 token address
+ * @returns BalanceResult
  */
 export const getEvmBalance = async (
   provider: JsonRpcProvider,
   address: string,
-): Promise<bigint> => {
-  return await provider.getBalance(address)
+  tokenAddress?: string,
+): Promise<BalanceResult> => {
+  try {
+    if (tokenAddress) {
+      // ERC20 Balance
+      // We assume standard ERC20 ABI implies balanceOf, decimals, symbol
+      // Minimal ABI for these 3 functions
+      const abi = [
+        "function balanceOf(address owner) view returns (uint256)",
+        "function decimals() view returns (uint8)",
+        "function symbol() view returns (string)",
+      ]
+
+      const contract = new Contract(tokenAddress, abi, provider)
+
+      const [balance, decimals, symbol] = await Promise.all([
+        contract.balanceOf(address),
+        contract.decimals(),
+        contract.symbol(),
+      ])
+
+      const formatted = ethers.formatUnits(balance, decimals)
+
+      return {
+        balance: balance.toString(),
+        formatted: parseFloat(formatted).toFixed(6),
+        symbol,
+      }
+    } else {
+      // Native ETH Balance
+      const balance = await provider.getBalance(address)
+      const formatted = ethers.formatEther(balance)
+
+      return {
+        balance: balance.toString(),
+        formatted: parseFloat(formatted).toFixed(6),
+        symbol: "ETH",
+      }
+    }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    return {
+      balance: "0",
+      formatted: "0",
+      symbol: "ETH", // or ??? if token failed
+      error: errorMessage,
+    }
+  }
 }
 
 /**
