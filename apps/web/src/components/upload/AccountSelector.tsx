@@ -171,7 +171,7 @@ export function AccountSelector({ file }: AccountSelectorProps) {
   return (
     <div className="space-y-4">
       {activeArweave && (
-        <div className="glass-premium hover:shadow-primary/5 flex items-center gap-3 border-none p-4 shadow-2xl transition-all duration-500">
+        <div className="glass-premium hover:shadow-primary/5 flex items-center gap-3 border-none p-3 shadow-2xl transition-all duration-500 sm:px-4 sm:py-2">
           <div className="bg-secondary flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
             <Wallet className="text-foreground h-5 w-5" />
           </div>

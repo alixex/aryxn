@@ -18,17 +18,20 @@ export default function DexPage() {
   const { isConnected, address: externalAddress } = useConnection()
   const wallet = useWallet()
   const activeEvm = wallet.active.evm
+  const internalActiveAddress = wallet.internal.activeAddress
 
   // Check if internal wallet is available for Ethereum
   const hasInternalEthAccount = !!activeEvm && !activeEvm.isExternal
 
-  const isWalletReady = isConnected || !!activeEvm
-  const displayAddress = isConnected ? externalAddress : activeEvm?.address
+  const displayAddress =
+    isConnected && externalAddress
+      ? externalAddress
+      : activeEvm?.address || internalActiveAddress
 
   // Get active account alias for display
-  const activeAccountAlias = hasInternalEthAccount
+  const activeAccountAlias = !isConnected
     ? wallet.internal.wallets.find(
-        (w: WalletRecord) => w.address === activeEvm?.address,
+        (w: WalletRecord) => w.address === displayAddress,
       )?.alias
     : undefined
 
@@ -57,7 +60,7 @@ export default function DexPage() {
           </div>
 
           {/* Account Status Badge */}
-          {isWalletReady && displayAddress ? (
+          {displayAddress ? (
             <div className="glass-premium hover:shadow-primary/5 flex items-center gap-3 border-none p-3 shadow-2xl transition-all duration-500 sm:px-4 sm:py-2">
               <div className="flex-1 sm:text-right">
                 <div className="text-muted-foreground mb-0.5 text-[10px] font-bold tracking-wider uppercase">
@@ -68,6 +71,8 @@ export default function DexPage() {
                 <div className="text-foreground max-w-45 truncate text-sm font-bold">
                   {hasInternalEthAccount && !isConnected && activeAccountAlias
                     ? activeAccountAlias
+                    : !isConnected && activeAccountAlias
+                      ? activeAccountAlias
                     : displayAddress
                       ? `${displayAddress.slice(0, 6)}...${displayAddress.slice(-4)}`
                       : ""}
