@@ -4,6 +4,12 @@ import {
   OnRecordCallback,
   FetchOptions,
 } from "../types"
+import {
+  Chains,
+  TransactionTypes,
+  TransactionStatuses,
+  RPCs,
+} from "@aryxn/constants"
 
 interface ArweaveEdge {
   node: {
@@ -25,7 +31,7 @@ interface ArweaveResponse {
 }
 
 export class ArweaveAdapter implements IHistoryAdapter {
-  private endpoint = "https://arweave.net/graphql"
+  private endpoint = RPCs.ARWEAVE_GATEWAY
 
   async fetchRecords(
     address: string,
@@ -75,14 +81,17 @@ export class ArweaveAdapter implements IHistoryAdapter {
         // For DEX history, we usually care about value transfers.
         // Let's assume > 0 is a transfer, 0 might be upload.
 
-        const type = parseFloat(amount) > 0 ? "SEND" : "UNKNOWN"
+        const type =
+          parseFloat(amount) > 0
+            ? TransactionTypes.SEND
+            : TransactionTypes.UNKNOWN
         // We could check tags to see if it's a specific app interaction
 
         const record: ChainRecord = {
           id: node.id,
-          chain: "arweave",
-          type: type as any,
-          status: "COMPLETED", // Arweave txs in gateway are usually confirmed or pending, but GQL returns confirmed typically (mined)
+          chain: Chains.ARWEAVE,
+          type: type,
+          status: TransactionStatuses.COMPLETED, // Arweave txs in gateway are usually confirmed or pending, but GQL returns confirmed typically (mined)
           from: node.owner.address,
           to: node.recipient || "Data Upload",
           amount: amount,

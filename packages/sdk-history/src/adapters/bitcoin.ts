@@ -4,6 +4,12 @@ import {
   OnRecordCallback,
   FetchOptions,
 } from "../types"
+import {
+  Chains,
+  TransactionTypes,
+  TransactionStatuses,
+  RPCs,
+} from "@aryxn/constants"
 
 interface BitcoinTx {
   txid: string
@@ -45,7 +51,7 @@ interface BitcoinTx {
 
 export class BitcoinAdapter implements IHistoryAdapter {
   // Use mempool.space for mainnet. For testnet usage, this should be configurable.
-  private endpoint = "https://mempool.space/api"
+  private endpoint = RPCs.BITCOIN_MEMPOOL
 
   async fetchRecords(
     address: string,
@@ -73,7 +79,7 @@ export class BitcoinAdapter implements IHistoryAdapter {
         const isSend = tx.vin.some(
           (vin) => vin.prevout?.scriptpubkey_address === address,
         )
-        const type = isSend ? "SEND" : "RECEIVE"
+        const type = isSend ? TransactionTypes.SEND : TransactionTypes.RECEIVE
 
         // Calculate amount
         // If Send: Input Total - Output to Change (this is hard without knowing change address)
@@ -104,9 +110,11 @@ export class BitcoinAdapter implements IHistoryAdapter {
 
         const record: ChainRecord = {
           id: tx.txid,
-          chain: "bitcoin",
-          type: type as any,
-          status: tx.status.confirmed ? "COMPLETED" : "PENDING",
+          chain: Chains.BITCOIN,
+          type: type,
+          status: tx.status.confirmed
+            ? TransactionStatuses.COMPLETED
+            : TransactionStatuses.PENDING,
           from: isSend ? address : "Internal/Unknown", // Hard to trace exact sender in UI without deep analysis
           to: toAddress,
           amount: (amountSat / 100000000).toFixed(8), // Satoshis to BTC

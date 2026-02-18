@@ -4,6 +4,13 @@ import {
   OnRecordCallback,
   FetchOptions,
 } from "../types"
+import {
+  Chains,
+  TransactionTypes,
+  TransactionType,
+  TransactionStatuses,
+  RPCs,
+} from "@aryxn/constants"
 
 interface SuiTxBlock {
   digest: string
@@ -20,7 +27,7 @@ interface SuiTxBlock {
 }
 
 export class SuiAdapter implements IHistoryAdapter {
-  private endpoint = "https://fullnode.mainnet.sui.io:443"
+  private endpoint = RPCs.SUI_MAINNET
 
   async fetchRecords(
     address: string,
@@ -45,7 +52,7 @@ export class SuiAdapter implements IHistoryAdapter {
       for (const tx of result.data) {
         let amount = "0"
         let token = "SUI"
-        let type = "INTERACTION"
+        let type: TransactionType = TransactionTypes.INTERACTION
 
         // Look at balance changes
         if (tx.balanceChanges) {
@@ -58,10 +65,10 @@ export class SuiAdapter implements IHistoryAdapter {
             // This is rough.
             const valFloat = Number(val) / 1e9 // SUI decimals
             if (val < 0) {
-              type = "SEND"
+              type = TransactionTypes.SEND
               amount = Math.abs(valFloat).toFixed(4)
             } else {
-              type = "RECEIVE"
+              type = TransactionTypes.RECEIVE
               amount = valFloat.toFixed(4)
             }
             // Check coinType for token?
@@ -71,15 +78,17 @@ export class SuiAdapter implements IHistoryAdapter {
           }
         } else {
           // Fallback if balance changes not requested or empty
-          type = "SEND" // Since we filtered by FromAddress
+          type = TransactionTypes.SEND // Since we filtered by FromAddress
         }
 
         const record: ChainRecord = {
           id: tx.digest,
-          chain: "sui",
+          chain: Chains.SUI,
           type: type as any,
           status:
-            tx.effects?.status?.status === "success" ? "COMPLETED" : "FAILED",
+            tx.effects?.status?.status === "success"
+              ? TransactionStatuses.COMPLETED
+              : TransactionStatuses.FAILED,
           from: tx.transaction?.data?.sender || address,
           to: "Interaction", // Hard to find single 'to' in Move
           amount: amount,

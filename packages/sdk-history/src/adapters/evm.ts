@@ -3,7 +3,14 @@ import {
   ChainRecord,
   OnRecordCallback,
   FetchOptions,
+  TransactionType,
 } from "../types"
+import {
+  Chains,
+  TransactionTypes,
+  TransactionStatuses,
+  RPCs,
+} from "@aryxn/constants"
 
 interface BlockscoutTx {
   hash: string
@@ -31,7 +38,7 @@ interface BlockscoutResponse {
  * EVM Adapter using public Blockscout V2 API.
  */
 export class EVMAdapter implements IHistoryAdapter {
-  private apiUrl: string = "https://eth.blockscout.com/api/v2"
+  private apiUrl: string = RPCs.EVM_BLOCKSCOUT
 
   constructor(_rpcUrl?: string) {
     // rpcUrl ignored for now, utilizing standard blockscout api
@@ -61,10 +68,10 @@ export class EVMAdapter implements IHistoryAdapter {
         const isOk = tx.status === "ok"
         const isSend = tx.from.hash.toLowerCase() === address.toLowerCase()
 
-        let type = "UNKNOWN"
-        if (isSend) type = "SEND"
+        let type: TransactionType = TransactionTypes.UNKNOWN
+        if (isSend) type = TransactionTypes.SEND
         if (!isSend && tx.to?.hash.toLowerCase() === address.toLowerCase())
-          type = "RECEIVE"
+          type = TransactionTypes.RECEIVE
 
         // Check value
         // If value is 0, might be a token transfer.
@@ -86,9 +93,11 @@ export class EVMAdapter implements IHistoryAdapter {
 
         const record: ChainRecord = {
           id: tx.hash,
-          chain: "ethereum",
+          chain: Chains.ETHEREUM,
           type: type as any,
-          status: isOk ? "COMPLETED" : "FAILED",
+          status: isOk
+            ? TransactionStatuses.COMPLETED
+            : TransactionStatuses.FAILED,
           from: tx.from.hash,
           to: tx.to?.hash || "",
           amount: ethFloat.toFixed(6), // Display friendly

@@ -4,6 +4,13 @@ import {
   FetchOptions,
   ChainRecord,
 } from "../types"
+import {
+  Chains,
+  TransactionTypes,
+  TransactionType,
+  TransactionStatuses,
+  RPCs,
+} from "@aryxn/constants"
 
 interface SolanaSignature {
   signature: string
@@ -28,7 +35,7 @@ interface SolanaTxDetails {
 }
 
 export class SolanaAdapter implements IHistoryAdapter {
-  private endpoint = "https://api.mainnet-beta.solana.com"
+  private endpoint = RPCs.SOLANA_MAINNET
 
   async fetchRecords(
     address: string,
@@ -76,7 +83,7 @@ export class SolanaAdapter implements IHistoryAdapter {
           const index = accountKeys.findIndex((k) => k === address)
 
           let amount = "0"
-          let type = "UNKNOWN"
+          let type: TransactionType = TransactionTypes.UNKNOWN
 
           if (index !== -1 && tx.meta) {
             const pre = tx.meta.preBalances[index]
@@ -85,23 +92,25 @@ export class SolanaAdapter implements IHistoryAdapter {
             const solDiff = diff / 1000000000
 
             if (solDiff < 0) {
-              type = "SEND"
+              type = TransactionTypes.SEND
               amount = Math.abs(solDiff).toFixed(4)
             } else if (solDiff > 0) {
-              type = "RECEIVE"
+              type = TransactionTypes.RECEIVE
               amount = solDiff.toFixed(4)
             } else {
-              type = "INTERACTION" // Fees only? or Token transfer (SOL balance didn't change much besides fee)
+              type = TransactionTypes.INTERACTION // Fees only? or Token transfer (SOL balance didn't change much besides fee)
             }
           }
 
           const record: ChainRecord = {
             id: sig.signature,
-            chain: "solana",
-            type: type as any,
-            status: sig.err ? "FAILED" : "COMPLETED",
-            from: type === "SEND" ? address : "Unknown",
-            to: type === "SEND" ? "Interaction" : address,
+            chain: Chains.SOLANA,
+            type: type,
+            status: sig.err
+              ? TransactionStatuses.FAILED
+              : TransactionStatuses.COMPLETED,
+            from: type === TransactionTypes.SEND ? address : "Unknown",
+            to: type === TransactionTypes.SEND ? "Interaction" : address,
             amount: amount,
             token: "SOL",
             timestamp: sig.blockTime ? sig.blockTime * 1000 : Date.now(),
