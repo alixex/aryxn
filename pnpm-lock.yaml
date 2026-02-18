@@ -175,6 +175,9 @@ importers:
 
   packages/arweave:
     dependencies:
+      '@aryxn/constants':
+        specifier: workspace:*
+        version: link:../constants
       '@aryxn/crypto':
         specifier: workspace:*
         version: link:../crypto

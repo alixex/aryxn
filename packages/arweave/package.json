@@ -11,6 +11,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@aryxn/constants": "workspace:*",
     "@aryxn/crypto": "workspace:*",
     "@aryxn/storage": "workspace:*",
     "@aryxn/wallet-core": "workspace:*",

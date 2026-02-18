@@ -4,4 +4,5 @@ export const RPCs = {
   EVM_BLOCKSCOUT: "https://eth.blockscout.com/api/v2",
   SOLANA_MAINNET: "https://api.mainnet-beta.solana.com",
   SUI_MAINNET: "https://fullnode.mainnet.sui.io:443",
+  IRYS_NODE: "https://node1.irys.xyz",
 } as const

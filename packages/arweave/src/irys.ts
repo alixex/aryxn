@@ -1,6 +1,7 @@
 import { WebIrys } from "@irys/sdk"
+import { RPCs, type ChainType } from "@aryxn/constants"
 
-export type IrysChain = "ethereum" | "solana" | "bitcoin" | "sui" | "arweave"
+export type IrysChain = ChainType
 
 export interface IrysConfig {
   url?: string
@@ -25,7 +26,7 @@ export class IrysService {
     }
 
     const irys = new WebIrys({
-      url: config.url || "https://node1.irys.xyz",
+      url: config.url || RPCs.IRYS_NODE,
       token: config.token,
       wallet: config.wallet,
       config: config.rpcUrl ? { providerUrl: config.rpcUrl } : undefined,
@@ -51,7 +52,7 @@ export class IrysService {
     try {
       // Use node1 for public price check if possible, or initialize a minimal instance
       const irys = new WebIrys({
-        url: "https://node1.irys.xyz",
+        url: RPCs.IRYS_NODE,
         token: token,
       })
       const price = await irys.getPrice(size)
