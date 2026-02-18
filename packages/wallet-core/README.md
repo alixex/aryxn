@@ -1,4 +1,4 @@
-# @aryxn/wallet-core
+payment-service.ts# @aryxn/wallet-core
 
 The core wallet logic for Aryxn, providing chain-agnostic primitives for wallet creation, detection, and account management.
 

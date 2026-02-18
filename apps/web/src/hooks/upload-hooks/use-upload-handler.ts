@@ -168,15 +168,10 @@ export function useUploadHandler() {
         }
 
         if (paymentResult === "REQUIRE_BRIDGE") {
-          toast.info(
-            t(
-              "common.bridgeRequired",
-              "This token requires a bridge. Redirecting to bridge...",
-            ),
-          )
+          // toast.info(...) // Handled by Dialog
           setUploading(false)
           setPaymentStage(false)
-          return { success: 0, failed: 0 }
+          return { success: 0, failed: 0, status: "BRIDGE_REQUIRED" }
         }
 
         const useIrys = paymentResult === "PAID_IRYS"
