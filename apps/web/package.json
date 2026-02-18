@@ -47,6 +47,7 @@
   },
   "dependencies": {
     "@aryxn/arweave": "workspace:*",
+    "@aryxn/constants": "workspace:*",
     "@aryxn/crypto": "workspace:*",
     "@aryxn/sdk-bridge": "workspace:*",
     "@aryxn/sdk-history": "workspace:*",

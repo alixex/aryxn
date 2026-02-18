@@ -1,0 +1,7 @@
+export const RPCs = {
+  ARWEAVE_GATEWAY: "https://arweave.net/graphql",
+  BITCOIN_MEMPOOL: "https://mempool.space/api",
+  EVM_BLOCKSCOUT: "https://eth.blockscout.com/api/v2",
+  SOLANA_MAINNET: "https://api.mainnet-beta.solana.com",
+  SUI_MAINNET: "https://fullnode.mainnet.sui.io:443",
+} as const

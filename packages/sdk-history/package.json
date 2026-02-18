@@ -11,11 +11,12 @@
     "lint": "oxlint"
   },
   "dependencies": {
+    "@aryxn/constants": "workspace:*",
     "viem": "^2.0.0"
   },
   "devDependencies": {
-    "tsup": "^8.0.0",
     "oxlint": "^1.38.0",
+    "tsup": "^8.0.0",
     "typescript": "^5.0.0"
   }
 }

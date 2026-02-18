@@ -27,6 +27,9 @@ importers:
       '@aryxn/arweave':
         specifier: workspace:*
         version: link:../../packages/arweave
+      '@aryxn/constants':
+        specifier: workspace:*
+        version: link:../../packages/constants
       '@aryxn/crypto':
         specifier: workspace:*
         version: link:../../packages/crypto
@@ -201,6 +204,12 @@ importers:
         specifier: ^5.7.3
         version: 5.9.3
 
+  packages/constants:
+    devDependencies:
+      typescript:
+        specifier: ~5.9.3
+        version: 5.9.3
+
   packages/crypto:
     dependencies:
       bip32:
@@ -269,6 +278,9 @@ importers:
 
   packages/sdk-history:
     dependencies:
+      '@aryxn/constants':
+        specifier: workspace:*
+        version: link:../constants
       viem:
         specifier: ^2.0.0
         version: 2.45.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)

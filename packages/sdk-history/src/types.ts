@@ -1,6 +1,6 @@
-export type ChainType = "ethereum" | "solana" | "arweave" | "bitcoin" | "sui"
-export type TransactionType = "SWAP" | "BRIDGE" | "SEND" | "RECEIVE" | "UNKNOWN"
-export type TransactionStatus = "COMPLETED" | "FAILED" | "PENDING"
+import { ChainType, TransactionType, TransactionStatus } from "@aryxn/constants"
+
+export type { ChainType, TransactionType, TransactionStatus }
 
 export interface ChainRecord {
   id: string // Hash
