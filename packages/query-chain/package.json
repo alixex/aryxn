@@ -10,7 +10,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@aryxn/constants": "workspace:*",
+    "@aryxn/chain-constants": "workspace:*",
     "viem": "^2.0.0"
   },
   "devDependencies": {

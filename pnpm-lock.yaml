@@ -27,9 +27,9 @@ importers:
       '@aryxn/arweave':
         specifier: workspace:*
         version: link:../../packages/arweave
-      '@aryxn/constants':
+      '@aryxn/chain-constants':
         specifier: workspace:*
-        version: link:../../packages/constants
+        version: link:../../packages/chain-constants
       '@aryxn/cross-chain':
         specifier: workspace:*
         version: link:../../packages/cross-chain
@@ -175,9 +175,9 @@ importers:
 
   packages/arweave:
     dependencies:
-      '@aryxn/constants':
+      '@aryxn/chain-constants':
         specifier: workspace:*
-        version: link:../constants
+        version: link:../chain-constants
       '@aryxn/crypto':
         specifier: workspace:*
         version: link:../crypto
@@ -207,7 +207,7 @@ importers:
         specifier: ^5.7.3
         version: 5.9.3
 
-  packages/constants:
+  packages/chain-constants:
     devDependencies:
       typescript:
         specifier: ~5.9.3
@@ -268,9 +268,9 @@ importers:
 
   packages/query-chain:
     dependencies:
-      '@aryxn/constants':
+      '@aryxn/chain-constants':
         specifier: workspace:*
-        version: link:../constants
+        version: link:../chain-constants
       viem:
         specifier: ^2.0.0
         version: 2.45.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)

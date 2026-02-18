@@ -1,5 +1,5 @@
 {
-  "name": "@aryxn/constants",
+  "name": "@aryxn/chain-constants",
   "version": "1.0.0",
   "description": "Shared constants for Aryxn",
   "main": "src/index.ts",

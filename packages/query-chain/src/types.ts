@@ -1,4 +1,8 @@
-import { ChainType, TransactionType, TransactionStatus } from "@aryxn/constants"
+import {
+  ChainType,
+  TransactionType,
+  TransactionStatus,
+} from "@aryxn/chain-constants"
 
 export type { ChainType, TransactionType, TransactionStatus }
 

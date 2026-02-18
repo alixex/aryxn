@@ -9,7 +9,7 @@ import {
   TransactionTypes,
   TransactionStatuses,
   RPCs,
-} from "@aryxn/constants"
+} from "@aryxn/chain-constants"
 
 interface BitcoinTx {
   txid: string

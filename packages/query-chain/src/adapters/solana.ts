@@ -10,7 +10,7 @@ import {
   TransactionType,
   TransactionStatuses,
   RPCs,
-} from "@aryxn/constants"
+} from "@aryxn/chain-constants"
 
 interface SolanaSignature {
   signature: string

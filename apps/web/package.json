@@ -47,7 +47,7 @@
   },
   "dependencies": {
     "@aryxn/arweave": "workspace:*",
-    "@aryxn/constants": "workspace:*",
+    "@aryxn/chain-constants": "workspace:*",
     "@aryxn/crypto": "workspace:*",
     "@aryxn/cross-chain": "workspace:*",
     "@aryxn/query-chain": "workspace:*",

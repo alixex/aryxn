@@ -1,5 +1,5 @@
 import { WebIrys } from "@irys/sdk"
-import { RPCs, type ChainType } from "@aryxn/constants"
+import { RPCs, type ChainType } from "@aryxn/chain-constants"
 
 export type IrysChain = ChainType
 
