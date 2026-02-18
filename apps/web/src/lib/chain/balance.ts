@@ -8,6 +8,8 @@ import {
   createSuiClient,
   getSuiBalance as getSuiBal,
   formatSuiBalance,
+  createEvmContract,
+  formatUnits,
 } from "@aryxn/wallet-core"
 import { arweave } from "@/lib/storage"
 import {
@@ -15,6 +17,7 @@ import {
   getSolanaRpcUrl,
   getBitcoinApiUrl,
 } from "./rpc-config"
+import { ERC20_ABI } from "@/lib/contracts/multi-hop-swapper-abi"
 
 export interface BalanceResult {
   balance: string
@@ -167,9 +170,6 @@ export async function getBitcoinBalance(
   }
 }
 
-import { Contract, formatUnits } from "ethers"
-import { ERC20_ABI } from "@/lib/contracts/multi-hop-swapper-abi"
-
 /**
  * Get balance for ERC20 token
  */
@@ -186,7 +186,7 @@ export async function getErc20Balance(
     }
 
     const provider = createEvmProvider(getEthereumRpcUrl())
-    const contract = new Contract(tokenAddress, ERC20_ABI, provider)
+    const contract = createEvmContract(tokenAddress, ERC20_ABI, provider)
 
     // Get decimals and balance
     const [decimals, balance] = await Promise.all([

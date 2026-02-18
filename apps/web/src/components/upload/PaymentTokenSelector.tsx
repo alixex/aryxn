@@ -13,6 +13,7 @@ import { useWallet } from "@/hooks/account-hooks"
 import { useEffect, useState, useMemo } from "react"
 import { getBalance } from "@/lib/chain"
 import { cn } from "@/lib/utils"
+import { TOKEN_ADDRESSES } from "@/lib/contracts/addresses"
 
 interface PaymentTokenSelectorProps {
   selectedToken: PaymentToken
@@ -122,7 +123,12 @@ export function PaymentTokenSelector({
     try {
       const config = TOKEN_CONFIG[selectedToken]
 
-      const res = await getBalance(config.chain, selectedAddress)
+      // Check if there is a contract address for this token
+      const tokenAddress = (TOKEN_ADDRESSES as Record<string, string>)[
+        selectedToken
+      ]
+
+      const res = await getBalance(config.chain, selectedAddress, tokenAddress)
       setBalance(res.formatted)
 
       const now = new Date()
@@ -146,7 +152,7 @@ export function PaymentTokenSelector({
     // Refresh interval
     const interval = setInterval(fetchBalance, 30000)
     return () => clearInterval(interval)
-  }, [selectedToken, selectedAddress]) // Depend on selectedAddress now
+  }, [selectedToken, selectedAddress])
 
   const handleChainChange = (chainId: string) => {
     setSelectedChain(chainId)
@@ -172,23 +178,9 @@ export function PaymentTokenSelector({
         </span>
       </div>
 
-      <div
-        className={cn(
-          "grid gap-3",
-          availableAccounts.length > 1
-            ? "grid-cols-1"
-            : "grid-cols-1 sm:grid-cols-2",
-        )}
-      >
-        {/* Chain Selector */}
-        <div
-          className={cn(
-            "grid gap-3",
-            availableAccounts.length > 1
-              ? "grid-cols-1 sm:grid-cols-2"
-              : "col-span-1",
-          )}
-        >
+      <div className="grid gap-3">
+        {/* Chain and Token Selector Row - Always side-by-side on desktop/tablet */}
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Select value={selectedChain} onValueChange={handleChainChange}>
             <SelectTrigger className="border-border bg-background h-12 w-full rounded-xl shadow-sm transition-all hover:shadow-md">
               <div className="flex items-center gap-2">
