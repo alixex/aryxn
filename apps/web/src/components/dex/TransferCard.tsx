@@ -14,9 +14,12 @@ import {
 } from "@/components/ui/select"
 import { SUPPORTED_TOKENS, type TokenInfo } from "@/lib/contracts/token-config"
 import { useTransfer } from "@/hooks/dex-hooks/use-transfer"
+import { useWallet } from "@/hooks/account-hooks"
 
 export function TransferCard() {
   const { t } = useTranslation()
+  const wallet = useWallet()
+  const hasActiveEvm = !!wallet.active.evm
   const { transfer, loading } = useTransfer()
 
   const [inputToken, setInputToken] = useState<TokenInfo>(SUPPORTED_TOKENS[0])
@@ -119,11 +122,21 @@ export function TransferCard() {
         {/* Send Button */}
         <Button
           className="mt-4 h-14 w-full rounded-xl text-lg font-bold shadow-lg"
-          disabled={!recipient || !amount || parseFloat(amount) <= 0 || loading}
+          disabled={
+            !hasActiveEvm ||
+            !recipient ||
+            !amount ||
+            parseFloat(amount) <= 0 ||
+            loading
+          }
           onClick={handleSend}
         >
           <Send className="mr-2 h-5 w-5" />
-          {loading ? "Sending..." : `Send ${inputToken.symbol}`}
+          {loading
+            ? "Sending..."
+            : !hasActiveEvm
+              ? t("common.noAccount")
+              : `Send ${inputToken.symbol}`}
         </Button>
       </CardContent>
     </Card>

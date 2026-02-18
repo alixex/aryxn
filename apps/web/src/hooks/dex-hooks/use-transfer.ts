@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react"
-import { useConnection, useSendTransaction, useWriteContract } from "wagmi"
+import { useSendTransaction, useWriteContract } from "wagmi"
 import { parseEther, parseUnits, isAddress } from "viem"
-import { useInternal } from "@/hooks/account-hooks"
+import { useWallet } from "@/hooks/account-hooks"
 import {
   createEvmProvider,
   createEvmWallet,
@@ -14,8 +14,9 @@ import { useBridgeHistory } from "@/lib/store/bridge-history"
 import { toast } from "sonner"
 
 export function useTransfer() {
-  const { isConnected } = useConnection()
-  const walletManager = useInternal()
+  const wallet = useWallet()
+  const walletManager = wallet.internal
+  const activeEvm = wallet.active.evm
   const { mutateAsync: sendTransaction } = useSendTransaction()
   const { mutateAsync: writeContract } = useWriteContract()
   const addTransaction = useBridgeHistory((state) => state.addTransaction)
@@ -23,11 +24,15 @@ export function useTransfer() {
   const [loading, setLoading] = useState(false)
 
   // Helper to determine if we are using internal wallet
-  const isInternal =
-    !isConnected && walletManager.isUnlocked && !!walletManager.activeWallet
+  const isInternal = !!activeEvm && !activeEvm.isExternal
 
   const transfer = useCallback(
     async (token: TokenInfo, recipient: string, amount: string) => {
+      if (!activeEvm) {
+        toast.error("Please select an active account first")
+        return
+      }
+
       if (!amount || parseFloat(amount) <= 0 || !isAddress(recipient)) {
         toast.error("Invalid parameters")
         return
@@ -111,7 +116,14 @@ export function useTransfer() {
         setLoading(false)
       }
     },
-    [isInternal, walletManager, sendTransaction, writeContract, addTransaction],
+    [
+      activeEvm,
+      isInternal,
+      walletManager,
+      sendTransaction,
+      writeContract,
+      addTransaction,
+    ],
   )
 
   return {

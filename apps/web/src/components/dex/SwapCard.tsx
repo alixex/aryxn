@@ -25,7 +25,6 @@ export function SwapCard() {
   const { t } = useTranslation()
   const { isConnected } = useConnection()
   const wallet = useWallet()
-  const walletManager = wallet.internal
   const activeEvm = wallet.active.evm
 
   // Check if internal wallet is available for Ethereum

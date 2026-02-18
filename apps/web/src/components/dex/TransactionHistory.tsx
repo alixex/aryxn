@@ -4,6 +4,7 @@ import {
   Clock,
   XCircle,
   ExternalLink,
+  RotateCw,
 } from "lucide-react"
 import { useTranslation } from "@/i18n/config"
 import { cn } from "@/lib/utils"
@@ -11,31 +12,27 @@ import { cn } from "@/lib/utils"
 import { useBridgeHistory } from "@/lib/store/bridge-history"
 
 import { useEffect } from "react"
-import { useConnection } from "wagmi"
-import { useInternal } from "@/hooks/account-hooks"
-import { RotateCw } from "lucide-react"
+import { useWallet } from "@/hooks/account-hooks"
+
+const SYNC_CHAINS = ["ethereum", "solana", "bitcoin", "arweave", "sui"]
 
 export function TransactionHistory() {
   const { t } = useTranslation()
-  const { isConnected, address: externalAddress } = useConnection()
-  const walletManager = useInternal()
+  const wallet = useWallet()
   const { transactions, syncing, syncWithChain } = useBridgeHistory()
 
-  const address = isConnected ? externalAddress : walletManager.activeAddress
+  const address = wallet.active.evm?.address
 
   // Auto-sync on mount / address change
   useEffect(() => {
     if (address) {
-      // Sync all supported networks
-      const chains = ["ethereum", "solana", "bitcoin", "arweave", "sui"]
-      chains.forEach((chain) => syncWithChain(chain, address))
+      SYNC_CHAINS.forEach((chain) => syncWithChain(chain, address))
     }
   }, [address])
 
   const handleRefresh = () => {
     if (address) {
-      const chains = ["ethereum", "solana", "bitcoin", "arweave", "sui"]
-      chains.forEach((chain) => syncWithChain(chain, address))
+      SYNC_CHAINS.forEach((chain) => syncWithChain(chain, address))
     }
   }
 
