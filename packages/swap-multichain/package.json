@@ -6,7 +6,6 @@
   "types": "src/index.ts",
   "license": "MIT",
   "scripts": {
-    "build": "tsc",
     "dev": "tsc --watch",
     "lint": "oxlint src",
     "type-check": "tsc --noEmit"

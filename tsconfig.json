@@ -10,8 +10,10 @@
     { "path": "./packages/crypto" },
     { "path": "./packages/storage" },
     { "path": "./packages/arweave" },
-    { "path": "./packages/sdk-ethereum" },
-    { "path": "./packages/sdk-solana" },
-    { "path": "./packages/sdk-multichain" }
+    { "path": "./packages/query-chain" },
+    { "path": "./packages/cross-chain" },
+    { "path": "./packages/swap-ethereum" },
+    { "path": "./packages/swap-solana" },
+    { "path": "./packages/swap-multichain" }
   ]
 }

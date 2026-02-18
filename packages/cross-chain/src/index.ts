@@ -1,4 +1,4 @@
-import { MultiChainSwapper } from "@aryxn/sdk-multichain"
+import { MultiChainSwapper } from "@aryxn/swap-multichain"
 import type { WalletKey } from "@aryxn/wallet-core"
 
 /**

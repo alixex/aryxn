@@ -50,7 +50,7 @@
     "@aryxn/constants": "workspace:*",
     "@aryxn/crypto": "workspace:*",
     "@aryxn/cross-chain": "workspace:*",
-    "@aryxn/scan": "workspace:*",
+    "@aryxn/query-chain": "workspace:*",
     "@aryxn/swap-multichain": "workspace:*",
     "@aryxn/storage": "workspace:*",
     "@aryxn/wallet-core": "workspace:*",

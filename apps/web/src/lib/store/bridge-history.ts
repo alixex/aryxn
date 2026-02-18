@@ -1,6 +1,6 @@
 import { create } from "zustand"
 import { persist, createJSONStorage } from "zustand/middleware"
-import { AggregateHistoryProvider, type ChainRecord } from "@aryxn/scan"
+import { AggregateHistoryProvider, type ChainRecord } from "@aryxn/query-chain"
 import { getEthereumRpcUrl } from "@/lib/chain/rpc-config"
 import { createEncryptedStorage } from "./encrypted-storage"
 

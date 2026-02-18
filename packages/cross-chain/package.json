@@ -2,13 +2,12 @@
   "name": "@aryxn/cross-chain",
   "version": "1.0.0",
   "description": "Cross-chain bridge and swap aggregator logic",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
   "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts",
-    "dev": "tsup src/index.ts --format cjs,esm --watch --dts",
-    "lint": "oxlint"
+    "dev": "tsc --watch",
+    "lint": "oxlint",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@aryxn/swap-multichain": "workspace:*",

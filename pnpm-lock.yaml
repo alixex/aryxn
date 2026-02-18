@@ -36,9 +36,9 @@ importers:
       '@aryxn/crypto':
         specifier: workspace:*
         version: link:../../packages/crypto
-      '@aryxn/scan':
+      '@aryxn/query-chain':
         specifier: workspace:*
-        version: link:../../packages/scan
+        version: link:../../packages/query-chain
       '@aryxn/storage':
         specifier: workspace:*
         version: link:../../packages/storage
@@ -263,7 +263,7 @@ importers:
         specifier: ~5.9.3
         version: 5.9.3
 
-  packages/scan:
+  packages/query-chain:
     dependencies:
       '@aryxn/constants':
         specifier: workspace:*
