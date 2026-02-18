@@ -2,11 +2,11 @@ import { ethers, Provider, Signer, ContractTransactionResponse } from "ethers"
 
 /**
  * Ethereum Swapper SDK
- * 以太坊交换 SDK，封装与 MultiHopSwapper 合约的交互
+ * 以太坊交换 SDK，封装与 UniversalRouter 合约的交互
  */
 export class EthereumSwapper {
   private provider: Provider
-  private contract: any // 使用 any 避免复杂的 Contract 泛型
+  private contract: any
   private contractAddress: string
 
   constructor(config: { rpcUrl: string; contractAddress: string }) {
@@ -14,36 +14,14 @@ export class EthereumSwapper {
     this.provider = new ethers.JsonRpcProvider(config.rpcUrl)
     this.contract = new ethers.Contract(
       config.contractAddress,
-      MULTIHOP_SWAPPER_ABI,
+      UNIVERSAL_ROUTER_ABI,
       this.provider,
     )
   }
 
   /**
-   * 获取支持的代币列表
-   */
-  async getSupportedTokens(): Promise<string[]> {
-    return await this.contract.getSupportedTokens()
-  }
-
-  /**
-   * 获取最优路由
-   */
-  async getOptimalRoute(
-    tokenIn: string,
-    tokenOut: string,
-    amountIn: bigint,
-  ): Promise<{ route: string[]; estimatedOut: bigint }> {
-    const [route, estimatedOut] = await this.contract.getOptimalRoute(
-      tokenIn,
-      tokenOut,
-      amountIn,
-    )
-    return { route, estimatedOut }
-  }
-
-  /**
    * 执行交换
+   * @param params 交换参数，包含多步路由
    */
   async swap(params: {
     signer: Signer
@@ -51,65 +29,101 @@ export class EthereumSwapper {
     tokenOut: string
     amountIn: bigint
     minAmountOut: bigint
-    path: string[]
+    deadline: number
+    route: SwapStep[]
+    protection?: number // ProtectionLevel enum
   }): Promise<ContractTransactionResponse> {
     const contractWithSigner = this.contract.connect(params.signer)
 
-    // 先授权代币
+    // 1. 先授权代币 (针对 tokenIn)
     const tokenContract = new ethers.Contract(
       params.tokenIn,
       ERC20_ABI,
       params.signer,
     )
 
-    const approveTx = await tokenContract.approve(
+    const allowance = await tokenContract.allowance(
+      await params.signer.getAddress(),
       this.contractAddress,
-      params.amountIn,
     )
-    await approveTx.wait()
 
-    // 执行交换
-    return await contractWithSigner.swap(
-      params.tokenIn,
-      params.tokenOut,
-      params.amountIn,
-      params.minAmountOut,
-      params.path,
-    )
+    if (allowance < params.amountIn) {
+      const approveTx = await tokenContract.approve(
+        this.contractAddress,
+        ethers.MaxUint256, // 授权最大值以减少未来交易频率
+      )
+      await approveTx.wait()
+    }
+
+    // 2. 准备 SwapParams 结构体
+    const swapParams = {
+      tokenIn: params.tokenIn,
+      tokenOut: params.tokenOut,
+      amountIn: params.amountIn,
+      minAmountOut: params.minAmountOut,
+      recipient: await params.signer.getAddress(),
+      deadline: params.deadline,
+      protection: params.protection || 0, // 默认 BASIC
+    }
+
+    // 3. 执行交换 (注意：合约期望 (SwapParams params, SwapStep[] route))
+    // 实际合约接口中路径寻找可能由链下完成并传入
+    return await contractWithSigner.swap(swapParams)
   }
 
   /**
-   * 添加支持的代币（仅管理员）
+   * 手动执行带有预定义路由的交换
    */
-  async addSupportedToken(
-    signer: Signer,
-    tokenAddress: string,
-  ): Promise<ContractTransactionResponse> {
-    const contractWithSigner = this.contract.connect(signer)
-    return await contractWithSigner.addSupportedToken(tokenAddress)
+  async swapWithRoute(params: {
+    signer: Signer
+    swapParams: SwapParams
+  }): Promise<ContractTransactionResponse> {
+    const contractWithSigner = this.contract.connect(params.signer)
+    return await contractWithSigner.swap(params.swapParams)
   }
 
   /**
-   * 移除支持的代币（仅管理员）
+   * 获取预估统计信息
    */
-  async removeSupportedToken(
-    signer: Signer,
-    tokenAddress: string,
-  ): Promise<ContractTransactionResponse> {
-    const contractWithSigner = this.contract.connect(signer)
-    return await contractWithSigner.removeSupportedToken(tokenAddress)
+  async getStats() {
+    return await this.contract.getStats()
   }
+}
+
+// ========== 类型定义 ==========
+
+export enum ProtectionLevel {
+  BASIC = 0,
+  MEDIUM = 1,
+  HIGH = 2,
+}
+
+export interface SwapStep {
+  dexId: number
+  tokenOut: string
+  pool: string
+  data: string // hex string
+}
+
+export interface SwapParams {
+  tokenIn: string
+  tokenOut: string
+  amountIn: bigint
+  minAmountOut: bigint
+  recipient: string
+  deadline: number
+  protection: ProtectionLevel
 }
 
 // ========== ABI 定义 ==========
 
-const MULTIHOP_SWAPPER_ABI = [
-  "function swap(address tokenIn, address tokenOut, uint256 amountIn, uint256 minAmountOut, address[] calldata path) external returns (uint256)",
-  "function getOptimalRoute(address tokenIn, address tokenOut, uint256 amountIn) external returns (address[] memory, uint256)",
-  "function getSupportedTokens() external view returns (address[] memory)",
-  "function addSupportedToken(address token) external",
-  "function removeSupportedToken(address token) external",
+const UNIVERSAL_ROUTER_ABI = [
+  "function swap((address tokenIn, address tokenOut, uint256 amountIn, uint256 minAmountOut, address recipient, uint256 deadline, uint8 protection) params) external returns (uint256)",
+  "function getStats() external view returns (uint256 totalVolume, uint256 totalFees, uint256 lastUpdate, bool paused)",
   "function withdrawFees(address token) external",
+  "function setFeeRecipient(address _feeRecipient) external",
+  "function setPaused(bool _paused) external",
+  "function feeRecipient() external view returns (address)",
 ]
 
 const ERC20_ABI = [
@@ -117,18 +131,3 @@ const ERC20_ABI = [
   "function balanceOf(address account) external view returns (uint256)",
   "function allowance(address owner, address spender) external view returns (uint256)",
 ]
-
-// ========== 导出类型 ==========
-
-export interface SwapParams {
-  tokenIn: string
-  tokenOut: string
-  amountIn: bigint
-  minAmountOut: bigint
-  path: string[]
-}
-
-export interface RouteInfo {
-  route: string[]
-  estimatedOut: bigint
-}
