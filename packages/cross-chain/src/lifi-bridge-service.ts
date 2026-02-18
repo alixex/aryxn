@@ -10,6 +10,7 @@ import {
   type StatusResponse,
   type ExtendedChain,
 } from "@lifi/sdk"
+import type { Signer } from "ethers"
 
 // Re-export types for consumers
 export type {
@@ -282,7 +283,7 @@ export class LiFiBridgeService {
   ): BridgeRouteParams[] {
     const totalAmount = BigInt(params.amount)
     const perBatch = totalAmount / BigInt(batchCount)
-    const remainder = totalAmount % BigInt(batchCount)
+    const remainder =totalAmount % BigInt(batchCount)
 
     const batches: BridgeRouteParams[] = []
 
@@ -299,6 +300,61 @@ export class LiFiBridgeService {
     }
 
     return batches
+  }
+
+  /**
+   * Execute bridge transaction using wallet signer
+   * @param route - The route to execute
+   * @param signer - Ethers.js signer for signing transactions
+   * @returns Transaction hash
+   * 
+   * Note: Li.Fi SDK provides route data, actual execution is done by sending
+   * the transaction through the signer directly
+   */
+  async executeBridgeTransaction(
+    route: Route,
+    signer: Signer,
+  ): Promise<string> {
+    try {
+      console.log("[LiFiBridgeService] Preparing bridge transaction...")
+
+      // Get the first step's transaction data
+      if (!route.steps || route.steps.length === 0) {
+        throw new Error("Route has no steps")
+      }
+
+      const firstStep = route.steps[0]
+      if (!firstStep || !firstStep.transactionRequest) {
+        throw new Error("No transaction request found in route")
+      }
+
+      const txRequest = firstStep.transactionRequest
+      console.log("[LiFiBridgeService] Transaction request:", txRequest)
+
+      // Send the transaction using the signer
+      const tx = await signer.sendTransaction({
+        to: txRequest.to as string,
+        data: txRequest.data as string,
+        value: txRequest.value ? BigInt(txRequest.value) : undefined,
+        gasLimit: txRequest.gasLimit
+          ? BigInt(txRequest.gasLimit)
+          : undefined,
+        gasPrice: txRequest.gasPrice
+          ? BigInt(txRequest.gasPrice)
+          : undefined,
+      })
+
+      console.log("[LiFiBridgeService] Transaction sent:", tx.hash)
+
+      // Wait for transaction to be mined
+      const receipt = await tx.wait()
+      console.log("[LiFiBridgeService] Transaction confirmed:", receipt?.hash)
+
+      return tx.hash
+    } catch (error) {
+      console.error("[LiFiBridgeService] Failed to execute bridge:", error)
+      throw error
+    }
   }
 }
 

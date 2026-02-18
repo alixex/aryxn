@@ -10,6 +10,14 @@ import {
   type ChainId,
 } from "@aryxn/cross-chain"
 import { useBridgeHistory } from "@/lib/store/bridge-history"
+import { useWallet } from "@/hooks/account-hooks"
+import {
+  createEvmProvider,
+  createEvmWallet,
+  clientToSigner,
+} from "@aryxn/wallet-core"
+import { getEthereumRpcUrl } from "@/lib/chain/rpc-config"
+import { useClient } from "wagmi"
 import { toast } from "sonner"
 
 export interface BridgeQuote {
@@ -24,6 +32,8 @@ export function useBridge() {
   const transactions = useBridgeHistory((state) => state.transactions)
   const addTransaction = useBridgeHistory((state) => state.addTransaction)
   const updateTransaction = useBridgeHistory((state) => state.updateTransaction)
+  const walletManager = useWallet()
+  const wagmiClient = useClient()
 
   /**
    * Manually refresh transaction status (with rate limiting)
@@ -187,9 +197,61 @@ export function useBridge() {
           return
         }
 
-        // TODO: Actual execution with wallet signer
-        // For now, create a pending transaction
-        const txId = "0x" + Math.random().toString(16).slice(2)
+        // Get wallet signer
+        let signer = null
+        const isUsingInternalWallet =
+          walletManager.internal.isUnlocked &&
+          walletManager.internal.activeWallet &&
+          walletManager.active.evm?.isExternal === false
+
+        if (isUsingInternalWallet) {
+          // Internal wallet: create signer from private key
+          const provider = createEvmProvider(getEthereumRpcUrl())
+          const privateKey = walletManager.internal.activeWallet as string
+          signer = createEvmWallet(privateKey, provider)
+          console.log("[useBridge] Using internal wallet signer")
+        } else if (wagmiClient) {
+          // External wallet: use wagmi client
+          try {
+            signer = clientToSigner(wagmiClient)
+            console.log("[useBridge] Using external wallet signer")
+          } catch (error) {
+            console.error("[useBridge] Failed to get external signer:", error)
+            toast.error("Failed to connect wallet", {
+              description: "Please make sure your wallet is connected",
+            })
+            return
+          }
+        } else {
+          toast.error("No wallet connected", {
+            description: "Please connect a wallet first",
+          })
+          return
+        }
+
+        if (!signer) {
+          toast.error("Failed to get wallet signer")
+          return
+        }
+
+        toast.info("Executing bridge transaction...", {
+          description: "Please confirm in your wallet",
+        })
+
+        // Execute bridge transaction using Li.Fi
+        let txHash: string
+        try {
+          txHash = await liFiBridgeService.executeBridgeTransaction(
+            quote.route,
+            signer,
+          )
+          console.log("[useBridge] Transaction hash:", txHash)
+        } catch (error) {
+          console.error("[useBridge] Transaction execution failed:", error)
+          throw error
+        }
+
+        // Create transaction record
         const transactionId = crypto.randomUUID()
 
         addTransaction({
@@ -198,7 +260,7 @@ export function useBridge() {
           status: "PENDING",
           description: `Bridge ${amount} ${token} from ${fromChainName} to ${toChainName}`,
           timestamp: Date.now(),
-          hash: txId,
+          hash: txHash,
           fromChain: fromChainName,
           toChain: toChainName,
           fromChainId,
@@ -207,22 +269,35 @@ export function useBridge() {
           token,
         })
 
-        toast.success("Bridge transaction initiated", {
-          description: "Click refresh button to check status",
+        toast.success("Bridge transaction submitted!", {
+          description: `Transaction: ${txHash.slice(0, 10)}...`,
         })
 
         // Clear quote after execution
         setQuote(null)
       } catch (error) {
         console.error("Bridge execution failed:", error)
+        
+        let errorMessage = "Unknown error"
+        if (error instanceof Error) {
+          errorMessage = error.message
+        } else if (typeof error === "object" && error !== null) {
+          // Handle wallet rejection errors
+          if ("code" in error && error.code === 4001) {
+            errorMessage = "Transaction rejected by user"
+          } else if ("reason" in error) {
+            errorMessage = String(error.reason)
+          }
+        }
+
         toast.error("Transaction failed", {
-          description: error instanceof Error ? error.message : "Unknown error",
+          description: errorMessage,
         })
       } finally {
         setLoading(false)
       }
     },
-    [quote, addTransaction],
+    [quote, addTransaction, walletManager, wagmiClient],
   )
 
   return {

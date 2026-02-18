@@ -243,6 +243,11 @@ pnpm test packages/cross-chain/src/lifi-bridge-service.test.ts
 - Amount-based risk warnings
 - Cost transparency (all fees shown upfront)
 - Type-safe API integration
+- **Wallet signer integration** (Internal + External wallets)
+  - Internal wallet: Private key → ethers.js Wallet
+  - External wallet: Wagmi client → ethers.js Signer
+  - Real transaction execution via Li.Fi routes
+  - User confirmation flow
 
 ### ⚠️ TODO
 
@@ -252,16 +257,62 @@ pnpm test packages/cross-chain/src/lifi-bridge-service.test.ts
 - Batch splitting enforcement for large amounts
 - Multi-signature support for enterprise wallets
 
+## Wallet Signer Integration (Phase 5)
+
+### Implementation Details
+
+**Files Modified**:
+
+- `packages/cross-chain/src/lifi-bridge-service.ts`
+  - Added `executeBridgeTransaction(route, signer)` method
+  - Extracts transaction request from Li.Fi route
+  - Sends transaction using ethers.js signer
+  - Waits for confirmation and returns txHash
+- `apps/web/src/hooks/useBridge.ts`
+  - Detects internal vs external wallet
+  - Creates appropriate signer (Wallet vs BrowserSigner)
+  - Calls Li.Fi execution with real signer
+  - Records real transaction hash (not mock)
+  - Enhanced error handling (rejection, gas errors, etc.)
+
+### Signer Detection Logic
+
+```typescript
+// Internal Wallet
+if (walletManager.internal.isUnlocked && walletManager.internal.activeWallet) {
+  const provider = createEvmProvider(rpcUrl)
+  signer = createEvmWallet(privateKey, provider)
+}
+
+// External Wallet (MetaMask, Rainbow, etc.)
+else if (wagmiClient) {
+  signer = clientToSigner(wagmiClient)
+}
+```
+
+### Transaction Flow
+
+1. User clicks "Bridge" button
+2. System detects wallet type (internal/external)
+3. Creates ethers.js signer
+4. Extracts transaction request from Li.Fi route
+5. Prompts user for confirmation in wallet
+6. Sends transaction to blockchain
+7. Waits for confirmation (1 block)
+8. Records real txHash in history
+9. User can manually refresh status
+
+### Error Handling
+
+- ✅ Wallet not connected
+- ✅ User rejects transaction (code 4001)
+- ✅ Insufficient gas
+- ✅ Transaction revert
+- ✅ Network errors
+
 ## Next Steps
 
-1. **Integrate Wallet Signers**
-
-   ```typescript
-   // In useBridge.ts executeBridge()
-   const signer = await wallet.getSigner(fromChainId)
-   const txHash = await executeRoute(signer, route)
-   // Use real txHash instead of mock random hash
-   ```
+1. **~~Integrate Wallet Signers~~** ✅ DONE (Supports both internal & external wallets)
 
 2. **~~Add Status Tracking~~** ✅ DONE (Manual refresh with rate limiting)
 
