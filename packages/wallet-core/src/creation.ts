@@ -25,11 +25,12 @@ export async function createWallet(
     key = JSON.stringify(jwk)
     address = await arweaveInstance.wallets.jwkToAddress(jwk)
   } else {
-    mnemonic = generateMnemonic()
-    const seed = await mnemonicToSeed(mnemonic)
+    const phrase = generateMnemonic()
+    mnemonic = phrase
+    const seed = await mnemonicToSeed(phrase)
 
     if (chain === "ethereum") {
-      const wallet = ethers.Wallet.fromPhrase(mnemonic)
+      const wallet = ethers.Wallet.fromPhrase(phrase)
       key = wallet.privateKey
       address = wallet.address
     } else if (chain === "solana") {
@@ -38,7 +39,7 @@ export async function createWallet(
       key = toBase58(keypair.secretKey)
       address = keypair.publicKey.toBase58()
     } else if (chain === "sui") {
-      const keypair = Ed25519Keypair.deriveKeypair(mnemonic)
+      const keypair = Ed25519Keypair.deriveKeypair(phrase)
       key = keypair.getSecretKey()
       address = keypair.getPublicKey().toSuiAddress()
     } else if (chain === "bitcoin") {

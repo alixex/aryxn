@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@aryxn/crypto": "workspace:*",
+    "@aryxn/storage": "workspace:*",
     "@metamask/sdk": "^0.34.0",
     "@mysten/sui": "^1.45.2",
     "@solana/web3.js": "^1.98.4",

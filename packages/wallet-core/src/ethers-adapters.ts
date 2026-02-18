@@ -3,6 +3,7 @@ import { type Client, type Chain, type Transport } from "viem"
 
 export function clientToSigner(client: Client<Transport, Chain>) {
   const { account, chain, transport } = client
+  if (!account) throw new Error("Client has no account")
   const network = {
     chainId: chain.id,
     name: chain.name,

@@ -13,6 +13,5 @@
     "composite": true
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "test"],
-  "references": [{ "path": "../crypto" }]
+  "exclude": ["node_modules", "dist", "test"]
 }

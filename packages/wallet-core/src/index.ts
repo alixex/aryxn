@@ -48,4 +48,5 @@ export {
   getFullnodeUrl,
 } from "./sui"
 
+export * from "./ethers-adapters"
 export type { BalanceResult, BalanceOptions } from "./types"

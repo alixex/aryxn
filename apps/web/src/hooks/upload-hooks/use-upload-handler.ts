@@ -7,7 +7,7 @@ import type { PaymentToken } from "@/lib/payment"
 import { paymentService } from "@/lib/payment"
 import type { WalletKey } from "@/lib/utils"
 import { useConnectorClient } from "wagmi"
-import { clientToSigner } from "@/lib/wallet/ethers-adapters"
+import { clientToSigner } from "@aryxn/wallet-core"
 
 export function useUploadHandler() {
   const { t } = useTranslation()
