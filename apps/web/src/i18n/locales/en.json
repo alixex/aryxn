@@ -41,7 +41,8 @@
     "searchCapabilities": "Search Capabilities",
     "searchCapabilitiesDesc": "• Supports partial matching for file names and descriptions\n• By default, only searches files you uploaded\n• Enter transaction ID (43 chars) to search any file\n• Supports multi-word search (space-separated)",
     "balance": "Balance",
-    "updatedAt": "Updated at"
+    "updatedAt": "Updated at",
+    "usingAccount": "Using Account"
   },
   "chain": {
     "arweave": "Arweave Wallet",

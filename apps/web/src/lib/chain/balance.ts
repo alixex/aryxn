@@ -167,13 +167,66 @@ export async function getBitcoinBalance(
   }
 }
 
+import { Contract, formatUnits } from "ethers"
+import { ERC20_ABI } from "@/lib/contracts/multi-hop-swapper-abi"
+
+/**
+ * Get balance for ERC20 token
+ */
+export async function getErc20Balance(
+  chain: string,
+  tokenAddress: string,
+  walletAddress: string,
+): Promise<BalanceResult> {
+  try {
+    // Only Ethereum supported for now for ERC20-style tokens via this helper
+    // For other chains, we might need different logic
+    if (chain !== "ethereum") {
+      throw new Error("ERC20 balance check only supported for Ethereum chain")
+    }
+
+    const provider = createEvmProvider(getEthereumRpcUrl())
+    const contract = new Contract(tokenAddress, ERC20_ABI, provider)
+
+    // Get decimals and balance
+    const [decimals, balance] = await Promise.all([
+      contract.decimals(),
+      contract.balanceOf(walletAddress),
+    ])
+
+    const formatted = formatUnits(balance, decimals)
+    const symbol = await contract.symbol()
+
+    return {
+      balance: balance.toString(),
+      formatted: parseFloat(formatted).toFixed(6),
+      symbol,
+    }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    return {
+      balance: "0",
+      formatted: "0",
+      symbol: "ERC20",
+      error: errorMessage,
+    }
+  }
+}
+
 /**
  * Get balance for any chain
  */
 export async function getBalance(
   chain: string,
   address: string,
+  tokenAddress?: string,
 ): Promise<BalanceResult> {
+  // If token address is provided, fetch token balance
+  if (tokenAddress && chain === "ethereum") {
+    return getErc20Balance(chain, tokenAddress, address)
+  }
+
+  // Otherwise fetch native balance
   switch (chain.toLowerCase()) {
     case "ethereum":
       return getEthereumBalance(address)
