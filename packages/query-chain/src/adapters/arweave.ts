@@ -115,7 +115,12 @@ export class ArweaveAdapter implements IHistoryAdapter, ISearchAdapter {
   }
 
   async search(options: SearchOptions): Promise<SearchResult[]> {
-    const { query, limit = 20, sort = "HEIGHT_DESC" } = options
+    const {
+      query,
+      limit = 20,
+      sort = "HEIGHT_DESC",
+      appName = "Aryxn",
+    } = options
     const queryTrimmed = query.trim()
 
     if (!queryTrimmed) return []
@@ -126,10 +131,11 @@ export class ArweaveAdapter implements IHistoryAdapter, ISearchAdapter {
     const isTxId = /^[A-Za-z0-9_-]{43}$/.test(queryTrimmed)
 
     try {
+      // Strategy 1: Direct Transaction ID lookup
       if (isTxId) {
-        // ... (Tx ID lookup logic)
-        const txQuery = {
-          query: `
+        try {
+          const txQuery = {
+            query: `
               query GetTransaction($id: ID!) {
                 transaction(id: $id) {
                   id
@@ -140,22 +146,44 @@ export class ArweaveAdapter implements IHistoryAdapter, ISearchAdapter {
                 }
               }
             `,
-          variables: { id: queryTrimmed },
-        }
-        const response = await this.postStore(txQuery)
-        if (response.data?.transaction) {
-          return [response.data.transaction]
+            variables: { id: queryTrimmed },
+          }
+          const response = await this.postStore(txQuery)
+          if (response.data?.transaction) {
+            console.log(
+              "[ArweaveAdapter] Found transaction by ID:",
+              response.data.transaction.id,
+            )
+            return [this.mapToSearchResult(response.data.transaction)]
+          }
+        } catch (e) {
+          console.warn("[ArweaveAdapter] Direct transaction query failed:", e)
         }
       }
 
-      // General Search (App-Name = Aryxn by default or provided in query?)
-      // Since specific logic was "searchAppTransactions", let's make this more generic or ported.
-      // We'll search for transactions where ANY tag value matches the query or specific App-Name.
-      // Limitations of Arweave GQL: no full text search.
+      // Strategy 2: Search within App-Name (Prioritized)
+      try {
+        const appResults = await this.searchAppTransactions(
+          appName,
+          queryTrimmed,
+          Math.max(limit * 2, 100),
+        )
+        if (appResults.length > 0) {
+          console.log(
+            `[ArweaveAdapter] Found ${appResults.length} results in app: ${appName}`,
+          )
+          return appResults.slice(0, limit)
+        }
+      } catch (e) {
+        console.warn("[ArweaveAdapter] Search in app failed:", e)
+      }
 
-      // Let's implement the "Fetch recent and filter in memory" strategy from the original code
+      // Strategy 3: Deep search (Fetch recent & filter in memory)
+      const fetchLimit = Math.min(10000, limit * 500) // Deep fetch
+      console.log(
+        `[ArweaveAdapter] Performing deep search with limit: ${fetchLimit}`,
+      )
 
-      const fetchLimit = Math.min(100, limit * 20) // Moderate fetch size
       const graphqlQuery = {
         query: `
           query SearchTransactions($limit: Int!, $sort: SortOrder!) {
@@ -179,20 +207,92 @@ export class ArweaveAdapter implements IHistoryAdapter, ISearchAdapter {
       const edges = response.data?.transactions?.edges || []
       const transactions = edges.map((e: any) => e.node)
 
+      console.log(
+        `[ArweaveAdapter] Fetched ${transactions.length} recent transactions for filtering`,
+      )
+
       const queryLower = queryTrimmed.toLowerCase()
       const queryWords = queryLower.split(/\s+/).filter((w) => w.length > 0)
 
-      return transactions
+      const filtered = transactions
+        .map((tx: any) => this.mapToSearchResult(tx))
         .filter((tx: SearchResult) => {
           if (tx.id.toLowerCase().includes(queryLower)) return true
 
           const tagValues = tx.tags.map((t) => t.value.toLowerCase()).join(" ")
           return queryWords.every((word) => tagValues.includes(word))
         })
-        .slice(0, limit)
+
+      console.log(
+        `[ArweaveAdapter] Filtered to ${filtered.length} matching transactions`,
+      )
+
+      return filtered.slice(0, limit)
     } catch (error) {
       console.error("[ArweaveAdapter] Search error:", error)
       return []
+    }
+  }
+
+  async searchAppTransactions(
+    appName: string,
+    query: string,
+    limit: number,
+  ): Promise<SearchResult[]> {
+    const graphqlQuery = {
+      query: `
+        query SearchAppTransactions($appName: String!, $limit: Int!) {
+          transactions(
+            tags: [
+              { name: "App-Name", values: [$appName] }
+            ]
+            sort: HEIGHT_DESC
+            first: $limit
+          ) {
+            edges {
+              node {
+                id
+                owner { address }
+                tags { name value }
+                block { height timestamp }
+                data { size }
+              }
+            }
+          }
+        }
+      `,
+      variables: { appName, limit },
+    }
+
+    const response = await this.postStore(graphqlQuery)
+    const edges = response.data?.transactions?.edges || []
+
+    const queryLower = query.toLowerCase()
+
+    return edges
+      .map((e: any) => e.node)
+      .map((tx: any) => this.mapToSearchResult(tx))
+      .filter((tx: SearchResult) => {
+        if (tx.id.toLowerCase().includes(queryLower)) return true
+        const tagValues = tx.tags.map((t) => t.value.toLowerCase()).join(" ")
+        return tagValues.includes(queryLower)
+      })
+  }
+
+  private mapToSearchResult(node: any): SearchResult {
+    return {
+      id: node.id,
+      owner: {
+        address: node.owner.address,
+      },
+      tags: node.tags || [],
+      block: {
+        height: node.block?.height || 0,
+        timestamp: node.block?.timestamp || Math.floor(Date.now() / 1000),
+      },
+      data: {
+        size: node.data?.size || "0",
+      },
     }
   }
 

@@ -4,11 +4,10 @@
  */
 
 import {
-  searchArweaveTransactionsNetwork,
-  searchAppTransactions,
-  type ArweaveSearchResult,
+  ArweaveAdapter,
+  type SearchResult as ArweaveSearchResult,
   type SearchOptions as BaseSearchOptions,
-} from "@aryxn/arweave"
+} from "@aryxn/query-chain"
 import {
   searchFiles,
   type FileIndex,
@@ -21,7 +20,11 @@ import { ARWEAVE_APP_NAME } from "@/lib/config"
 export interface SearchOptions extends BaseSearchOptions {
   ownerAddress?: string // 用于本地搜索的账户地址
   preferLocal?: boolean // 是否优先本地搜索（默认 true）
+  cache?: boolean // Ignored in query-chain for now
+  cacheTtl?: number // Ignored in query-chain for now
 }
+
+const arweaveAdapter = new ArweaveAdapter()
 
 // 重新导出类型
 export type { ArweaveSearchResult }
@@ -239,7 +242,7 @@ export async function searchArweaveTransactions(
         `Insufficient results (${localResults.length}/${limit}), performing network search...`,
       )
 
-      const networkResults = await searchArweaveTransactionsNetwork({
+      const networkResults = await arweaveAdapter.search({
         query: queryTrimmed,
         limit: Math.max(limit * 2, 50), // 获取足够的结果以便去重和合并
         sort,
@@ -277,7 +280,13 @@ export async function searchArweaveTransactions(
 }
 
 // 重新导出网络搜索函数以支持不需要本地数据的场景
-export { searchAppTransactions }
+export async function searchAppTransactions(
+  appName: string,
+  query: string,
+  limit: number = 50,
+) {
+  return arweaveAdapter.searchAppTransactions(appName, query, limit)
+}
 
 // 导出清单搜索函数以供其他模块使用
 export { searchInManifest }

@@ -56,6 +56,7 @@ export interface SearchOptions {
   query: string
   limit?: number
   sort?: "HEIGHT_DESC" | "HEIGHT_ASC"
+  appName?: string
 }
 
 export interface ISearchAdapter {

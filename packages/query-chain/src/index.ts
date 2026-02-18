@@ -12,6 +12,7 @@ import { ArweaveAdapter } from "./adapters/arweave"
 import { SuiAdapter } from "./adapters/sui"
 
 export * from "./types"
+export { ArweaveAdapter } from "./adapters/arweave"
 
 export class AggregateHistoryProvider {
   private adapters: Map<string, IHistoryAdapter> = new Map()
