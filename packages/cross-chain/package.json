@@ -10,6 +10,8 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@aryxn/arweave": "workspace:*",
+    "@aryxn/chain-constants": "workspace:*",
     "@aryxn/swap-multichain": "workspace:*",
     "@aryxn/wallet-core": "workspace:*"
   },

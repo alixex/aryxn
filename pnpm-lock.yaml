@@ -215,6 +215,12 @@ importers:
 
   packages/cross-chain:
     dependencies:
+      '@aryxn/arweave':
+        specifier: workspace:*
+        version: link:../arweave
+      '@aryxn/chain-constants':
+        specifier: workspace:*
+        version: link:../chain-constants
       '@aryxn/swap-multichain':
         specifier: workspace:*
         version: link:../swap-multichain

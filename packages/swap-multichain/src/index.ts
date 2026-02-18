@@ -1,12 +1,12 @@
 import { PublicKey } from "@solana/web3.js"
 import { Wallet } from "@coral-xyz/anchor"
 import { Signer, ContractTransactionResponse } from "ethers"
-import { SolanaSwapper } from "@aryxn/sdk-solana"
+import { SolanaSwapper } from "@aryxn/swap-solana"
 import {
   EthereumSwapper,
   SwapStep as EthSwapStep,
   ProtectionLevel,
-} from "@aryxn/sdk-ethereum"
+} from "@aryxn/swap-ethereum"
 import { QuoteResponse as JupQuoteResponse } from "@jup-ag/api"
 
 /**
@@ -117,7 +117,6 @@ export class MultiChainSwapper {
   }) {
     if (params.chain === "ethereum") {
       // EVM 需要调用 withdrawFees
-      // @ts-ignore
       const contract = this.ethSwapper["contract"].connect(params.signer)
       return await contract.withdrawFees(params.tokenAddress)
     } else {

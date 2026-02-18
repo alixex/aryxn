@@ -1,5 +1,6 @@
 import { MultiChainSwapper } from "@aryxn/swap-multichain"
 import type { WalletKey } from "@aryxn/wallet-core"
+import { irysService } from "@aryxn/arweave"
 
 /**
  * Bridge Provider Interface
@@ -46,8 +47,52 @@ export class BridgeService {
   /**
    * Check if a token requires bridging/swapping before payment
    */
-  static requiresBridge(token: string): boolean {
-    const supported = ["AR", "ETH", "SOL", "USDC"]
-    return !supported.includes(token)
+  /**
+   * Check if a token requires bridging/swapping before payment
+   */
+  static async requiresBridge(token: string): Promise<boolean> {
+    // Always supported locally
+    const nativeSupported = ["AR", "ETH", "SOL", "USDC"]
+    if (nativeSupported.includes(token)) return false
+
+    // Check dynamic Irys support
+    try {
+      const supportedTokens = await irysService.getSupportedTokens()
+      // Map input token to Irys expected format if needed
+      // For now, check if token symbol (lowercase) is in supported list (which are usually chain names or loose symbols)
+      // This is a heuristic.
+
+      const lowerToken = token.toLowerCase()
+      // Irys supported tokens are like "ethereum", "solana", "arbitrum", "matic", etc.
+      // We might need a mapper or check if our token maps to a known chain that is supported.
+
+      // If the token matches a supported chain name directly (e.g. we passed "ethereum" instead of "ETH" - though usually we pass symbol)
+      // let's try to match symbol to chain name for common ones.
+
+      const symbolToChain: Record<string, string> = {
+        eth: "ethereum",
+        sol: "solana",
+        matic: "matic",
+        avax: "avalanche",
+        bnb: "bnb",
+        ftm: "fantom",
+        op: "optimism",
+        arb: "arbitrum",
+      }
+
+      const chainName = symbolToChain[lowerToken] || lowerToken
+
+      if (supportedTokens.includes(chainName)) {
+        return false
+      }
+
+      return true
+    } catch (e) {
+      console.warn(
+        "Failed to check dynamic bridge support, falling back to static:",
+        e,
+      )
+      return !nativeSupported.includes(token)
+    }
   }
 }

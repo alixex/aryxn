@@ -220,7 +220,7 @@ export class PaymentService {
     // We import BridgeService dynamically to avoid circular dependencies if any
     const { BridgeService } = await import("@aryxn/cross-chain")
 
-    if (BridgeService.requiresBridge(params.fromToken)) {
+    if (await BridgeService.requiresBridge(params.fromToken)) {
       console.log(`Token ${params.fromToken} requires cross-chain bridge/swap.`)
       return "REQUIRE_BRIDGE"
     }

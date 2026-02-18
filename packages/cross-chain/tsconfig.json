@@ -6,8 +6,8 @@
     "strict": true,
     "declaration": true,
     "skipLibCheck": true,
-    "composite": true,
     "esModuleInterop": true,
+    "composite": true,
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
