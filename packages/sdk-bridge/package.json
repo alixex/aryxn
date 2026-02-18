@@ -1,0 +1,21 @@
+{
+  "name": "@aryxn/sdk-bridge",
+  "version": "1.0.0",
+  "description": "Cross-chain bridge and swap aggregator logic",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "dev": "tsup src/index.ts --format cjs,esm --watch --dts",
+    "lint": "oxlint"
+  },
+  "dependencies": {
+    "@aryxn/sdk-multichain": "workspace:*",
+    "@aryxn/wallet-core": "workspace:*"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
+  }
+}

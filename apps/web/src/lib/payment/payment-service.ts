@@ -155,7 +155,8 @@ export class PaymentService {
   }
 
   /**
-   * Execute payment to cover the upload fee using Irys
+   * Execute payment to cover the upload fee
+   * Returns a status indicating the payment result and method used
    */
   async executePayment(params: {
     fromToken: PaymentToken
@@ -163,68 +164,62 @@ export class PaymentService {
     userAddress: string
     walletKey: any
     signer?: any // Ethers Signer for EVM chains
-  }): Promise<string> {
-    if (params.fromToken === "AR") return "PAID_NATIVE"
-
-    console.log(`Executing Irys funding with ${params.fromToken}...`)
-
-    try {
-      const tokenConfig = TOKEN_CONFIG[params.fromToken]
-
-      // Irys token name mapping
-      // For USDC, Irys expects "usdc-ethereum" or "usdc-solana" as the token identifier.
-      // For other tokens like ETH, SOL, it expects the chain name directly.
-      let irysToken = tokenConfig.chain
-      if (params.fromToken === "USDC") {
-        irysToken = `usdc-${tokenConfig.chain}` // e.g., usdc-ethereum or usdc-solana
-      }
-
-      // Explicitly supported chains/tokens for Irys payment
-      // Irys doesn't natively support USDT, BTC, or SUI for funding in the standard WebIrys bundle.
-      // It also doesn't support arbitrary SPL/Meme tokens.
-      const supportedIrysTokens = [
-        "ethereum",
-        "solana",
-        "usdc-ethereum",
-        "usdc-solana",
-      ]
-      if (!supportedIrysTokens.includes(irysToken)) {
-        throw new Error(
-          `Token ${params.fromToken} is not yet supported for direct Irys payment. Please use ETH, SOL, or USDC.`,
-        )
-      }
-
-      const { irysService } = await import("@/lib/storage")
-      const { config } = await import("@/lib/config")
-
-      // Initialize Irys with the appropriate wallet
-      const irys = await irysService.getIrysInstance({
-        token: irysToken,
-        wallet:
-          tokenConfig.chain === "ethereum" ? params.signer : params.walletKey,
-        rpcUrl:
-          tokenConfig.chain === "ethereum"
-            ? config.ethereumRpcUrl
-            : config.solanaRpcUrl,
-      })
-
-      // Get the exact price again to be sure (or use the one from estimateFee)
-      // Actually, we should fund the amount needed for the file.
-      // For now, let's use a simplified approach: fund the amount that corresponds to the estimate.
-
-      // In a real scenario, we'd need the data size here or the pre-calculated atomic amount.
-      // Assuming params.amountInAR is what we want to cover (but Irys funding is in the chosen token).
-      const price = await irysService.getPrice(1024 * 1024, irysToken) // 1MB for demo or actual size
-
-      // Execute funding
-      await irysService.fund(price, irys)
-
-      console.log("Irys funding successful")
-      return "PAYMENT_SUCCESS"
-    } catch (error) {
-      console.error("Irys payment failed:", error)
-      throw error
+  }): Promise<
+    "PAID_NATIVE" | "PAID_IRYS" | "REQUIRE_BRIDGE" | "PAYMENT_FAILED"
+  > {
+    // TIER 1: Native AR
+    if (params.fromToken === "AR") {
+      console.log("Using native Arweave payment channel.")
+      return "PAID_NATIVE"
     }
+
+    const tokenConfig = TOKEN_CONFIG[params.fromToken]
+
+    // TIER 2: Irys Rapid Payment (ETH, SOL, USDC)
+    let irysToken = tokenConfig.chain
+    if (params.fromToken === "USDC") {
+      irysToken = `usdc-${tokenConfig.chain}`
+    }
+
+    const supportedIrysTokens = [
+      "ethereum",
+      "solana",
+      "usdc-ethereum",
+      "usdc-solana",
+    ]
+
+    if (supportedIrysTokens.includes(irysToken)) {
+      console.log(`Executing rapid Irys funding with ${params.fromToken}...`)
+      try {
+        const { irysService } = await import("@/lib/storage")
+        const { config } = await import("@/lib/config")
+
+        const irys = await irysService.getIrysInstance({
+          token: irysToken,
+          wallet:
+            tokenConfig.chain === "ethereum" ? params.signer : params.walletKey,
+          rpcUrl:
+            tokenConfig.chain === "ethereum"
+              ? config.ethereumRpcUrl
+              : config.solanaRpcUrl,
+        })
+
+        // Estimate 1MB size for funding demo or use actual size if known
+        const price = await irysService.getPrice(1024 * 1024, irysToken)
+        await irysService.fund(price, irys)
+
+        console.log("Irys rapid funding successful")
+        return "PAID_IRYS"
+      } catch (error) {
+        console.error("Irys rapid payment failed:", error)
+        return "PAYMENT_FAILED"
+      }
+    }
+
+    // TIER 3: Cross-Chain / Bridge Fallback (BTC, USDT, Memes)
+    console.log(`Token ${params.fromToken} requires cross-chain bridge/swap.`)
+    // In a real app, we would trigger the BridgeService from @aryxn/sdk-bridge here
+    return "REQUIRE_BRIDGE"
   }
 }
 

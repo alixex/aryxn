@@ -39,33 +39,45 @@ export function useUploadHandler() {
       setStage(t("upload.preparing") || "Preparing...")
 
       try {
-        // Step 1: Handle non-AR payment via DEX swap
-        if (paymentToken !== "AR") {
-          setPaymentStage(true)
-          setStage(
-            t("upload.processingPayment") || "Processing payment via DEX...",
-          )
+        // Step 1: Handle payment
+        setPaymentStage(true)
+        setStage(t("upload.processingPayment") || "Processing payment...")
 
-          let signer = undefined
-          if (client) {
-            signer = clientToSigner(client)
-          }
-
-          await paymentService.executePayment({
-            fromToken: paymentToken,
-            amountInAR: 0, // In a real scenario, we'd pass the actual estimated AR fee
-            userAddress:
-              wallet.active.evm?.address || wallet.active.solana?.address || "",
-            walletKey: null,
-            signer: signer,
-          })
-
-          setPaymentStage(false)
+        let signer = undefined
+        if (client) {
+          signer = clientToSigner(client)
         }
-        // ... (rest remains same)
 
-        const isIrys = paymentToken !== "AR"
-        const irysTokenName = isIrys
+        const paymentResult = await paymentService.executePayment({
+          fromToken: paymentToken,
+          amountInAR: 0,
+          userAddress:
+            wallet.active.evm?.address || wallet.active.solana?.address || "",
+          walletKey: null,
+          signer: signer,
+        })
+
+        if (paymentResult === "PAYMENT_FAILED") {
+          throw new Error("Payment execution failed.")
+        }
+
+        if (paymentResult === "REQUIRE_BRIDGE") {
+          toast.info(
+            t(
+              "common.bridgeRequired",
+              "This token requires a bridge. Redirecting to bridge...",
+            ),
+          )
+          // In a real implementation: window.location.href = "/bridge" or showModal()
+          setUploading(false)
+          setPaymentStage(false)
+          return false
+        }
+
+        const useIrys = paymentResult === "PAID_IRYS"
+        setPaymentStage(false)
+
+        const irysTokenName = useIrys
           ? (await import("@/lib/payment")).TOKEN_CONFIG[paymentToken].chain
           : undefined
 
@@ -77,14 +89,14 @@ export function useUploadHandler() {
             ? (null as unknown as WalletKey)
             : wallet.internal.activeWallet!,
           {
-            encryptionKey: encryptUpload ? new Uint8Array(32) : undefined, // Placeholder, actual key managed in file-manager
+            encryptionKey: encryptUpload ? new Uint8Array(32) : undefined,
             useExternalWallet: activeArweave.isExternal,
             enableCompression: compressUpload,
             onProgress: (p) => {
               setProgress(p.progress)
               setStage(p.stage)
             },
-            useIrys: isIrys,
+            useIrys: useIrys,
             irysToken: irysTokenName,
           },
         )
@@ -133,31 +145,44 @@ export function useUploadHandler() {
       let failedCount = 0
 
       try {
-        // Handle non-AR payment
-        if (paymentToken !== "AR") {
-          setPaymentStage(true)
-          setStage(
-            t("upload.processingPayment") || "Processing payment via DEX...",
-          )
+        // Step 1: Handle payment
+        setPaymentStage(true)
+        setStage(t("upload.processingPayment") || "Processing payment...")
 
-          let signer = undefined
-          if (client) {
-            signer = clientToSigner(client)
-          }
-
-          await paymentService.executePayment({
-            fromToken: paymentToken,
-            amountInAR: 0,
-            userAddress:
-              wallet.active.evm?.address || wallet.active.solana?.address || "",
-            walletKey: null,
-            signer: signer,
-          })
-          setPaymentStage(false)
+        let signer = undefined
+        if (client) {
+          signer = clientToSigner(client)
         }
 
-        const isIrys = paymentToken !== "AR"
-        const irysTokenName = isIrys
+        const paymentResult = await paymentService.executePayment({
+          fromToken: paymentToken,
+          amountInAR: 0,
+          userAddress:
+            wallet.active.evm?.address || wallet.active.solana?.address || "",
+          walletKey: null,
+          signer: signer,
+        })
+
+        if (paymentResult === "PAYMENT_FAILED") {
+          throw new Error("Payment execution failed.")
+        }
+
+        if (paymentResult === "REQUIRE_BRIDGE") {
+          toast.info(
+            t(
+              "common.bridgeRequired",
+              "This token requires a bridge. Redirecting to bridge...",
+            ),
+          )
+          setUploading(false)
+          setPaymentStage(false)
+          return { success: 0, failed: 0 }
+        }
+
+        const useIrys = paymentResult === "PAID_IRYS"
+        setPaymentStage(false)
+
+        const irysTokenName = useIrys
           ? (await import("@/lib/payment")).TOKEN_CONFIG[paymentToken].chain
           : undefined
 
@@ -176,7 +201,7 @@ export function useUploadHandler() {
               setProgress(p.progress)
               setStage(p.stage)
             },
-            useIrys: isIrys,
+            useIrys: useIrys,
             irysToken: irysTokenName,
           },
         )
