@@ -16,6 +16,7 @@ export interface TokenInfo {
   decimals: number
   logoURI?: string
   coingeckoId?: string
+  chain: "ethereum" | "solana" | "arweave" | "bitcoin" | "sui" | string
 }
 
 /**
@@ -29,6 +30,7 @@ export const SUPPORTED_TOKENS: TokenInfo[] = [
     address: TOKEN_ADDRESSES.USDT,
     decimals: 6,
     coingeckoId: "tether",
+    chain: "ethereum",
   },
   {
     symbol: "USDC",
@@ -36,6 +38,7 @@ export const SUPPORTED_TOKENS: TokenInfo[] = [
     address: TOKEN_ADDRESSES.USDC,
     decimals: 6,
     coingeckoId: "usd-coin",
+    chain: "ethereum",
   },
   {
     symbol: "WBTC",
@@ -43,6 +46,7 @@ export const SUPPORTED_TOKENS: TokenInfo[] = [
     address: TOKEN_ADDRESSES.WBTC,
     decimals: 8,
     coingeckoId: "wrapped-bitcoin",
+    chain: "ethereum",
   },
   {
     symbol: "WETH",
@@ -50,6 +54,7 @@ export const SUPPORTED_TOKENS: TokenInfo[] = [
     address: TOKEN_ADDRESSES.WETH,
     decimals: 18,
     coingeckoId: "weth",
+    chain: "ethereum",
   },
   {
     symbol: "SOL",
@@ -57,6 +62,7 @@ export const SUPPORTED_TOKENS: TokenInfo[] = [
     address: TOKEN_ADDRESSES.SOL,
     decimals: 18,
     coingeckoId: "solana",
+    chain: "solana",
   },
   {
     symbol: "AR",
@@ -64,18 +70,21 @@ export const SUPPORTED_TOKENS: TokenInfo[] = [
     address: TOKEN_ADDRESSES.AR,
     decimals: 18,
     coingeckoId: "arweave",
+    chain: "arweave",
   },
   {
     symbol: "PUMP",
     name: "PUMP",
     address: TOKEN_ADDRESSES.PUMP,
     decimals: 18,
+    chain: "ethereum",
   },
   {
     symbol: "V2EX",
     name: "V2EX",
     address: TOKEN_ADDRESSES.V2EX,
     decimals: 18,
+    chain: "ethereum",
   },
   {
     symbol: "SUI",
@@ -83,6 +92,7 @@ export const SUPPORTED_TOKENS: TokenInfo[] = [
     address: TOKEN_ADDRESSES.SUI,
     decimals: 18,
     coingeckoId: "sui",
+    chain: "sui",
   },
 ]
 
