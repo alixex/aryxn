@@ -2,6 +2,7 @@ import { type ArweaveJWK } from "@aryxn/wallet-core"
 import { encryptData, toBase64 } from "@aryxn/crypto"
 import { compressData } from "./compression"
 import { arweave } from "./wallet"
+import { t } from "./i18n"
 
 /**
  * 上传数据到 Arweave
@@ -24,14 +25,14 @@ export const uploadToArweave = async (
   encryptionParams?: string
 }> => {
   try {
-    onProgress?.({ stage: "准备中", progress: 10 })
+    onProgress?.({ stage: t("upload.preparing"), progress: 10 })
 
     let data = fileData
     let encryptionInfo = null
     let compressionInfo = null
 
     if (enableCompression) {
-      onProgress?.({ stage: "压缩中", progress: 30 })
+      onProgress?.({ stage: t("upload.compressing"), progress: 30 })
       try {
         const originalSize = data.length
         const compressed = await compressData(data)
@@ -43,15 +44,12 @@ export const uploadToArweave = async (
           compressionInfo = { algo: "gzip", enabled: true }
         }
       } catch (compressionError) {
-        console.warn(
-          "Compression failed, uploading uncompressed:",
-          compressionError,
-        )
+        console.warn(t("upload.compression_failed"), compressionError)
       }
     }
 
     if (encryptionKey) {
-      onProgress?.({ stage: "加密中", progress: 50 })
+      onProgress?.({ stage: t("upload.encrypting"), progress: 50 })
       const { ciphertext, nonce } = await encryptData(data, encryptionKey)
       data = ciphertext
       encryptionInfo = {
@@ -60,7 +58,7 @@ export const uploadToArweave = async (
       }
     }
 
-    onProgress?.({ stage: "创建交易", progress: 60 })
+    onProgress?.({ stage: t("upload.create_tx"), progress: 60 })
 
     let transactionKey: ArweaveJWK | string | "use_wallet" = key || "use_wallet"
 
@@ -69,7 +67,7 @@ export const uploadToArweave = async (
       const tempKey = await arweave.wallets.generate()
       transactionKey = tempKey as unknown as ArweaveJWK
     } else if (!key) {
-      throw new Error("Key is required when not using external wallet")
+      throw new Error(t("upload.key_required"))
     }
 
     const transaction = await arweave.createTransaction(
@@ -105,12 +103,12 @@ export const uploadToArweave = async (
       transaction.addTag("Compression-Enabled", "true")
     }
 
-    onProgress?.({ stage: "签名中", progress: 70 })
+    onProgress?.({ stage: t("upload.signing"), progress: 70 })
 
     if (useExternalWallet && (globalThis as any).arweaveWallet) {
       await (globalThis as any).arweaveWallet.sign(transaction)
     } else {
-      if (!key) throw new Error("Key required")
+      if (!key) throw new Error(t("upload.key_required_short"))
       const signKey =
         typeof key === "string" ? (JSON.parse(key) as ArweaveJWK) : key
       await arweave.transactions.sign(transaction, signKey)
@@ -124,7 +122,7 @@ export const uploadToArweave = async (
     const hashArray = Array.from(new Uint8Array(hashBuffer))
     const hash = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("")
 
-    onProgress?.({ stage: "上传中", progress: 80 })
+    onProgress?.({ stage: t("upload.uploading"), progress: 80 })
 
     let uploader = await arweave.transactions.getUploader(transaction)
 
@@ -133,16 +131,16 @@ export const uploadToArweave = async (
         await uploader.uploadChunk()
         const uploadStageProgress = 80 + uploader.pctComplete * 0.2
         onProgress?.({
-          stage: "上传中",
+          stage: t("upload.uploading"),
           progress: Math.min(99, uploadStageProgress),
         })
       } catch (e) {
-        console.error("Chunk upload failed, retrying...", e)
+        console.error(t("upload.chunk_failed"), e)
         await new Promise((r) => setTimeout(r, 3000))
       }
     }
 
-    onProgress?.({ stage: "完成", progress: 100 })
+    onProgress?.({ stage: t("upload.complete"), progress: 100 })
 
     return {
       txId: transaction.id,

@@ -1,4 +1,5 @@
 import { initArweave } from "@aryxn/wallet-core"
+import { t } from "./i18n"
 
 // Initialize Arweave
 export const arweave = initArweave()
@@ -27,6 +28,6 @@ export const estimateArweaveFee = async (dataSize: number) => {
     }
   } catch (error) {
     console.error("Failed to estimate fee:", error)
-    throw new Error("无法获取费用信息，请稍后重试或检查网络连接")
+    throw new Error(t("upload.fee_error"))
   }
 }

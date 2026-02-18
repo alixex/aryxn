@@ -1,5 +1,6 @@
 export { uploadToArweave } from "./upload"
 export { arweave, generateArweaveWallet, estimateArweaveFee } from "./wallet"
+export { setLocale } from "./i18n"
 export {
   compressData,
   decompressData,
