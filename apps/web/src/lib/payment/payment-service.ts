@@ -217,9 +217,15 @@ export class PaymentService {
     }
 
     // TIER 3: Cross-Chain / Bridge Fallback (BTC, USDT, Memes)
-    console.log(`Token ${params.fromToken} requires cross-chain bridge/swap.`)
-    // In a real app, we would trigger the BridgeService from @aryxn/sdk-bridge here
-    return "REQUIRE_BRIDGE"
+    // We import BridgeService dynamically to avoid circular dependencies if any
+    const { BridgeService } = await import("@aryxn/sdk-bridge")
+
+    if (BridgeService.requiresBridge(params.fromToken)) {
+      console.log(`Token ${params.fromToken} requires cross-chain bridge/swap.`)
+      return "REQUIRE_BRIDGE"
+    }
+
+    return "PAYMENT_FAILED"
   }
 }
 

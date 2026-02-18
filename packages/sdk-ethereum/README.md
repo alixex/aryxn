@@ -13,19 +13,19 @@ pnpm add @aryxn/sdk-ethereum
 ### 1. Initialize
 
 ```typescript
-import { EthereumSwapper } from "@aryxn/sdk-ethereum";
+import { EthereumSwapper } from "@aryxn/sdk-ethereum"
 
 const swapper = new EthereumSwapper({
   rpcUrl: "https://mainnet.infura.io/v3/...",
-  contractAddress: "0x..."
-});
+  contractAddress: "0x...",
+})
 ```
 
 ### 2. Check Stats
 
 ```typescript
-const stats = await swapper.getStats();
-console.log("Total Volume:", stats.totalVolume);
+const stats = await swapper.getStats()
+console.log("Total Volume:", stats.totalVolume)
 ```
 
 ### 3. Execute Swap
@@ -39,8 +39,8 @@ const tx = await swapper.swap({
   minAmountOut: parseUnits("0.99", 18),
   deadline: Math.floor(Date.now() / 1000) + 600,
   route: [], // PathFinder generated route
-  protection: ProtectionLevel.MEDIUM
-});
+  protection: ProtectionLevel.MEDIUM,
+})
 ```
 
 ## Features

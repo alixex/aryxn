@@ -26,14 +26,14 @@ The core wallet logic for Aryxn, providing chain-agnostic primitives for wallet 
 
 #### Balance Queries (Cross-Chain)
 
-| Chain       | Function                                 | Client/Connection Required |
-| :---------- | :--------------------------------------- | :------------------------- |
-| **Unified** | `getBalance(chain, address, options)`    | None (Handles internally)  |
-| **EVM**     | `getEvmBalance(provider, address, token)`| `JsonRpcProvider`          |
-| **Solana**  | `getSolanaBalance(connection, pubKey)`   | `Connection`               |
-| **Sui**     | `getSuiBalance(client, address)`         | `SuiClient`                |
-| **Arweave** | `getArweaveBalance(address, config?)`    | None (Optional config)     |
-| **Bitcoin** | `getBitcoinBalance(address, apiUrl)`     | API URL string             |
+| Chain       | Function                                  | Client/Connection Required |
+| :---------- | :---------------------------------------- | :------------------------- |
+| **Unified** | `getBalance(chain, address, options)`     | None (Handles internally)  |
+| **EVM**     | `getEvmBalance(provider, address, token)` | `JsonRpcProvider`          |
+| **Solana**  | `getSolanaBalance(connection, pubKey)`    | `Connection`               |
+| **Sui**     | `getSuiBalance(client, address)`          | `SuiClient`                |
+| **Arweave** | `getArweaveBalance(address, config?)`     | None (Optional config)     |
+| **Bitcoin** | `getBitcoinBalance(address, apiUrl)`      | API URL string             |
 
 #### EVM (Ethereum & L2s)
 
@@ -72,19 +72,19 @@ console.log(info.chain) // "ethereum"
 import { getBalance } from "@aryxn/wallet-core"
 
 // Get ETH Balance
-const eth = await getBalance("ethereum", "0x...", { 
-  rpcUrl: "https://mainnet.infura.io/v3/..." 
+const eth = await getBalance("ethereum", "0x...", {
+  rpcUrl: "https://mainnet.infura.io/v3/...",
 })
 console.log(eth.formatted, eth.symbol)
 
 // Get ERC20 Token Balance
 const usdt = await getBalance("ethereum", "0x...", {
   rpcUrl: "https://mainnet.infura.io/v3/...",
-  tokenAddress: "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+  tokenAddress: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
 })
 
 // Get SOL Balance
 const sol = await getBalance("solana", "Hi...", {
-  rpcUrl: "https://api.mainnet-beta.solana.com"
+  rpcUrl: "https://api.mainnet-beta.solana.com",
 })
 ```

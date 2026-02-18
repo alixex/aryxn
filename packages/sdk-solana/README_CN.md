@@ -13,15 +13,15 @@ pnpm add @aryxn/sdk-solana
 ### 1. 初始化
 
 ```typescript
-import { SolanaSwapper } from "@aryxn/sdk-solana";
+import { SolanaSwapper } from "@aryxn/sdk-solana"
 
 const swapper = new SolanaSwapper({
   rpcUrl: "https://api.mainnet-beta.solana.com",
-  programId: "3cUyodUx..."
-});
+  programId: "3cUyodUx...",
+})
 
 // 设置钱包与 IDL
-swapper.setWallet(anchorWallet, idl);
+swapper.setWallet(anchorWallet, idl)
 ```
 
 ### 2. 获取 Jupiter 报价
@@ -30,8 +30,8 @@ swapper.setWallet(anchorWallet, idl);
 const quote = await swapper.getQuote({
   inputMint: "...",
   outputMint: "...",
-  amount: 1000000
-});
+  amount: 1000000,
+})
 ```
 
 ### 3. 执行 CPI 交换
@@ -41,8 +41,8 @@ const quote = await swapper.getQuote({
 ```typescript
 const signature = await swapper.swap({
   user: wallet.publicKey,
-  quoteResponse: quote
-});
+  quoteResponse: quote,
+})
 ```
 
 ## 特性

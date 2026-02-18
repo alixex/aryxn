@@ -13,19 +13,19 @@ pnpm add @aryxn/sdk-ethereum
 ### 1. 初始化
 
 ```typescript
-import { EthereumSwapper } from "@aryxn/sdk-ethereum";
+import { EthereumSwapper } from "@aryxn/sdk-ethereum"
 
 const swapper = new EthereumSwapper({
   rpcUrl: "https://mainnet.infura.io/v3/...",
-  contractAddress: "0x..."
-});
+  contractAddress: "0x...",
+})
 ```
 
 ### 2. 查看统计信息
 
 ```typescript
-const stats = await swapper.getStats();
-console.log("总交易量:", stats.totalVolume);
+const stats = await swapper.getStats()
+console.log("总交易量:", stats.totalVolume)
 ```
 
 ### 3. 执行交换
@@ -39,8 +39,8 @@ const tx = await swapper.swap({
   minAmountOut: parseUnits("0.99", 18),
   deadline: Math.floor(Date.now() / 1000) + 600,
   route: [], // 由 PathFinder 生成的路径
-  protection: ProtectionLevel.MEDIUM
-});
+  protection: ProtectionLevel.MEDIUM,
+})
 ```
 
 ## 特性

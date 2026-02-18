@@ -19,14 +19,14 @@ pnpm add @aryxn/sdk-multichain
 ### 1. Initialization
 
 ```typescript
-import { MultiChainSwapper } from "@aryxn/sdk-multichain";
+import { MultiChainSwapper } from "@aryxn/sdk-multichain"
 
 const swapper = new MultiChainSwapper({
   ethereumRpcUrl: "https://mainnet.infura.io/v3/...",
   solanaRpcUrl: "https://api.mainnet-beta.solana.com",
   ethereumContractAddress: "0x...",
-  solanaProgramId: "3cUyodUx..."
-});
+  solanaProgramId: "3cUyodUx...",
+})
 ```
 
 ### 2. Get Quotes (Solana)
@@ -36,8 +36,8 @@ const quote = await swapper.getQuote({
   chain: "solana",
   inputMint: "EPjFW36... (USDC)",
   outputMint: "So11111... (SOL)",
-  amount: 1000000 // 1 USDC
-});
+  amount: 1000000, // 1 USDC
+})
 ```
 
 ### 3. Execute Swap
@@ -53,9 +53,9 @@ const tx = await swapper.executeSwap({
   amountIn: 1000000,
   minAmountOut: quote.otherAmountThreshold,
   solana: {
-    quoteResponse: quote
-  }
-});
+    quoteResponse: quote,
+  },
+})
 ```
 
 #### Ethereum
@@ -70,9 +70,9 @@ const tx = await swapper.executeSwap({
   minAmountOut: parseEther("0.99"),
   ethereum: {
     deadline: Math.floor(Date.now() / 1000) + 600,
-    route: [] // Optional: pre-defined route
-  }
-});
+    route: [], // Optional: pre-defined route
+  },
+})
 ```
 
 ## Admin Features
@@ -83,8 +83,8 @@ const tx = await swapper.executeSwap({
 await swapper.withdrawFees({
   chain: "ethereum",
   signer: adminSigner,
-  tokenAddress: "0x..."
-});
+  tokenAddress: "0x...",
+})
 ```
 
 ## License

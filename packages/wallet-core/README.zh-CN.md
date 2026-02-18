@@ -26,14 +26,14 @@ Aryxn 的核心钱包逻辑库，提供针对钱包创建、检测和账户管�
 
 #### 余额查询 (跨链)
 
-| 链          | 函数                                     | 所需客户端/连接            |
-| :---------- | :--------------------------------------- | :------------------------- |
-| **Unified** | `getBalance(chain, address, options)`    | 无 (内部处理)              |
-| **EVM**     | `getEvmBalance(provider, address, token)`| `JsonRpcProvider`          |
-| **Solana**  | `getSolanaBalance(connection, pubKey)`   | `Connection`               |
-| **Sui**     | `getSuiBalance(client, address)`         | `SuiClient`                |
-| **Arweave** | `getArweaveBalance(address, config?)`    | 无 (或可选配置)            |
-| **Bitcoin** | `getBitcoinBalance(address, apiUrl)`     | API URL 字符串             |
+| 链          | 函数                                      | 所需客户端/连接   |
+| :---------- | :---------------------------------------- | :---------------- |
+| **Unified** | `getBalance(chain, address, options)`     | 无 (内部处理)     |
+| **EVM**     | `getEvmBalance(provider, address, token)` | `JsonRpcProvider` |
+| **Solana**  | `getSolanaBalance(connection, pubKey)`    | `Connection`      |
+| **Sui**     | `getSuiBalance(client, address)`          | `SuiClient`       |
+| **Arweave** | `getArweaveBalance(address, config?)`     | 无 (或可选配置)   |
+| **Bitcoin** | `getBitcoinBalance(address, apiUrl)`      | API URL 字符串    |
 
 #### EVM (Ethereum & L2s)
 
@@ -72,19 +72,19 @@ console.log(info.chain) // "ethereum"
 import { getBalance } from "@aryxn/wallet-core"
 
 // 获取 ETH 余额
-const eth = await getBalance("ethereum", "0x...", { 
-  rpcUrl: "https://mainnet.infura.io/v3/..." 
+const eth = await getBalance("ethereum", "0x...", {
+  rpcUrl: "https://mainnet.infura.io/v3/...",
 })
 console.log(eth.formatted, eth.symbol)
 
 // 获取 ERC20 代币余额
 const usdt = await getBalance("ethereum", "0x...", {
   rpcUrl: "https://mainnet.infura.io/v3/...",
-  tokenAddress: "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+  tokenAddress: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
 })
 
 // 获取 SOL 余额
 const sol = await getBalance("solana", "Hi...", {
-  rpcUrl: "https://api.mainnet-beta.solana.com"
+  rpcUrl: "https://api.mainnet-beta.solana.com",
 })
 ```

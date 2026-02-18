@@ -13,15 +13,15 @@ pnpm add @aryxn/sdk-solana
 ### 1. Initialize
 
 ```typescript
-import { SolanaSwapper } from "@aryxn/sdk-solana";
+import { SolanaSwapper } from "@aryxn/sdk-solana"
 
 const swapper = new SolanaSwapper({
   rpcUrl: "https://api.mainnet-beta.solana.com",
-  programId: "3cUyodUx..."
-});
+  programId: "3cUyodUx...",
+})
 
 // Set wallet and IDL
-swapper.setWallet(anchorWallet, idl);
+swapper.setWallet(anchorWallet, idl)
 ```
 
 ### 2. Get Jupiter Quote
@@ -30,8 +30,8 @@ swapper.setWallet(anchorWallet, idl);
 const quote = await swapper.getQuote({
   inputMint: "...",
   outputMint: "...",
-  amount: 1000000
-});
+  amount: 1000000,
+})
 ```
 
 ### 3. Execute CPI Swap
@@ -41,8 +41,8 @@ This method automatically fetches CPI instructions from Jupiter and routes them 
 ```typescript
 const signature = await swapper.swap({
   user: wallet.publicKey,
-  quoteResponse: quote
-});
+  quoteResponse: quote,
+})
 ```
 
 ## Features
