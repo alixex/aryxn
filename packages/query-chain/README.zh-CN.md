@@ -15,13 +15,13 @@ Aryxn 应用程序的统一多链交易历史索引器。
 
 ## 支持的链与 API
 
-| 区块链 | 适配器 (Adapter) | API 来源 |
-| :--- | :--- | :--- |
-| **Arweave** | `ArweaveAdapter` | 官方网关 (`arweave.net/graphql`) |
-| **Bitcoin** | `BitcoinAdapter` | Mempool.space API |
-| **Ethereum** | `EVMAdapter` | Blockscout V2 API |
-| **Solana** | `SolanaAdapter` | 官方主网 RPC (`api.mainnet-beta.solana.com`) |
-| **Sui** | `SuiAdapter` | 官方主网 RPC (`fullnode.mainnet.sui.io`) |
+| 区块链       | 适配器 (Adapter) | API 来源                                     |
+| :----------- | :--------------- | :------------------------------------------- |
+| **Arweave**  | `ArweaveAdapter` | 官方网关 (`arweave.net/graphql`)             |
+| **Bitcoin**  | `BitcoinAdapter` | Mempool.space API                            |
+| **Ethereum** | `EVMAdapter`     | Blockscout V2 API                            |
+| **Solana**   | `SolanaAdapter`  | 官方主网 RPC (`api.mainnet-beta.solana.com`) |
+| **Sui**      | `SuiAdapter`     | 官方主网 RPC (`fullnode.mainnet.sui.io`)     |
 
 ## 安装
 
@@ -32,11 +32,11 @@ pnpm add @aryxn/sdk-history
 ## 使用方法
 
 ```typescript
-import { AggregateHistoryProvider, ChainRecord } from "@aryxn/sdk-history";
+import { AggregateHistoryProvider, ChainRecord } from "@aryxn/sdk-history"
 
 // 初始化提供者
 // 注意：虽然可以提供 EVM RPC URL，但目前直接使用 Blockscout API
-const provider = new AggregateHistoryProvider("https://eth.llamarpc.com");
+const provider = new AggregateHistoryProvider("https://eth.llamarpc.com")
 
 // 开始同步特定链的历史记录
 // 每次发现新记录时都会调用回调函数
@@ -44,10 +44,10 @@ await provider.startSync(
   "ethereum", // 链标识符
   "0xYourWalletAddress...", // 钱包地址
   (record: ChainRecord) => {
-    console.log("新交易:", record);
+    console.log("新交易:", record)
     // 在此处更新您的 UI 或 Store
-  }
-);
+  },
+)
 ```
 
 ### 频率限制与缓存
@@ -58,17 +58,17 @@ await provider.startSync(
 
 ```typescript
 export interface ChainRecord {
-  id: string;          // 交易哈希 / ID
-  chain: ChainType;    // "ethereum" | "solana" | "bitcoin" | "arweave" | "sui"
-  type: TransactionType; // "SEND" | "RECEIVE" | ...
-  status: TransactionStatus; // "COMPLETED" | "PENDING" | "FAILED"
-  from: string;
-  to: string;
-  amount: string;      // 可读金额 (例如 "1.5")
-  token: string;       // 代币符号 (例如 "ETH", "SOL")
-  timestamp: number;   // Unix 时间戳 (ms)
-  fee?: string;
-  memo?: string;
+  id: string // 交易哈希 / ID
+  chain: ChainType // "ethereum" | "solana" | "bitcoin" | "arweave" | "sui"
+  type: TransactionType // "SEND" | "RECEIVE" | ...
+  status: TransactionStatus // "COMPLETED" | "PENDING" | "FAILED"
+  from: string
+  to: string
+  amount: string // 可读金额 (例如 "1.5")
+  token: string // 代币符号 (例如 "ETH", "SOL")
+  timestamp: number // Unix 时间戳 (ms)
+  fee?: string
+  memo?: string
 }
 ```
 

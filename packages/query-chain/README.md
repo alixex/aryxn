@@ -15,13 +15,13 @@ This package provides a standardized interface to fetch transaction history from
 
 ## Supported Chains & APIs
 
-| Chain | Adapter | API Source |
-| :--- | :--- | :--- |
-| **Arweave** | `ArweaveAdapter` | official Gateway (`arweave.net/graphql`) |
-| **Bitcoin** | `BitcoinAdapter` | Mempool.space API |
-| **Ethereum** | `EVMAdapter` | Blockscout V2 API |
-| **Solana** | `SolanaAdapter` | Official Mainnet RPC (`api.mainnet-beta.solana.com`) |
-| **Sui** | `SuiAdapter` | Official Mainnet RPC (`fullnode.mainnet.sui.io`) |
+| Chain        | Adapter          | API Source                                           |
+| :----------- | :--------------- | :--------------------------------------------------- |
+| **Arweave**  | `ArweaveAdapter` | official Gateway (`arweave.net/graphql`)             |
+| **Bitcoin**  | `BitcoinAdapter` | Mempool.space API                                    |
+| **Ethereum** | `EVMAdapter`     | Blockscout V2 API                                    |
+| **Solana**   | `SolanaAdapter`  | Official Mainnet RPC (`api.mainnet-beta.solana.com`) |
+| **Sui**      | `SuiAdapter`     | Official Mainnet RPC (`fullnode.mainnet.sui.io`)     |
 
 ## Installation
 
@@ -32,11 +32,11 @@ pnpm add @aryxn/sdk-history
 ## Usage
 
 ```typescript
-import { AggregateHistoryProvider, ChainRecord } from "@aryxn/sdk-history";
+import { AggregateHistoryProvider, ChainRecord } from "@aryxn/sdk-history"
 
 // Initialize the provider
 // Note: EVM RPC URL can be provided but currently uses Blockscout API directly
-const provider = new AggregateHistoryProvider("https://eth.llamarpc.com");
+const provider = new AggregateHistoryProvider("https://eth.llamarpc.com")
 
 // Start syncing history for a specific chain
 // The callback will be invoked for each discovered record
@@ -44,10 +44,10 @@ await provider.startSync(
   "ethereum", // chain identifier
   "0xYourWalletAddress...", // wallet address
   (record: ChainRecord) => {
-    console.log("New Transaction:", record);
+    console.log("New Transaction:", record)
     // Update your UI or Store here
-  }
-);
+  },
+)
 ```
 
 ### Rate Limiting & caching
@@ -58,17 +58,17 @@ The `AggregateHistoryProvider` implements a basic in-memory rate limiter to prev
 
 ```typescript
 export interface ChainRecord {
-  id: string;          // Transaction Hash / ID
-  chain: ChainType;    // "ethereum" | "solana" | "bitcoin" | "arweave" | "sui"
-  type: TransactionType; // "SEND" | "RECEIVE" | ...
-  status: TransactionStatus; // "COMPLETED" | "PENDING" | "FAILED"
-  from: string;
-  to: string;
-  amount: string;      // Human-readable amount (e.g. "1.5")
-  token: string;       // Token Symbol (e.g. "ETH", "SOL")
-  timestamp: number;   // Unix timestamp (ms)
-  fee?: string;
-  memo?: string;
+  id: string // Transaction Hash / ID
+  chain: ChainType // "ethereum" | "solana" | "bitcoin" | "arweave" | "sui"
+  type: TransactionType // "SEND" | "RECEIVE" | ...
+  status: TransactionStatus // "COMPLETED" | "PENDING" | "FAILED"
+  from: string
+  to: string
+  amount: string // Human-readable amount (e.g. "1.5")
+  token: string // Token Symbol (e.g. "ETH", "SOL")
+  timestamp: number // Unix timestamp (ms)
+  fee?: string
+  memo?: string
 }
 ```
 
