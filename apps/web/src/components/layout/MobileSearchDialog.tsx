@@ -162,7 +162,6 @@ export function MobileSearchDialog({
           {/* 搜索框容器 */}
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
-              <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-4 z-10 h-5 w-5 -translate-y-1/2" />
               <Input
                 ref={inputRef}
                 type="text"
@@ -170,7 +169,7 @@ export function MobileSearchDialog({
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={handleKeyDown}
-                className="border-border bg-card focus-visible:border-ring focus-visible:bg-card focus-visible:ring-ring/20 h-12 w-full rounded-xl border-2 pr-20 pl-12 text-base shadow-sm transition-all focus-visible:ring-1 sm:h-14 sm:rounded-2xl sm:pr-24 md:pr-28 lg:pr-24"
+                className="border-border bg-card focus-visible:border-ring focus-visible:bg-card focus-visible:ring-ring/20 h-12 w-full rounded-xl border-2 pr-20 text-base shadow-sm transition-all focus-visible:ring-1 sm:h-14 sm:rounded-2xl sm:pr-24 md:pr-28 lg:pr-24"
               />
               {/* 清除按钮 */}
               {query && (

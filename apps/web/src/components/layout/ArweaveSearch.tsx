@@ -167,9 +167,8 @@ export function ArweaveSearch() {
                 setShowResults(true)
               }
             }}
-            className="border-border bg-card focus-visible:border-ring focus-visible:ring-ring/20 w-full pr-20 pl-10 text-sm focus-visible:ring-1 sm:pr-24 sm:text-base"
+            className="border-border bg-card focus-visible:border-ring focus-visible:ring-ring/20 w-full pr-20 text-sm focus-visible:ring-1 sm:pr-24 sm:text-base"
           />
-          <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 z-10 h-4 w-4 -translate-y-1/2" />
           {query && (
             <button
               onClick={handleClear}
