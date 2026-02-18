@@ -203,6 +203,7 @@
   /* Enhanced Glassmorphism */
   .glass {
     background: hsl(220 16% 20% / 0.6);
+    border-radius: var(--radius-lg);
     backdrop-filter: blur(24px) saturate(150%);
     border: 1px solid hsl(270 60% 50% / 0.2);
     box-shadow: inset 0 1px 0 hsl(180 90% 45% / 0.1);
@@ -210,6 +211,7 @@
 
   .glass-strong {
     background: hsl(220 16% 20% / 0.8);
+    border-radius: var(--radius-lg);
     backdrop-filter: blur(32px) saturate(180%);
     border: 1px solid hsl(270 60% 50% / 0.4);
     box-shadow: inset 0 1px 0 hsl(180 90% 45% / 0.15);
@@ -221,6 +223,7 @@
       hsl(var(--card) / 0.7),
       hsl(var(--card) / 0.4)
     );
+    border-radius: var(--radius-lg);
     backdrop-filter: blur(24px) saturate(160%);
     border: 1px solid hsl(var(--foreground) / 0.1);
     border-top: 1px solid hsl(var(--foreground) / 0.2);

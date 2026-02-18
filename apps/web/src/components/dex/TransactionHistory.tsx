@@ -37,7 +37,7 @@ export function TransactionHistory() {
   }
 
   return (
-    <div className="glass-premium overflow-hidden rounded-2xl border-none shadow-2xl">
+    <div className="glass-premium overflow-hidden rounded-xl border-none shadow-2xl">
       <div className="border-border/50 flex items-center justify-between border-b p-6">
         <h3 className="flex items-center gap-2 text-lg font-bold">
           <History className="h-5 w-5 text-cyan-400" />

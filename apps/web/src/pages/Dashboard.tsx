@@ -198,7 +198,7 @@ export default function DashboardPage() {
             </p>
           </div>
 
-          <div className="glass border-primary/20 bg-card/40 hover:border-primary/40 flex items-center gap-3 rounded-xl border p-3 shadow-lg transition-all sm:px-4 sm:py-2">
+          <div className="glass-premium hover:shadow-primary/5 flex items-center gap-3 border-none p-3 shadow-2xl transition-all duration-500 sm:px-4 sm:py-2">
             <div className="flex-1 sm:text-right">
               <div className="text-muted-foreground mb-0.5 text-[10px] font-bold tracking-wider uppercase">
                 {t("common.activeAccountLabel")}
