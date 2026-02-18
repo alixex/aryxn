@@ -6,10 +6,13 @@ import { uploadFile, uploadFiles } from "@/lib/file"
 import type { PaymentToken } from "@/lib/payment"
 import { paymentService } from "@/lib/payment"
 import type { WalletKey } from "@/lib/utils"
+import { useConnectorClient } from "wagmi"
+import { clientToSigner } from "@/lib/wallet/ethers-adapters"
 
 export function useUploadHandler() {
   const { t } = useTranslation()
   const wallet = useWallet()
+  const { data: client } = useConnectorClient()
 
   const [uploading, setUploading] = useState(false)
   const [progress, setProgress] = useState(0)
@@ -43,16 +46,23 @@ export function useUploadHandler() {
             t("upload.processingPayment") || "Processing payment via DEX...",
           )
 
+          let signer = undefined
+          if (client) {
+            signer = clientToSigner(client)
+          }
+
           await paymentService.executePayment({
             fromToken: paymentToken,
             amountInAR: 0, // In a real scenario, we'd pass the actual estimated AR fee
             userAddress:
               wallet.active.evm?.address || wallet.active.solana?.address || "",
-            walletKey: null, // Connection handled by wallet providers
+            walletKey: null,
+            signer: signer,
           })
 
           setPaymentStage(false)
         }
+        // ... (rest remains same)
 
         setStage(t("upload.uploading") || "Uploading...")
         await uploadFile(
@@ -122,12 +132,19 @@ export function useUploadHandler() {
           setStage(
             t("upload.processingPayment") || "Processing payment via DEX...",
           )
+
+          let signer = undefined
+          if (client) {
+            signer = clientToSigner(client)
+          }
+
           await paymentService.executePayment({
             fromToken: paymentToken,
             amountInAR: 0,
             userAddress:
               wallet.active.evm?.address || wallet.active.solana?.address || "",
             walletKey: null,
+            signer: signer,
           })
           setPaymentStage(false)
         }

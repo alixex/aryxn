@@ -26,3 +26,12 @@ export const MANIFEST_VERSION = "1.0.0"
  * 用于增量更新清单文件
  */
 export const INCREMENTAL_MANIFEST_VERSION = "1.1.0"
+
+/**
+ * 全局配置对象
+ */
+export const config = {
+  ethereumRpcUrl: import.meta.env.VITE_ETHEREUM_RPC_URL,
+  solanaRpcUrl: import.meta.env.VITE_SOLANA_RPC_URL,
+  solanaProgramId: "3cUyodUx9u5gzBBThPdqKXvNMF15MYiMZW484igAnixK",
+}
