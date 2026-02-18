@@ -283,7 +283,7 @@ export class LiFiBridgeService {
   ): BridgeRouteParams[] {
     const totalAmount = BigInt(params.amount)
     const perBatch = totalAmount / BigInt(batchCount)
-    const remainder =totalAmount % BigInt(batchCount)
+    const remainder = totalAmount % BigInt(batchCount)
 
     const batches: BridgeRouteParams[] = []
 
@@ -307,7 +307,7 @@ export class LiFiBridgeService {
    * @param route - The route to execute
    * @param signer - Ethers.js signer for signing transactions
    * @returns Transaction hash
-   * 
+   *
    * Note: Li.Fi SDK provides route data, actual execution is done by sending
    * the transaction through the signer directly
    */
@@ -336,12 +336,8 @@ export class LiFiBridgeService {
         to: txRequest.to as string,
         data: txRequest.data as string,
         value: txRequest.value ? BigInt(txRequest.value) : undefined,
-        gasLimit: txRequest.gasLimit
-          ? BigInt(txRequest.gasLimit)
-          : undefined,
-        gasPrice: txRequest.gasPrice
-          ? BigInt(txRequest.gasPrice)
-          : undefined,
+        gasLimit: txRequest.gasLimit ? BigInt(txRequest.gasLimit) : undefined,
+        gasPrice: txRequest.gasPrice ? BigInt(txRequest.gasPrice) : undefined,
       })
 
       console.log("[LiFiBridgeService] Transaction sent:", tx.hash)

@@ -277,7 +277,7 @@ export function useBridge() {
         setQuote(null)
       } catch (error) {
         console.error("Bridge execution failed:", error)
-        
+
         let errorMessage = "Unknown error"
         if (error instanceof Error) {
           errorMessage = error.message

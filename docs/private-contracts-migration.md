@@ -57,7 +57,7 @@ git commit -m "Refactor: Move contracts to private repo (ignored)"
 
 1. 克隆主仓库：
    ```bash
-   git clone <主仓库URL>
+   git clone <主仓库 URL>
    cd aryxn
    ```
 2. **手动拉取合约仓库**（因为它是被忽略的）：
