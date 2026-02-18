@@ -2,6 +2,11 @@ import { MultiChainSwapper } from "@aryxn/swap-multichain"
 import type { WalletKey } from "@aryxn/wallet-core"
 import { irysService } from "@aryxn/arweave"
 
+// Export new Li.Fi bridge service
+export * from "./lifi-bridge-service"
+export * from "./address-utils"
+export * from "./bridge-status-tracker"
+
 /**
  * Bridge Provider Interface
  */

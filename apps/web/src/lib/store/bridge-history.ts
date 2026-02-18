@@ -15,6 +15,9 @@ export interface BridgeTransaction {
   toChain?: string
   amount?: string
   token?: string
+  lastUpdate?: number // For tracking status updates
+  fromChainId?: number // ChainId for resuming tracking
+  toChainId?: number // ChainId for resuming tracking
 }
 
 interface BridgeHistoryState {

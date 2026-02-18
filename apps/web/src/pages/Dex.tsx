@@ -73,9 +73,9 @@ export default function DexPage() {
                     ? activeAccountAlias
                     : !isConnected && activeAccountAlias
                       ? activeAccountAlias
-                    : displayAddress
-                      ? `${displayAddress.slice(0, 6)}...${displayAddress.slice(-4)}`
-                      : ""}
+                      : displayAddress
+                        ? `${displayAddress.slice(0, 6)}...${displayAddress.slice(-4)}`
+                        : ""}
                 </div>
               </div>
             </div>

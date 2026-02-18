@@ -5,16 +5,77 @@ import {
   XCircle,
   ExternalLink,
   RotateCw,
+  RefreshCw,
 } from "lucide-react"
 import { useTranslation } from "@/i18n/config"
 import { cn } from "@/lib/utils"
 
 import { useBridgeHistory } from "@/lib/store/bridge-history"
+import { useBridge } from "@/hooks/useBridge"
 
-import { useEffect } from "react"
+import { useState, useEffect } from "react"
 import { useWallet } from "@/hooks/account-hooks"
 
 const SYNC_CHAINS = ["ethereum", "solana", "bitcoin", "arweave", "sui"]
+
+/**
+ * Refresh button for bridge transactions
+ */
+function BridgeRefreshButton({
+  txHash,
+  fromChain,
+  toChain,
+}: {
+  txHash: string
+  fromChain: string
+  toChain: string
+}) {
+  const { refreshTransactionStatus, getRemainingCooldown, canRefresh } =
+    useBridge()
+  const [cooldown, setCooldown] = useState(0)
+  const [refreshing, setRefreshing] = useState(false)
+
+  // Update cooldown every second
+  useEffect(() => {
+    const updateCooldown = () => {
+      setCooldown(getRemainingCooldown(txHash))
+    }
+
+    updateCooldown()
+    const interval = setInterval(updateCooldown, 1000)
+    return () => clearInterval(interval)
+  }, [txHash, getRemainingCooldown])
+
+  const handleRefresh = async () => {
+    if (!canRefresh(txHash) || refreshing) return
+
+    setRefreshing(true)
+    try {
+      await refreshTransactionStatus(txHash, fromChain, toChain)
+    } finally {
+      setRefreshing(false)
+    }
+  }
+
+  const isDisabled = !canRefresh(txHash) || refreshing
+
+  return (
+    <button
+      onClick={handleRefresh}
+      disabled={isDisabled}
+      className={cn(
+        "text-muted-foreground hover:bg-secondary/30 flex items-center gap-1 rounded-full px-2 py-1 text-xs transition-colors",
+        !isDisabled && "hover:text-cyan-400",
+        refreshing && "animate-pulse text-cyan-400",
+        isDisabled && "cursor-not-allowed opacity-50",
+      )}
+      title={cooldown > 0 ? `Wait ${cooldown}s` : "Refresh status"}
+    >
+      <RefreshCw className={cn("h-3 w-3", refreshing && "animate-spin")} />
+      {cooldown > 0 && <span>{cooldown}s</span>}
+    </button>
+  )
+}
 
 export function TransactionHistory() {
   const { t } = useTranslation()
@@ -89,10 +150,31 @@ export function TransactionHistory() {
                   >
                     {tx.type}
                   </span>
+
+                  {/* Refresh button for pending bridge transactions */}
+                  {tx.type === "BRIDGE" &&
+                    tx.status === "PENDING" &&
+                    tx.hash &&
+                    tx.fromChain &&
+                    tx.toChain && (
+                      <BridgeRefreshButton
+                        txHash={tx.hash}
+                        fromChain={tx.fromChain}
+                        toChain={tx.toChain}
+                      />
+                    )}
                 </div>
-                <span className="text-muted-foreground text-[10px]">
-                  {new Date(tx.timestamp).toLocaleDateString()}
-                </span>
+                <div className="text-right">
+                  <span className="text-muted-foreground text-[10px]">
+                    {new Date(tx.timestamp).toLocaleDateString()}
+                  </span>
+                  {tx.lastUpdate && tx.status === "PENDING" && (
+                    <div className="text-muted-foreground text-[9px] italic">
+                      Updated {Math.floor((Date.now() - tx.lastUpdate) / 1000)}s
+                      ago
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="pl-6">

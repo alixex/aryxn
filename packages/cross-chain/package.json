@@ -13,7 +13,10 @@
     "@aryxn/arweave": "workspace:*",
     "@aryxn/chain-constants": "workspace:*",
     "@aryxn/swap-multichain": "workspace:*",
-    "@aryxn/wallet-core": "workspace:*"
+    "@aryxn/wallet-core": "workspace:*",
+    "@lifi/sdk": "^3.15.6",
+    "@lifi/types": "^17.61.0",
+    "ethers": "^6.16.0"
   },
   "devDependencies": {
     "tsup": "^8.0.0",
