@@ -1,5 +1,5 @@
 {
-  "name": "@aryxn/sdk-history",
+  "name": "@aryxn/scan",
   "version": "1.0.0",
   "description": "Multi-chain history indexer and synchronization SDK",
   "main": "dist/index.js",

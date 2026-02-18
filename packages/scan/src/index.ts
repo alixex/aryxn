@@ -1,4 +1,10 @@
-import { IHistoryAdapter, OnRecordCallback, ChainRecord } from "./types"
+import {
+  IHistoryAdapter,
+  OnRecordCallback,
+  ChainRecord,
+  SearchOptions,
+  SearchResult,
+} from "./types"
 import { EVMAdapter } from "./adapters/evm"
 import { SolanaAdapter } from "./adapters/solana"
 import { BitcoinAdapter } from "./adapters/bitcoin"
@@ -72,5 +78,24 @@ export class AggregateHistoryProvider {
     }
 
     idleSync()
+  }
+
+  /**
+   * Search for transactions/data on a specific chain
+   */
+  async search(chain: string, options: SearchOptions): Promise<SearchResult[]> {
+    const adapter = this.adapters.get(chain)
+    if (!adapter) {
+      console.warn(`No adapter found for chain: ${chain}`)
+      return []
+    }
+
+    // Check if adapter supports search (structural typing or interface check)
+    if ("search" in adapter && typeof (adapter as any).search === "function") {
+      return (adapter as any).search(options)
+    }
+
+    console.warn(`Adapter for ${chain} does not support search`)
+    return []
   }
 }

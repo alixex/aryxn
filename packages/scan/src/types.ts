@@ -33,3 +33,31 @@ export interface IHistoryAdapter {
 
   isValidAddress(address: string): boolean
 }
+
+export interface SearchResult {
+  id: string
+  owner: {
+    address: string
+  }
+  tags: Array<{
+    name: string
+    value: string
+  }>
+  block: {
+    height: number
+    timestamp: number
+  }
+  data: {
+    size: string
+  }
+}
+
+export interface SearchOptions {
+  query: string
+  limit?: number
+  sort?: "HEIGHT_DESC" | "HEIGHT_ASC"
+}
+
+export interface ISearchAdapter {
+  search(options: SearchOptions): Promise<SearchResult[]>
+}

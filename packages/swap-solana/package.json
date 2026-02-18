@@ -1,9 +1,9 @@
 {
-  "name": "@aryxn/sdk-multichain",
+  "name": "@aryxn/swap-solana",
   "version": "1.0.0",
-  "description": "Unified SDK for cross-chain token swaps",
-  "main": "src/index.ts",
-  "types": "src/index.ts",
+  "description": "TypeScript SDK for Solana swaps",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "license": "MIT",
   "scripts": {
     "build": "tsc",
@@ -12,13 +12,10 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@aryxn/sdk-ethereum": "workspace:*",
-    "@aryxn/sdk-solana": "workspace:*",
     "@coral-xyz/anchor": "^0.30.1",
     "@jup-ag/api": "^6.0.48",
     "@solana/spl-token": "^0.4.14",
-    "@solana/web3.js": "^1.98.4",
-    "ethers": "^6.13.5"
+    "@solana/web3.js": "^1.98.4"
   },
   "devDependencies": {
     "oxlint": "^1.38.0",
