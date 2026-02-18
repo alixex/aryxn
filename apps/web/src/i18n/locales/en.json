@@ -39,7 +39,16 @@
     "searchErrorHint": "Note: Arweave search can only find recent transactions. If no results are found, try different keywords",
     "searchLimitHint": "Note: Search only finds recent transactions (up to 5000). If no results are found, try different keywords",
     "searchCapabilities": "Search Capabilities",
-    "searchCapabilitiesDesc": "• Supports partial matching for file names and descriptions\n• By default, only searches files you uploaded\n• Enter transaction ID (43 chars) to search any file\n• Supports multi-word search (space-separated)"
+    "searchCapabilitiesDesc": "• Supports partial matching for file names and descriptions\n• By default, only searches files you uploaded\n• Enter transaction ID (43 chars) to search any file\n• Supports multi-word search (space-separated)",
+    "balance": "Balance",
+    "updatedAt": "Updated at"
+  },
+  "chain": {
+    "arweave": "Arweave Wallet",
+    "ethereum": "Ethereum Wallet",
+    "solana": "Solana Wallet",
+    "sui": "Sui Wallet",
+    "bitcoin": "Bitcoin Wallet"
   },
   "unlock": {
     "title": "Activate Secure Vault",

@@ -39,7 +39,16 @@
     "searchErrorHint": "提示：Arweave 搜索只能查找最近的交易，如果找不到结果，请尝试其他关键词",
     "searchLimitHint": "提示：搜索仅查找最近的交易（最多 5000 条），如果找不到结果，请尝试其他关键词",
     "searchCapabilities": "搜索功能说明",
-    "searchCapabilitiesDesc": "• 支持文件名和描述的部分匹配搜索\n• 默认只搜索自己上传的文件\n• 输入存储 ID（43 字符）可搜索任何文件\n• 支持多词搜索（空格分隔）"
+    "searchCapabilitiesDesc": "• 支持文件名和描述的部分匹配搜索\n• 默认只搜索自己上传的文件\n• 输入存储 ID（43 字符）可搜索任何文件\n• 支持多词搜索（空格分隔）",
+    "balance": "余额",
+    "updatedAt": "更新于"
+  },
+  "chain": {
+    "arweave": "Arweave 钱包",
+    "ethereum": "Ethereum 钱包",
+    "solana": "Solana 钱包",
+    "sui": "Sui 钱包",
+    "bitcoin": "Bitcoin 钱包"
   },
   "unlock": {
     "title": "开启隐私金库",
