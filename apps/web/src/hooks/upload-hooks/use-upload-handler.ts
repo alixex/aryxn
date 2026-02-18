@@ -64,6 +64,11 @@ export function useUploadHandler() {
         }
         // ... (rest remains same)
 
+        const isIrys = paymentToken !== "AR"
+        const irysTokenName = isIrys
+          ? (await import("@/lib/payment")).TOKEN_CONFIG[paymentToken].chain
+          : undefined
+
         setStage(t("upload.uploading") || "Uploading...")
         await uploadFile(
           file,
@@ -79,6 +84,8 @@ export function useUploadHandler() {
               setProgress(p.progress)
               setStage(p.stage)
             },
+            useIrys: isIrys,
+            irysToken: irysTokenName,
           },
         )
 
@@ -149,6 +156,11 @@ export function useUploadHandler() {
           setPaymentStage(false)
         }
 
+        const isIrys = paymentToken !== "AR"
+        const irysTokenName = isIrys
+          ? (await import("@/lib/payment")).TOKEN_CONFIG[paymentToken].chain
+          : undefined
+
         setStage(t("upload.uploading") || "Uploading...")
         const results = await uploadFiles(
           files,
@@ -164,6 +176,8 @@ export function useUploadHandler() {
               setProgress(p.progress)
               setStage(p.stage)
             },
+            useIrys: isIrys,
+            irysToken: irysTokenName,
           },
         )
 

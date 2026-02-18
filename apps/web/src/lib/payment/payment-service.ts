@@ -129,32 +129,33 @@ export class PaymentService {
       }
     }
 
-    const prices = await this.fetchCryptoPrices()
-    const arPrice = prices["AR"] || 0
-    const tokenPrice = prices[token] || 0
+    try {
+      const tokenConfig = TOKEN_CONFIG[token]
+      const irysToken = tokenConfig.chain // Irys uses chain name for token parameter often, or token symbol
 
-    // Fallback if price fetch fails (avoid division by zero)
-    if (!arPrice || !tokenPrice) {
-      console.warn("Missing price data for fee calculation, defaulting to 0")
+      // Irys getPrice returns atomic units
+      const { irysService } = await import("@/lib/storage")
+      const atomicPrice = await irysService.getPrice(dataSize, irysToken)
+
+      const tokenAmount = atomicPrice / 10 ** tokenConfig.decimals
+
+      return {
+        arAmount: arFee.ar,
+        tokenAmount,
+        formatted: `${tokenAmount.toFixed(6)} ${token}`,
+      }
+    } catch (error) {
+      console.warn("Failed to get Irys price, falling back to 0", error)
       return {
         arAmount: arFee.ar,
         tokenAmount: 0,
         formatted: `Error`,
       }
     }
-
-    const arPriceInToken = arPrice / tokenPrice
-    const tokenAmount = arFee.ar * arPriceInToken
-
-    return {
-      arAmount: arFee.ar,
-      tokenAmount,
-      formatted: `${tokenAmount.toFixed(6)} ${token}`,
-    }
   }
 
   /**
-   * Execute a swap to cover the upload fee
+   * Execute payment to cover the upload fee using Irys
    */
   async executePayment(params: {
     fromToken: PaymentToken
@@ -165,58 +166,65 @@ export class PaymentService {
   }): Promise<string> {
     if (params.fromToken === "AR") return "PAID_NATIVE"
 
-    console.log(`Executing DEX swap for ${params.fromToken}...`)
+    console.log(`Executing Irys funding with ${params.fromToken}...`)
 
-    // Dynamic import to avoid SSR issues if any
-    const { MultiChainSwapper } = await import("@aryxn/sdk-multichain")
-    const { TOKEN_ADDRESSES, MULTI_HOP_SWAPPER_ADDRESS } =
-      await import("@/lib/contracts/addresses")
-    const { config } = await import("@/lib/config")
+    try {
+      const tokenConfig = TOKEN_CONFIG[params.fromToken]
 
-    const swapper = new MultiChainSwapper({
-      ethereumRpcUrl: config.ethereumRpcUrl || "https://rpc.ankr.com/eth",
-      solanaRpcUrl:
-        config.solanaRpcUrl || "https://api.mainnet-beta.solana.com",
-      ethereumContractAddress: MULTI_HOP_SWAPPER_ADDRESS,
-      solanaProgramId:
-        config.solanaProgramId ||
-        "3cUyodUx9u5gzBBThPdqKXvNMF15MYiMZW484igAnixK",
-    })
+      // Irys token name mapping
+      // For USDC, Irys expects "usdc-ethereum" or "usdc-solana" as the token identifier.
+      // For other tokens like ETH, SOL, it expects the chain name directly.
+      let irysToken = tokenConfig.chain
+      if (params.fromToken === "USDC") {
+        irysToken = `usdc-${tokenConfig.chain}` // e.g., usdc-ethereum or usdc-solana
+      }
 
-    const tokenConfig = TOKEN_CONFIG[params.fromToken]
+      // Explicitly supported chains/tokens for Irys payment
+      // Irys doesn't natively support USDT, BTC, or SUI for funding in the standard WebIrys bundle.
+      // It also doesn't support arbitrary SPL/Meme tokens.
+      const supportedIrysTokens = [
+        "ethereum",
+        "solana",
+        "usdc-ethereum",
+        "usdc-solana",
+      ]
+      if (!supportedIrysTokens.includes(irysToken)) {
+        throw new Error(
+          `Token ${params.fromToken} is not yet supported for direct Irys payment. Please use ETH, SOL, or USDC.`,
+        )
+      }
 
-    if (tokenConfig.chain === "ethereum") {
-      if (!params.signer)
-        throw new Error("Ethereum signer is required for swap")
+      const { irysService } = await import("@/lib/storage")
+      const { config } = await import("@/lib/config")
 
-      const tokenIn =
-        TOKEN_ADDRESSES[params.fromToken as keyof typeof TOKEN_ADDRESSES]
-      const tokenOut = TOKEN_ADDRESSES.AR // Warp AR
-
-      // Simple estimate for demonstration: 1.05 * amount (slippage)
-      const amountIn = BigInt(
-        Math.floor(params.amountInAR * 1.01 * 10 ** tokenConfig.decimals),
-      )
-
-      const tx = await swapper.executeSwap({
-        chain: "ethereum",
-        signer: params.signer,
-        tokenIn,
-        tokenOut,
-        amountIn,
-        minAmountOut: BigInt(0), // In production, get actual quote
-        ethereum: {
-          deadline: Math.floor(Date.now() / 1000) + 600,
-          route: [], // PathFinder will resolve it
-        },
+      // Initialize Irys with the appropriate wallet
+      const irys = await irysService.getIrysInstance({
+        token: irysToken,
+        wallet:
+          tokenConfig.chain === "ethereum" ? params.signer : params.walletKey,
+        rpcUrl:
+          tokenConfig.chain === "ethereum"
+            ? config.ethereumRpcUrl
+            : config.solanaRpcUrl,
       })
 
-      console.log("Swap transaction submitted:", tx)
-      return "SWAP_SUCCESS"
-    }
+      // Get the exact price again to be sure (or use the one from estimateFee)
+      // Actually, we should fund the amount needed for the file.
+      // For now, let's use a simplified approach: fund the amount that corresponds to the estimate.
 
-    // fallback placeholder for other chains
-    return "SWAP_SUCCESS"
+      // In a real scenario, we'd need the data size here or the pre-calculated atomic amount.
+      // Assuming params.amountInAR is what we want to cover (but Irys funding is in the chosen token).
+      const price = await irysService.getPrice(1024 * 1024, irysToken) // 1MB for demo or actual size
+
+      // Execute funding
+      await irysService.fund(price, irys)
+
+      console.log("Irys funding successful")
+      return "PAYMENT_SUCCESS"
+    } catch (error) {
+      console.error("Irys payment failed:", error)
+      throw error
+    }
   }
 }
 

@@ -5,11 +5,12 @@ import {
   arweave,
   shouldCompressFile,
   getActualCompressedSize as genericGetCompressedSize,
+  irysService,
 } from "@aryxn/arweave"
 import type { ArweaveJWK } from "@aryxn/wallet-core"
 import { ARWEAVE_APP_NAME } from "@/lib/config"
 
-export { arweave, generateArweaveWallet, shouldCompressFile }
+export { arweave, generateArweaveWallet, shouldCompressFile, irysService }
 
 /**
  * Domain-specific Arweave fee estimation.
@@ -27,6 +28,8 @@ export const uploadToArweave = async (
   enableCompression?: boolean,
   ownerAddress?: string,
   onProgress?: (progress: { stage: string; progress: number }) => void,
+  useIrys?: boolean,
+  irysToken?: string,
 ) => {
   const reader = new FileReader()
   return new Promise<{
@@ -39,12 +42,25 @@ export const uploadToArweave = async (
       try {
         const fileData = new Uint8Array(reader.result as ArrayBuffer)
 
-        // Add anamnesis domain tags
-        const tags = {
-          "App-Name": ARWEAVE_APP_NAME,
-          // Any other domain-specific tags here
+        // Add Aryxn domain tags
+        const tags = [{ name: "App-Name", value: ARWEAVE_APP_NAME }]
+
+        if (useIrys) {
+          const irys = await irysService.getIrysInstance({
+            token: irysToken || "ethereum",
+            wallet: key, // In browser, 'key' might be the provider or wallet
+          })
+          const txId = await irysService.upload(fileData, tags, irys)
+
+          resolve({
+            txId,
+            hash: txId, // Irys ID as hash for now
+            finalSize: fileData.length,
+          })
+          return
         }
 
+        // Native Arweave fallback
         const result = await genericUpload(
           fileData,
           file.name,
@@ -54,7 +70,7 @@ export const uploadToArweave = async (
           useExternalWallet,
           enableCompression,
           ownerAddress,
-          tags,
+          { "App-Name": ARWEAVE_APP_NAME },
           onProgress,
         )
 

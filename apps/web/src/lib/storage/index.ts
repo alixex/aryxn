@@ -12,6 +12,7 @@ export {
   estimateArweaveFee,
   uploadToArweave,
   getActualCompressedSize,
+  irysService,
 } from "./storage"
 
 export type { SearchOptions, ArweaveSearchResult } from "./arweave-search"

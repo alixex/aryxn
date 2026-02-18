@@ -13,3 +13,9 @@ export {
   type SearchOptions,
 } from "./search"
 export { SearchCache, getSearchCache, resetSearchCache } from "./search-cache"
+export {
+  irysService,
+  IrysService,
+  type IrysConfig,
+  type IrysChain,
+} from "./irys"

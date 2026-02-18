@@ -94,6 +94,8 @@ export async function uploadFile(
     enableCompression?: boolean
     updateManifest?: boolean // 是否自动更新清单（默认 true）
     onProgress?: (progress: { stage: string; progress: number }) => void // 进度回调
+    useIrys?: boolean
+    irysToken?: string
   } = {},
 ): Promise<{ txId: string; fileId: string }> {
   // 1. 上传文件到 Arweave（传递账户地址用于标签）
@@ -106,6 +108,8 @@ export async function uploadFile(
     options.enableCompression,
     ownerAddress, // 传递账户地址
     options.onProgress, // 传递进度回调
+    options.useIrys,
+    options.irysToken,
   )
   const { txId, hash: fileHash, finalSize, encryptionParams } = uploadResult
 
@@ -226,6 +230,8 @@ export async function uploadFiles(
     useExternalWallet?: boolean
     enableCompression?: boolean
     onProgress?: (progress: { stage: string; progress: number }) => void
+    useIrys?: boolean
+    irysToken?: string
   } = {},
 ): Promise<
   Array<{ success: boolean; txId?: string; fileId?: string; error?: string }>
