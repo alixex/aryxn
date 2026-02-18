@@ -6,14 +6,7 @@
  */
 
 export type { BalanceResult } from "./balance"
-export {
-  getEthereumBalance,
-  getSolanaBalance,
-  getSuiBalance,
-  getArweaveBalance,
-  getBitcoinBalance,
-  getBalance,
-} from "./balance"
+export { getBalance } from "./balance"
 
 export type { SolanaTokenInfo } from "./solana-token-config"
 export { SOLANA_TOKENS, formatSolanaTokenAmount } from "./solana-token-config"
