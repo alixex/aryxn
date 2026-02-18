@@ -36,16 +36,38 @@ export async function decompressData(
   })
 }
 
+// 定义文件类型的接口，兼容 File 对象和上传的文件项
+interface FileLike {
+  size: number
+  name: string
+  type: string
+}
+
 /**
  * 检查文件类型是否适合压缩
+ * 支持传入 File 对象或者分别传入 size, name, type
  */
 export function shouldCompressFile(
-  fileSize: number,
-  fileName: string,
-  mimeType: string,
+  fileOrSize: number | FileLike,
+  fileName?: string,
+  mimeType?: string,
 ): boolean {
-  const mime = mimeType.toLowerCase()
-  const name = fileName.toLowerCase()
+  let size: number
+  let name: string
+  let type: string
+
+  if (typeof fileOrSize === "object" && fileOrSize !== null) {
+    size = fileOrSize.size
+    name = fileOrSize.name || ""
+    type = fileOrSize.type || ""
+  } else {
+    size = fileOrSize as number
+    name = fileName || ""
+    type = mimeType || ""
+  }
+
+  const mime = type.toLowerCase()
+  const fname = name.toLowerCase()
 
   // 已经压缩的格式，压缩效果有限
   const compressedFormats = [
@@ -82,7 +104,7 @@ export function shouldCompressFile(
   ]
 
   // 如果文件很小（< 1KB），压缩可能不值得
-  if (fileSize < 1024) {
+  if (size < 1024) {
     return false
   }
 
