@@ -10,17 +10,53 @@ import { cn } from "@/lib/utils"
 
 import { useBridgeHistory } from "@/lib/store/bridge-history"
 
+import { useEffect } from "react"
+import { useConnection } from "wagmi"
+import { useInternal } from "@/hooks/account-hooks"
+import { RotateCw } from "lucide-react"
+
 export function TransactionHistory() {
   const { t } = useTranslation()
-  const transactions = useBridgeHistory((state) => state.transactions)
+  const { isConnected, address: externalAddress } = useConnection()
+  const walletManager = useInternal()
+  const { transactions, syncing, syncWithChain } = useBridgeHistory()
+
+  const address = isConnected ? externalAddress : walletManager.activeAddress
+
+  // Auto-sync on mount / address change
+  useEffect(() => {
+    if (address) {
+      // Sync all supported networks
+      const chains = ["ethereum", "solana", "bitcoin", "arweave", "sui"]
+      chains.forEach((chain) => syncWithChain(chain, address))
+    }
+  }, [address])
+
+  const handleRefresh = () => {
+    if (address) {
+      const chains = ["ethereum", "solana", "bitcoin", "arweave", "sui"]
+      chains.forEach((chain) => syncWithChain(chain, address))
+    }
+  }
 
   return (
     <div className="glass-premium overflow-hidden rounded-2xl border-none shadow-2xl">
-      <div className="border-border/50 border-b p-6">
+      <div className="border-border/50 flex items-center justify-between border-b p-6">
         <h3 className="flex items-center gap-2 text-lg font-bold">
           <History className="h-5 w-5 text-cyan-400" />
           {t("dex.history", "Recent Activity")}
         </h3>
+        <button
+          onClick={handleRefresh}
+          disabled={syncing || !address}
+          className={cn(
+            "text-muted-foreground hover:bg-secondary/30 rounded-full p-1 transition-colors hover:text-cyan-400",
+            syncing && "animate-spin text-cyan-400",
+          )}
+          title="Refresh History"
+        >
+          <RotateCw className="h-4 w-4" />
+        </button>
       </div>
 
       <div className="max-h-[400px] space-y-2 overflow-y-auto p-2">

@@ -49,6 +49,7 @@
     "@aryxn/arweave": "workspace:*",
     "@aryxn/crypto": "workspace:*",
     "@aryxn/sdk-bridge": "workspace:*",
+    "@aryxn/sdk-history": "workspace:*",
     "@aryxn/sdk-multichain": "workspace:*",
     "@aryxn/storage": "workspace:*",
     "@aryxn/wallet-core": "workspace:*",

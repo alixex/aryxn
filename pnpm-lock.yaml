@@ -33,6 +33,9 @@ importers:
       '@aryxn/sdk-bridge':
         specifier: workspace:*
         version: link:../../packages/sdk-bridge
+      '@aryxn/sdk-history':
+        specifier: workspace:*
+        version: link:../../packages/sdk-history
       '@aryxn/sdk-multichain':
         specifier: workspace:*
         version: link:../../packages/sdk-multichain
@@ -262,6 +265,22 @@ importers:
         version: 1.41.0
       typescript:
         specifier: ~5.9.3
+        version: 5.9.3
+
+  packages/sdk-history:
+    dependencies:
+      viem:
+        specifier: ^2.0.0
+        version: 2.45.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)
+    devDependencies:
+      oxlint:
+        specifier: ^1.38.0
+        version: 1.41.0
+      tsup:
+        specifier: ^8.0.0
+        version: 8.5.1(jiti@2.6.1)(postcss@8.5.6)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.0.0
         version: 5.9.3
 
   packages/sdk-multichain:
