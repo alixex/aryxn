@@ -9,6 +9,7 @@ import { SolanaAdapter } from "./adapters/solana"
 import { BitcoinAdapter } from "./adapters/bitcoin"
 import { ArweaveAdapter } from "./adapters/arweave"
 import { SuiAdapter } from "./adapters/sui"
+import { Chains } from "@aryxn/chain-constants"
 
 export * from "./types"
 export { ArweaveAdapter } from "./adapters/arweave"
@@ -17,11 +18,11 @@ export class AggregateHistoryProvider {
   private adapters: Map<string, IHistoryAdapter> = new Map()
 
   constructor(evmRpcUrl: string) {
-    this.adapters.set("ethereum", new EVMAdapter(evmRpcUrl))
-    this.adapters.set("solana", new SolanaAdapter())
-    this.adapters.set("bitcoin", new BitcoinAdapter())
-    this.adapters.set("arweave", new ArweaveAdapter())
-    this.adapters.set("sui", new SuiAdapter())
+    this.adapters.set(Chains.ETHEREUM, new EVMAdapter(evmRpcUrl))
+    this.adapters.set(Chains.SOLANA, new SolanaAdapter())
+    this.adapters.set(Chains.BITCOIN, new BitcoinAdapter())
+    this.adapters.set(Chains.ARWEAVE, new ArweaveAdapter())
+    this.adapters.set(Chains.SUI, new SuiAdapter())
   }
 
   // Simple in-memory cache for rate limiting: Map<"chain:address", timestamp>

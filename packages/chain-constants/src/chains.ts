@@ -30,6 +30,8 @@ export const TokenBalanceChains = [
   Chains.SUI,
 ] as const
 
+export const SwappableChains = [Chains.ETHEREUM, Chains.SOLANA] as const
+
 export const ChainIds = {
   ETHEREUM: 1,
   POLYGON: 137,
@@ -141,4 +143,28 @@ export function getExplorerTxUrl(
   }
 
   return `https://blockchair.com/search?q=${encodeURIComponent(txHash)}`
+}
+
+/**
+ * Token symbol to Irys chain name mapping
+ * Used for converting payment token symbols to Irys-compatible chain identifiers
+ */
+export const TokenSymbolToIrysChain = {
+  eth: Chains.ETHEREUM,
+  sol: Chains.SOLANA,
+  matic: "matic",
+  avax: "avalanche",
+  bnb: "bnb",
+  ftm: "fantom",
+  op: "optimism",
+  arb: "arbitrum",
+} as const
+
+export function normalizeTokenToIrysName(token: string): string {
+  const lowerToken = token.toLowerCase()
+  return (
+    TokenSymbolToIrysChain[
+      lowerToken as keyof typeof TokenSymbolToIrysChain
+    ] || lowerToken
+  )
 }

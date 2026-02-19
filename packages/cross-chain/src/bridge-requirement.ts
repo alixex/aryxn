@@ -1,25 +1,7 @@
 import { irysService } from "@aryxn/arweave"
+import { normalizeTokenToIrysName } from "@aryxn/chain-constants"
 
 const NATIVE_PAYMENT_TOKENS = new Set(["AR", "ETH", "SOL", "USDC"])
-
-const TOKEN_SYMBOL_TO_IRYS = {
-  eth: "ethereum",
-  sol: "solana",
-  matic: "matic",
-  avax: "avalanche",
-  bnb: "bnb",
-  ftm: "fantom",
-  op: "optimism",
-  arb: "arbitrum",
-} as const
-
-function normalizeTokenToIrysName(token: string): string {
-  const lowerToken = token.toLowerCase()
-  return (
-    TOKEN_SYMBOL_TO_IRYS[lowerToken as keyof typeof TOKEN_SYMBOL_TO_IRYS] ||
-    lowerToken
-  )
-}
 
 export async function requiresBridge(token: string): Promise<boolean> {
   if (NATIVE_PAYMENT_TOKENS.has(token.toUpperCase())) {

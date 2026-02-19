@@ -7,6 +7,9 @@ import {
   ProtectionLevel,
 } from "@aryxn/swap-ethereum"
 import { QuoteResponse as JupQuoteResponse } from "@jup-ag/api"
+import { Chains, SwappableChains } from "@aryxn/chain-constants"
+
+type SwappableChain = (typeof SwappableChains)[number]
 
 /**
  * 多链交换 SDK
@@ -43,13 +46,13 @@ export class MultiChainSwapper {
    * 获取报价 (自动检测链)
    */
   async getQuote(params: {
-    chain: "ethereum" | "solana"
+    chain: SwappableChain
     inputMint: string // EVM 下为 token address
     outputMint: string
     amount: string | number
     slippageBps?: number
   }) {
-    if (params.chain === "solana") {
+    if (params.chain === Chains.SOLANA) {
       return await this.solSwapper.getQuote({
         inputMint: params.inputMint,
         outputMint: params.outputMint,
@@ -67,7 +70,7 @@ export class MultiChainSwapper {
    * 统一交换接口
    */
   async executeSwap(params: {
-    chain: "ethereum" | "solana"
+    chain: SwappableChain
     signer: Signer | Wallet
     tokenIn: string
     tokenOut: string
@@ -83,7 +86,7 @@ export class MultiChainSwapper {
       protection?: ProtectionLevel
     }
   }): Promise<string | ContractTransactionResponse> {
-    if (params.chain === "solana") {
+    if (params.chain === Chains.SOLANA) {
       if (!params.solana?.quoteResponse)
         throw new Error("Missing Solana quote response")
       return await this.solSwapper.swap({
@@ -110,11 +113,11 @@ export class MultiChainSwapper {
    * 提现手续费 (仅管理员)
    */
   async withdrawFees(params: {
-    chain: "ethereum" | "solana"
+    chain: SwappableChain
     signer: Signer | Wallet
     tokenAddress: string
   }) {
-    if (params.chain === "ethereum") {
+    if (params.chain === Chains.ETHEREUM) {
       // EVM 需要调用 withdrawFees
       const contract = this.ethSwapper["contract"].connect(params.signer)
       return await contract.withdrawFees(params.tokenAddress)

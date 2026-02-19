@@ -340,6 +340,9 @@ importers:
 
   packages/swap-multichain:
     dependencies:
+      '@aryxn/chain-constants':
+        specifier: workspace:*
+        version: link:../chain-constants
       '@aryxn/swap-ethereum':
         specifier: workspace:*
         version: link:../swap-ethereum
@@ -393,6 +396,9 @@ importers:
 
   packages/wallet-core:
     dependencies:
+      '@aryxn/chain-constants':
+        specifier: workspace:*
+        version: link:../chain-constants
       '@aryxn/crypto':
         specifier: workspace:*
         version: link:../crypto

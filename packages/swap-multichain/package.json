@@ -11,6 +11,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@aryxn/chain-constants": "workspace:*",
     "@aryxn/swap-ethereum": "workspace:*",
     "@aryxn/swap-solana": "workspace:*",
     "@coral-xyz/anchor": "^0.30.1",

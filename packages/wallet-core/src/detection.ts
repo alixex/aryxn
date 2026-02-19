@@ -2,6 +2,7 @@ import { ethers } from "ethers"
 import * as solana from "@solana/web3.js"
 import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519"
 import Arweave from "arweave"
+import { Chains } from "@aryxn/chain-constants"
 import { WalletKey, WalletRecord } from "./types"
 import { defaultArweave } from "./arweave-init"
 import {
@@ -23,7 +24,7 @@ export async function detectChainAndAddress(
   if (typeof input === "object" && input.kty === "RSA") {
     const address = await arweaveInstance.wallets.jwkToAddress(input)
     return {
-      chain: "arweave" as const,
+      chain: Chains.ARWEAVE,
       address,
       key: JSON.stringify(input),
     }
@@ -34,7 +35,7 @@ export async function detectChainAndAddress(
   if (validateMnemonic(str)) {
     const wallet = ethers.Wallet.fromPhrase(str)
     return {
-      chain: "ethereum" as const,
+      chain: Chains.ETHEREUM,
       address: wallet.address,
       key: wallet.privateKey,
       mnemonic: str,
@@ -43,7 +44,7 @@ export async function detectChainAndAddress(
 
   if (/^(0x)?[0-9a-fA-F]{64}$/.test(str)) {
     const wallet = new ethers.Wallet(str.startsWith("0x") ? str : "0x" + str)
-    return { chain: "ethereum" as const, address: wallet.address, key: str }
+    return { chain: Chains.ETHEREUM, address: wallet.address, key: str }
   }
 
   if (/^[1-9A-HJ-NP-Za-km-z]{87,88}$/.test(str)) {
@@ -51,7 +52,7 @@ export async function detectChainAndAddress(
       const decoded = fromBase58(str)
       const keypair = solana.Keypair.fromSecretKey(decoded)
       return {
-        chain: "solana" as const,
+        chain: Chains.SOLANA,
         address: keypair.publicKey.toBase58(),
         key: str,
       }
@@ -64,7 +65,7 @@ export async function detectChainAndAddress(
     try {
       const keypair = Ed25519Keypair.fromSecretKey(str)
       return {
-        chain: "sui" as const,
+        chain: Chains.SUI,
         address: keypair.getPublicKey().toSuiAddress(),
         key: str,
       }
@@ -77,7 +78,7 @@ export async function detectChainAndAddress(
   const btcAddress = getBitcoinAddressFromWIF(str)
   if (btcAddress) {
     return {
-      chain: "bitcoin" as const,
+      chain: Chains.BITCOIN,
       address: btcAddress,
       key: str,
     }
@@ -87,13 +88,13 @@ export async function detectChainAndAddress(
     const parsed = JSON.parse(str)
     if (parsed.kty === "RSA") {
       const address = await arweaveInstance.wallets.jwkToAddress(parsed)
-      return { chain: "arweave" as const, address, key: str }
+      return { chain: Chains.ARWEAVE, address, key: str }
     }
     if (Array.isArray(parsed) && parsed.length === 64) {
       const keyBytes = new Uint8Array(parsed)
       const keypair = solana.Keypair.fromSecretKey(keyBytes)
       return {
-        chain: "solana" as const,
+        chain: Chains.SOLANA,
         address: keypair.publicKey.toBase58(),
         key: toBase58(keyBytes),
       }
