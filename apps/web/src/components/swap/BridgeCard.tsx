@@ -36,6 +36,18 @@ import {
 } from "@aryxn/cross-chain"
 import { useWallet } from "@/providers/wallet-provider"
 import { useSearchParams } from "react-router-dom"
+import { Chains } from "@aryxn/chain-constants"
+
+type DexSelectableAccount = {
+  chain: string
+  address: string
+  alias?: string
+  isExternal: boolean
+}
+
+interface BridgeCardProps {
+  selectedAccount: DexSelectableAccount | null
+}
 
 // Supported chains with Li.Fi ChainIds
 const CHAINS = [
@@ -47,7 +59,7 @@ const CHAINS = [
   { id: 43114 as ChainId, name: "Avalanche", icon: "🔺" },
 ]
 
-export function BridgeCard() {
+export function BridgeCard({ selectedAccount }: BridgeCardProps) {
   const { t } = useTranslation()
   const wallet = useWallet()
   const [searchParams] = useSearchParams()
@@ -67,10 +79,17 @@ export function BridgeCard() {
   const [addressError, setAddressError] = useState("")
 
   const { loading, quote, getQuote, executeBridge } = useBridge()
-  const tokenOptions = SUPPORTED_TOKENS.map((token) => ({
+  const selectedChain = selectedAccount?.chain
+  const chainTokens = selectedChain
+    ? SUPPORTED_TOKENS.filter((token) => token.chain === selectedChain)
+    : SUPPORTED_TOKENS
+  const tokenOptions = chainTokens.map((token) => ({
     value: token.symbol,
     label: token.symbol,
   }))
+  const sourceAddress = selectedAccount?.address || wallet.active?.evm?.address || ""
+  const bridgeSupported = selectedChain === Chains.ETHEREUM
+  const hasTokenForChain = chainTokens.length > 0
 
   useEffect(() => {
     if (prefillApplied.current) return
@@ -165,10 +184,11 @@ export function BridgeCard() {
   // Debounced quote fetching
   useEffect(() => {
     if (
+      hasTokenForChain &&
       parseFloat(inputAmount) > 0 &&
       destAddress &&
       !addressError &&
-      wallet.active?.evm?.address
+      sourceAddress
     ) {
       const timer = setTimeout(() => {
         // Convert amount to wei (assuming 18 decimals for now)
@@ -182,7 +202,7 @@ export function BridgeCard() {
           fromToken: inputToken.address,
           toToken: inputToken.address, // Same token for now
           amount: amountWei,
-          fromAddress: wallet.active.evm!.address,
+          fromAddress: sourceAddress,
           toAddress: destAddress,
           priority,
           slippage: 0.5,
@@ -198,7 +218,8 @@ export function BridgeCard() {
     destAddress,
     addressError,
     priority,
-    wallet,
+    sourceAddress,
+    hasTokenForChain,
     getQuote,
   ])
 
@@ -220,6 +241,26 @@ export function BridgeCard() {
       </CardHeader>
 
       <CardContent className="space-y-6 p-6">
+        {!bridgeSupported && (
+          <Alert className="border-yellow-500/50 bg-yellow-500/10">
+            <AlertTriangle className="h-4 w-4 text-yellow-500" />
+            <AlertTitle className="text-yellow-700 dark:text-yellow-400">
+              {t("dex.bridgeEvmOnly", "Bridge currently supports Ethereum accounts.")}
+            </AlertTitle>
+            <AlertDescription className="text-sm text-yellow-600 dark:text-yellow-300">
+              {t("dex.switchToEthAccount", "Please switch to an Ethereum account to continue.")}
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {bridgeSupported && !hasTokenForChain && (
+          <Alert className="border-yellow-500/50 bg-yellow-500/10">
+            <AlertTriangle className="h-4 w-4 text-yellow-500" />
+            <AlertTitle className="text-yellow-700 dark:text-yellow-400">
+              {t("dex.noTokensForChain", "No swap tokens are configured for the selected account chain.")}
+            </AlertTitle>
+          </Alert>
+        )}
         {/* Priority Selector */}
         <Tabs
           value={priority}
@@ -301,6 +342,7 @@ export function BridgeCard() {
         )}
 
         {/* Asset Input */}
+        {hasTokenForChain && (
         <div className="space-y-3">
           <div className="flex justify-between">
             <Label className="text-foreground text-sm font-semibold">
@@ -312,7 +354,7 @@ export function BridgeCard() {
           <SwapTokenAmountInput
             tokenValue={inputToken.symbol}
             onTokenChange={(symbol) => {
-              const token = SUPPORTED_TOKENS.find(
+              const token = chainTokens.find(
                 (item) => item.symbol === symbol,
               )
               if (token) setInputToken(token)
@@ -325,6 +367,7 @@ export function BridgeCard() {
             amountPlaceholder="0.0"
           />
         </div>
+        )}
 
         {/* Destination Address Input */}
         <div className="space-y-2">
@@ -332,13 +375,13 @@ export function BridgeCard() {
             <Label className="text-foreground text-sm font-semibold">
               Destination Address
             </Label>
-            {wallet.active?.evm?.address &&
+            {sourceAddress &&
               isEVMChain(destChain) &&
-              destAddress !== wallet.active.evm!.address && (
+              destAddress !== sourceAddress && (
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setDestAddress(wallet.active!.evm!.address)}
+                  onClick={() => setDestAddress(sourceAddress)}
                   className="text-primary h-auto p-0 text-xs font-semibold hover:underline"
                 >
                   Use My Address
@@ -437,7 +480,14 @@ export function BridgeCard() {
         {/* Action Button */}
         <Button
           className="h-14 w-full rounded-xl text-lg font-bold shadow-lg transition-all hover:scale-[1.02]"
-          disabled={!inputAmount || !destAddress || !!addressError || loading}
+          disabled={
+            !bridgeSupported ||
+            !inputAmount ||
+            !hasTokenForChain ||
+            !destAddress ||
+            !!addressError ||
+            loading
+          }
           onClick={() =>
             executeBridge(
               inputAmount,

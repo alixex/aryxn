@@ -1,18 +1,52 @@
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { TrendingUp, Wallet, ArrowRightLeft, Send } from "lucide-react"
 import { useConnection } from "wagmi"
 import { useSearchParams } from "react-router-dom"
 import { useTranslation } from "@/i18n/config"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { useWallet } from "@/hooks/account-hooks"
 import type { WalletRecord } from "@/lib/utils"
 import { AccountStatusBadge } from "@/components/account/AccountStatusBadge"
 import { PageHeader } from "@/components/layout/PageHeader"
+import { AccountChains, Chains } from "@aryxn/chain-constants"
 // Components
 import { SwapCard } from "@/components/swap/SwapCard"
 import { BridgeCard } from "@/components/swap/BridgeCard"
 import { TransferCard } from "@/components/swap/TransferCard"
 import { TransactionHistory } from "@/components/swap/TransactionHistory"
+
+type DexSelectableAccount = {
+  chain: string
+  address: string
+  alias?: string
+  isExternal: boolean
+}
+
+function accountKey(account: DexSelectableAccount) {
+  return `${account.chain}:${account.address}`
+}
+
+function formatAddress(addr: string) {
+  return `${addr.slice(0, 6)}...${addr.slice(-4)}`
+}
+
+function chainLabel(chain: string) {
+  const labels: Record<string, string> = {
+    [Chains.ETHEREUM]: "Ethereum",
+    [Chains.SOLANA]: "Solana",
+    [Chains.SUI]: "Sui",
+    [Chains.ARWEAVE]: "Arweave",
+    [Chains.BITCOIN]: "Bitcoin",
+  }
+  return labels[chain] || chain
+}
 
 export default function SwapPage() {
   const { t } = useTranslation()
@@ -43,6 +77,60 @@ export default function SwapPage() {
   const bridgeToken = searchParams.get("token") || ""
   const bridgeChain = searchParams.get("chain") || ""
   const redirectAction = searchParams.get("action") || ""
+
+  const accountsByChain = wallet.getAccountsByChain()
+  const selectableAccounts = useMemo<DexSelectableAccount[]>(() => {
+    const discoveredChains = Object.keys(accountsByChain)
+    const orderedChains = [
+      ...AccountChains,
+      ...discoveredChains.filter((chain) => !AccountChains.includes(chain as any)),
+    ]
+
+    return orderedChains.flatMap((chain) =>
+      (accountsByChain[chain] || []).map((account) => ({
+        chain: account.chain,
+        address: account.address,
+        alias: account.alias,
+        isExternal: account.isExternal,
+      })),
+    )
+  }, [accountsByChain])
+
+  const [selectedAccount, setSelectedAccount] =
+    useState<DexSelectableAccount | null>(null)
+
+  useEffect(() => {
+    if (selectableAccounts.length === 0) {
+      if (selectedAccount) setSelectedAccount(null)
+      return
+    }
+
+    if (!selectedAccount) {
+      setSelectedAccount(selectableAccounts[0])
+      return
+    }
+
+    const exists = selectableAccounts.some(
+      (account) => accountKey(account) === accountKey(selectedAccount),
+    )
+
+    if (!exists) {
+      setSelectedAccount(selectableAccounts[0])
+    }
+  }, [selectableAccounts, selectedAccount])
+
+  const handleSelectAccount = async (value: string) => {
+    const nextAccount = selectableAccounts.find(
+      (account) => accountKey(account) === value,
+    )
+    if (!nextAccount) return
+
+    setSelectedAccount(nextAccount)
+
+    if (!nextAccount.isExternal) {
+      await wallet.internal.selectWallet(nextAccount.address)
+    }
+  }
 
   return (
     <div className="mesh-gradient relative min-h-screen">
@@ -123,6 +211,50 @@ export default function SwapPage() {
                 </div>
               )}
 
+            <div className="border-border bg-card/50 mb-4 rounded-xl border p-4">
+              <div className="mb-3 flex items-center justify-between">
+                <div>
+                  <div className="text-foreground text-sm font-semibold">
+                    {t("common.activeAccountLabel")}
+                  </div>
+                  <div className="text-muted-foreground text-xs">
+                    {selectedAccount
+                      ? `${chainLabel(selectedAccount.chain)} · ${selectedAccount.isExternal ? "External" : "Internal"}`
+                      : t("common.noAccount")}
+                  </div>
+                </div>
+                {selectedAccount && (
+                  <div className="text-right">
+                    <div className="text-foreground text-sm font-medium">
+                      {selectedAccount.alias || formatAddress(selectedAccount.address)}
+                    </div>
+                    <div className="text-muted-foreground font-mono text-xs">
+                      {selectedAccount.address}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <Select
+                value={selectedAccount ? accountKey(selectedAccount) : undefined}
+                onValueChange={handleSelectAccount}
+              >
+                <SelectTrigger className="h-11 rounded-xl">
+                  <SelectValue placeholder={t("upload.selectPaymentAccount", "Select account")} />
+                </SelectTrigger>
+                <SelectContent>
+                  {selectableAccounts.map((account) => (
+                    <SelectItem
+                      key={accountKey(account)}
+                      value={accountKey(account)}
+                    >
+                      {chainLabel(account.chain)} · {account.alias || formatAddress(account.address)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             <Tabs
               defaultValue={defaultTab}
               value={activeTab}
@@ -150,15 +282,15 @@ export default function SwapPage() {
               </div>
 
               <TabsContent value="swap" className="mt-0">
-                <SwapCard />
+                <SwapCard selectedAccount={selectedAccount} />
               </TabsContent>
 
               <TabsContent value="bridge" className="mt-0">
-                <BridgeCard />
+                <BridgeCard selectedAccount={selectedAccount} />
               </TabsContent>
 
               <TabsContent value="transfer" className="mt-0">
-                <TransferCard />
+                <TransferCard selectedAccount={selectedAccount} />
               </TabsContent>
             </Tabs>
           </div>

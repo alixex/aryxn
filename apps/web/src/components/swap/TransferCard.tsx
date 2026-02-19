@@ -11,17 +11,33 @@ import { useTransfer } from "@/hooks/swap-hooks/use-transfer"
 import { useWallet } from "@/hooks/account-hooks"
 import { Chains } from "@aryxn/chain-constants"
 
-export function TransferCard() {
+type DexSelectableAccount = {
+  chain: string
+  address: string
+  alias?: string
+  isExternal: boolean
+}
+
+interface TransferCardProps {
+  selectedAccount: DexSelectableAccount | null
+}
+
+export function TransferCard({ selectedAccount }: TransferCardProps) {
   const { t } = useTranslation()
   const wallet = useWallet()
-  const hasActiveEvm = !!wallet.active.evm
+  const selectedChain = selectedAccount?.chain || wallet.active.evm?.chain
+  const chainTokens = selectedChain
+    ? SUPPORTED_TOKENS.filter((token) => token.chain === selectedChain)
+    : SUPPORTED_TOKENS
+  const hasActiveEvm = !!wallet.active.evm && selectedChain === Chains.ETHEREUM
+  const hasTokenForChain = chainTokens.length > 0
   const { transfer, loading } = useTransfer()
 
-  const [inputToken, setInputToken] = useState<TokenInfo>(SUPPORTED_TOKENS[0])
+  const [inputToken, setInputToken] = useState<TokenInfo>(chainTokens[0] || SUPPORTED_TOKENS[0])
   const [recipient, setRecipient] = useState("")
   const [amount, setAmount] = useState("")
   const [warning, setWarning] = useState("")
-  const tokenOptions = SUPPORTED_TOKENS.map((token) => ({
+  const tokenOptions = chainTokens.map((token) => ({
     value: token.symbol,
     label: token.symbol,
     badge: token.chain,
@@ -55,7 +71,18 @@ export function TransferCard() {
       </CardHeader>
 
       <CardContent className="space-y-6 p-6">
+        {!hasActiveEvm && (
+          <div className="rounded-xl border border-yellow-500/40 bg-yellow-500/10 p-3 text-xs text-yellow-700 dark:text-yellow-300">
+            {t("dex.transferEvmOnly", "Send currently supports Ethereum accounts. Please switch to an Ethereum account.")}
+          </div>
+        )}
+        {hasActiveEvm && !hasTokenForChain && (
+          <div className="rounded-xl border border-yellow-500/40 bg-yellow-500/10 p-3 text-xs text-yellow-700 dark:text-yellow-300">
+            {t("dex.noTokensForChain", "No swap tokens are configured for the selected account chain.")}
+          </div>
+        )}
         {/* Recipient Input */}
+        {hasTokenForChain && (
         <div className="space-y-2">
           <Label className="text-foreground text-sm font-semibold">
             Recipient Address
@@ -73,6 +100,7 @@ export function TransferCard() {
             </div>
           )}
         </div>
+        )}
 
         {/* Amount Input */}
         <div className="space-y-2">
@@ -85,7 +113,7 @@ export function TransferCard() {
           <SwapTokenAmountInput
             tokenValue={inputToken.symbol}
             onTokenChange={(symbol) => {
-              const token = SUPPORTED_TOKENS.find(
+              const token = chainTokens.find(
                 (item) => item.symbol === symbol,
               )
               if (token) setInputToken(token)
@@ -106,6 +134,7 @@ export function TransferCard() {
             !hasActiveEvm ||
             !recipient ||
             !amount ||
+            !hasTokenForChain ||
             parseFloat(amount) <= 0 ||
             loading
           }

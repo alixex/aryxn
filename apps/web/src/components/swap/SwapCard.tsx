@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { ArrowDownUp, Settings, Info, Zap } from "lucide-react"
 import { useConnection } from "wagmi"
 import { useTranslation } from "@/i18n/config"
@@ -10,8 +10,20 @@ import { SwapTokenAmountInput } from "@/components/swap/SwapTokenAmountInput"
 import { useMultiHopSwap, SwapState, useInternalSwap } from "@/hooks/swap-hooks"
 import { SUPPORTED_TOKENS, type TokenInfo } from "@/lib/contracts/token-config"
 import { useWallet, formatTimestamp } from "@/hooks/account-hooks"
+import { Chains } from "@aryxn/chain-constants"
 
-export function SwapCard() {
+type DexSelectableAccount = {
+  chain: string
+  address: string
+  alias?: string
+  isExternal: boolean
+}
+
+interface SwapCardProps {
+  selectedAccount: DexSelectableAccount | null
+}
+
+export function SwapCard({ selectedAccount }: SwapCardProps) {
   const { t } = useTranslation()
   const { isConnected } = useConnection()
   const wallet = useWallet()
@@ -24,12 +36,31 @@ export function SwapCard() {
   const useInternalWallet = hasInternalEthAccount && !isConnected
   const isWalletReady = isConnected || !!activeEvm
 
+  const selectedChain = selectedAccount?.chain || Chains.ETHEREUM
+  const chainTokens = SUPPORTED_TOKENS.filter((token) => token.chain === selectedChain)
+
   // Input/Output token selection
-  const [inputToken, setInputToken] = useState<TokenInfo>(SUPPORTED_TOKENS[0])
-  const [outputToken, setOutputToken] = useState<TokenInfo>(SUPPORTED_TOKENS[1]) // Changed default to USDC (index 1 usually)
+  const [inputToken, setInputToken] = useState<TokenInfo>(chainTokens[0] || SUPPORTED_TOKENS[0])
+  const [outputToken, setOutputToken] = useState<TokenInfo>(
+    chainTokens[1] || chainTokens[0] || SUPPORTED_TOKENS[1],
+  ) // Changed default to USDC (index 1 usually)
   const [inputAmount, setInputAmount] = useState("")
   const [slippage, setSlippage] = useState(1.0) // 1% default slippage
   const [showSettings, setShowSettings] = useState(false)
+
+  useEffect(() => {
+    if (chainTokens.length === 0) return
+    setInputToken((prev) =>
+      chainTokens.some((token) => token.symbol === prev.symbol)
+        ? prev
+        : chainTokens[0],
+    )
+    setOutputToken((prev) =>
+      chainTokens.some((token) => token.symbol === prev.symbol)
+        ? prev
+        : chainTokens[1] || chainTokens[0],
+    )
+  }, [selectedChain])
 
   // External wallet swap hook (wagmi)
   const externalSwap = useMultiHopSwap({
@@ -196,11 +227,13 @@ export function SwapCard() {
   }
 
   const buttonState = getButtonState()
-  const tokenOptions = SUPPORTED_TOKENS.map((token) => ({
+  const tokenOptions = chainTokens.map((token) => ({
     value: token.symbol,
     label: token.symbol,
     subtitle: token.name,
   }))
+  const swapSupported = selectedChain === Chains.ETHEREUM
+  const hasTokenForChain = chainTokens.length > 0
 
   return (
     <Card className="glass-premium animate-fade-in-down border-none shadow-2xl transition-all duration-500">
@@ -225,6 +258,18 @@ export function SwapCard() {
       </CardHeader>
 
       <CardContent className="space-y-4 p-6">
+        {!swapSupported && (
+          <div className="border-border bg-card rounded-xl border px-3 py-2 text-xs">
+            {t("dex.swapEvmOnly", "Swap currently supports Ethereum accounts. Please switch to an Ethereum account.")}
+          </div>
+        )}
+
+        {swapSupported && !hasTokenForChain && (
+          <div className="border-border bg-card rounded-xl border px-3 py-2 text-xs">
+            {t("dex.noTokensForChain", "No swap tokens are configured for the selected account chain.")}
+          </div>
+        )}
+
         {/* Settings Panel */}
         {showSettings && (
           <div className="animate-fade-in border-border bg-card rounded-xl border p-4">
@@ -265,6 +310,7 @@ export function SwapCard() {
         )}
 
         {/* Input Token */}
+        {hasTokenForChain && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <Label className="text-foreground text-sm font-semibold">
@@ -294,7 +340,7 @@ export function SwapCard() {
           <SwapTokenAmountInput
             tokenValue={inputToken.symbol}
             onTokenChange={(symbol) => {
-              const token = SUPPORTED_TOKENS.find(
+              const token = chainTokens.find(
                 (item) => item.symbol === symbol,
               )
               if (token) setInputToken(token)
@@ -309,8 +355,10 @@ export function SwapCard() {
             amountClassName="lg:text-3xl [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
           />
         </div>
+        )}
 
         {/* Swap Direction Button */}
+        {hasTokenForChain && (
         <div className="flex justify-center py-2">
           <Button
             variant="outline"
@@ -322,8 +370,10 @@ export function SwapCard() {
             <ArrowDownUp className="text-foreground h-5 w-5" />
           </Button>
         </div>
+        )}
 
         {/* Output Token */}
+        {hasTokenForChain && (
         <div className="space-y-3">
           <Label className="text-foreground text-sm font-semibold">
             {t("dex.to")} ({t("dex.expectedOutput")})
@@ -331,7 +381,7 @@ export function SwapCard() {
           <SwapTokenAmountInput
             tokenValue={outputToken.symbol}
             onTokenChange={(symbol) => {
-              const token = SUPPORTED_TOKENS.find(
+              const token = chainTokens.find(
                 (item) => item.symbol === symbol,
               )
               if (token) setOutputToken(token)
@@ -345,6 +395,7 @@ export function SwapCard() {
             amountClassName="text-3xl"
           />
         </div>
+        )}
 
         {/* Route and Details */}
         {quote && (
@@ -454,7 +505,7 @@ export function SwapCard() {
         {/* Swap Button */}
         <Button
           onClick={handleButtonClick}
-          disabled={buttonState.disabled}
+          disabled={!swapSupported || !hasTokenForChain || buttonState.disabled}
           className="h-14 w-full rounded-xl text-lg font-bold shadow-lg transition-all hover:scale-[1.02] disabled:scale-100"
           variant={buttonState.variant}
         >
