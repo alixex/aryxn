@@ -158,6 +158,8 @@
     "deleteAccountDesc": "你即将删除 {{alias}}，此操作不可撤销。",
     "deleteAccountConfirm": "删除账户",
     "deleteAccountCountdownButton": "删除（{{seconds}} 秒）",
+    "deleteAccountWarningTitle": "删除账户不可逆",
+    "deleteAccountWarningDesc": "删除后将从本地金库移除此账户密钥，如未备份可能无法访问相关数据。",
     "deleteArWarningTitle": "删除 Arweave 账户不可逆",
     "deleteArWarningDesc": "删除后将移除本地密钥，如果没有备份可能无法访问已上传数据。请在倒计时结束后确认。",
     "deleteAccountSuccess": "账户已删除：{{alias}}",

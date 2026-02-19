@@ -45,7 +45,7 @@ export function AccountDeleteDialog({
     t("common.none", { defaultValue: "N/A" })
 
   useEffect(() => {
-    if (!open || !isArweave) {
+    if (!open || !account) {
       setSecondsLeft(0)
       return
     }
@@ -62,13 +62,12 @@ export function AccountDeleteDialog({
     }, 1000)
 
     return () => window.clearInterval(timer)
-  }, [open, isArweave])
+  }, [open, account])
 
-  const deleteDisabled =
-    isDeleting || (isArweave && secondsLeft > 0) || !account
+  const deleteDisabled = isDeleting || secondsLeft > 0 || !account
 
   const deleteLabel = useMemo(() => {
-    if (isArweave && secondsLeft > 0) {
+    if (secondsLeft > 0) {
       return t("identities.deleteAccountCountdownButton", {
         seconds: secondsLeft,
       })
@@ -90,6 +89,16 @@ export function AccountDeleteDialog({
             {t("identities.deleteAccountDesc", { alias: displayName })}
           </DialogDescription>
         </DialogHeader>
+
+        <div className="border-destructive/40 bg-destructive/10 rounded-xl border p-4">
+          <div className="text-destructive flex items-start gap-2 text-sm font-semibold">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+            <span>{t("identities.deleteAccountWarningTitle")}</span>
+          </div>
+          <p className="text-destructive/90 mt-2 text-xs leading-relaxed">
+            {t("identities.deleteAccountWarningDesc")}
+          </p>
+        </div>
 
         {isArweave && (
           <div className="border-destructive/40 bg-destructive/10 rounded-xl border p-4">
