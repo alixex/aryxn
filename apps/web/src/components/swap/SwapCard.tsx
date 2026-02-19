@@ -8,7 +8,11 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { SwapTokenAmountInput } from "@/components/swap/SwapTokenAmountInput"
 import { useMultiHopSwap, SwapState, useInternalSwap } from "@/hooks/swap-hooks"
-import { SUPPORTED_TOKENS, type TokenInfo } from "@/lib/contracts/token-config"
+import {
+  SUPPORTED_TOKENS,
+  getDexTokensByAccountChain,
+  type TokenInfo,
+} from "@/lib/contracts/token-config"
 import { useWallet, formatTimestamp } from "@/hooks/account-hooks"
 import { Chains } from "@aryxn/chain-constants"
 
@@ -37,7 +41,7 @@ export function SwapCard({ selectedAccount }: SwapCardProps) {
   const isWalletReady = isConnected || !!activeEvm
 
   const selectedChain = selectedAccount?.chain || Chains.ETHEREUM
-  const chainTokens = SUPPORTED_TOKENS.filter((token) => token.chain === selectedChain)
+  const chainTokens = getDexTokensByAccountChain(selectedChain)
 
   // Input/Output token selection
   const [inputToken, setInputToken] = useState<TokenInfo>(chainTokens[0] || SUPPORTED_TOKENS[0])

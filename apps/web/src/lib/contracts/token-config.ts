@@ -96,6 +96,25 @@ export const SUPPORTED_TOKENS: TokenInfo[] = [
   },
 ]
 
+const DEX_TOKEN_SYMBOLS_BY_ACCOUNT_CHAIN: Partial<Record<string, string[]>> = {
+  ethereum: ["USDT", "USDC", "WBTC", "WETH", "PUMP", "V2EX"],
+  solana: ["SOL", "USDC", "USDT", "V2EX"],
+  sui: ["SUI", "USDC", "USDT"],
+  arweave: ["AR"],
+  bitcoin: ["WBTC"],
+}
+
+export function getDexTokensByAccountChain(chain?: string): TokenInfo[] {
+  if (!chain) return SUPPORTED_TOKENS
+
+  const symbols = DEX_TOKEN_SYMBOLS_BY_ACCOUNT_CHAIN[chain]
+  if (!symbols || symbols.length === 0) {
+    return SUPPORTED_TOKENS.filter((token) => token.chain === chain)
+  }
+
+  return SUPPORTED_TOKENS.filter((token) => symbols.includes(token.symbol))
+}
+
 /**
  * Format bigint token amount to readable string
  * @param amount - Raw token amount as bigint

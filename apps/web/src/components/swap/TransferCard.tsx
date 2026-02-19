@@ -6,7 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { SwapTokenAmountInput } from "@/components/swap/SwapTokenAmountInput"
-import { SUPPORTED_TOKENS, type TokenInfo } from "@/lib/contracts/token-config"
+import {
+  SUPPORTED_TOKENS,
+  getDexTokensByAccountChain,
+  type TokenInfo,
+} from "@/lib/contracts/token-config"
 import { useTransfer } from "@/hooks/swap-hooks/use-transfer"
 import { useWallet } from "@/hooks/account-hooks"
 import { Chains } from "@aryxn/chain-constants"
@@ -26,9 +30,7 @@ export function TransferCard({ selectedAccount }: TransferCardProps) {
   const { t } = useTranslation()
   const wallet = useWallet()
   const selectedChain = selectedAccount?.chain || wallet.active.evm?.chain
-  const chainTokens = selectedChain
-    ? SUPPORTED_TOKENS.filter((token) => token.chain === selectedChain)
-    : SUPPORTED_TOKENS
+  const chainTokens = getDexTokensByAccountChain(selectedChain)
   const hasActiveEvm = !!wallet.active.evm && selectedChain === Chains.ETHEREUM
   const hasTokenForChain = chainTokens.length > 0
   const { transfer, loading } = useTransfer()

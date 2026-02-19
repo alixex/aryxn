@@ -23,7 +23,11 @@ import {
 } from "@/components/ui/select"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { SUPPORTED_TOKENS, type TokenInfo } from "@/lib/contracts/token-config"
+import {
+  SUPPORTED_TOKENS,
+  getDexTokensByAccountChain,
+  type TokenInfo,
+} from "@/lib/contracts/token-config"
 import { useBridge } from "@/hooks/useBridge"
 import {
   liFiBridgeService,
@@ -80,9 +84,7 @@ export function BridgeCard({ selectedAccount }: BridgeCardProps) {
 
   const { loading, quote, getQuote, executeBridge } = useBridge()
   const selectedChain = selectedAccount?.chain
-  const chainTokens = selectedChain
-    ? SUPPORTED_TOKENS.filter((token) => token.chain === selectedChain)
-    : SUPPORTED_TOKENS
+  const chainTokens = getDexTokensByAccountChain(selectedChain)
   const tokenOptions = chainTokens.map((token) => ({
     value: token.symbol,
     label: token.symbol,
