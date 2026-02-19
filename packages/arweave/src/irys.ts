@@ -41,12 +41,7 @@ export class IrysService {
   /**
    * Get the price in atomic units for a given data size.
    */
-  async getPrice(
-    size: number,
-    token: string,
-    rpcUrl?: string,
-    wallet?: any,
-  ): Promise<number> {
+  async getPrice(size: number, token: string): Promise<number> {
     // For price estimation, we might not need a full wallet if we use the public API,
     // but WebIrys typically wants a provider. For estimation, we can use a dummy or skip wallet if the SDK allows.
     // Here we'll assume we have a way to get price.
@@ -114,7 +109,6 @@ export class IrysService {
         throw new Error(`Failed to fetch Irys info: ${response.statusText}`)
       }
 
-      const data = await response.json()
       // data.currencies is a map of currency -> config
       // or check keys if it returns an object of supported currencies
       // Fallback for now if structure is different, but assuming standard Bundlr/Irys info:

@@ -85,6 +85,7 @@ export async function clearAllApplicationData(): Promise<void> {
     )
     await Promise.race([clearDbPromise, clearDbTimeout])
   } catch (e) {
+    console.error("Failed to clear database:", e)
     // propagate DB errors to caller
     throw e
   }
@@ -171,6 +172,7 @@ export async function clearAllApplicationData(): Promise<void> {
   try {
     await deleteOpfsDatabaseFile()
   } catch (e) {
+    console.warn("Failed to delete OPFS database file:", e)
     // non-fatal
   }
 }

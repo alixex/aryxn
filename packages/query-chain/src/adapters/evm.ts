@@ -85,7 +85,6 @@ export class EVMAdapter implements IHistoryAdapter {
         // For MVP: assume Native ETH.
 
         // Conversion from Wei
-        const ethVal = (BigInt(amount) / 1000000000000000000n).toString() // Simplified integer div
         // Better formatting needed but sticking to string for safety.
         // Showing raw huge numbers or just 0 if < 1 ETH is risky.
         // Let's us a simple float cast for display history:

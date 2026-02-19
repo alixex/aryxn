@@ -29,6 +29,7 @@ export async function loadEncrypted(key: string): Promise<any | null> {
     const raw = await decryptStringFromStorage(JSON.parse(encrypted), key)
     return JSON.parse(raw)
   } catch (e) {
+    console.error("Failed to decrypt data from storage:", e)
     return null
   }
 }

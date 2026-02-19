@@ -25,6 +25,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { SUPPORTED_TOKENS, type TokenInfo } from "@/lib/contracts/token-config"
 import { useBridge } from "@/hooks/useBridge"
 import {
+  liFiBridgeService,
   validateAddress,
   getAddressPlaceholder,
   getChainName,
@@ -48,6 +49,8 @@ export function BridgeCard() {
   const { t } = useTranslation()
   const wallet = useWallet()
 
+  const [chainTypes, setChainTypes] = useState<Record<number, string>>({})
+
   const [sourceChain, setSourceChain] = useState<ChainId>(1) // Ethereum
   const [destChain, setDestChain] = useState<ChainId>(137) // Polygon
   const [priority, setPriority] = useState<BridgePriority>("balanced")
@@ -60,6 +63,34 @@ export function BridgeCard() {
   const [addressError, setAddressError] = useState("")
 
   const { loading, quote, getQuote, executeBridge } = useBridge()
+
+  useEffect(() => {
+    let isMounted = true
+
+    const fetchChains = async () => {
+      try {
+        const chains = await liFiBridgeService.getSupportedChains()
+        if (!isMounted) return
+        const map: Record<number, string> = {}
+        chains.forEach((chain) => {
+          map[chain.id] = chain.chainType
+        })
+        setChainTypes(map)
+      } catch (error) {
+        console.warn("Failed to load chain types", error)
+      }
+    }
+
+    fetchChains()
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  const isSimulationUnsupported = (chainId: ChainId) => {
+    const chainType = chainTypes[Number(chainId)]
+    return chainType === "UTXO" || chainType === "TVM"
+  }
 
   // Auto-fill destination address if user has account on destination chain
   useEffect(() => {
@@ -108,7 +139,7 @@ export function BridgeCard() {
           fromToken: inputToken.address,
           toToken: inputToken.address, // Same token for now
           amount: amountWei,
-          fromAddress: wallet.active.evm.address,
+          fromAddress: wallet.active.evm!.address,
           toAddress: destAddress,
           priority,
           slippage: 0.5,
@@ -212,6 +243,20 @@ export function BridgeCard() {
           </div>
         </div>
 
+        {(isSimulationUnsupported(sourceChain) ||
+          isSimulationUnsupported(destChain)) && (
+          <Alert className="border-orange-500/50 bg-orange-500/10">
+            <AlertTriangle className="h-4 w-4 text-orange-500" />
+            <AlertTitle className="text-orange-700 dark:text-orange-400">
+              Simulation Not Available
+            </AlertTitle>
+            <AlertDescription className="text-sm text-orange-600 dark:text-orange-300">
+              This chain does not support simulation. You can still bridge, but
+              the transaction may fail and waste gas.
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Asset Input */}
         <div className="space-y-3">
           <div className="flex justify-between">
@@ -263,7 +308,7 @@ export function BridgeCard() {
             </Label>
             {wallet.active?.evm?.address &&
               isEVMChain(destChain) &&
-              destAddress !== wallet.active.evm.address && (
+              destAddress !== wallet.active.evm!.address && (
                 <Button
                   variant="ghost"
                   size="sm"
@@ -367,10 +412,8 @@ export function BridgeCard() {
           disabled={!inputAmount || !destAddress || !!addressError || loading}
           onClick={() =>
             executeBridge(
-              sourceChain,
-              destChain,
-              inputToken.symbol,
               inputAmount,
+              inputToken.symbol,
               getChainName(sourceChain),
               getChainName(destChain),
             )

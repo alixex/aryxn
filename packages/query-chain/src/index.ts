@@ -1,7 +1,6 @@
 import {
   IHistoryAdapter,
   OnRecordCallback,
-  ChainRecord,
   SearchOptions,
   SearchResult,
 } from "./types"

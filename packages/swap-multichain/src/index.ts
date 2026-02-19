@@ -1,4 +1,3 @@
-import { PublicKey } from "@solana/web3.js"
 import { Wallet } from "@coral-xyz/anchor"
 import { Signer, ContractTransactionResponse } from "ethers"
 import { SolanaSwapper } from "@aryxn/swap-solana"

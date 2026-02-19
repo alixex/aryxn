@@ -12,20 +12,6 @@ import {
   RPCs,
 } from "@aryxn/chain-constants"
 
-interface SuiTxBlock {
-  digest: string
-  timestampMs: string
-  from?: string // Not standard field in brief, usually needs parsing
-  transaction?: {
-    data: {
-      sender: string
-    }
-  }
-  effects?: {
-    status: { status: string }
-  }
-}
-
 export class SuiAdapter implements IHistoryAdapter {
   private endpoint = RPCs.SUI_MAINNET
 

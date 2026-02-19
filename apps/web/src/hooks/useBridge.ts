@@ -3,6 +3,7 @@ import {
   liFiBridgeService,
   BridgeStatusTracker,
   getChainIdFromName,
+  simulateBridgeRoute,
   type BridgeRouteParams,
   type Route,
   type RiskAssessment,
@@ -26,9 +27,14 @@ export interface BridgeQuote {
   risk: RiskAssessment
 }
 
+const MAX_SINGLE_TX_USD = 100000
+
 export function useBridge() {
   const [loading, setLoading] = useState(false)
   const [quote, setQuote] = useState<BridgeQuote | null>(null)
+  const [lastSlippage, setLastSlippage] = useState(0.5)
+  const [lastQuoteParams, setLastQuoteParams] =
+    useState<BridgeRouteParams | null>(null)
   const transactions = useBridgeHistory((state) => state.transactions)
   const addTransaction = useBridgeHistory((state) => state.addTransaction)
   const updateTransaction = useBridgeHistory((state) => state.updateTransaction)
@@ -145,11 +151,14 @@ export function useBridge() {
   const getQuote = useCallback(async (params: BridgeRouteParams) => {
     if (!params.amount || params.amount === "0") {
       setQuote(null)
+      setLastQuoteParams(null)
       return
     }
 
     try {
       setLoading(true)
+      setLastSlippage(params.slippage ?? 0.5)
+      setLastQuoteParams(params)
 
       // Get optimal route
       const route = await liFiBridgeService.getOptimalRoute(params)
@@ -165,6 +174,7 @@ export function useBridge() {
         description: error instanceof Error ? error.message : "Unknown error",
       })
       setQuote(null)
+      setLastQuoteParams(null)
     } finally {
       setLoading(false)
     }
@@ -234,6 +244,116 @@ export function useBridge() {
           return
         }
 
+        if (quote.cost.priceImpact > lastSlippage) {
+          toast.error("Slippage too high", {
+            description: `Price impact ${quote.cost.priceImpact.toFixed(2)}% exceeds ${lastSlippage}%`,
+          })
+          return
+        }
+
+        if (quote.risk.amountUSD >= MAX_SINGLE_TX_USD) {
+          if (!lastQuoteParams) {
+            toast.error("Missing quote parameters for batch execution")
+            return
+          }
+
+          const batches = liFiBridgeService.createBatchTransactions(
+            lastQuoteParams,
+            3,
+          )
+
+          let confirmedUnsupported = false
+
+          for (let index = 0; index < batches.length; index += 1) {
+            const batchParams = batches[index]
+            const batchRoute =
+              await liFiBridgeService.getOptimalRoute(batchParams)
+            const batchCost =
+              liFiBridgeService.calculateCostBreakdown(batchRoute)
+
+            if (batchCost.priceImpact > lastSlippage) {
+              toast.error("Slippage too high", {
+                description: `Batch ${index + 1} price impact ${batchCost.priceImpact.toFixed(2)}% exceeds ${lastSlippage}%`,
+              })
+              return
+            }
+
+            const simulation = await simulateBridgeRoute(batchRoute)
+            if (simulation.status === "FAILED") {
+              toast.error("Simulation failed", {
+                description:
+                  simulation.error || "Unable to simulate transaction",
+              })
+              return
+            }
+
+            if (simulation.status === "UNSUPPORTED" && !confirmedUnsupported) {
+              const proceed = window.confirm(
+                "Simulation not available for this chain. Proceed anyway?",
+              )
+              if (!proceed) {
+                return
+              }
+              confirmedUnsupported = true
+              toast.warning("Proceeding without simulation")
+            }
+
+            const txHash = await liFiBridgeService.executeBridgeTransaction(
+              batchRoute,
+              signer,
+            )
+
+            const transactionId = crypto.randomUUID()
+            const batchAmount = batchParams.amount
+
+            addTransaction({
+              id: transactionId,
+              type: "BRIDGE",
+              status: "PENDING",
+              description: `Batch ${index + 1}/${batches.length}: Bridge ${batchAmount} ${token} from ${fromChainName} to ${toChainName}`,
+              timestamp: Date.now(),
+              hash: txHash,
+              fromChain: fromChainName,
+              toChain: toChainName,
+              fromChainId,
+              toChainId,
+              amount: batchAmount,
+              token,
+            })
+
+            if (index < batches.length - 1) {
+              await new Promise((resolve) => setTimeout(resolve, 60000))
+            }
+          }
+
+          toast.success("Batch bridge transactions submitted", {
+            description: `Batches: ${batches.length}`,
+          })
+
+          setQuote(null)
+          setLastQuoteParams(null)
+          return
+        }
+
+        const simulation = await simulateBridgeRoute(quote.route)
+
+        if (simulation.status === "FAILED") {
+          toast.error("Simulation failed", {
+            description: simulation.error || "Unable to simulate transaction",
+          })
+          return
+        }
+
+        if (simulation.status === "UNSUPPORTED") {
+          const proceed = window.confirm(
+            "Simulation not available for this chain. Proceed anyway?",
+          )
+          if (!proceed) {
+            return
+          }
+          toast.warning("Proceeding without simulation")
+        }
+
         toast.info("Executing bridge transaction...", {
           description: "Please confirm in your wallet",
         })
@@ -297,7 +417,14 @@ export function useBridge() {
         setLoading(false)
       }
     },
-    [quote, addTransaction, walletManager, wagmiClient],
+    [
+      quote,
+      addTransaction,
+      walletManager,
+      wagmiClient,
+      lastSlippage,
+      lastQuoteParams,
+    ],
   )
 
   return {

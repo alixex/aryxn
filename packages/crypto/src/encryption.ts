@@ -15,6 +15,7 @@ async function getCrypto(): Promise<any> {
     const nodeCrypto = await import("crypto")
     return nodeCrypto
   } catch (e) {
+    console.log("No crypto available:", e)
     throw new Error("No crypto available")
   }
 }

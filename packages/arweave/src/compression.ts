@@ -67,7 +67,6 @@ export function shouldCompressFile(
   }
 
   const mime = type.toLowerCase()
-  const fname = name.toLowerCase()
 
   // 已经压缩的格式，压缩效果有限
   const compressedFormats = [
