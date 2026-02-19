@@ -15,7 +15,7 @@
     "securityNotice": "隐私存储说明",
     "securityNoticeDesc": "1. 外部账户用于支付存储费用。2. 隐私层（可选）通过主密码在本地加密文件并保护存储账户密钥包。如果你不开启隐私层，上传的文件将是公开的。",
     "unlockRequired": "隐私保护当前未开启。开启后可使用端到端加密功能。",
-    "footer": "© 2025 Aryxn — 精心打造",
+    "footer": "© 2025 Aryxn",
     "copy": "复制到剪贴板",
     "loading": "加载中...",
     "close": "关闭",

@@ -15,7 +15,7 @@
     "securityNotice": "隱私儲存說明",
     "securityNoticeDesc": "1. 外部帳戶用於支付儲存費用。2. 隱私層（可選）透過主密碼在本地加密檔案並保護儲存帳戶金鑰包。如果您不開啟隱私層，上傳的檔案將是公開的。",
     "unlockRequired": "隱私保護目前未開啟。開啟後可使用端對端加密功能。",
-    "footer": "© 2025 Aryxn — 精心打造",
+    "footer": "© 2025 Aryxn",
     "copy": "複製到剪貼簿",
     "loading": "載入中...",
     "close": "關閉",

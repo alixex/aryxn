@@ -16,7 +16,7 @@
     "securityNotice": "Privacy Storage Info",
     "securityNoticeDesc": "1. External accounts are for storage payments. 2. The Privacy Layer (Optional) uses a Master Password to encrypt files locally and protect storage account keys. If not active, uploads will be public.",
     "unlockRequired": "Privacy protection is currently inactive. Activate to enable E2EE features.",
-    "footer": "© 2025 Aryxn — Built with ❤️",
+    "footer": "© 2025 Aryxn",
     "copy": "Copy to Clipboard",
     "loading": "Loading...",
     "close": "Close",
