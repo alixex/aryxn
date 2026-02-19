@@ -440,5 +440,10 @@
     "searchTx": "Search Tx",
     "error": "Error",
     "viewOnEtherscan": "View transaction on Etherscan →"
+  },
+  "notFound": {
+    "code": "404",
+    "description": "The page you are looking for does not exist or has been moved. Return to home to continue.",
+    "goHome": "Back to Home"
   }
 }

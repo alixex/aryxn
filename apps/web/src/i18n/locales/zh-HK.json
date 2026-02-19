@@ -391,5 +391,10 @@
     "hide": "收起",
     "openExplorer": "打開瀏覽器",
     "searchTx": "搜尋交易"
+  },
+  "notFound": {
+    "code": "404",
+    "description": "你訪問的頁面不存在或已被移動，請返回首頁繼續瀏覽。",
+    "goHome": "返回首頁"
   }
 }

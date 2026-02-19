@@ -64,7 +64,7 @@ export default function App() {
     const initialize = async () => {
       // 仅在客户端初始化 SQLite 数据库
       if (typeof window !== "undefined") {
-        const { initializeDatabase } = await import("./lib/sqlite-db")
+        const { initializeDatabase } = await import("./lib/database/sqlite-db")
         await initializeDatabase()
       }
       setMounted(true)

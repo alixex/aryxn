@@ -11,6 +11,7 @@ import Dashboard from "./routes/dashboard"
 import Account from "./routes/account"
 import Settings from "./routes/settings"
 import Dex from "./routes/dex"
+import NotFound from "./routes/not-found"
 import { initDatabaseWithSchema } from "./lib/database"
 
 if (typeof window !== "undefined") {
@@ -37,6 +38,7 @@ initDatabaseWithSchema()
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/account" element={<Account />} />
               <Route path="/settings" element={<Settings />} />
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </Providers>
         </BrowserRouter>
