@@ -41,7 +41,8 @@ export function FeeEstimate({
 
   const totalSize = displayFiles.reduce((sum, f) => sum + f.size, 0)
   const isMultiple = files.length > 0
-  const selectedTokenEstimate = estimatedFee?.estimatedFeesByToken?.[selectedToken]
+  const selectedTokenEstimate =
+    estimatedFee?.estimatedFeesByToken?.[selectedToken]
   const selectedTokenError =
     selectedToken !== "AR" ? selectedTokenEstimate?.error : undefined
   const hasFeeError = Boolean(feeError || selectedTokenError)
@@ -78,12 +79,14 @@ export function FeeEstimate({
       <div className="p-4">
         {hasFeeError ? (
           <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-3">
-            <div className="text-xs font-semibold text-amber-900">{feeErrorTitle}</div>
+            <div className="text-xs font-semibold text-amber-900">
+              {feeErrorTitle}
+            </div>
             <div className="mt-1 text-xs text-amber-700">
               {t("upload.feeErrorHintDetailed")}
             </div>
             {feeErrorDetails && (
-              <div className="mt-2 break-all text-[11px] text-amber-800/80">
+              <div className="mt-2 text-[11px] break-all text-amber-800/80">
                 {t("upload.feeErrorReason", { message: feeErrorDetails })}
               </div>
             )}

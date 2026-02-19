@@ -33,7 +33,9 @@ export function getUploadSelectableTokens(): PaymentToken[] {
   return [...UPLOAD_PAYMENT_CONFIG.selectableTokens]
 }
 
-export function getUploadSelectableTokensByChain(chain?: string): PaymentToken[] {
+export function getUploadSelectableTokensByChain(
+  chain?: string,
+): PaymentToken[] {
   if (!chain) return getUploadSelectableTokens()
 
   const tokens = UPLOAD_PAYMENT_CONFIG.selectableTokensByAccountChain[chain]
