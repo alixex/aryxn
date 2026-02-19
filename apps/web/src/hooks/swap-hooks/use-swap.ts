@@ -1,5 +1,5 @@
 /**
- * Main DEX swap hook - orchestrates the complete swap workflow
+ * Main swap hook - orchestrates the complete swap workflow
  * Integrates balance checking, approval, quote fetching, and swap execution
  */
 
@@ -27,7 +27,7 @@ export interface SwapRoute {
 /**
  * Swap state constants
  * Using object literal instead of enum for erasableSyntaxOnly compatibility
- * NOTE: This is duplicated from use-dex-swap-internal.ts - exported there instead
+ * NOTE: This is duplicated from use-swap-internal.ts - exported there instead
  */
 const SwapState = {
   IDLE: "idle",

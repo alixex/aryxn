@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { DexTokenAmountInput } from "@/components/dex/DexTokenAmountInput"
+import { SwapTokenAmountInput } from "@/components/swap/SwapTokenAmountInput"
 import {
   Select,
   SelectContent,
@@ -271,7 +271,7 @@ export function BridgeCard() {
             <span className="text-muted-foreground text-xs">Balance: 0.00</span>
           </div>
 
-          <DexTokenAmountInput
+          <SwapTokenAmountInput
             tokenValue={inputToken.symbol}
             onTokenChange={(symbol) => {
               const token = SUPPORTED_TOKENS.find((item) => item.symbol === symbol)

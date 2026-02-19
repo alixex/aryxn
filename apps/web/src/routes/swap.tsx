@@ -1,10 +1,10 @@
 import { AppLayout } from "@/components/layout/AppLayout"
-import DexPage from "@/pages/Dex"
+import SwapPage from "@/pages/Swap"
 
-export default function Dex() {
+export default function Swap() {
   return (
     <AppLayout>
-      <DexPage />
+      <SwapPage />
     </AppLayout>
   )
 }

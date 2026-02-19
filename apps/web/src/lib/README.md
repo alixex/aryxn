@@ -34,7 +34,7 @@ lib/
 ## 🔄 模块依赖关系
 
 ```
-payment/ ──→ dex-hooks
+payment/ ──→ swap-hooks
    ↓
  chain/
    ↓
@@ -49,7 +49,7 @@ utils/ ←─ database/
 
 **依赖流向说明：**
 
-- payment 依赖 chain（多链支持）和 dex-hooks（交换）
+- payment 依赖 chain（多链支持）和 swap-hooks（交换）
 - file 依赖 storage（Arweave 上传）和 database（本地索引）
 - wallet 依赖 crypto（加密）和 database（存储）
 - utils 被所有模块使用

@@ -1,5 +1,5 @@
 /**
- * DEX swap hook for internal wallet accounts
+ * Swap hook for internal wallet accounts
  * Uses ethers.js with internal wallet private keys instead of wagmi
  */
 
@@ -47,7 +47,7 @@ interface UseInternalSwapParams {
   slippage: number
 }
 
-export function useInternalDexSwap({
+export function useInternalSwap({
   inputToken,
   outputToken,
   inputAmount,

@@ -1,13 +1,13 @@
-# DEX Hooks
+# Swap Hooks
 
-分布式交易所（DEX）相关的 hooks。支持多链的 token 交换、授权、余额查询等操作。
+分布式交易所（Swap）相关的 hooks。支持多链 token 交换、授权、余额查询等操作。
 
 ## 目录结构
 
 ```
-dex-hooks/
-├── use-dex-swap.ts              # 外部钱包的 DEX 交换 (wagmi)
-├── use-dex-swap-internal.ts     # 内部钱包的 DEX 交换 (ethers.js)
+swap-hooks/
+├── use-swap.ts                  # 外部钱包的交换 (wagmi)
+├── use-swap-internal.ts         # 内部钱包的交换 (ethers.js)
 ├── use-swap-quote.ts            # 获取交换报价
 ├── use-fee-calculation.ts       # 计算交换费用
 ├── use-token-approval.ts        # Token 授权管理
@@ -24,7 +24,7 @@ dex-hooks/
 使用外部钱包（MetaMask）进行交换，基于 wagmi 和 ethers.js。
 
 ```typescript
-import { useMultiHopSwap } from "@/hooks/dex-hooks"
+import { useMultiHopSwap } from "@/hooks/swap-hooks"
 
 const {
   state, // 当前状态
@@ -40,12 +40,12 @@ const {
 })
 ```
 
-### `useInternalDexSwap()` (内部钱包)
+### `useInternalSwap()` (内部钱包)
 
 使用内部钱包进行交换，基于 ethers.js 和内部密钥管理。
 
 ```typescript
-import { useInternalDexSwap } from "@/hooks/dex-hooks"
+import { useInternalSwap } from "@/hooks/swap-hooks"
 
 const {
   state, // 当前状态
@@ -53,7 +53,7 @@ const {
   inputAmount, // 输入金额
   setInputAmount, // 设置输入金额
   executeSwap, // 执行交换
-} = useInternalDexSwap({
+} = useInternalSwap({
   inputToken: "0x...",
   outputToken: "0x...",
   inputAmount: "100",
@@ -68,7 +68,7 @@ const {
 获取交换报价。
 
 ```typescript
-import { useSwapQuote } from "@/hooks/dex-hooks"
+import { useSwapQuote } from "@/hooks/swap-hooks"
 
 const quote = await useSwapQuote({
   inputToken: "0x...",
@@ -82,7 +82,7 @@ const quote = await useSwapQuote({
 计算交换时的费用。
 
 ```typescript
-import { useFeeCalculation } from "@/hooks/dex-hooks"
+import { useFeeCalculation } from "@/hooks/swap-hooks"
 
 const { protocolFee, lpFee, totalFee } = useFeeCalculation(quote)
 ```
@@ -92,7 +92,7 @@ const { protocolFee, lpFee, totalFee } = useFeeCalculation(quote)
 管理 token 授权。
 
 ```typescript
-import { useTokenApproval } from "@/hooks/dex-hooks"
+import { useTokenApproval } from "@/hooks/swap-hooks"
 
 const { allowance, isApproved, approveToken, revokeApproval } =
   useTokenApproval(tokenAddress, spenderAddress)
@@ -103,7 +103,7 @@ const { allowance, isApproved, approveToken, revokeApproval } =
 查询 token 余额。
 
 ```typescript
-import { useTokenBalance } from "@/hooks/dex-hooks"
+import { useTokenBalance } from "@/hooks/swap-hooks"
 
 const { balance, formatted, loading } = useTokenBalance(
   tokenAddress,
@@ -116,7 +116,7 @@ const { balance, formatted, loading } = useTokenBalance(
 管理和跟踪 DEX 交换交易历史。
 
 ```typescript
-import { useTransactionHistory } from "@/hooks/dex-hooks"
+import { useTransactionHistory } from "@/hooks/swap-hooks"
 
 const transactions = useTransactionHistory()
 // 返回该用户的所有历史交易
@@ -141,7 +141,7 @@ if (swap.state === SwapState.READY) {
 ### 场景 2: 使用内部钱包进行交换
 
 ```typescript
-const swap = useInternalDexSwap({
+const swap = useInternalSwap({
   inputToken: USDC_ADDRESS,
   outputToken: USDT_ADDRESS,
   inputAmount: "100",
@@ -158,7 +158,7 @@ if (swap.state === SwapState.READY) {
 ### 场景 3: 获取报价和计算费用
 
 ```typescript
-import { useSwapQuote, useFeeCalculation } from "@/hooks/dex-hooks"
+import { useSwapQuote, useFeeCalculation } from "@/hooks/swap-hooks"
 
 const quote = await useSwapQuote({...})
 const fees = useFeeCalculation(quote)
@@ -169,7 +169,7 @@ console.log(`Total Fee: ${fees.totalFee}%`)
 
 ## 状态机
 
-DEX 交换状态流转：
+Swap 状态流转：
 
 ```
 IDLE

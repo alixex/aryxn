@@ -218,17 +218,17 @@ const amount = "100" // 不知道精度
 
 ## 与 DEX 的集成
 
-Payment 服务自动与 dex-hooks 集成，用于：
+Payment 服务自动与 swap-hooks 集成，用于：
 
 1. **多链交换** - 支持 Ethereum、Polygon 等网络
 2. **价格查询** - 通过 DEX 当前价格而非固定汇率
 3. **自动路由** - 找到最优的交换路径
 
-参考 `@/hooks/dex-hooks` 了解交换详情。
+参考 `@/hooks/swap-hooks` 了解交换详情。
 
 ## 依赖关系
 
-- `@/hooks/dex-hooks` - DEX 交换实现
+- `@/hooks/swap-hooks` - 交换实现
 - `@/lib/chain` - 多链工具
 - CoinGecko API - 历史汇率数据
 

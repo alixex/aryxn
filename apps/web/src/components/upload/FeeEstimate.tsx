@@ -1,7 +1,7 @@
 import { useTranslation } from "@/i18n/config"
 import { Calculator, Loader2, Zap } from "lucide-react"
 import { formatFileSize, formatTimestamp } from "@/lib/utils"
-import type { FeeEstimate } from "@/hooks/dex-hooks"
+import type { FeeEstimate } from "@/hooks/swap-hooks"
 import type { PaymentToken } from "@/lib/payment"
 
 interface FeeEstimateProps {

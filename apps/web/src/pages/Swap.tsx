@@ -8,12 +8,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useWallet } from "@/hooks/account-hooks"
 import type { WalletRecord } from "@/lib/utils"
 // Components
-import { SwapCard } from "@/components/dex/SwapCard"
-import { BridgeCard } from "@/components/dex/BridgeCard"
-import { TransferCard } from "@/components/dex/TransferCard"
-import { TransactionHistory } from "@/components/dex/TransactionHistory"
+import { SwapCard } from "@/components/swap/SwapCard"
+import { BridgeCard } from "@/components/swap/BridgeCard"
+import { TransferCard } from "@/components/swap/TransferCard"
+import { TransactionHistory } from "@/components/swap/TransactionHistory"
 
-export default function DexPage() {
+export default function SwapPage() {
   const { t } = useTranslation()
   const { isConnected, address: externalAddress } = useConnection()
   const wallet = useWallet()

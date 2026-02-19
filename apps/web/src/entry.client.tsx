@@ -10,7 +10,7 @@ import Upload from "./routes/upload"
 import Dashboard from "./routes/dashboard"
 import Account from "./routes/account"
 import Settings from "./routes/settings"
-import Dex from "./routes/dex"
+import Swap from "./routes/swap"
 import NotFound from "./routes/not-found"
 import { initDatabaseWithSchema } from "./lib/database"
 
@@ -34,7 +34,7 @@ initDatabaseWithSchema()
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/upload" element={<Upload />} />
-              <Route path="/swap" element={<Dex />} />
+              <Route path="/swap" element={<Swap />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/account" element={<Account />} />
               <Route path="/settings" element={<Settings />} />

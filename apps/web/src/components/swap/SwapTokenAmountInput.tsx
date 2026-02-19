@@ -15,7 +15,7 @@ type DexTokenOption = {
   badge?: string
 }
 
-type DexTokenAmountInputProps = {
+type SwapTokenAmountInputProps = {
   tokenValue: string
   onTokenChange: (value: string) => void
   tokenOptions: DexTokenOption[]
@@ -31,7 +31,7 @@ type DexTokenAmountInputProps = {
   tokenTriggerClassName?: string
 }
 
-export function DexTokenAmountInput({
+export function SwapTokenAmountInput({
   tokenValue,
   onTokenChange,
   tokenOptions,
@@ -45,7 +45,7 @@ export function DexTokenAmountInput({
   className,
   amountClassName,
   tokenTriggerClassName,
-}: DexTokenAmountInputProps) {
+}: SwapTokenAmountInputProps) {
   return (
     <div
       className={cn(
