@@ -4,6 +4,7 @@
  */
 
 import type { Address } from "@aryxn/wallet-core"
+import { DexTokenSymbolsByAccountChain } from "@aryxn/chain-constants"
 import { TOKEN_ADDRESSES } from "./addresses"
 
 /**
@@ -89,18 +90,10 @@ export const SUPPORTED_TOKENS: TokenInfo[] = [
   },
 ]
 
-const DEX_TOKEN_SYMBOLS_BY_ACCOUNT_CHAIN: Partial<Record<string, string[]>> = {
-  ethereum: ["USDT", "USDC", "WBTC", "WETH"],
-  solana: ["SOL", "USDC", "USDT", "V2EX"],
-  sui: ["SUI", "USDC", "USDT"],
-  arweave: ["AR"],
-  bitcoin: ["WBTC"],
-}
-
 export function getDexTokensByAccountChain(chain?: string): TokenInfo[] {
   if (!chain) return SUPPORTED_TOKENS
 
-  const symbols = DEX_TOKEN_SYMBOLS_BY_ACCOUNT_CHAIN[chain]
+  const symbols = DexTokenSymbolsByAccountChain[chain]
   if (!symbols || symbols.length === 0) {
     return SUPPORTED_TOKENS.filter((token) => token.chain === chain)
   }

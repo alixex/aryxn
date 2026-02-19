@@ -102,3 +102,13 @@ export const UploadTokenNativeChainBySymbol: Partial<
   SUI: Chains.SUI,
   V2EX: Chains.SOLANA,
 }
+
+export const DexTokenSymbolsByAccountChain: Readonly<
+  Partial<Record<string, readonly string[]>>
+> = {
+  [Chains.ETHEREUM]: ["USDT", "USDC", "WBTC", "WETH"],
+  [Chains.SOLANA]: ["SOL", "USDC", "USDT", "V2EX"],
+  [Chains.SUI]: ["SUI", "USDC", "USDT"],
+  [Chains.ARWEAVE]: ["AR"],
+  [Chains.BITCOIN]: ["WBTC"],
+} as const
