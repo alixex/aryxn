@@ -23,7 +23,9 @@ export function AccountStatusBadge({
         <div className="text-muted-foreground mb-0.5 text-[10px] leading-tight font-bold tracking-wider uppercase">
           {label}
         </div>
-        <div className="text-foreground truncate text-sm font-bold">{value}</div>
+        <div className="text-foreground truncate text-sm font-bold">
+          {value}
+        </div>
       </div>
 
       {actionHref && actionIcon && (

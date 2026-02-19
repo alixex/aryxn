@@ -133,7 +133,9 @@ export function PaymentTokenSelector({
   }, [selectedToken, selectedAccount])
 
   const handleAccountChange = (value: string) => {
-    const nextAccount = supportedAccounts.find((item) => accountValue(item) === value)
+    const nextAccount = supportedAccounts.find(
+      (item) => accountValue(item) === value,
+    )
     onSelectAccount(nextAccount || null)
   }
 
@@ -155,7 +157,10 @@ export function PaymentTokenSelector({
             <div className="flex items-center gap-2">
               <Wallet className="text-muted-foreground h-4 w-4" />
               <SelectValue
-                placeholder={t("upload.selectPaymentAccount", "Select payment account")}
+                placeholder={t(
+                  "upload.selectPaymentAccount",
+                  "Select payment account",
+                )}
               />
             </div>
           </SelectTrigger>
@@ -169,7 +174,9 @@ export function PaymentTokenSelector({
                 <div className="flex flex-col gap-0.5">
                   <span className="text-xs font-medium">
                     {account.alias ||
-                      (account.isExternal ? "External Wallet" : "Private Vault")}
+                      (account.isExternal
+                        ? "External Wallet"
+                        : "Private Vault")}
                   </span>
                   <span className="text-muted-foreground text-[10px]">
                     {account.chain} · {formatAddress(account.address)}
@@ -187,7 +194,10 @@ export function PaymentTokenSelector({
         >
           <SelectTrigger className="border-border bg-background h-12 w-full rounded-xl shadow-sm transition-all hover:shadow-md">
             <SelectValue
-              placeholder={t("upload.selectPaymentToken", "Select payment token")}
+              placeholder={t(
+                "upload.selectPaymentToken",
+                "Select payment token",
+              )}
             />
           </SelectTrigger>
           <SelectContent className="rounded-xl border shadow-lg">

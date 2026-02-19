@@ -72,6 +72,7 @@ export function isEVMChain(chainId: ChainId): boolean {
  * Get ChainId from chain name
  */
 export function getChainIdFromName(chainName: string): ChainId | null {
-  const chainId = ChainNameToId[chainName.toLowerCase() as keyof typeof ChainNameToId]
+  const chainId =
+    ChainNameToId[chainName.toLowerCase() as keyof typeof ChainNameToId]
   return (chainId as ChainId | undefined) || null
 }

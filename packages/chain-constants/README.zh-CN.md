@@ -21,11 +21,11 @@ pnpm add @aryxn/chain-constants
 ## 快速开始
 
 ```typescript
-import { 
-  Chains, 
-  ChainIds, 
+import {
+  Chains,
+  ChainIds,
   getExplorerTxUrl,
-  AccountChains 
+  AccountChains,
 } from "@aryxn/chain-constants"
 
 // 使用类型安全的链常量
@@ -41,7 +41,7 @@ const txUrl = getExplorerTxUrl(Chains.ETHEREUM, "0xabc...")
 // => "https://etherscan.io/tx/0xabc..."
 
 // 遍历支持的链
-AccountChains.forEach(chain => {
+AccountChains.forEach((chain) => {
   console.log(`支持 ${chain}`)
 })
 ```
@@ -65,6 +65,7 @@ export const Chains = {
 ```
 
 **用法：**
+
 ```typescript
 import { Chains } from "@aryxn/chain-constants"
 
@@ -157,9 +158,9 @@ export const AppSyncChains = [
 import { ChainNameToId } from "@aryxn/chain-constants"
 
 ChainNameToId.ethereum // 1
-ChainNameToId.eth       // 1 (别名)
-ChainNameToId.polygon   // 137
-ChainNameToId.matic     // 137 (别名)
+ChainNameToId.eth // 1 (别名)
+ChainNameToId.polygon // 137
+ChainNameToId.matic // 137 (别名)
 ```
 
 #### `ChainIdToName`
@@ -169,7 +170,7 @@ ChainNameToId.matic     // 137 (别名)
 ```typescript
 import { ChainIdToName } from "@aryxn/chain-constants"
 
-ChainIdToName[1]   // "Ethereum"
+ChainIdToName[1] // "Ethereum"
 ChainIdToName[137] // "Polygon"
 ```
 
@@ -204,8 +205,8 @@ getExplorerTxUrl("unknown", "abc123")
 import { isKnownExplorerChain } from "@aryxn/chain-constants"
 
 isKnownExplorerChain("ethereum") // true
-isKnownExplorerChain("solana")   // true
-isKnownExplorerChain("unknown")  // false
+isKnownExplorerChain("solana") // true
+isKnownExplorerChain("unknown") // false
 ```
 
 #### `ExplorerTxBaseByChain`

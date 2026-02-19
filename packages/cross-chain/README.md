@@ -39,7 +39,10 @@ const risk = await liFiBridgeService.assessRisk(route)
 import { liFiBridgeService } from "@aryxn/cross-chain"
 import type { Signer } from "ethers"
 
-const txHash = await liFiBridgeService.executeBridgeTransaction(route, signer as Signer)
+const txHash = await liFiBridgeService.executeBridgeTransaction(
+  route,
+  signer as Signer,
+)
 ```
 
 ### 3) Check bridge status (manual refresh flow)
@@ -48,7 +51,11 @@ const txHash = await liFiBridgeService.executeBridgeTransaction(route, signer as
 import { BridgeStatusTracker } from "@aryxn/cross-chain"
 
 if (BridgeStatusTracker.canRefresh(txHash)) {
-  const info = await BridgeStatusTracker.checkStatus(txHash, fromChainId, toChainId)
+  const info = await BridgeStatusTracker.checkStatus(
+    txHash,
+    fromChainId,
+    toChainId,
+  )
   console.log(info.status, info.substatus)
 }
 ```
@@ -58,7 +65,11 @@ if (BridgeStatusTracker.canRefresh(txHash)) {
 ```typescript
 import { BridgeRecovery } from "@aryxn/cross-chain"
 
-const recoverable = await BridgeRecovery.isRecoverable(txHash, fromChainId, toChainId)
+const recoverable = await BridgeRecovery.isRecoverable(
+  txHash,
+  fromChainId,
+  toChainId,
+)
 const rec = await BridgeRecovery.getRecommendations(
   txHash,
   fromChainId,

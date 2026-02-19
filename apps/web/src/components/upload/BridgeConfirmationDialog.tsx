@@ -43,22 +43,16 @@ export function BridgeConfirmationDialog({
           </DialogTitle>
           <DialogDescription className="pt-2 text-center">
             {isBridge
-              ? t(
-                  "upload.bridgeRequiredDesc",
-                  {
-                    token,
-                    defaultValue:
-                      "To pay with {{token}}, a cross-chain bridge transaction is required.",
-                  },
-                )
-              : t(
-                  "upload.swapRequiredDesc",
-                  {
-                    token,
-                    defaultValue:
-                      "To pay with {{token}}, a swap is required first.",
-                  },
-                )}
+              ? t("upload.bridgeRequiredDesc", {
+                  token,
+                  defaultValue:
+                    "To pay with {{token}}, a cross-chain bridge transaction is required.",
+                })
+              : t("upload.swapRequiredDesc", {
+                  token,
+                  defaultValue:
+                    "To pay with {{token}}, a swap is required first.",
+                })}
           </DialogDescription>
         </DialogHeader>
 

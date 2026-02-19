@@ -185,7 +185,9 @@ export default function DashboardPage() {
         <PageHeader
           title={t("common.dashboard")}
           description={t("history.desc")}
-          icon={<LayoutDashboard className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8" />}
+          icon={
+            <LayoutDashboard className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8" />
+          }
           iconContainerClassName="bg-gradient-primary glow-purple"
           rightSlot={
             <AccountStatusBadge
@@ -193,14 +195,18 @@ export default function DashboardPage() {
               value={
                 walletManager.activeAddress
                   ? walletManager.wallets.find(
-                      (w: WalletRecord) => w.address === walletManager.activeAddress,
+                      (w: WalletRecord) =>
+                        w.address === walletManager.activeAddress,
                     )?.alias || "Unnamed"
                   : t("common.noAccount")
               }
               actionHref="/account"
               actionAriaLabel={t("common.account")}
               actionIcon={
-                <Lock className="text-muted-foreground h-4 w-4" aria-hidden="true" />
+                <Lock
+                  className="text-muted-foreground h-4 w-4"
+                  aria-hidden="true"
+                />
               }
             />
           }

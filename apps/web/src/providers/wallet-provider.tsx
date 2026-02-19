@@ -341,7 +341,9 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       connect: async (chain: string) => {
         const connectHandlers: Record<string, () => Promise<any>> = {
           [Chains.ARWEAVE]: async () =>
-            external.connectArweave ? await external.connectArweave() : undefined,
+            external.connectArweave
+              ? await external.connectArweave()
+              : undefined,
           [Chains.SOLANA]: async () =>
             external.connectSolana ? await external.connectSolana() : undefined,
           [Chains.SUI]: async () =>

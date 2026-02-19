@@ -36,7 +36,9 @@ export function UploadConfigurationCard({
   const [encryptUpload, setEncryptUpload] = useState(false)
   const [compressUpload, setCompressUpload] = useState(false)
   const [paymentToken, setPaymentToken] = useState<PaymentToken>("AR")
-  const [paymentAccount, setPaymentAccount] = useState<PaymentAccount | null>(null)
+  const [paymentAccount, setPaymentAccount] = useState<PaymentAccount | null>(
+    null,
+  )
 
   const {
     estimatedFee,

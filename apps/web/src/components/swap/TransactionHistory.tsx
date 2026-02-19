@@ -11,7 +11,11 @@ import {
   FileCheck,
 } from "lucide-react"
 import type { RecoveryAction } from "@aryxn/cross-chain"
-import { AppSyncChains, getExplorerTxUrl, isKnownExplorerChain } from "@aryxn/chain-constants"
+import {
+  AppSyncChains,
+  getExplorerTxUrl,
+  isKnownExplorerChain,
+} from "@aryxn/chain-constants"
 import { useTranslation } from "@/i18n/config"
 import { cn } from "@/lib/utils"
 import { useBridgeHistory } from "@/lib/store/bridge-history"
@@ -373,9 +377,7 @@ export function TransactionHistory() {
 
                     {tx.hash && <span>{shortHash(tx.hash)}</span>}
 
-                    <span className="max-w-45 truncate">
-                      {tx.description}
-                    </span>
+                    <span className="max-w-45 truncate">{tx.description}</span>
 
                     {explorerUrl && (
                       <a

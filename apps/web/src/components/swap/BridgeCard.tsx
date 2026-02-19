@@ -312,7 +312,9 @@ export function BridgeCard() {
           <SwapTokenAmountInput
             tokenValue={inputToken.symbol}
             onTokenChange={(symbol) => {
-              const token = SUPPORTED_TOKENS.find((item) => item.symbol === symbol)
+              const token = SUPPORTED_TOKENS.find(
+                (item) => item.symbol === symbol,
+              )
               if (token) setInputToken(token)
             }}
             tokenOptions={tokenOptions}

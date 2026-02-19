@@ -134,9 +134,7 @@ export function getExplorerTxUrl(
 
   const normalizedChain = chain.toLowerCase()
   const base =
-    ExplorerTxBaseByChain[
-      normalizedChain as keyof typeof ExplorerTxBaseByChain
-    ]
+    ExplorerTxBaseByChain[normalizedChain as keyof typeof ExplorerTxBaseByChain]
 
   if (base) {
     return `${base}${txHash}`
@@ -163,8 +161,7 @@ export const TokenSymbolToIrysChain = {
 export function normalizeTokenToIrysName(token: string): string {
   const lowerToken = token.toLowerCase()
   return (
-    TokenSymbolToIrysChain[
-      lowerToken as keyof typeof TokenSymbolToIrysChain
-    ] || lowerToken
+    TokenSymbolToIrysChain[lowerToken as keyof typeof TokenSymbolToIrysChain] ||
+    lowerToken
   )
 }

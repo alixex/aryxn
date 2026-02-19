@@ -40,8 +40,8 @@ export default function UploadPage() {
   // Check if user can upload
   const canUpload = Boolean(
     (selectedFiles.file || selectedFiles.files.length > 0) &&
-      hasArweaveAccount &&
-      uploadConfig.paymentAccount,
+    hasArweaveAccount &&
+    uploadConfig.paymentAccount,
   )
   const isDisabled = !hasArweaveAccount
 

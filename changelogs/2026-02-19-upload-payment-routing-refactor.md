@@ -99,21 +99,21 @@ Swap 页面继续承接：
 - 新增友好提示文案：创建前提示“正在创建”，创建成功提示“已创建并自动切换”，失败时返回明确错误原因。
 - 新增统一配置入口（上传可选链、可选代币、路由判定）并在支付服务中集中维护，后续调整只需改一处。
 - 将统一配置进一步拆分为独立模块：
-	- `lib/payment/types.ts`（共享类型）
-	- `lib/payment/upload-payment-config.ts`（上传支付配置与路由辅助）
-	- `payment-service` 仅保留执行逻辑，便于后续维护与扩展。
+  - `lib/payment/types.ts`（共享类型）
+  - `lib/payment/upload-payment-config.ts`（上传支付配置与路由辅助）
+  - `payment-service` 仅保留执行逻辑，便于后续维护与扩展。
 - `Token configuration metadata` 已迁移到 `packages/chain-constants/src/tokens.ts`，并由 Web 侧直接复用，减少重复定义与漂移风险。
 - 支付选择改为“账户优先、代币后选”，并把选择的支付账户透传到执行层。
 - 按账户链约束代币：
-	- Arweave: `AR`
-	- Ethereum: `ETH` / `USDC` / `USDT`
-	- Solana: `SOL` / `USDC` / `USDT` / `V2EX`
+  - Arweave: `AR`
+  - Ethereum: `ETH` / `USDC` / `USDT`
+  - Solana: `SOL` / `USDC` / `USDT` / `V2EX`
 - 上传支付可选地址链改为：`SOL` / `ETH` / `SUI` / `AR`。
 - 上传支付可选代币统一为：`USDT` / `USDC` / `ETH` / `SOL` / `SUI` / `AR` / `V2EX`。
 - 三层分流在 `payment-service` 统一：
-	- Tier 1: AR 原生支付
-	- Tier 2: ETH / SOL / USDC 走 Irys
-	- Tier 3: 其他按配置判定为 `REQUIRE_SWAP` 或 `REQUIRE_BRIDGE`
+  - Tier 1: AR 原生支付
+  - Tier 2: ETH / SOL / USDC 走 Irys
+  - Tier 3: 其他按配置判定为 `REQUIRE_SWAP` 或 `REQUIRE_BRIDGE`
 - 修复单文件上传桥接返回状态丢失问题，单文件/批量统一返回结构。
 - 当触发 Swap/Bridge 时先弹统一确认提示，提示“跳转后可能需要重新上传”，用户确认后再跳转。
 - 上传桥接确认后改为站内跳转 `Swap`（默认 `Bridge` 或 `Swap` 标签，带来源上下文），不再直接外跳第三方页面。
@@ -141,11 +141,11 @@ Swap 页面继续承接：
 1. 进入 Upload，选择任意文件，确认“支付账户”下拉可选账户来自 AR/ETH/SOL 三链。
 2. 选择 AR 账户，确认“支付代币”仅显示 `AR`，执行上传应直接进入上传流程。
 3. 选择 ETH 账户，确认“支付代币”为 `ETH/USDC/USDT`：
-	- 选 `ETH` 或 `USDC` 上传，应进入 Irys 支付并继续上传。
-	- 选 `USDT` 上传，应弹出桥接确认。
+   - 选 `ETH` 或 `USDC` 上传，应进入 Irys 支付并继续上传。
+   - 选 `USDT` 上传，应弹出桥接确认。
 4. 选择 SOL 账户，确认“支付代币”为 `SOL/USDC/USDT/V2EX`：
-	- 选 `SOL` 或 `USDC` 上传，应进入 Irys 支付并继续上传。
-	- 选 `USDT` 或 `V2EX` 上传，应弹出桥接确认。
+   - 选 `SOL` 或 `USDC` 上传，应进入 Irys 支付并继续上传。
+   - 选 `USDT` 或 `V2EX` 上传，应弹出桥接确认。
 5. 在桥接确认中点击继续，页面应跳转 `/swap?tab=bridge&source=upload...`，并默认打开 Bridge 标签。
 6. 在 Swap 侧栏检查交易历史，可见记录并可进行刷新/恢复操作（Retry/Claim/Speed Up）。
 
@@ -196,8 +196,8 @@ pnpm --filter=@aryxn/web type-check
 ```
 
 4. 重点验收：
-	- Upload AR 直付可用
-	- Swap 页面可正常打开与查看历史
+   - Upload AR 直付可用
+   - Swap 页面可正常打开与查看历史
 
 ### 受影响关键文件（回滚关注）
 

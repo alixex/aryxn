@@ -17,7 +17,10 @@ export interface UploadHandlerResult {
   failed: number
 }
 
-function resolveWalletKeyForPayment(paymentAccount: PaymentAccount, wallet: any) {
+function resolveWalletKeyForPayment(
+  paymentAccount: PaymentAccount,
+  wallet: any,
+) {
   if (!paymentAccount.isExternal) {
     return wallet.internal.activeWallet
   }
@@ -56,18 +59,32 @@ export function useUploadHandler() {
       paymentAccount: PaymentAccount | null,
     ) => {
       if (!file) {
-        return { status: "FAILED", success: 0, failed: 1 } as UploadHandlerResult
+        return {
+          status: "FAILED",
+          success: 0,
+          failed: 1,
+        } as UploadHandlerResult
       }
 
       const activeArweave = wallet.active.arweave
       if (!activeArweave) {
         toast.error(t("upload.needAccountToUpload"))
-        return { status: "FAILED", success: 0, failed: 1 } as UploadHandlerResult
+        return {
+          status: "FAILED",
+          success: 0,
+          failed: 1,
+        } as UploadHandlerResult
       }
 
       if (!paymentAccount) {
-        toast.error(t("upload.selectPaymentAccount", "Please select a payment account"))
-        return { status: "FAILED", success: 0, failed: 1 } as UploadHandlerResult
+        toast.error(
+          t("upload.selectPaymentAccount", "Please select a payment account"),
+        )
+        return {
+          status: "FAILED",
+          success: 0,
+          failed: 1,
+        } as UploadHandlerResult
       }
 
       setUploading(true)
@@ -99,7 +116,11 @@ export function useUploadHandler() {
         }
 
         if (paymentResult === "REQUIRE_SWAP") {
-          return { status: "SWAP_REQUIRED", success: 0, failed: 0 } as UploadHandlerResult
+          return {
+            status: "SWAP_REQUIRED",
+            success: 0,
+            failed: 0,
+          } as UploadHandlerResult
         }
 
         if (paymentResult === "REQUIRE_BRIDGE") {
@@ -110,7 +131,11 @@ export function useUploadHandler() {
             ),
           )
           // In a real implementation: window.location.href = "/bridge" or showModal()
-          return { status: "BRIDGE_REQUIRED", success: 0, failed: 0 } as UploadHandlerResult
+          return {
+            status: "BRIDGE_REQUIRED",
+            success: 0,
+            failed: 0,
+          } as UploadHandlerResult
         }
 
         const useIrys = paymentResult === "PAID_IRYS"
@@ -141,14 +166,22 @@ export function useUploadHandler() {
         )
 
         toast.success(t("upload.successArweave"))
-        return { status: "SUCCESS", success: 1, failed: 0 } as UploadHandlerResult
+        return {
+          status: "SUCCESS",
+          success: 1,
+          failed: 0,
+        } as UploadHandlerResult
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : String(error)
         toast.error(
           t("upload.failed", { protocol: "Arweave", message: errorMessage }),
         )
-        return { status: "FAILED", success: 0, failed: 1 } as UploadHandlerResult
+        return {
+          status: "FAILED",
+          success: 0,
+          failed: 1,
+        } as UploadHandlerResult
       } finally {
         setUploading(false)
         setProgress(0)
@@ -168,18 +201,32 @@ export function useUploadHandler() {
       paymentAccount: PaymentAccount | null,
     ) => {
       if (files.length === 0) {
-        return { status: "FAILED", success: 0, failed: 0 } as UploadHandlerResult
+        return {
+          status: "FAILED",
+          success: 0,
+          failed: 0,
+        } as UploadHandlerResult
       }
 
       const activeArweave = wallet.active.arweave
       if (!activeArweave) {
         toast.error(t("upload.needAccountToUpload"))
-        return { status: "FAILED", success: 0, failed: files.length } as UploadHandlerResult
+        return {
+          status: "FAILED",
+          success: 0,
+          failed: files.length,
+        } as UploadHandlerResult
       }
 
       if (!paymentAccount) {
-        toast.error(t("upload.selectPaymentAccount", "Please select a payment account"))
-        return { status: "FAILED", success: 0, failed: files.length } as UploadHandlerResult
+        toast.error(
+          t("upload.selectPaymentAccount", "Please select a payment account"),
+        )
+        return {
+          status: "FAILED",
+          success: 0,
+          failed: files.length,
+        } as UploadHandlerResult
       }
 
       setUploading(true)
@@ -214,12 +261,20 @@ export function useUploadHandler() {
         }
 
         if (paymentResult === "REQUIRE_SWAP") {
-          return { status: "SWAP_REQUIRED", success: 0, failed: 0 } as UploadHandlerResult
+          return {
+            status: "SWAP_REQUIRED",
+            success: 0,
+            failed: 0,
+          } as UploadHandlerResult
         }
 
         if (paymentResult === "REQUIRE_BRIDGE") {
           // toast.info(...) // Handled by Dialog
-          return { status: "BRIDGE_REQUIRED", success: 0, failed: 0 } as UploadHandlerResult
+          return {
+            status: "BRIDGE_REQUIRED",
+            success: 0,
+            failed: 0,
+          } as UploadHandlerResult
         }
 
         const useIrys = paymentResult === "PAID_IRYS"

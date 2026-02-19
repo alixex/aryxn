@@ -1,6 +1,12 @@
 import { AppLayout } from "@/components/layout/AppLayout"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { useTranslation } from "@/i18n/config"
 import { Compass } from "lucide-react"
 import { Link } from "react-router-dom"

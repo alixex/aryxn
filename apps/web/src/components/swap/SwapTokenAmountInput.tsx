@@ -68,7 +68,9 @@ export function SwapTokenAmountInput({
           {tokenOptions.map((option) => (
             <SelectItem key={option.value} value={option.value}>
               <div className="flex items-center gap-2">
-                <span className="text-foreground font-bold">{option.label}</span>
+                <span className="text-foreground font-bold">
+                  {option.label}
+                </span>
                 {option.badge && (
                   <span className="text-muted-foreground text-xs uppercase">
                     {option.badge}
@@ -90,7 +92,9 @@ export function SwapTokenAmountInput({
         inputMode={amountInputMode}
         placeholder={amountPlaceholder}
         value={amountValue}
-        onChange={onAmountChange ? (e) => onAmountChange(e.target.value) : undefined}
+        onChange={
+          onAmountChange ? (e) => onAmountChange(e.target.value) : undefined
+        }
         readOnly={amountReadOnly}
         autoComplete="off"
         aria-label={amountAriaLabel}

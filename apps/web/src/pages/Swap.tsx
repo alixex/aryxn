@@ -100,27 +100,28 @@ export default function SwapPage() {
               )}
             </div>
 
-            {bridgeFromUpload && (activeTab === "bridge" || activeTab === "swap") && (
-              <div className="border-border bg-card/50 text-muted-foreground mb-4 rounded-xl border px-4 py-3 text-sm">
-                {redirectAction === "swap"
-                  ? t(
-                      "dex.swapIntentFromUpload",
-                      "Swap required for upload payment",
-                    )
-                  : t(
-                      "dex.bridgeIntentFromUpload",
-                      "Bridge required for upload payment",
+            {bridgeFromUpload &&
+              (activeTab === "bridge" || activeTab === "swap") && (
+                <div className="border-border bg-card/50 text-muted-foreground mb-4 rounded-xl border px-4 py-3 text-sm">
+                  {redirectAction === "swap"
+                    ? t(
+                        "dex.swapIntentFromUpload",
+                        "Swap required for upload payment",
+                      )
+                    : t(
+                        "dex.bridgeIntentFromUpload",
+                        "Bridge required for upload payment",
+                      )}
+                  {bridgeToken && ` · ${bridgeToken}`}
+                  {bridgeChain && ` · ${bridgeChain}`}
+                  <div className="mt-1 text-xs opacity-80">
+                    {t(
+                      "dex.uploadRetryHint",
+                      "After completing swap/bridge, return to Upload and submit again.",
                     )}
-                {bridgeToken && ` · ${bridgeToken}`}
-                {bridgeChain && ` · ${bridgeChain}`}
-                <div className="mt-1 text-xs opacity-80">
-                  {t(
-                    "dex.uploadRetryHint",
-                    "After completing swap/bridge, return to Upload and submit again.",
-                  )}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
             <Tabs
               defaultValue={defaultTab}

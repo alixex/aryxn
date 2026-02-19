@@ -7,11 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { SwapTokenAmountInput } from "@/components/swap/SwapTokenAmountInput"
-import {
-  useMultiHopSwap,
-  SwapState,
-  useInternalSwap,
-} from "@/hooks/swap-hooks"
+import { useMultiHopSwap, SwapState, useInternalSwap } from "@/hooks/swap-hooks"
 import { SUPPORTED_TOKENS, type TokenInfo } from "@/lib/contracts/token-config"
 import { useWallet, formatTimestamp } from "@/hooks/account-hooks"
 
@@ -298,7 +294,9 @@ export function SwapCard() {
           <SwapTokenAmountInput
             tokenValue={inputToken.symbol}
             onTokenChange={(symbol) => {
-              const token = SUPPORTED_TOKENS.find((item) => item.symbol === symbol)
+              const token = SUPPORTED_TOKENS.find(
+                (item) => item.symbol === symbol,
+              )
               if (token) setInputToken(token)
             }}
             tokenOptions={tokenOptions}
@@ -333,7 +331,9 @@ export function SwapCard() {
           <SwapTokenAmountInput
             tokenValue={outputToken.symbol}
             onTokenChange={(symbol) => {
-              const token = SUPPORTED_TOKENS.find((item) => item.symbol === symbol)
+              const token = SUPPORTED_TOKENS.find(
+                (item) => item.symbol === symbol,
+              )
               if (token) setOutputToken(token)
             }}
             tokenOptions={tokenOptions}

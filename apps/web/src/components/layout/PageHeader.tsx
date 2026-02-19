@@ -31,7 +31,10 @@ export function PageHeader({
             {icon}
           </div>
           <span
-            className={cn("bg-gradient-primary gradient-text leading-tight", titleClassName)}
+            className={cn(
+              "bg-gradient-primary gradient-text leading-tight",
+              titleClassName,
+            )}
           >
             {title}
           </span>

@@ -114,8 +114,8 @@ export function AccountSelector({ file }: AccountSelectorProps) {
           {t("upload.oneClickCreateArHint")}
         </p>
 
-        {walletManager.wallets.filter((w) => w.chain === Chains.ARWEAVE).length >
-        0 ? (
+        {walletManager.wallets.filter((w) => w.chain === Chains.ARWEAVE)
+          .length > 0 ? (
           <div className="mx-auto grid max-w-md grid-cols-1 gap-3">
             {walletManager.wallets
               .filter((w) => w.chain === Chains.ARWEAVE)

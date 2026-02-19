@@ -111,7 +111,9 @@ export function useWalletStorage(
 
               setActiveAddress(savedAddress)
               setActiveWallet(
-                wallet.chain === Chains.ARWEAVE ? JSON.parse(data.key) : data.key,
+                wallet.chain === Chains.ARWEAVE
+                  ? JSON.parse(data.key)
+                  : data.key,
               )
             }
           }

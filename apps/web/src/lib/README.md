@@ -368,10 +368,7 @@ async function uploadWithPayment(file, token) {
 
   // 计算费用
   const feeAR = 0.5
-    const feeInToken = await paymentService.estimateFeeInToken(
-      file.size,
-      token,
-    )
+  const feeInToken = await paymentService.estimateFeeInToken(file.size, token)
 
   // 上传
   const fileIndex = await uploadFile(compressed, { owner: address })

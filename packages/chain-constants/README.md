@@ -21,11 +21,11 @@ pnpm add @aryxn/chain-constants
 ## Quick Start
 
 ```typescript
-import { 
-  Chains, 
-  ChainIds, 
+import {
+  Chains,
+  ChainIds,
   getExplorerTxUrl,
-  AccountChains 
+  AccountChains,
 } from "@aryxn/chain-constants"
 
 // Use type-safe chain constants
@@ -41,7 +41,7 @@ const txUrl = getExplorerTxUrl(Chains.ETHEREUM, "0xabc...")
 // => "https://etherscan.io/tx/0xabc..."
 
 // Loop through supported chains
-AccountChains.forEach(chain => {
+AccountChains.forEach((chain) => {
   console.log(`Supporting ${chain}`)
 })
 ```
@@ -65,6 +65,7 @@ export const Chains = {
 ```
 
 **Usage:**
+
 ```typescript
 import { Chains } from "@aryxn/chain-constants"
 
@@ -157,9 +158,9 @@ Map chain names (with aliases) to numeric IDs:
 import { ChainNameToId } from "@aryxn/chain-constants"
 
 ChainNameToId.ethereum // 1
-ChainNameToId.eth       // 1 (alias)
-ChainNameToId.polygon   // 137
-ChainNameToId.matic     // 137 (alias)
+ChainNameToId.eth // 1 (alias)
+ChainNameToId.polygon // 137
+ChainNameToId.matic // 137 (alias)
 ```
 
 #### `ChainIdToName`
@@ -169,7 +170,7 @@ Reverse mapping from chain ID to display name:
 ```typescript
 import { ChainIdToName } from "@aryxn/chain-constants"
 
-ChainIdToName[1]   // "Ethereum"
+ChainIdToName[1] // "Ethereum"
 ChainIdToName[137] // "Polygon"
 ```
 
@@ -204,8 +205,8 @@ Check if a chain has a known explorer URL:
 import { isKnownExplorerChain } from "@aryxn/chain-constants"
 
 isKnownExplorerChain("ethereum") // true
-isKnownExplorerChain("solana")   // true
-isKnownExplorerChain("unknown")  // false
+isKnownExplorerChain("solana") // true
+isKnownExplorerChain("unknown") // false
 ```
 
 #### `ExplorerTxBaseByChain`
