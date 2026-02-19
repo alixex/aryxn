@@ -14,7 +14,7 @@ import {
   useExternalAggregation,
   type UseExternalWalletsReturn,
 } from "@/hooks/account-hooks/external-wallet/use-external-aggregation"
-import { AccountChains } from "@aryxn/chain-constants"
+import { AccountChains, Chains } from "@aryxn/chain-constants"
 import type {
   WalletRecord,
   WalletKey,
@@ -53,67 +53,65 @@ function buildExternalForChainFromExternal(
   external: UseExternalWalletsReturn,
   chain: string,
 ): AccountInfo[] {
-  const out: AccountInfo[] = []
-  if (chain === "ethereum") {
-    if (
-      external.isPaymentConnected &&
-      external.allEVMAddresses &&
-      Array.isArray(external.allEVMAddresses)
-    ) {
-      for (const address of external.allEVMAddresses) {
-        if (!address) continue
-        out.push({
-          id: `external-evm-${address}`,
-          chain: "ethereum",
-          address,
-          isExternal: true,
-          provider: "EVM",
-        })
+  const chainHandlers: Record<string, () => AccountInfo[]> = {
+    [Chains.ETHEREUM]: () => {
+      if (
+        !external.isPaymentConnected ||
+        !external.allEVMAddresses ||
+        !Array.isArray(external.allEVMAddresses)
+      ) {
+        return []
       }
-    }
-    return out
+      return external.allEVMAddresses
+        .filter((address) => !!address)
+        .map((address) => ({
+          id: `external-evm-${address}`,
+          chain: "ethereum" as const,
+          address,
+          isExternal: true as const,
+          provider: "EVM",
+        }))
+    },
+    [Chains.ARWEAVE]: () => {
+      if (!external.isArConnected || !external.arAddress) return []
+      return [
+        {
+          id: `external-arweave-${external.arAddress}`,
+          chain: "arweave" as const,
+          address: external.arAddress,
+          isExternal: true as const,
+          provider: "ArConnect",
+        },
+      ]
+    },
+    [Chains.SOLANA]: () => {
+      if (!external.isSolConnected || !external.solAddress) return []
+      return [
+        {
+          id: `external-solana-${external.solAddress}`,
+          chain: "solana" as const,
+          address: external.solAddress,
+          isExternal: true as const,
+          provider: "Phantom",
+        },
+      ]
+    },
+    [Chains.SUI]: () => {
+      if (!external.isSuiConnected || !external.suiAddress) return []
+      return [
+        {
+          id: `external-sui-${external.suiAddress}`,
+          chain: "sui" as const,
+          address: external.suiAddress,
+          isExternal: true as const,
+          provider: "Sui Wallet",
+        },
+      ]
+    },
   }
 
-  if (chain === "arweave") {
-    if (external.isArConnected && external.arAddress) {
-      out.push({
-        id: `external-arweave-${external.arAddress}`,
-        chain: "arweave",
-        address: external.arAddress,
-        isExternal: true,
-        provider: "ArConnect",
-      })
-    }
-    return out
-  }
-
-  if (chain === "solana") {
-    if (external.isSolConnected && external.solAddress) {
-      out.push({
-        id: `external-solana-${external.solAddress}`,
-        chain: "solana",
-        address: external.solAddress,
-        isExternal: true,
-        provider: "Phantom",
-      })
-    }
-    return out
-  }
-
-  if (chain === "sui") {
-    if (external.isSuiConnected && external.suiAddress) {
-      out.push({
-        id: `external-sui-${external.suiAddress}`,
-        chain: "sui",
-        address: external.suiAddress,
-        isExternal: true,
-        provider: "Sui Wallet",
-      })
-    }
-    return out
-  }
-
-  return out
+  const handler = chainHandlers[chain]
+  return handler ? handler() : []
 }
 
 // Helper: build all accounts for a chain combining storage + external
@@ -341,22 +339,34 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const externalActions = useMemo<WalletContextType["externalActions"]>(
     () => ({
       connect: async (chain: string) => {
-        if (chain === "arweave" && external.connectArweave)
-          return await external.connectArweave()
-        if (chain === "solana" && external.connectSolana)
-          return await external.connectSolana()
-        if (chain === "sui" && external.connectSui)
-          return await external.connectSui()
+        const connectHandlers: Record<string, () => Promise<any>> = {
+          [Chains.ARWEAVE]: async () =>
+            external.connectArweave ? await external.connectArweave() : undefined,
+          [Chains.SOLANA]: async () =>
+            external.connectSolana ? await external.connectSolana() : undefined,
+          [Chains.SUI]: async () =>
+            external.connectSui ? await external.connectSui() : undefined,
+        }
+        const handler = connectHandlers[chain]
+        if (handler) return await handler()
         // EVM connection handled by wagmi/rainbowkit connectors in UI
         return undefined
       },
       disconnect: async (chain: string) => {
-        if (chain === "arweave" && external.disconnectArweave)
-          return await external.disconnectArweave()
-        if (chain === "solana" && external.disconnectSolana)
-          return await external.disconnectSolana()
-        if (chain === "sui" && external.disconnectSui)
-          return await external.disconnectSui()
+        const disconnectHandlers: Record<string, () => Promise<any>> = {
+          [Chains.ARWEAVE]: async () =>
+            external.disconnectArweave
+              ? await external.disconnectArweave()
+              : undefined,
+          [Chains.SOLANA]: async () =>
+            external.disconnectSolana
+              ? await external.disconnectSolana()
+              : undefined,
+          [Chains.SUI]: async () =>
+            external.disconnectSui ? await external.disconnectSui() : undefined,
+        }
+        const handler = disconnectHandlers[chain]
+        if (handler) return await handler()
         // EVM disconnect handled by wagmi
         return undefined
       },

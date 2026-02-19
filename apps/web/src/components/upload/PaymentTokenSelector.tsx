@@ -13,6 +13,7 @@ import { useWallet } from "@/hooks/account-hooks"
 import { useEffect, useState, useMemo } from "react"
 import { getBalance } from "@/lib/chain"
 import { TOKEN_ADDRESSES } from "@/lib/contracts/addresses"
+import { Chains } from "@aryxn/chain-constants"
 
 interface PaymentTokenSelectorProps {
   selectedToken: PaymentToken
@@ -31,7 +32,7 @@ export function PaymentTokenSelector({
 
   // Derive initial chain from selectedToken or default to arweave
   const [selectedChain, setSelectedChain] = useState<string>(() => {
-    return TOKEN_CONFIG[selectedToken]?.chain || "arweave"
+    return TOKEN_CONFIG[selectedToken]?.chain || Chains.ARWEAVE
   })
 
   // Group tokens by chain
@@ -48,10 +49,10 @@ export function PaymentTokenSelector({
 
   // Available chains
   const chains = [
-    { id: "arweave", name: t("chain.arweave", "Arweave Wallet") },
-    { id: "ethereum", name: t("chain.ethereum", "Ethereum Wallet") },
-    { id: "solana", name: t("chain.solana", "Solana Wallet") },
-    { id: "sui", name: t("chain.sui", "Sui Wallet") },
+    { id: Chains.ARWEAVE, name: t("chain.arweave", "Arweave Wallet") },
+    { id: Chains.ETHEREUM, name: t("chain.ethereum", "Ethereum Wallet") },
+    { id: Chains.SOLANA, name: t("chain.solana", "Solana Wallet") },
+    { id: Chains.SUI, name: t("chain.sui", "Sui Wallet") },
     { id: "bitcoin", name: t("chain.bitcoin", "Bitcoin Wallet") },
   ]
 
@@ -76,15 +77,13 @@ export function PaymentTokenSelector({
 
       // Try to find the "active" account for this chain from wallet.active
       // simple mapping: arweave -> active.arweave, etc.
-      let activeForChain: string | undefined
-      if (selectedChain === "arweave")
-        activeForChain = wallet.active.arweave?.address
-      else if (selectedChain === "ethereum")
-        activeForChain = wallet.active.evm?.address
-      else if (selectedChain === "solana")
-        activeForChain = wallet.active.solana?.address
-      else if (selectedChain === "sui")
-        activeForChain = wallet.active.sui?.address
+      const activeHandlers: Record<string, string | undefined> = {
+        [Chains.ARWEAVE]: wallet.active.arweave?.address,
+        [Chains.ETHEREUM]: wallet.active.evm?.address,
+        [Chains.SOLANA]: wallet.active.solana?.address,
+        [Chains.SUI]: wallet.active.sui?.address,
+      }
+      const activeForChain = activeHandlers[selectedChain]
 
       if (
         activeForChain &&

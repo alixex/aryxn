@@ -2,6 +2,7 @@ import { toast } from "sonner"
 import { db } from "@/lib/database"
 import type { BalanceResult } from "@/lib/chain"
 import { AccountList } from "@/components/account/AccountList"
+import { Chains } from "@aryxn/chain-constants"
 
 export interface Account {
   id?: string | number
@@ -85,7 +86,7 @@ export function AccountListTab({
     if (account.isExternal) {
       if (!isActive(account)) {
         if (
-          account.chain === "ethereum" &&
+          account.chain === Chains.ETHEREUM &&
           account.address.toLowerCase() !==
             externalWallets.paymentAddress?.toLowerCase()
         ) {
@@ -105,24 +106,26 @@ export function AccountListTab({
   }
 
   const handleDisconnect = async (account: Account) => {
-    if (account.chain === "ethereum") {
-      onDisconnectEVM()
-      if (!walletManager.activeAddress && walletManager.vaultId) {
-        try {
-          await db.run("DELETE FROM vault_metadata WHERE key = ?", [
-            `use_external_${walletManager.vaultId}`,
-          ])
-        } catch (e) {
-          console.error("Failed to clear external account state:", e)
+    const disconnectHandlers: Record<string, () => Promise<void> | void> = {
+      [Chains.ETHEREUM]: async () => {
+        onDisconnectEVM()
+        if (!walletManager.activeAddress && walletManager.vaultId) {
+          try {
+            await db.run("DELETE FROM vault_metadata WHERE key = ?", [
+              `use_external_${walletManager.vaultId}`,
+            ])
+          } catch (e) {
+            console.error("Failed to clear external account state:", e)
+          }
         }
-      }
-    } else if (account.chain === "arweave") {
-      externalWallets.disconnectArweave()
-    } else if (account.chain === "solana") {
-      externalWallets.disconnectSolana()
-    } else if (account.chain === "sui") {
-      externalWallets.disconnectSui()
+      },
+      [Chains.ARWEAVE]: () => externalWallets.disconnectArweave(),
+      [Chains.SOLANA]: () => externalWallets.disconnectSolana(),
+      [Chains.SUI]: () => externalWallets.disconnectSui(),
     }
+
+    const handler = disconnectHandlers[account.chain]
+    if (handler) await handler()
   }
 
   return (

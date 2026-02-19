@@ -13,7 +13,7 @@ import {
   createSuiClient,
 } from "@aryxn/wallet-core"
 import { RefreshCw } from "lucide-react"
-import { TokenBalanceChains } from "@aryxn/chain-constants"
+import { Chains, TokenBalanceChains } from "@aryxn/chain-constants"
 import {
   SUPPORTED_TOKENS,
   formatTokenAmount,
@@ -168,6 +168,12 @@ export function TokenBalances({
 
   const [backoffTime, setBackoffTime] = useState<number>(0)
 
+  const chainBalanceFetchers: Record<string, () => Promise<TokenBalance[]>> = {
+    [Chains.ETHEREUM]: fetchEthereumBalances,
+    [Chains.SOLANA]: fetchSolanaBalances,
+    [Chains.SUI]: fetchSuiBalances,
+  }
+
   const fetchBalances = async (force = false) => {
     if (!isUnlocked || !address) return
 
@@ -189,15 +195,8 @@ export function TokenBalances({
     globalFetchCache.set(cacheKey, now) // Set immediately to block parallel mounts
 
     try {
-      let tokenBalances: TokenBalance[] = []
-
-      if (chain === "ethereum") {
-        tokenBalances = await fetchEthereumBalances()
-      } else if (chain === "solana") {
-        tokenBalances = await fetchSolanaBalances()
-      } else if (chain === "sui") {
-        tokenBalances = await fetchSuiBalances()
-      }
+      const fetchChainBalances = chainBalanceFetchers[chain]
+      const tokenBalances = fetchChainBalances ? await fetchChainBalances() : []
 
       setBalances(tokenBalances)
       setLastUpdated(Date.now())

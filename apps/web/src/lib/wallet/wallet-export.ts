@@ -3,11 +3,13 @@
  * 用于处理不同链类型的私钥和助记词导出
  */
 
+import { Chains } from "@aryxn/chain-constants"
+
 export type ChainType =
-  | "ethereum"
-  | "arweave"
-  | "solana"
-  | "sui"
+  | typeof Chains.ETHEREUM
+  | typeof Chains.ARWEAVE
+  | typeof Chains.SOLANA
+  | typeof Chains.SUI
   | "bitcoin"
   | "other"
   | "unknown"
@@ -52,7 +54,7 @@ function getFileExtension(chain: ChainType, type: "key" | "mnemonic"): string {
     return "txt"
   }
 
-  if (chain === "arweave") {
+  if (chain === Chains.ARWEAVE) {
     return "json"
   }
 
@@ -67,7 +69,7 @@ function getMimeType(chain: ChainType, type: "key" | "mnemonic"): string {
     return "text/plain"
   }
 
-  if (chain === "arweave") {
+  if (chain === Chains.ARWEAVE) {
     return "application/json"
   }
 
@@ -119,7 +121,7 @@ function formatExportContent(
   }
 
   // Arweave 需要格式化为 JSON
-  if (chain === "arweave") {
+  if (chain === Chains.ARWEAVE) {
     const formatted = formatArweaveJWK(content.key)
     if (formatted) {
       return formatted
