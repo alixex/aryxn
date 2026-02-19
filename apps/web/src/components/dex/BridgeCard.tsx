@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { DexTokenAmountInput } from "@/components/dex/DexTokenAmountInput"
 import {
   Select,
   SelectContent,
@@ -63,6 +64,10 @@ export function BridgeCard() {
   const [addressError, setAddressError] = useState("")
 
   const { loading, quote, getQuote, executeBridge } = useBridge()
+  const tokenOptions = SUPPORTED_TOKENS.map((token) => ({
+    value: token.symbol,
+    label: token.symbol,
+  }))
 
   useEffect(() => {
     let isMounted = true
@@ -266,38 +271,19 @@ export function BridgeCard() {
             <span className="text-muted-foreground text-xs">Balance: 0.00</span>
           </div>
 
-          <div className="border-border bg-background focus-within:ring-ring/10 flex items-center gap-3 rounded-xl border-2 p-4 shadow-sm transition-all focus-within:ring-2">
-            <Select
-              value={inputToken.symbol}
-              onValueChange={(symbol) => {
-                const token = SUPPORTED_TOKENS.find((t) => t.symbol === symbol)
-                if (token) setInputToken(token)
-              }}
-            >
-              <SelectTrigger className="bg-secondary hover:bg-accent w-28 shrink-0 justify-center border-none px-3 py-2.5 font-bold shadow-none transition-colors">
-                <SelectValue>{inputToken.symbol}</SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {SUPPORTED_TOKENS.map((token) => (
-                  <SelectItem key={token.address} value={token.symbol}>
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-foreground font-bold">
-                        {token.symbol}
-                      </span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <div className="bg-border h-10 w-px"></div>
-            <Input
-              type="number"
-              placeholder="0.0"
-              value={inputAmount}
-              onChange={(e) => setInputAmount(e.target.value)}
-              className="min-w-0 flex-1 border-none bg-transparent px-2 text-right text-xl font-bold shadow-none focus-visible:ring-0 sm:text-2xl"
-            />
-          </div>
+          <DexTokenAmountInput
+            tokenValue={inputToken.symbol}
+            onTokenChange={(symbol) => {
+              const token = SUPPORTED_TOKENS.find((item) => item.symbol === symbol)
+              if (token) setInputToken(token)
+            }}
+            tokenOptions={tokenOptions}
+            amountValue={inputAmount}
+            onAmountChange={setInputAmount}
+            amountType="number"
+            amountInputMode="decimal"
+            amountPlaceholder="0.0"
+          />
         </div>
 
         {/* Destination Address Input */}
@@ -323,7 +309,9 @@ export function BridgeCard() {
             value={destAddress}
             onChange={(e) => setDestAddress(e.target.value)}
             placeholder={getAddressPlaceholder(destChain)}
-            className={`font-mono text-sm ${addressError ? "border-destructive" : ""}`}
+            className={`border-border bg-background focus-within:border-ring h-12 rounded-xl font-mono text-sm ${
+              addressError ? "border-destructive" : ""
+            }`}
           />
           {addressError && (
             <p className="text-destructive text-xs">{addressError}</p>

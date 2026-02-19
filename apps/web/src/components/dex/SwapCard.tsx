@@ -6,13 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { DexTokenAmountInput } from "@/components/dex/DexTokenAmountInput"
 import {
   useMultiHopSwap,
   SwapState,
@@ -206,6 +200,11 @@ export function SwapCard() {
   }
 
   const buttonState = getButtonState()
+  const tokenOptions = SUPPORTED_TOKENS.map((token) => ({
+    value: token.symbol,
+    label: token.symbol,
+    subtitle: token.name,
+  }))
 
   return (
     <Card className="glass-premium animate-fade-in-down border-none shadow-2xl transition-all duration-500">
@@ -296,46 +295,21 @@ export function SwapCard() {
               </div>
             )}
           </div>
-          <div className="border-border bg-background focus-within:border-ring focus-within:ring-ring/10 flex items-center gap-3 rounded-xl border-2 p-4 shadow-sm transition-all focus-within:ring-2">
-            <Select
-              value={inputToken.symbol}
-              onValueChange={(symbol) => {
-                const token = SUPPORTED_TOKENS.find((t) => t.symbol === symbol)
-                if (token) setInputToken(token)
-              }}
-            >
-              <SelectTrigger className="bg-secondary hover:bg-accent w-28 shrink-0 justify-center border-none px-3 py-2.5 font-bold shadow-none transition-colors">
-                <SelectValue>
-                  <span className="text-base">{inputToken.symbol}</span>
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {SUPPORTED_TOKENS.map((token) => (
-                  <SelectItem key={token.address} value={token.symbol}>
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-foreground font-bold">
-                        {token.symbol}
-                      </span>
-                      <span className="text-muted-foreground text-xs">
-                        {token.name}
-                      </span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <div className="bg-border h-10 w-px"></div>
-            <Input
-              type="text"
-              inputMode="decimal"
-              placeholder="0.0"
-              value={inputAmount}
-              onChange={(e) => handleInputChange(e.target.value)}
-              autoComplete="off"
-              className="min-w-0 flex-1 [appearance:textfield] border-none bg-transparent px-2 text-right text-xl font-bold shadow-none focus-visible:ring-0 sm:text-2xl lg:text-3xl [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-              aria-label={t("dex.inputAmount", "Input amount")}
-            />
-          </div>
+          <DexTokenAmountInput
+            tokenValue={inputToken.symbol}
+            onTokenChange={(symbol) => {
+              const token = SUPPORTED_TOKENS.find((item) => item.symbol === symbol)
+              if (token) setInputToken(token)
+            }}
+            tokenOptions={tokenOptions}
+            amountValue={inputAmount}
+            onAmountChange={handleInputChange}
+            amountPlaceholder="0.0"
+            amountType="text"
+            amountInputMode="decimal"
+            amountAriaLabel={t("dex.inputAmount", "Input amount")}
+            amountClassName="lg:text-3xl [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+          />
         </div>
 
         {/* Swap Direction Button */}
@@ -356,44 +330,20 @@ export function SwapCard() {
           <Label className="text-foreground text-sm font-semibold">
             {t("dex.to")} ({t("dex.expectedOutput")})
           </Label>
-          <div className="border-border bg-card flex items-center gap-3 rounded-xl border-2 p-4">
-            <Select
-              value={outputToken.symbol}
-              onValueChange={(symbol) => {
-                const token = SUPPORTED_TOKENS.find((t) => t.symbol === symbol)
-                if (token) setOutputToken(token)
-              }}
-            >
-              <SelectTrigger className="bg-background hover:bg-secondary w-28 shrink-0 justify-center border-none px-3 py-2.5 font-bold shadow-none transition-colors">
-                <SelectValue>
-                  <span className="text-base">{outputToken.symbol}</span>
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {SUPPORTED_TOKENS.map((token) => (
-                  <SelectItem key={token.address} value={token.symbol}>
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-foreground font-bold">
-                        {token.symbol}
-                      </span>
-                      <span className="text-muted-foreground text-xs">
-                        {token.name}
-                      </span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <div className="bg-border h-10 w-px"></div>
-            <Input
-              type="text"
-              placeholder="0.0"
-              value={outputAmount}
-              readOnly
-              autoComplete="off"
-              className="min-w-0 flex-1 cursor-default border-none bg-transparent px-2 text-right text-3xl font-bold shadow-none"
-            />
-          </div>
+          <DexTokenAmountInput
+            tokenValue={outputToken.symbol}
+            onTokenChange={(symbol) => {
+              const token = SUPPORTED_TOKENS.find((item) => item.symbol === symbol)
+              if (token) setOutputToken(token)
+            }}
+            tokenOptions={tokenOptions}
+            amountValue={outputAmount}
+            amountReadOnly
+            amountPlaceholder="0.0"
+            className="bg-card"
+            tokenTriggerClassName="bg-background hover:bg-secondary"
+            amountClassName="text-3xl"
+          />
         </div>
 
         {/* Route and Details */}

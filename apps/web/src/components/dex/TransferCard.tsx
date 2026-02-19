@@ -5,13 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { DexTokenAmountInput } from "@/components/dex/DexTokenAmountInput"
 import { SUPPORTED_TOKENS, type TokenInfo } from "@/lib/contracts/token-config"
 import { useTransfer } from "@/hooks/dex-hooks/use-transfer"
 import { useWallet } from "@/hooks/account-hooks"
@@ -27,6 +21,11 @@ export function TransferCard() {
   const [recipient, setRecipient] = useState("")
   const [amount, setAmount] = useState("")
   const [warning, setWarning] = useState("")
+  const tokenOptions = SUPPORTED_TOKENS.map((token) => ({
+    value: token.symbol,
+    label: token.symbol,
+    badge: token.chain,
+  }))
 
   const handleRecipientChange = (val: string) => {
     setRecipient(val)
@@ -56,34 +55,6 @@ export function TransferCard() {
       </CardHeader>
 
       <CardContent className="space-y-6 p-6">
-        {/* Token Selection */}
-        <div className="space-y-2">
-          <Label className="text-foreground text-sm font-semibold">Asset</Label>
-          <Select
-            value={inputToken.symbol}
-            onValueChange={(symbol) => {
-              const token = SUPPORTED_TOKENS.find((t) => t.symbol === symbol)
-              if (token) setInputToken(token)
-            }}
-          >
-            <SelectTrigger className="glass-premium hover:bg-accent/10 border-input/50 h-12 font-bold transition-all">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {SUPPORTED_TOKENS.map((token) => (
-                <SelectItem key={token.address} value={token.symbol}>
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold">{token.symbol}</span>
-                    <span className="text-muted-foreground text-xs uppercase">
-                      {token.chain}
-                    </span>
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
         {/* Recipient Input */}
         <div className="space-y-2">
           <Label className="text-foreground text-sm font-semibold">
@@ -93,7 +64,7 @@ export function TransferCard() {
             placeholder="0x..."
             value={recipient}
             onChange={(e) => handleRecipientChange(e.target.value)}
-            className="bg-secondary/20 border-input/50 h-12 font-mono text-sm"
+            className="border-border bg-background h-12 rounded-xl font-mono text-sm"
           />
           {warning && (
             <div className="mt-1 flex items-center gap-2 rounded-lg bg-amber-500/10 p-2 text-xs text-amber-500">
@@ -107,16 +78,22 @@ export function TransferCard() {
         <div className="space-y-2">
           <div className="flex justify-between">
             <Label className="text-foreground text-sm font-semibold">
-              Amount
+              Asset & Amount
             </Label>
             <span className="text-muted-foreground text-xs">Balance: 0.00</span>
           </div>
-          <Input
-            type="number"
-            placeholder="0.00"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            className="bg-secondary/20 border-input/50 h-12 text-lg font-bold"
+          <DexTokenAmountInput
+            tokenValue={inputToken.symbol}
+            onTokenChange={(symbol) => {
+              const token = SUPPORTED_TOKENS.find((item) => item.symbol === symbol)
+              if (token) setInputToken(token)
+            }}
+            tokenOptions={tokenOptions}
+            amountValue={amount}
+            onAmountChange={setAmount}
+            amountType="number"
+            amountInputMode="decimal"
+            amountPlaceholder="0.00"
           />
         </div>
 
