@@ -11,6 +11,7 @@ import {
   FileCheck,
 } from "lucide-react"
 import type { RecoveryAction } from "@aryxn/cross-chain"
+import { AppSyncChains, getExplorerTxUrl, isKnownExplorerChain } from "@aryxn/chain-constants"
 import { useTranslation } from "@/i18n/config"
 import { cn } from "@/lib/utils"
 
@@ -20,7 +21,7 @@ import { useBridge } from "@/hooks/useBridge"
 import { useState, useEffect } from "react"
 import { useWallet } from "@/hooks/account-hooks"
 
-const SYNC_CHAINS = ["ethereum", "solana", "bitcoin", "arweave", "sui"]
+const SYNC_CHAINS = AppSyncChains
 
 function formatRelativeTime(timestamp: number) {
   const seconds = Math.max(1, Math.floor((Date.now() - timestamp) / 1000))
@@ -46,52 +47,6 @@ function statusLabel(status: "PENDING" | "COMPLETED" | "FAILED") {
   if (status === "PENDING") return "Pending"
   if (status === "COMPLETED") return "Completed"
   return "Failed"
-}
-
-function getExplorerTxUrl(chain: string | undefined, hash: string) {
-  if (!hash) return null
-
-  if (!chain) {
-    return `https://blockchair.com/search?q=${encodeURIComponent(hash)}`
-  }
-
-  const normalizedChain = chain.toLowerCase()
-
-  switch (normalizedChain) {
-    case "ethereum":
-    case "eth":
-      return `https://etherscan.io/tx/${hash}`
-    case "solana":
-    case "sol":
-      return `https://solscan.io/tx/${hash}`
-    case "bitcoin":
-    case "btc":
-      return `https://mempool.space/tx/${hash}`
-    case "arweave":
-    case "ar":
-      return `https://arweave.net/tx/${hash}`
-    case "sui":
-      return `https://suiscan.xyz/mainnet/tx/${hash}`
-    default:
-      return `https://blockchair.com/search?q=${encodeURIComponent(hash)}`
-  }
-}
-
-function isKnownExplorerChain(chain: string | undefined) {
-  if (!chain) return false
-
-  const normalizedChain = chain.toLowerCase()
-  return [
-    "ethereum",
-    "eth",
-    "solana",
-    "sol",
-    "bitcoin",
-    "btc",
-    "arweave",
-    "ar",
-    "sui",
-  ].includes(normalizedChain)
 }
 
 /**

@@ -8,6 +8,22 @@ export const Chains = {
 
 export type ChainType = (typeof Chains)[keyof typeof Chains]
 
+export const AppSyncChains = [
+  Chains.ETHEREUM,
+  Chains.SOLANA,
+  Chains.BITCOIN,
+  Chains.ARWEAVE,
+  Chains.SUI,
+] as const
+
+export const AccountChains = [
+  Chains.ETHEREUM,
+  Chains.BITCOIN,
+  Chains.SOLANA,
+  Chains.SUI,
+  Chains.ARWEAVE,
+] as const
+
 export const ChainIds = {
   ETHEREUM: 1,
   POLYGON: 137,
@@ -77,4 +93,46 @@ export const ChainIdToName: Record<number, string> = {
   [ChainIds.LINEA]: "Linea",
   [ChainIds.SCROLL]: "Scroll",
   [ChainIds.SOLANA]: "Solana",
+}
+
+export const ExplorerTxBaseByChain = {
+  ethereum: "https://etherscan.io/tx/",
+  eth: "https://etherscan.io/tx/",
+  solana: "https://solscan.io/tx/",
+  sol: "https://solscan.io/tx/",
+  bitcoin: "https://mempool.space/tx/",
+  btc: "https://mempool.space/tx/",
+  arweave: "https://arweave.net/tx/",
+  ar: "https://arweave.net/tx/",
+  sui: "https://suiscan.xyz/mainnet/tx/",
+} as const
+
+export function isKnownExplorerChain(chain?: string): boolean {
+  if (!chain) return false
+  return chain.toLowerCase() in ExplorerTxBaseByChain
+}
+
+export function getExplorerTxUrl(
+  chain: string | undefined,
+  txHash: string,
+): string {
+  if (!txHash) {
+    return ""
+  }
+
+  if (!chain) {
+    return `https://blockchair.com/search?q=${encodeURIComponent(txHash)}`
+  }
+
+  const normalizedChain = chain.toLowerCase()
+  const base =
+    ExplorerTxBaseByChain[
+      normalizedChain as keyof typeof ExplorerTxBaseByChain
+    ]
+
+  if (base) {
+    return `${base}${txHash}`
+  }
+
+  return `https://blockchair.com/search?q=${encodeURIComponent(txHash)}`
 }

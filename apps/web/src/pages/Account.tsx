@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { AccountChains } from "@aryxn/chain-constants"
 import { useTranslation } from "@/i18n/config"
 import { useInternal, useWallet, useAccounts } from "@/hooks/account-hooks"
 import { toast } from "sonner"
@@ -164,16 +165,10 @@ export default function AccountPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="p-0">
-                  <Tabs defaultValue="ethereum" className="w-full">
+                  <Tabs defaultValue={AccountChains[0]} className="w-full">
                     <div className="overflow-x-auto px-4 pt-4 sm:px-6">
                       <TabsList className="bg-muted mb-0 flex h-auto w-max flex-nowrap justify-start gap-1 rounded-lg p-1 sm:w-auto sm:flex-wrap">
-                        {[
-                          "ethereum",
-                          "bitcoin",
-                          "solana",
-                          "sui",
-                          "arweave",
-                        ].map((chain) => (
+                        {AccountChains.map((chain) => (
                           <TabsTrigger
                             key={chain}
                             value={chain}
@@ -184,111 +179,30 @@ export default function AccountPage() {
                         ))}
                       </TabsList>
                     </div>
-                    <TabsContent
-                      value="ethereum"
-                      className="px-4 pt-4 pb-4 sm:px-6 sm:pb-6"
-                    >
-                      <AccountListTab
-                        chain="ethereum"
-                        wallet={wallet}
-                        walletManager={walletManager}
-                        externalWallets={externalWallets}
-                        getExternalAccounts={getExternalAccounts}
-                        onShowSensitive={handleShowSensitive}
-                        onCopyAddress={copyAddress}
-                        onDisconnectEVM={disconnectEVM}
-                        t={t}
-                        balances={balances}
-                        loadingBalances={loadingBalances}
-                        showBalances={showBalances}
-                        onRefreshBalance={refreshBalance}
-                        onToggleBalance={toggleShowBalance}
-                      />
-                    </TabsContent>
-                    <TabsContent
-                      value="bitcoin"
-                      className="px-4 pt-4 pb-4 sm:px-6 sm:pb-6"
-                    >
-                      <AccountListTab
-                        chain="bitcoin"
-                        wallet={wallet}
-                        walletManager={walletManager}
-                        externalWallets={externalWallets}
-                        getExternalAccounts={getExternalAccounts}
-                        onShowSensitive={handleShowSensitive}
-                        onCopyAddress={copyAddress}
-                        onDisconnectEVM={disconnectEVM}
-                        t={t}
-                        balances={balances}
-                        loadingBalances={loadingBalances}
-                        showBalances={showBalances}
-                        onRefreshBalance={refreshBalance}
-                        onToggleBalance={toggleShowBalance}
-                      />
-                    </TabsContent>
-                    <TabsContent
-                      value="solana"
-                      className="px-4 pt-4 pb-4 sm:px-6 sm:pb-6"
-                    >
-                      <AccountListTab
-                        chain="solana"
-                        wallet={wallet}
-                        walletManager={walletManager}
-                        externalWallets={externalWallets}
-                        getExternalAccounts={getExternalAccounts}
-                        onShowSensitive={handleShowSensitive}
-                        onCopyAddress={copyAddress}
-                        onDisconnectEVM={disconnectEVM}
-                        t={t}
-                        balances={balances}
-                        loadingBalances={loadingBalances}
-                        showBalances={showBalances}
-                        onRefreshBalance={refreshBalance}
-                        onToggleBalance={toggleShowBalance}
-                      />
-                    </TabsContent>
-                    <TabsContent
-                      value="sui"
-                      className="px-4 pt-4 pb-4 sm:px-6 sm:pb-6"
-                    >
-                      <AccountListTab
-                        chain="sui"
-                        wallet={wallet}
-                        walletManager={walletManager}
-                        externalWallets={externalWallets}
-                        getExternalAccounts={getExternalAccounts}
-                        onShowSensitive={handleShowSensitive}
-                        onCopyAddress={copyAddress}
-                        onDisconnectEVM={disconnectEVM}
-                        t={t}
-                        balances={balances}
-                        loadingBalances={loadingBalances}
-                        showBalances={showBalances}
-                        onRefreshBalance={refreshBalance}
-                        onToggleBalance={toggleShowBalance}
-                      />
-                    </TabsContent>
-                    <TabsContent
-                      value="arweave"
-                      className="px-4 pt-4 pb-4 sm:px-6 sm:pb-6"
-                    >
-                      <AccountListTab
-                        chain="arweave"
-                        wallet={wallet}
-                        walletManager={walletManager}
-                        externalWallets={externalWallets}
-                        getExternalAccounts={getExternalAccounts}
-                        onShowSensitive={handleShowSensitive}
-                        onCopyAddress={copyAddress}
-                        onDisconnectEVM={disconnectEVM}
-                        t={t}
-                        balances={balances}
-                        loadingBalances={loadingBalances}
-                        showBalances={showBalances}
-                        onRefreshBalance={refreshBalance}
-                        onToggleBalance={toggleShowBalance}
-                      />
-                    </TabsContent>
+                    {AccountChains.map((chain) => (
+                      <TabsContent
+                        key={chain}
+                        value={chain}
+                        className="px-4 pt-4 pb-4 sm:px-6 sm:pb-6"
+                      >
+                        <AccountListTab
+                          chain={chain}
+                          wallet={wallet}
+                          walletManager={walletManager}
+                          externalWallets={externalWallets}
+                          getExternalAccounts={getExternalAccounts}
+                          onShowSensitive={handleShowSensitive}
+                          onCopyAddress={copyAddress}
+                          onDisconnectEVM={disconnectEVM}
+                          t={t}
+                          balances={balances}
+                          loadingBalances={loadingBalances}
+                          showBalances={showBalances}
+                          onRefreshBalance={refreshBalance}
+                          onToggleBalance={toggleShowBalance}
+                        />
+                      </TabsContent>
+                    ))}
                   </Tabs>
                 </CardContent>
               </Card>
