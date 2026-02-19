@@ -17,6 +17,26 @@ export interface UploadHandlerResult {
   failed: number
 }
 
+function resolveWalletKeyForPayment(paymentAccount: PaymentAccount, wallet: any) {
+  if (!paymentAccount.isExternal) {
+    return wallet.internal.activeWallet
+  }
+
+  if (paymentAccount.chain === "solana") {
+    return (window as any).solana || null
+  }
+
+  if (paymentAccount.chain === "sui") {
+    return (window as any).suiWallet || null
+  }
+
+  if (paymentAccount.chain === "arweave") {
+    return (window as any).arweaveWallet || null
+  }
+
+  return null
+}
+
 export function useUploadHandler() {
   const { t } = useTranslation()
   const wallet = useWallet()
@@ -64,11 +84,13 @@ export function useUploadHandler() {
           signer = clientToSigner(client)
         }
 
+        const walletKey = resolveWalletKeyForPayment(paymentAccount, wallet)
+
         const paymentResult = await paymentService.executePayment({
           fromToken: paymentToken,
           amountInAR: 0,
           paymentAccount,
-          walletKey: null,
+          walletKey,
           signer: signer,
         })
 
@@ -177,11 +199,13 @@ export function useUploadHandler() {
           signer = clientToSigner(client)
         }
 
+        const walletKey = resolveWalletKeyForPayment(paymentAccount, wallet)
+
         const paymentResult = await paymentService.executePayment({
           fromToken: paymentToken,
           amountInAR: 0,
           paymentAccount,
-          walletKey: null,
+          walletKey,
           signer: signer,
         })
 

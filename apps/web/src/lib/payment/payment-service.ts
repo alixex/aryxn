@@ -162,6 +162,18 @@ export class PaymentService {
         const { irysService } = await import("@/lib/storage")
         const { config } = await import("@/lib/config")
 
+        if (sourceChain === Chains.ETHEREUM && !params.signer) {
+          console.error("Irys payment requires EVM signer for ethereum source")
+          return "PAYMENT_FAILED"
+        }
+
+        if (sourceChain !== Chains.ETHEREUM && !params.walletKey) {
+          console.error(
+            `Irys payment requires wallet context for source chain: ${sourceChain}`,
+          )
+          return "PAYMENT_FAILED"
+        }
+
         const irys = await irysService.getIrysInstance({
           token: irysToken,
           wallet:
