@@ -22,6 +22,7 @@ interface AccountListProps {
   onCopyAddress: (address: string) => void
   onShowSensitive?: (account: Account, type: "key" | "mnemonic") => void
   onDisconnect?: (account: Account) => void
+  onDelete?: (account: Account) => void
   // New props for lifting state
   balances: Record<string, BalanceResult | null>
   loadingBalances: Record<string, boolean>
@@ -42,6 +43,7 @@ export function AccountList({
   onCopyAddress,
   onShowSensitive,
   onDisconnect,
+  onDelete,
   balances,
   loadingBalances,
   showBalances,
@@ -57,7 +59,7 @@ export function AccountList({
           <div className="bg-accent/10 mb-4 rounded-full p-4">
             <Wallet className="text-foreground/40 h-10 w-10" />
           </div>
-          <p className="text-muted-foreground max-w-[200px] text-sm font-medium italic">
+          <p className="text-muted-foreground max-w-50 text-sm font-medium italic">
             {t("identities.emptyState", { chain })}
           </p>
         </div>
@@ -84,6 +86,7 @@ export function AccountList({
             onDisconnect={
               onDisconnect ? () => onDisconnect(account) : undefined
             }
+            onDelete={onDelete ? () => onDelete(account) : undefined}
             balance={balances[key]}
             loading={loadingBalances[key]}
             showBalance={showBalances[key]}

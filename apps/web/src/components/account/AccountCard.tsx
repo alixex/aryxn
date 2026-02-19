@@ -5,6 +5,7 @@ import {
   Unlink,
   ExternalLink,
   UserCheck,
+  Trash2,
 } from "lucide-react"
 import { TokenBalanceChains, Chains } from "@aryxn/chain-constants"
 import { Button } from "@/components/ui/button"
@@ -42,6 +43,7 @@ interface AccountCardProps {
   onCopyAddress: (address: string) => void
   onShowSensitive?: (account: Account, type: "key" | "mnemonic") => void
   onDisconnect?: () => void
+  onDelete?: () => void
   // New props for lifting state
   balance?: BalanceResult | null
   loading?: boolean
@@ -76,6 +78,7 @@ export function AccountCard({
   onCopyAddress,
   onShowSensitive,
   onDisconnect,
+  onDelete,
   balance,
   loading,
   showBalance = false,
@@ -337,6 +340,17 @@ export function AccountCard({
                       </Button>
                     )}
                   </>
+                )}
+                {onDelete && !account.isExternal && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={onDelete}
+                    className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive h-8 w-8 p-0"
+                    title={t("identities.deleteAccountConfirm")}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 )}
               </>
             )}
