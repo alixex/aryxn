@@ -5,10 +5,16 @@ import { useTranslation } from "@/i18n/config"
 import { estimateManifestSize } from "@/lib/file"
 import type { PaymentToken } from "@/lib/payment"
 import { paymentService } from "@/lib/payment"
+import { RouteRequiredError } from "@/lib/payment/payment-service"
 
 export interface TokenFeeEstimate {
   amount: number
   error?: string
+  routeRequired?: {
+    action: "swap" | "bridge"
+    token: PaymentToken
+    chain: string
+  }
 }
 
 export interface FeeEstimate {
@@ -153,9 +159,18 @@ export function useFeeCalculation() {
             estimatedFeesByToken[token] = { amount: estimate.tokenAmount }
           } catch (err) {
             console.warn(`Failed to estimate fee for ${token}:`, err)
+            const routeRequired =
+              err instanceof RouteRequiredError
+                ? {
+                    action: err.action,
+                    token: err.token,
+                    chain: err.chain,
+                  }
+                : undefined
             estimatedFeesByToken[token] = {
               amount: 0,
               error: err instanceof Error ? err.message : "Calculation failed",
+              routeRequired,
             }
           }
         }
@@ -342,9 +357,18 @@ export function useFeeCalculation() {
             estimatedFeesByToken[token] = { amount: estimate.tokenAmount }
           } catch (err) {
             console.warn(`Failed to estimate batch fee for ${token}:`, err)
+            const routeRequired =
+              err instanceof RouteRequiredError
+                ? {
+                    action: err.action,
+                    token: err.token,
+                    chain: err.chain,
+                  }
+                : undefined
             estimatedFeesByToken[token] = {
               amount: 0,
               error: err instanceof Error ? err.message : "Calculation failed",
+              routeRequired,
             }
           }
         }

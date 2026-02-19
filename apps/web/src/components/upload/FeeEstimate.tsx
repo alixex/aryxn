@@ -5,19 +5,6 @@ import type { FeeEstimate } from "@/hooks/swap-hooks"
 import type { PaymentToken } from "@/lib/payment"
 import { Button } from "@/components/ui/button"
 
-function parseRouteRequiredError(message?: string | null) {
-  if (!message) return null
-
-  const matched = message.match(/Route required:\s*(swap|bridge)\s*for\s*(\w+)\s*on\s*([\w-]+)/i)
-  if (!matched) return null
-
-  return {
-    action: matched[1].toLowerCase() as "swap" | "bridge",
-    token: matched[2],
-    chain: matched[3],
-  }
-}
-
 interface FeeEstimateProps {
   file: File | null
   files?: File[]
@@ -60,7 +47,7 @@ export function FeeEstimate({
     selectedToken !== "AR" ? selectedTokenEstimate?.error : undefined
   const hasFeeError = Boolean(feeError || selectedTokenError)
   const feeErrorDetails = feeError || selectedTokenError
-  const routeRequired = parseRouteRequiredError(feeErrorDetails)
+  const routeRequired = selectedTokenEstimate?.routeRequired
 
   const feeErrorTitle = routeRequired
     ? routeRequired.action === "swap"

@@ -5,6 +5,7 @@ import {
   getIrysFundingToken,
   resolveUploadRedirectAction,
 } from "./upload-payment-config"
+import type { UploadRedirectAction } from "./types"
 
 /**
  * Token configuration metadata
@@ -32,11 +33,27 @@ const PRICE_CACHE: PriceCache = {
 
 const CACHE_DURATION_MS = 60 * 1000 // 1 minute
 
-const SUPPORTED_IRYS_FUNDING_TOKENS = new Set<string>([
-  Chains.ETHEREUM,
-  Chains.SOLANA,
-  "usdc-ethereum",
-])
+export class RouteRequiredError extends Error {
+  readonly action: UploadRedirectAction
+  readonly token: PaymentToken
+  readonly chain: string
+
+  constructor(action: UploadRedirectAction, token: PaymentToken, chain: string) {
+    super(`Route required: ${action} for ${token} on ${chain}`)
+    this.name = "RouteRequiredError"
+    this.action = action
+    this.token = token
+    this.chain = chain
+  }
+}
+
+function isIrysUnsupportedTokenError(error: unknown): boolean {
+  const message =
+    error instanceof Error ? error.message : String(error || "")
+  return /unknown\/?unsupported token|unsupported token|invalid token/i.test(
+    message,
+  )
+}
 
 /**
  * Service to handle payment logic for uploads
@@ -114,7 +131,7 @@ export class PaymentService {
     const sourceChain = paymentChain || tokenConfig.chain
     const irysToken = getIrysFundingToken(sourceChain, token)
 
-    if (irysToken && SUPPORTED_IRYS_FUNDING_TOKENS.has(irysToken)) {
+    if (irysToken) {
       try {
         const { irysService } = await import("@/lib/storage")
         const atomicPrice = await irysService.getPrice(dataSize, irysToken)
@@ -126,6 +143,10 @@ export class PaymentService {
           formatted: `${tokenAmount.toFixed(6)} ${token}`,
         }
       } catch (error) {
+        if (isIrysUnsupportedTokenError(error)) {
+          const redirectAction = resolveUploadRedirectAction(sourceChain, token)
+          throw new RouteRequiredError(redirectAction, token, sourceChain)
+        }
         throw new Error(
           `Failed to estimate ${token} fee on ${irysToken}: ${error instanceof Error ? error.message : String(error)}`,
         )
@@ -133,9 +154,7 @@ export class PaymentService {
     }
 
     const redirectAction = resolveUploadRedirectAction(sourceChain, token)
-    throw new Error(
-      `Route required: ${redirectAction} for ${token} on ${sourceChain}`,
-    )
+    throw new RouteRequiredError(redirectAction, token, sourceChain)
   }
 
   /**
@@ -166,7 +185,7 @@ export class PaymentService {
     // TIER 2: Irys Rapid Payment (ETH, SOL, USDC)
     const irysToken = getIrysFundingToken(sourceChain, params.fromToken)
 
-    if (irysToken && SUPPORTED_IRYS_FUNDING_TOKENS.has(irysToken)) {
+    if (irysToken) {
       console.log(`Executing rapid Irys funding with ${params.fromToken}...`)
       try {
         const { irysService } = await import("@/lib/storage")
@@ -201,6 +220,16 @@ export class PaymentService {
         console.log("Irys rapid funding successful")
         return "PAID_IRYS"
       } catch (error) {
+        if (isIrysUnsupportedTokenError(error)) {
+          const redirectAction = resolveUploadRedirectAction(
+            sourceChain,
+            params.fromToken,
+          )
+          console.warn(
+            `Irys does not support token ${irysToken}, routing to ${redirectAction}`,
+          )
+          return redirectAction === "swap" ? "REQUIRE_SWAP" : "REQUIRE_BRIDGE"
+        }
         console.error("Irys rapid payment failed:", error)
         return "PAYMENT_FAILED"
       }
