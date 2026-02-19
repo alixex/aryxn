@@ -1,7 +1,14 @@
 import { useEffect, useMemo, useState } from "react"
-import { TrendingUp, Wallet, ArrowRightLeft, Send } from "lucide-react"
+import {
+  TrendingUp,
+  Wallet,
+  ArrowRightLeft,
+  Send,
+  AlertCircle,
+  ArrowRight,
+} from "lucide-react"
 import { useConnection } from "wagmi"
-import { useSearchParams } from "react-router-dom"
+import { Link, useSearchParams } from "react-router-dom"
 import { useTranslation } from "@/i18n/config"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
@@ -11,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Button } from "@/components/ui/button"
 import { useWallet } from "@/hooks/account-hooks"
 import type { WalletRecord } from "@/lib/utils"
 import { AccountStatusBadge } from "@/components/account/AccountStatusBadge"
@@ -95,6 +103,7 @@ export default function SwapPage() {
       })),
     )
   }, [accountsByChain])
+  const needsAccountSetup = selectableAccounts.length === 0
 
   const [selectedAccount, setSelectedAccount] =
     useState<DexSelectableAccount | null>(null)
@@ -181,14 +190,40 @@ export default function SwapPage() {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Main Action Area */}
           <div className="lg:col-span-2">
-            <div className="border-border bg-card/50 text-muted-foreground mb-4 rounded-xl border px-4 py-3 text-sm">
-              {t(
-                "dex.accountSelectionHint",
-                "Please choose account and token based on Account settings before swap or bridge.",
-              )}
-            </div>
+            {needsAccountSetup ? (
+              <div className="glass-strong animate-fade-in-down border-accent/30 bg-card/60 mb-4 flex items-start gap-4 rounded-2xl border-2 p-6 shadow-lg">
+                <div className="bg-accent/20 flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
+                  <AlertCircle className="text-accent h-5 w-5" />
+                </div>
+                <div className="flex-1">
+                  <p className="mb-2 text-base leading-relaxed font-bold">
+                    {t("history.needAccountSetup")}
+                  </p>
+                  <p className="text-subtitle-muted mb-3 text-sm leading-relaxed">
+                    {t("history.accountSetupHint")}
+                  </p>
+                  <Link to="/account">
+                    <Button
+                      variant="outline"
+                      className="border-border bg-background text-foreground hover:bg-accent rounded-lg font-semibold"
+                    >
+                      {t("upload.goToAccount")}
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <div className="border-border bg-card/50 text-muted-foreground mb-4 rounded-xl border px-4 py-3 text-sm">
+                {t(
+                  "dex.accountSelectionHint",
+                  "Please choose account and token based on Account settings before swap or bridge.",
+                )}
+              </div>
+            )}
 
-            {bridgeFromUpload &&
+            {!needsAccountSetup &&
+              bridgeFromUpload &&
               (activeTab === "bridge" || activeTab === "swap") && (
                 <div className="border-border bg-card/50 text-muted-foreground mb-4 rounded-xl border px-4 py-3 text-sm">
                   {redirectAction === "swap"
@@ -211,88 +246,92 @@ export default function SwapPage() {
                 </div>
               )}
 
-            <div className="border-border bg-card/50 mb-4 rounded-xl border p-4">
-              <div className="mb-3 flex items-center justify-between">
-                <div>
-                  <div className="text-foreground text-sm font-semibold">
-                    {t("common.activeAccountLabel")}
-                  </div>
-                  <div className="text-muted-foreground text-xs">
-                    {selectedAccount
-                      ? `${chainLabel(selectedAccount.chain)} · ${selectedAccount.isExternal ? "External" : "Internal"}`
-                      : t("common.noAccount")}
-                  </div>
-                </div>
-                {selectedAccount && (
-                  <div className="text-right">
-                    <div className="text-foreground text-sm font-medium">
-                      {selectedAccount.alias || formatAddress(selectedAccount.address)}
+            {!needsAccountSetup && (
+              <>
+                <div className="border-border bg-card/50 mb-4 rounded-xl border p-4">
+                  <div className="mb-3 flex items-center justify-between">
+                    <div>
+                      <div className="text-foreground text-sm font-semibold">
+                        {t("common.activeAccountLabel")}
+                      </div>
+                      <div className="text-muted-foreground text-xs">
+                        {selectedAccount
+                          ? `${chainLabel(selectedAccount.chain)} · ${selectedAccount.isExternal ? "External" : "Internal"}`
+                          : t("common.noAccount")}
+                      </div>
                     </div>
-                    <div className="text-muted-foreground font-mono text-xs">
-                      {selectedAccount.address}
-                    </div>
+                    {selectedAccount && (
+                      <div className="text-right">
+                        <div className="text-foreground text-sm font-medium">
+                          {selectedAccount.alias || formatAddress(selectedAccount.address)}
+                        </div>
+                        <div className="text-muted-foreground font-mono text-xs">
+                          {selectedAccount.address}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
 
-              <Select
-                value={selectedAccount ? accountKey(selectedAccount) : undefined}
-                onValueChange={handleSelectAccount}
-              >
-                <SelectTrigger className="h-11 rounded-xl">
-                  <SelectValue placeholder={t("upload.selectPaymentAccount", "Select account")} />
-                </SelectTrigger>
-                <SelectContent>
-                  {selectableAccounts.map((account) => (
-                    <SelectItem
-                      key={accountKey(account)}
-                      value={accountKey(account)}
-                    >
-                      {chainLabel(account.chain)} · {account.alias || formatAddress(account.address)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <Tabs
-              defaultValue={defaultTab}
-              value={activeTab}
-              onValueChange={setActiveTab}
-              className="w-full"
-            >
-              <div className="mb-6 flex items-center justify-between">
-                <TabsList className="glass-premium h-12 w-full p-1 sm:w-auto">
-                  <TabsTrigger value="swap" className="flex-1 gap-2 sm:w-32">
-                    <ArrowRightLeft className="h-4 w-4" />
-                    {t("dex.swap", "Swap")}
-                  </TabsTrigger>
-                  <TabsTrigger value="bridge" className="flex-1 gap-2 sm:w-32">
-                    <TrendingUp className="h-4 w-4" />
-                    {t("dex.bridge", "Bridge")}
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="transfer"
-                    className="flex-1 gap-2 sm:w-32"
+                  <Select
+                    value={selectedAccount ? accountKey(selectedAccount) : undefined}
+                    onValueChange={handleSelectAccount}
                   >
-                    <Send className="h-4 w-4" />
-                    {t("dex.transfer", "Send")}
-                  </TabsTrigger>
-                </TabsList>
-              </div>
+                    <SelectTrigger className="h-11 rounded-xl">
+                      <SelectValue placeholder={t("upload.selectPaymentAccount", "Select account")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {selectableAccounts.map((account) => (
+                        <SelectItem
+                          key={accountKey(account)}
+                          value={accountKey(account)}
+                        >
+                          {chainLabel(account.chain)} · {account.alias || formatAddress(account.address)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-              <TabsContent value="swap" className="mt-0">
-                <SwapCard selectedAccount={selectedAccount} />
-              </TabsContent>
+                <Tabs
+                  defaultValue={defaultTab}
+                  value={activeTab}
+                  onValueChange={setActiveTab}
+                  className="w-full"
+                >
+                  <div className="mb-6 flex items-center justify-between">
+                    <TabsList className="glass-premium h-12 w-full p-1 sm:w-auto">
+                      <TabsTrigger value="swap" className="flex-1 gap-2 sm:w-32">
+                        <ArrowRightLeft className="h-4 w-4" />
+                        {t("dex.swap", "Swap")}
+                      </TabsTrigger>
+                      <TabsTrigger value="bridge" className="flex-1 gap-2 sm:w-32">
+                        <TrendingUp className="h-4 w-4" />
+                        {t("dex.bridge", "Bridge")}
+                      </TabsTrigger>
+                      <TabsTrigger
+                        value="transfer"
+                        className="flex-1 gap-2 sm:w-32"
+                      >
+                        <Send className="h-4 w-4" />
+                        {t("dex.transfer", "Send")}
+                      </TabsTrigger>
+                    </TabsList>
+                  </div>
 
-              <TabsContent value="bridge" className="mt-0">
-                <BridgeCard selectedAccount={selectedAccount} />
-              </TabsContent>
+                  <TabsContent value="swap" className="mt-0">
+                    <SwapCard selectedAccount={selectedAccount} />
+                  </TabsContent>
 
-              <TabsContent value="transfer" className="mt-0">
-                <TransferCard selectedAccount={selectedAccount} />
-              </TabsContent>
-            </Tabs>
+                  <TabsContent value="bridge" className="mt-0">
+                    <BridgeCard selectedAccount={selectedAccount} />
+                  </TabsContent>
+
+                  <TabsContent value="transfer" className="mt-0">
+                    <TransferCard selectedAccount={selectedAccount} />
+                  </TabsContent>
+                </Tabs>
+              </>
+            )}
           </div>
 
           {/* Sidebar Area */}
