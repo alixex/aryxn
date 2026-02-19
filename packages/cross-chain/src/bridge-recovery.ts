@@ -183,7 +183,8 @@ export class BridgeRecovery {
       })
 
       // Check if there's a receiving transaction
-      const receivingInfo = (status as { receiving?: { txHash?: string } }).receiving
+      const receivingInfo = (status as { receiving?: { txHash?: string } })
+        .receiving
       if (receivingInfo && receivingInfo.txHash) {
         return {
           success: false,

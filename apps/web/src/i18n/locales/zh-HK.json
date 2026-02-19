@@ -386,6 +386,10 @@
     "estimatedCostUSD": "預估成本 (USD)",
     "swapRoute": "交換路由",
     "expectedOutput": "預期輸出",
-    "swappingFromTo": "交換 {{from}} → {{to}}"
+    "swappingFromTo": "交換 {{from}} → {{to}}",
+    "details": "詳情",
+    "hide": "收起",
+    "openExplorer": "打開瀏覽器",
+    "searchTx": "搜尋交易"
   }
 }

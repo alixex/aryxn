@@ -31,6 +31,15 @@ export interface BridgeQuote {
   risk: RiskAssessment
 }
 
+export interface RecoveryOptionsResult {
+  recoverable: boolean
+  suggestedActions: RecoveryAction[]
+  recommendations: {
+    recommended: RecoveryAction | null
+    reasons: string[]
+  }
+}
+
 const MAX_SINGLE_TX_USD = 100000
 
 export function useBridge() {
@@ -440,12 +449,16 @@ export function useBridge() {
       fromChain: string,
       toChain: string,
       timestamp: number,
-    ) => {
+    ): Promise<RecoveryOptionsResult> => {
       const fromChainId = getChainIdFromName(fromChain)
       const toChainId = getChainIdFromName(toChain)
 
       if (!fromChainId || !toChainId) {
-        return { recoverable: false, suggestedActions: [] }
+        return {
+          recoverable: false,
+          suggestedActions: [],
+          recommendations: { recommended: null, reasons: [] },
+        }
       }
 
       const timeSinceSubmission = Date.now() - timestamp
@@ -462,7 +475,11 @@ export function useBridge() {
         timeSinceSubmission,
       )
 
-      return { ...result, recommendations }
+      return {
+        recoverable: result.recoverable,
+        suggestedActions: result.suggestedActions,
+        recommendations,
+      }
     },
     [],
   )
@@ -490,11 +507,12 @@ export function useBridge() {
           walletManager.internal.isUnlocked &&
           walletManager.internal.activeWallet
         ) {
-          const rpcUrl = getEthereumRpcUrl(lastQuoteParams.fromChain)
+          const rpcUrl = getEthereumRpcUrl()
           const provider = createEvmProvider(rpcUrl)
-          const privateKey = await walletManager.internal.getPrivateKey(
-            walletManager.internal.activeWallet.address,
-          )
+          if (typeof walletManager.internal.activeWallet !== "string") {
+            throw new Error("Active internal wallet is not an EVM private key")
+          }
+          const privateKey = walletManager.internal.activeWallet
           signer = createEvmWallet(privateKey, provider)
         } else if (wagmiClient) {
           signer = await clientToSigner(wagmiClient)
@@ -641,11 +659,12 @@ export function useBridge() {
             throw new Error("Chain ID not found")
           }
 
-          const rpcUrl = getEthereumRpcUrl(tx.fromChainId)
+          const rpcUrl = getEthereumRpcUrl()
           const provider = createEvmProvider(rpcUrl)
-          const privateKey = await walletManager.internal.getPrivateKey(
-            walletManager.internal.activeWallet.address,
-          )
+          if (typeof walletManager.internal.activeWallet !== "string") {
+            throw new Error("Active internal wallet is not an EVM private key")
+          }
+          const privateKey = walletManager.internal.activeWallet
           signer = createEvmWallet(privateKey, provider)
         } else if (wagmiClient) {
           signer = await clientToSigner(wagmiClient)

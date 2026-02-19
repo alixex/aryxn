@@ -434,6 +434,10 @@
     "protocolFee": "Protocol Overhead",
     "estimatedGas": "Est. Gas",
     "minimumReceived": "Minimum Received",
+    "details": "Details",
+    "hide": "Hide",
+    "openExplorer": "Open Explorer",
+    "searchTx": "Search Tx",
     "error": "Error",
     "viewOnEtherscan": "View transaction on Etherscan →"
   }

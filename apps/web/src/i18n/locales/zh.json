@@ -434,6 +434,10 @@
     "protocolFee": "协议开销",
     "estimatedGas": "预估 Gas",
     "minimumReceived": "最少接收",
+    "details": "详情",
+    "hide": "收起",
+    "openExplorer": "打开浏览器",
+    "searchTx": "搜索交易",
     "error": "错误",
     "viewOnEtherscan": "在 Etherscan 上查看交易 →"
   }

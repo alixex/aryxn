@@ -727,9 +727,11 @@ Provide automated and manual recovery mechanisms for failed or stuck bridge tran
 ### Implementation
 
 **Files Created**:
+
 - `packages/cross-chain/src/bridge-recovery.ts` (347 lines)
 
 **Files Modified**:
+
 - `apps/web/src/hooks/useBridge.ts` - Added 4 recovery functions
 - `apps/web/src/components/dex/TransactionHistory.tsx` - Added RecoveryActions component
 
@@ -740,6 +742,7 @@ Provide automated and manual recovery mechanisms for failed or stuck bridge tran
 **Use Case**: Transaction failed due to insufficient liquidity, gas estimation error, or temporary network issues
 
 **Features**:
+
 - Fetches fresh quote with current market conditions
 - Optional slippage increase (default +0.5%)
 - Optional priority upgrade (switch to "fastest")
@@ -747,24 +750,26 @@ Provide automated and manual recovery mechanisms for failed or stuck bridge tran
 - Preserves original transaction as reference
 
 **Implementation**:
+
 ```typescript
 const retryTransaction = async (
   transactionId: string,
-  options: RetryOptions = { increaseSlippage: true }
+  options: RetryOptions = { increaseSlippage: true },
 ) => {
   // Get fresh quote with adjusted parameters
   const route = await liFiBridgeService.getOptimalRoute({
     ...lastQuoteParams,
     slippage: (params.slippage || 0.5) + 0.5, // Increase tolerance
-    priority: options.useHigherPriority ? "fastest" : params.priority
+    priority: options.useHigherPriority ? "fastest" : params.priority,
   })
-  
+
   // Execute with new route
   const txHash = await liFiBridgeService.executeBridgeTransaction(route, signer)
 }
 ```
 
 **UI**:
+
 - Yellow "Retry" button on failed transactions
 - Automatically increases slippage by 0.5%
 - Shows toast notification with new transaction hash
@@ -774,32 +779,35 @@ const retryTransaction = async (
 **Use Case**: Funds reached bridge contract but destination transfer didn't complete (stuck in limbo)
 
 **Features**:
+
 - Checks transaction status via Li.Fi API
 - Detects if funds are on bridge contract
 - Provides manual claim guidance
 - Links to bridge-specific interfaces
 
 **Implementation**:
+
 ```typescript
 const claimTransaction = async (txHash, fromChainId, toChainId) => {
   const status = await getStatus({ txHash, fromChain, toChain })
-  
+
   // Check if already completed
   if (status.receiving?.txHash) {
     return { message: "Already completed, no claim needed" }
   }
-  
+
   // Provide claim instructions
   if (status.status === "PENDING" && status.sending?.txHash) {
     const tool = status.tool || "bridge"
     return {
-      message: `Visit ${tool} interface with txHash: ${txHash} to claim manually`
+      message: `Visit ${tool} interface with txHash: ${txHash} to claim manually`,
     }
   }
 }
 ```
 
 **UI**:
+
 - Green "Claim" button for long-pending transactions (>30 min)
 - Shows detailed guidance in toast notification
 - Recommended for transactions pending >2 hours
@@ -809,6 +817,7 @@ const claimTransaction = async (txHash, fromChainId, toChainId) => {
 **Use Case**: EVM transaction stuck in mempool due to low gas price
 
 **Features**:
+
 - EVM-only (Ethereum, Polygon, Arbitrum, etc.)
 - Replaces transaction with higher gas price
 - Configurable gas multiplier (default 1.2x = 20% increase)
@@ -816,27 +825,29 @@ const claimTransaction = async (txHash, fromChainId, toChainId) => {
 - Uses same nonce to replace original transaction
 
 **Implementation**:
+
 ```typescript
 const speedUpTransaction = async (txHash, route, signer, options) => {
   // Get original transaction
   const tx = await provider.getTransaction(txHash)
-  
+
   // Calculate new gas price (20% higher)
   const newGasPrice = tx.gasPrice * 1.2
-  
+
   // Send replacement tx with same nonce
   const replacementTx = await signer.sendTransaction({
     ...txRequest,
     nonce: tx.nonce, // Same nonce = replacement
     gasPrice: newGasPrice,
-    maxFeePerGas: tx.maxFeePerGas * 1.2
+    maxFeePerGas: tx.maxFeePerGas * 1.2,
   })
-  
+
   return { txHash: replacementTx.hash }
 }
 ```
 
 **UI**:
+
 - Cyan "Speed Up" button for pending EVM transactions
 - Only appears after 30 minutes pending
 - Shows new transaction hash in toast
@@ -847,19 +858,24 @@ const speedUpTransaction = async (txHash, route, signer, options) => {
 
 ```typescript
 // Analyzes transaction and suggests best recovery action
-const getRecommendations = async (txHash, fromChain, toChain, timeSinceSubmission) => {
+const getRecommendations = async (
+  txHash,
+  fromChain,
+  toChain,
+  timeSinceSubmission,
+) => {
   const { status } = await getStatus({ txHash, fromChain, toChain })
-  
+
   // Failed → Retry
   if (status === "FAILED") {
     return { recommended: "RETRY", reasons: ["Transaction failed"] }
   }
-  
+
   // Very long pending (>2h) → Claim
   if (timeSinceSubmission > 2 * 60 * 60 * 1000) {
     return { recommended: "CLAIM", reasons: ["Stuck on bridge contract"] }
   }
-  
+
   // Moderate pending (>1h) on EVM → Speed Up
   if (timeSinceSubmission > 60 * 60 * 1000 && isEVMChain) {
     return { recommended: "SPEED_UP", reasons: ["Gas price too low"] }
@@ -869,12 +885,12 @@ const getRecommendations = async (txHash, fromChain, toChain, timeSinceSubmissio
 
 **Recommendation Logic**:
 
-| Condition | Suggested Action | Priority | Reason |
-|-----------|------------------|----------|--------|
-| Status = FAILED | RETRY | High | New route may succeed |
-| Pending > 2 hours | CLAIM | High | Funds may be stuck |
-| Pending > 1 hour (EVM) | SPEED_UP | Medium | Low gas price |
-| Pending > 30 min (EVM) | SPEED_UP | Low | Network congestion |
+| Condition              | Suggested Action | Priority | Reason                |
+| ---------------------- | ---------------- | -------- | --------------------- |
+| Status = FAILED        | RETRY            | High     | New route may succeed |
+| Pending > 2 hours      | CLAIM            | High     | Funds may be stuck    |
+| Pending > 1 hour (EVM) | SPEED_UP         | Medium   | Low gas price         |
+| Pending > 30 min (EVM) | SPEED_UP         | Low      | Network congestion    |
 
 ### UI/UX Features
 
@@ -892,12 +908,14 @@ const getRecommendations = async (txHash, fromChain, toChain, timeSinceSubmissio
 ```
 
 **Visual Indicators**:
+
 - Recommended action highlighted with colored background
 - Icon-based buttons (Repeat, FileCheck, Zap)
 - Hover tooltips explain each action
 - Loading states during recovery
 
 **Auto-Check**:
+
 - Runs on component mount
 - Checks recovery options via `BridgeRecovery.isRecoverable()`
 - Shows only applicable actions
@@ -906,18 +924,21 @@ const getRecommendations = async (txHash, fromChain, toChain, timeSinceSubmissio
 ### Error Handling
 
 **Retry Scenarios**:
+
 - ✅ Slippage too high → Increase tolerance
 - ✅ Insufficient liquidity → Try different route
 - ✅ Network congestion → Switch to faster priority
 - ✅ Gas estimation failed → Fetch fresh quote
 
 **Claim Scenarios**:
+
 - ✅ Provides manual instructions
 - ✅ Links to bridge-specific interfaces
 - ✅ Li.Fi support contact information
 - ⚠️ Requires user verification on bridge UI
 
 **Speed Up Scenarios**:
+
 - ✅ Transaction not yet mined → Replacement successful
 - ⚠️ Already mined → Notify user, no action needed
 - ❌ Max gas exceeded → Warn user, prevent overpay
@@ -928,7 +949,7 @@ const getRecommendations = async (txHash, fromChain, toChain, timeSinceSubmissio
 1. **Transaction Validation**: Checks if transaction is in recoverable state
 2. **Gas Price Limits**: Maximum gas price configurable to prevent overpaying
 3. **Slippage Caps**: Recommends manual CEX for extreme slippage scenarios
-4.  **User Confirmation**: Recovery actions require explicit user click
+4. **User Confirmation**: Recovery actions require explicit user click
 5. **Status Re-check**: Verifies current state before each recovery attempt
 
 ### Benefits
