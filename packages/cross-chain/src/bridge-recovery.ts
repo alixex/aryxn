@@ -4,6 +4,7 @@ import {
   type ChainId,
   type StatusResponse,
 } from "@lifi/sdk"
+import { EvmChainIds } from "@aryxn/chain-constants"
 import type { Signer } from "ethers"
 import {
   liFiBridgeService,
@@ -81,8 +82,8 @@ export class BridgeRecovery {
         suggestedActions.push("CLAIM")
 
         // EVM transactions can be sped up
-        const isEVMChain = [1, 137, 42161, 10, 56, 43114, 8453, 324].includes(
-          Number(fromChainId),
+        const isEVMChain = EvmChainIds.includes(
+          Number(fromChainId) as (typeof EvmChainIds)[number],
         )
         if (isEVMChain) {
           suggestedActions.push("SPEED_UP")

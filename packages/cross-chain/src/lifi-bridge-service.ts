@@ -10,6 +10,7 @@ import {
   type StatusResponse,
   type ExtendedChain,
 } from "@lifi/sdk"
+import { ChainIds, EvmChainIds } from "@aryxn/chain-constants"
 import type { Signer } from "ethers"
 
 // Re-export types for consumers
@@ -93,21 +94,6 @@ export class LiFiBridgeService {
     "BUSD",
     "FRAX",
   ]
-
-  // EVM chain IDs
-  private static readonly EVM_CHAINS = [
-    1, // Ethereum
-    137, // Polygon
-    42161, // Arbitrum
-    10, // Optimism
-    56, // BSC
-    43114, // Avalanche
-    8453, // Base
-    324, // zkSync Era
-  ]
-
-  // Solana chain ID
-  private static readonly SOLANA_CHAIN = 1151111081099710
 
   /**
    * Get optimal bridge route based on priority
@@ -357,14 +343,14 @@ export class LiFiBridgeService {
    * Check if chain is EVM-compatible
    */
   private isEVMChain(chainId: ChainId): boolean {
-    return LiFiBridgeService.EVM_CHAINS.includes(Number(chainId))
+    return EvmChainIds.includes(Number(chainId) as (typeof EvmChainIds)[number])
   }
 
   /**
    * Check if chain is Solana
    */
   private isSolanaChain(chainId: ChainId): boolean {
-    return Number(chainId) === LiFiBridgeService.SOLANA_CHAIN
+    return Number(chainId) === ChainIds.SOLANA
   }
 
   /**
