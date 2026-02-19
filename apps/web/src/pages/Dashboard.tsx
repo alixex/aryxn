@@ -3,6 +3,7 @@ import { useTranslation } from "@/i18n/config"
 import type { UploadRecord, WalletRecord } from "@/lib/utils"
 import { searchFiles, type FileIndex } from "@/lib/file"
 import { useEffect, useState } from "react"
+import { Chains } from "@aryxn/chain-constants"
 import { HistoryTable } from "@/components/history-table"
 import {
   Card,
@@ -56,18 +57,23 @@ export default function DashboardPage() {
   const [uploadHistory, setUploadHistory] = useState<UploadRecord[]>([])
   const { syncing, syncFromArweave } = useFileSync()
 
-  // 加载上传历史
-  const loadUploadHistory = async () => {
-    // 收集所有可能的地址（内部钱包 + 外部钱包）
-    const addresses: string[] = []
+  const collectArweaveAddresses = () => {
+    const internalArweaveAddresses = walletManager.wallets
+      .filter((walletRecord) => walletRecord.chain === Chains.ARWEAVE)
+      .map((walletRecord) => walletRecord.address)
 
-    if (walletManager.activeAddress) {
-      addresses.push(walletManager.activeAddress)
-    }
+    const candidates = [...internalArweaveAddresses]
 
     if (externalWallets.arAddress) {
-      addresses.push(externalWallets.arAddress)
+      candidates.push(externalWallets.arAddress)
     }
+
+    return Array.from(new Set(candidates.filter(Boolean)))
+  }
+
+  // 加载上传历史
+  const loadUploadHistory = async () => {
+    const addresses = collectArweaveAddresses()
 
     if (addresses.length === 0) {
       setUploadHistory([])
@@ -103,20 +109,11 @@ export default function DashboardPage() {
 
   useEffect(() => {
     loadUploadHistory()
-  }, [walletManager.activeAddress, externalWallets.arAddress])
+  }, [walletManager.wallets, externalWallets.arAddress])
 
   // 在页面加载后，空闲时间自动同步文件
   useEffect(() => {
-    // 收集所有需要同步的地址
-    const addresses: string[] = []
-
-    if (walletManager.activeAddress) {
-      addresses.push(walletManager.activeAddress)
-    }
-
-    if (externalWallets.arAddress) {
-      addresses.push(externalWallets.arAddress)
-    }
+    const addresses = collectArweaveAddresses()
 
     if (addresses.length === 0) {
       return
@@ -142,7 +139,7 @@ export default function DashboardPage() {
     Promise.all(scheduleAutoSyncPromises).catch((error) => {
       console.warn("Failed to schedule auto sync:", error)
     })
-  }, [walletManager.activeAddress, externalWallets.arAddress])
+  }, [walletManager.wallets, externalWallets.arAddress])
 
   // 处理同步
   const handleSync = async () => {

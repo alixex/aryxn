@@ -30,20 +30,18 @@ export function AccountSelector({ file }: AccountSelectorProps) {
       return
     }
     try {
+      toast.info(t("upload.autoCreateArPreparing"))
       const { key, address } = await generateArweaveWallet()
-      const alias = prompt(
-        t("identities.aliasPrompt"),
-        `Wallet-${address.slice(0, 4)}`,
-      )
-      if (!alias) return
+      const alias = `AR-${address.slice(0, 6)}`
       // Convert JWKInterface to ArweaveJWK
       const arweaveKey = key as unknown as import("@/lib/types").ArweaveJWK
       await walletManager.addWallet(arweaveKey, alias)
-      toast.success(t("identities.successGenerated"))
+      await walletManager.selectWallet(address)
+      toast.success(t("upload.autoCreateArSuccess", { alias }))
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error)
-      toast.error(t("identities.errorGenerate", { message: errorMessage }))
+      toast.error(t("upload.autoCreateArFailed", { message: errorMessage }))
     }
   }
 
@@ -112,6 +110,9 @@ export function AccountSelector({ file }: AccountSelectorProps) {
             ? t("upload.arweaveNoAccount")
             : t("upload.arweaveSelectAccount")}
         </div>
+        <p className="text-muted-foreground text-xs leading-relaxed">
+          {t("upload.oneClickCreateArHint")}
+        </p>
 
         {walletManager.wallets.filter((w) => w.chain === Chains.ARWEAVE).length >
         0 ? (
@@ -147,7 +148,7 @@ export function AccountSelector({ file }: AccountSelectorProps) {
               onClick={handleCreateArWallet}
               className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl"
             >
-              <Plus className="mr-2 h-4 w-4" /> {t("identities.new")}
+              <Plus className="mr-2 h-4 w-4" /> {t("upload.oneClickCreateAr")}
             </Button>
             <div className="relative">
               <Button

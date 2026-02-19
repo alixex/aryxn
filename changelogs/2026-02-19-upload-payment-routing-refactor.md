@@ -94,6 +94,8 @@ Swap 页面继续承接：
 
 ### 已实现
 
+- Upload 无 AR 账户场景新增“一键创建 AR 账户”引导：点击后自动生成别名并创建账户，随后自动切换为当前上传账户，避免用户手动输入 alias 的阻塞。
+- 新增友好提示文案：创建前提示“正在创建”，创建成功提示“已创建并自动切换”，失败时返回明确错误原因。
 - 新增统一配置入口（上传可选链、可选代币、路由判定）并在支付服务中集中维护，后续调整只需改一处。
 - 将统一配置进一步拆分为独立模块：
 	- `lib/payment/types.ts`（共享类型）
@@ -118,6 +120,7 @@ Swap 页面继续承接：
 - 用户主动进入 Swap 页面时增加提示：需先根据账户管理选择账户与代币，再进行 swap/bridge 操作。
 - 上传支付执行阶段新增“按所选支付账户解析钱包上下文”（外部 SOL/SUI/AR 钱包对象或内部 activeWallet），并在 Irys 执行前增加钱包前置校验，失败时返回明确错误而非静默失败。
 - `lib/payment/README` 与 `lib/README` 已完成术语和 API 描述对齐，移除过时示例（如 `getTokenRate/convertAmount`）。
+- 数据管理页与手动同步逻辑已改为“聚合全部 Arweave 地址（内部 + 外部）”进行查询/同步，不再受当前 activeAddress 链类型影响，避免“非 AR 支付上传后看不到文件”的问题。
 
 ### 校验
 
@@ -198,6 +201,8 @@ pnpm --filter=@aryxn/web type-check
 ### 受影响关键文件（回滚关注）
 
 - `apps/web/src/hooks/upload-hooks/use-upload-handler.ts`
+- `apps/web/src/hooks/upload-hooks/use-file-sync.ts`
+- `apps/web/src/pages/Dashboard.tsx`
 - `apps/web/src/components/upload/UploadExecutionCard.tsx`
 - `apps/web/src/components/upload/BridgeConfirmationDialog.tsx`
 - `apps/web/src/components/upload/PaymentTokenSelector.tsx`

@@ -2,6 +2,7 @@ import { useState, useCallback } from "react"
 import { toast } from "sonner"
 import { useWallet } from "@/hooks/account-hooks"
 import { syncFilesFromArweaveDirect } from "@/lib/file"
+import { Chains } from "@aryxn/chain-constants"
 
 export function useFileSync() {
   const wallet = useWallet()
@@ -10,20 +11,24 @@ export function useFileSync() {
   const [syncing, setSyncing] = useState(false)
   const [uploadingManifest] = useState(false)
 
+  const collectArweaveAddresses = useCallback(() => {
+    const internalArweaveAddresses = walletManager.wallets
+      .filter((walletRecord) => walletRecord.chain === Chains.ARWEAVE)
+      .map((walletRecord) => walletRecord.address)
+
+    const candidates = [...internalArweaveAddresses]
+    if (externalWallets.arAddress) {
+      candidates.push(externalWallets.arAddress)
+    }
+
+    return Array.from(new Set(candidates.filter(Boolean)))
+  }, [walletManager.wallets, externalWallets.arAddress])
+
   /**
    * 从 Arweave 同步 file 索引到本地
    */
   const syncFromArweave = useCallback(async () => {
-    // 收集所有需要同步的地址
-    const addresses: string[] = []
-
-    if (walletManager.activeAddress) {
-      addresses.push(walletManager.activeAddress)
-    }
-
-    if (externalWallets.arAddress) {
-      addresses.push(externalWallets.arAddress)
-    }
+    const addresses = collectArweaveAddresses()
 
     if (addresses.length === 0) {
       toast.error("请先选择账户或连接外部钱包")
@@ -68,7 +73,7 @@ export function useFileSync() {
     } finally {
       setSyncing(false)
     }
-  }, [walletManager.activeAddress, externalWallets.arAddress])
+  }, [collectArweaveAddresses])
 
   return {
     syncing,
