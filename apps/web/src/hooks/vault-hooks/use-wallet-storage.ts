@@ -3,6 +3,7 @@ import { db } from "@/lib/database"
 import { type DbRow } from "@aryxn/storage"
 import type { WalletRecord, WalletKey } from "@aryxn/wallet-core"
 import { decryptData, fromBase64, fromBytes } from "@aryxn/crypto"
+import { Chains } from "@aryxn/chain-constants"
 
 export const STORAGE_KEY_ACTIVE_ADDRESS = "active_address"
 export const STORAGE_KEY_USE_EXTERNAL = "use_external"
@@ -110,7 +111,7 @@ export function useWalletStorage(
 
               setActiveAddress(savedAddress)
               setActiveWallet(
-                wallet.chain === "arweave" ? JSON.parse(data.key) : data.key,
+                wallet.chain === Chains.ARWEAVE ? JSON.parse(data.key) : data.key,
               )
             }
           }
@@ -153,7 +154,7 @@ export function useWalletStorage(
 
             setActiveAddress(address)
             setActiveWallet(
-              wallet.chain === "arweave" ? JSON.parse(data.key) : data.key,
+              wallet.chain === Chains.ARWEAVE ? JSON.parse(data.key) : data.key,
             )
             setUseExternal(false)
             setHasSavedLocalAccount(true)

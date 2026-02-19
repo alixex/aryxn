@@ -1,4 +1,5 @@
 import { estimateArweaveFee } from "@/lib/storage"
+import { Chains } from "@aryxn/chain-constants"
 
 /**
  * Supported payment tokens
@@ -19,18 +20,18 @@ export const TOKEN_CONFIG: Record<
   PaymentToken,
   { chain: string; decimals: number; symbol: string; coingeckoId: string }
 > = {
-  AR: { chain: "arweave", decimals: 12, symbol: "AR", coingeckoId: "arweave" },
+  AR: { chain: Chains.ARWEAVE, decimals: 12, symbol: "AR", coingeckoId: "arweave" },
   ETH: {
-    chain: "ethereum",
+    chain: Chains.ETHEREUM,
     decimals: 18,
     symbol: "ETH",
     coingeckoId: "ethereum",
   },
-  SOL: { chain: "solana", decimals: 9, symbol: "SOL", coingeckoId: "solana" },
-  SUI: { chain: "sui", decimals: 9, symbol: "SUI", coingeckoId: "sui" },
+  SOL: { chain: Chains.SOLANA, decimals: 9, symbol: "SOL", coingeckoId: "solana" },
+  SUI: { chain: Chains.SUI, decimals: 9, symbol: "SUI", coingeckoId: "sui" },
   BTC: { chain: "bitcoin", decimals: 8, symbol: "BTC", coingeckoId: "bitcoin" },
   USDC: {
-    chain: "ethereum",
+    chain: Chains.ETHEREUM,
     decimals: 6,
     symbol: "USDC",
     coingeckoId: "usd-coin",
@@ -182,8 +183,8 @@ export class PaymentService {
     }
 
     const supportedIrysTokens = [
-      "ethereum",
-      "solana",
+      Chains.ETHEREUM,
+      Chains.SOLANA,
       "usdc-ethereum",
       "usdc-solana",
     ]
@@ -197,9 +198,9 @@ export class PaymentService {
         const irys = await irysService.getIrysInstance({
           token: irysToken,
           wallet:
-            tokenConfig.chain === "ethereum" ? params.signer : params.walletKey,
+            tokenConfig.chain === Chains.ETHEREUM ? params.signer : params.walletKey,
           rpcUrl:
-            tokenConfig.chain === "ethereum"
+            tokenConfig.chain === Chains.ETHEREUM
               ? config.ethereumRpcUrl
               : config.solanaRpcUrl,
         })

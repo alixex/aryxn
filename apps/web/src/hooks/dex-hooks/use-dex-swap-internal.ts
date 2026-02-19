@@ -5,6 +5,7 @@
 
 import { useState, useCallback, useEffect } from "react"
 import type { Address, WalletRecord } from "@aryxn/wallet-core"
+import { Chains } from "@aryxn/chain-constants"
 import {
   MULTI_HOP_SWAPPER_ABI,
   ERC20_ABI,
@@ -80,7 +81,7 @@ export function useInternalDexSwap({
     !!walletManager.activeWallet &&
     walletManager.wallets.find(
       (w: WalletRecord) => w.address === walletManager.activeAddress,
-    )?.chain === "ethereum"
+    )?.chain === Chains.ETHEREUM
 
   // Get ethers provider and signer
   const getProviderAndSigner = useCallback(async () => {

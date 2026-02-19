@@ -2,6 +2,7 @@ import { useState, useRef } from "react"
 import { useTranslation } from "@/i18n/config"
 import { useInternal } from "@/hooks/account-hooks"
 import { toast } from "sonner"
+import { Chains } from "@aryxn/chain-constants"
 import {
   Download,
   Upload,
@@ -204,7 +205,7 @@ export function ConfigImportExport() {
               await import("@/lib/file/file-sync-direct")
             // 获取最新的钱包列表
             const currentWallets = walletManager.wallets.filter(
-              (w) => w.chain === "arweave",
+              (w) => w.chain === Chains.ARWEAVE,
             )
             if (currentWallets.length > 0) {
               let syncedCount = 0

@@ -6,7 +6,7 @@ import {
   ExternalLink,
   UserCheck,
 } from "lucide-react"
-import { TokenBalanceChains } from "@aryxn/chain-constants"
+import { TokenBalanceChains, Chains } from "@aryxn/chain-constants"
 import { Button } from "@/components/ui/button"
 import { ConnectButton } from "@rainbow-me/rainbowkit"
 import { BalanceDisplay } from "./BalanceDisplay"
@@ -220,7 +220,7 @@ export function AccountCard({
           >
             {account.isExternal ? (
               <>
-                {account.chain === "ethereum" && isPaymentConnected ? (
+                {account.chain === Chains.ETHEREUM && isPaymentConnected ? (
                   <ConnectButton.Custom>
                     {({ openAccountModal }) => (
                       <>

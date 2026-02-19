@@ -14,10 +14,8 @@ import type { RecoveryAction } from "@aryxn/cross-chain"
 import { AppSyncChains, getExplorerTxUrl, isKnownExplorerChain } from "@aryxn/chain-constants"
 import { useTranslation } from "@/i18n/config"
 import { cn } from "@/lib/utils"
-
 import { useBridgeHistory } from "@/lib/store/bridge-history"
 import { useBridge } from "@/hooks/useBridge"
-
 import { useState, useEffect } from "react"
 import { useWallet } from "@/hooks/account-hooks"
 
@@ -116,7 +114,6 @@ function RecoveryActions({
   txHash,
   fromChain,
   toChain,
-  status,
   timestamp,
 }: {
   txId: string
@@ -376,7 +373,7 @@ export function TransactionHistory() {
 
                     {tx.hash && <span>{shortHash(tx.hash)}</span>}
 
-                    <span className="max-w-[180px] truncate">
+                    <span className="max-w-45 truncate">
                       {tx.description}
                     </span>
 
@@ -409,7 +406,7 @@ export function TransactionHistory() {
 
                 {isExpanded && (
                   <div className="bg-secondary/30 mt-1 space-y-1 rounded-md p-2 pl-5 text-[10px]">
-                    <div className="text-muted-foreground break-words">
+                    <div className="text-muted-foreground wrap-break-word">
                       {tx.description}
                     </div>
                     {tx.hash && (

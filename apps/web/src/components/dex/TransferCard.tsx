@@ -15,6 +15,7 @@ import {
 import { SUPPORTED_TOKENS, type TokenInfo } from "@/lib/contracts/token-config"
 import { useTransfer } from "@/hooks/dex-hooks/use-transfer"
 import { useWallet } from "@/hooks/account-hooks"
+import { Chains } from "@aryxn/chain-constants"
 
 export function TransferCard() {
   const { t } = useTranslation()
@@ -29,11 +30,11 @@ export function TransferCard() {
 
   const handleRecipientChange = (val: string) => {
     setRecipient(val)
-    if (val.startsWith("0x") && inputToken.chain !== "ethereum") {
+    if (val.startsWith("0x") && inputToken.chain !== Chains.ETHEREUM) {
       setWarning("Warning: You are sending non-EVM tokens to an EVM address.")
     } else if (
       !val.startsWith("0x") &&
-      inputToken.chain === "ethereum" &&
+      inputToken.chain === Chains.ETHEREUM &&
       val.length > 0
     ) {
       setWarning("Warning: Ethereum tokens require a 0x address.")

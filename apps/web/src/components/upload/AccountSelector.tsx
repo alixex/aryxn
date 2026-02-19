@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom"
 import { useTranslation } from "@/i18n/config"
 import { Button } from "@/components/ui/button"
+import { Chains } from "@aryxn/chain-constants"
 import {
   Lock,
   Wallet,
@@ -112,11 +113,11 @@ export function AccountSelector({ file }: AccountSelectorProps) {
             : t("upload.arweaveSelectAccount")}
         </div>
 
-        {walletManager.wallets.filter((w) => w.chain === "arweave").length >
+        {walletManager.wallets.filter((w) => w.chain === Chains.ARWEAVE).length >
         0 ? (
           <div className="mx-auto grid max-w-md grid-cols-1 gap-3">
             {walletManager.wallets
-              .filter((w) => w.chain === "arweave")
+              .filter((w) => w.chain === Chains.ARWEAVE)
               .map((w) => (
                 <Button
                   key={w.id}
