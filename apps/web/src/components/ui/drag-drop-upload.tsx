@@ -214,7 +214,7 @@ export function DragDropUpload({
       onDrop={handleDrop}
       onClick={handleClick}
       className={cn(
-        "relative flex min-h-[240px] cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed transition-all duration-300 sm:min-h-[280px]",
+        "relative flex min-h-60 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed transition-all duration-300 sm:min-h-70",
         isDragging
           ? "border-ring bg-card scale-[1.01] shadow-sm"
           : "border-border bg-background hover:border-ring hover:bg-accent hover:shadow-sm",
@@ -234,7 +234,7 @@ export function DragDropUpload({
 
       {displayFiles.length > 0 ? (
         <div className="flex w-full flex-col gap-4 p-6">
-          <div className="max-h-[400px] overflow-y-auto">
+          <div className="max-h-100 overflow-y-auto">
             <div
               className={
                 displayFiles.length === 1

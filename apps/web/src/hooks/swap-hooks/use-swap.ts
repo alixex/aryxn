@@ -11,12 +11,14 @@ import {
   useWaitForTransactionReceipt,
 } from "wagmi"
 import type { Address } from "@aryxn/wallet-core"
+import { Chains } from "@aryxn/chain-constants"
 import { MULTI_HOP_SWAPPER_ABI } from "@/lib/contracts/multi-hop-swapper-abi"
 import { MULTI_HOP_SWAPPER_ADDRESS } from "@/lib/contracts/addresses"
 import { useSwapQuote } from "./use-swap-quote"
 import { useTokenBalance } from "./use-token-balance"
 import { useTokenApproval } from "./use-token-approval"
-import { parseTokenAmount } from "@/lib/contracts/token-config"
+import { parseTokenAmount, getTokenByAddress } from "@/lib/contracts/token-config"
+import { useBridgeHistory } from "@/lib/store/bridge-history"
 
 export interface SwapRoute {
   path: string[]
@@ -66,6 +68,7 @@ export function useMultiHopSwap({
   const [error, setError] = useState<string>("")
   const [gasPrice, setGasPrice] = useState<string>("")
   const [gasEstimate, setGasEstimate] = useState<bigint>(0n)
+  const addTransaction = useBridgeHistory((state) => state.addTransaction)
 
   // Parse input amount
   const amountIn =
@@ -183,6 +186,37 @@ export function useMultiHopSwap({
 
     estimateGas()
   }, [quote, address, amountIn, inputToken, outputToken, publicClient])
+
+  // Record successful swaps into unified history
+  useEffect(() => {
+    if (!swapSuccess || !swapHash || !quote) return
+
+    const inputTokenInfo = getTokenByAddress(inputToken)
+    const outputTokenInfo = getTokenByAddress(outputToken)
+    const inputSymbol = inputTokenInfo?.symbol ?? "UNKNOWN"
+    const outputSymbol = outputTokenInfo?.symbol ?? "UNKNOWN"
+
+    addTransaction({
+      id: crypto.randomUUID(),
+      type: "SWAP",
+      status: "COMPLETED",
+      description: `Swap ${inputAmount || "0"} ${inputSymbol} to ${quote.formattedOutput} ${outputSymbol}`,
+      timestamp: Date.now(),
+      hash: swapHash,
+      fromChain: Chains.ETHEREUM,
+      toChain: Chains.ETHEREUM,
+      amount: inputAmount || "0",
+      token: `${inputSymbol}/${outputSymbol}`,
+    })
+  }, [
+    swapSuccess,
+    swapHash,
+    quote,
+    inputToken,
+    outputToken,
+    inputAmount,
+    addTransaction,
+  ])
 
   // Update swap state
   useEffect(() => {

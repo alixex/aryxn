@@ -20,10 +20,11 @@ import { useTranslation } from "@/i18n/config"
 import { cn } from "@/lib/utils"
 import { useBridgeHistory } from "@/lib/store/bridge-history"
 import { useBridge } from "@/hooks/useBridge"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useWallet } from "@/hooks/account-hooks"
 
 const SYNC_CHAINS = AppSyncChains
+type HistoryFilter = "ALL" | "SWAP" | "BRIDGE" | "SEND"
 
 function formatRelativeTime(timestamp: number) {
   const seconds = Math.max(1, Math.floor((Date.now() - timestamp) / 1000))
@@ -232,6 +233,7 @@ export function TransactionHistory() {
   const wallet = useWallet()
   const { transactions, syncing, syncWithChain } = useBridgeHistory()
   const [expandedTxId, setExpandedTxId] = useState<string | null>(null)
+  const [filter, setFilter] = useState<HistoryFilter>("ALL")
 
   const address = wallet.active.evm?.address
 
@@ -251,6 +253,21 @@ export function TransactionHistory() {
   const toggleDetails = (txId: string) => {
     setExpandedTxId((prev) => (prev === txId ? null : txId))
   }
+
+  const filteredTransactions = useMemo(() => {
+    if (filter === "ALL") return transactions
+    return transactions.filter((tx) => tx.type === filter)
+  }, [transactions, filter])
+
+  const filterCounts = useMemo(
+    () => ({
+      ALL: transactions.length,
+      SWAP: transactions.filter((tx) => tx.type === "SWAP").length,
+      BRIDGE: transactions.filter((tx) => tx.type === "BRIDGE").length,
+      SEND: transactions.filter((tx) => tx.type === "SEND").length,
+    }),
+    [transactions],
+  )
 
   return (
     <div className="glass-premium overflow-hidden rounded-xl border-none shadow-2xl">
@@ -273,12 +290,61 @@ export function TransactionHistory() {
       </div>
 
       <div className="max-h-100 space-y-1.5 overflow-y-auto p-2">
-        {transactions.length === 0 ? (
+        <div className="mb-2 flex flex-wrap gap-2 px-1">
+          {[
+            {
+              value: "ALL" as const,
+              label: t("common.all", "全部"),
+              count: filterCounts.ALL,
+            },
+            {
+              value: "SWAP" as const,
+              label: t("dex.swap", "交换"),
+              count: filterCounts.SWAP,
+            },
+            {
+              value: "BRIDGE" as const,
+              label: t("dex.bridge", "跨链"),
+              count: filterCounts.BRIDGE,
+            },
+            {
+              value: "SEND" as const,
+              label: t("dex.transfer", "发送"),
+              count: filterCounts.SEND,
+            },
+          ].map((item) => (
+            <button
+              key={item.value}
+              type="button"
+              onClick={() => setFilter(item.value)}
+              className={cn(
+                "flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs transition-all duration-200",
+                filter === item.value
+                  ? "bg-secondary text-foreground scale-[1.03]"
+                  : "text-muted-foreground hover:bg-secondary/40",
+              )}
+            >
+              <span>{item.label}</span>
+              <span
+                className={cn(
+                  "rounded-full px-1.5 py-0.5 text-[10px] leading-none",
+                  filter === item.value
+                    ? "bg-foreground/10 text-foreground"
+                    : "bg-muted text-muted-foreground",
+                )}
+              >
+                {item.count}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        {filteredTransactions.length === 0 ? (
           <div className="text-muted-foreground py-8 text-center text-sm">
             {t("dex.noHistory", "No recent transactions")}
           </div>
         ) : (
-          transactions.map((tx) => {
+          filteredTransactions.map((tx) => {
             const isExpanded = expandedTxId === tx.id
             const explorerUrl = tx.hash
               ? getExplorerTxUrl(tx.fromChain, tx.hash)

@@ -6,6 +6,7 @@ import {
   Send,
   AlertCircle,
   ArrowRight,
+  History,
 } from "lucide-react"
 import { useConnection } from "wagmi"
 import { Link, useSearchParams } from "react-router-dom"
@@ -187,9 +188,8 @@ export default function SwapPage() {
           }
         />
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          {/* Main Action Area */}
-          <div className="lg:col-span-2">
+        <div className="space-y-6">
+          <div>
             {needsAccountSetup ? (
               <div className="glass-strong animate-fade-in-down border-accent/30 bg-card/60 mb-4 flex items-start gap-4 rounded-2xl border-2 p-6 shadow-lg">
                 <div className="bg-accent/20 flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
@@ -315,6 +315,10 @@ export default function SwapPage() {
                         <Send className="h-4 w-4" />
                         {t("dex.transfer", "Send")}
                       </TabsTrigger>
+                      <TabsTrigger value="history" className="flex-1 gap-2 sm:w-32">
+                        <History className="h-4 w-4" />
+                        {t("history.title", "History")}
+                      </TabsTrigger>
                     </TabsList>
                   </div>
 
@@ -329,14 +333,13 @@ export default function SwapPage() {
                   <TabsContent value="transfer" className="mt-0">
                     <TransferCard selectedAccount={selectedAccount} />
                   </TabsContent>
+
+                  <TabsContent value="history" className="mt-0">
+                    <TransactionHistory />
+                  </TabsContent>
                 </Tabs>
               </>
             )}
-          </div>
-
-          {/* Sidebar Area */}
-          <div className="space-y-6">
-            <TransactionHistory />
           </div>
         </div>
       </div>

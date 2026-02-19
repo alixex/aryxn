@@ -20,9 +20,11 @@ import { MULTI_HOP_SWAPPER_ADDRESS } from "@/lib/contracts/addresses"
 import {
   parseTokenAmount,
   formatTokenAmount,
+  getTokenByAddress,
 } from "@/lib/contracts/token-config"
 import { useInternal } from "@/hooks/account-hooks"
 import { getEthereumRpcUrl } from "@/lib/chain/rpc-config"
+import { useBridgeHistory } from "@/lib/store/bridge-history"
 
 export const SwapState = {
   IDLE: "idle",
@@ -56,6 +58,7 @@ export function useInternalSwap({
   slippage,
 }: UseInternalSwapParams) {
   const walletManager = useInternal()
+  const addTransaction = useBridgeHistory((state) => state.addTransaction)
   const [swapState, setSwapState] = useState<SwapState>(SwapState.IDLE)
   const [error, setError] = useState<string>("")
   const [inputBalance, setInputBalance] = useState<bigint>(0n)
@@ -384,6 +387,24 @@ export function useInternalSwap({
         setSwapSuccess(true)
         setSwapState(SwapState.SUCCESS)
 
+        const inputTokenInfo = getTokenByAddress(inputToken)
+        const outputTokenInfo = getTokenByAddress(outputToken)
+        const inputSymbol = inputTokenInfo?.symbol ?? "UNKNOWN"
+        const outputSymbol = outputTokenInfo?.symbol ?? "UNKNOWN"
+
+        addTransaction({
+          id: crypto.randomUUID(),
+          type: "SWAP",
+          status: "COMPLETED",
+          description: `Swap ${inputAmount || "0"} ${inputSymbol} to ${quote.formattedOutput} ${outputSymbol}`,
+          timestamp: Date.now(),
+          hash: tx.hash,
+          fromChain: Chains.ETHEREUM,
+          toChain: Chains.ETHEREUM,
+          amount: inputAmount || "0",
+          token: `${inputSymbol}/${outputSymbol}`,
+        })
+
         const tokenContract = createEvmContract(
           inputToken,
           ERC20_ABI,
@@ -407,6 +428,8 @@ export function useInternalSwap({
     inputBalance,
     inputToken,
     outputToken,
+    inputAmount,
+    addTransaction,
     getProviderAndSigner,
   ])
 
