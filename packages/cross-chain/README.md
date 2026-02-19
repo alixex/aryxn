@@ -98,10 +98,9 @@ const isValid = chainId ? validateAddress("0x...", chainId) : false
 - `BridgeRecovery`
 - `simulateBridgeRoute` and simulation helpers
 - Address utilities (`validateAddress`, `getChainIdFromName`, etc.)
-- Legacy `BridgeService` and `BridgeProvider`
+- `requiresBridge`
 
 ## Notes
 
 - This package depends on `@lifi/sdk` and signer-capable wallet integrations.
 - For UI integrations, pair with persisted tx history/state management on the app side.
-- `BridgeService.bridgeAsset` is a compatibility placeholder; use `liFiBridgeService` for production bridge flow.

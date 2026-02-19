@@ -98,10 +98,9 @@ const isValid = chainId ? validateAddress("0x...", chainId) : false
 - `BridgeRecovery`
 - `simulateBridgeRoute` 及相关模拟工具
 - 地址工具（`validateAddress`, `getChainIdFromName` 等）
-- 兼容层：`BridgeService`, `BridgeProvider`
+- `requiresBridge`
 
 ## 说明
 
 - 该包依赖 `@lifi/sdk` 与可签名的钱包能力。
 - 在前端集成时，建议配合应用侧持久化交易历史状态管理一起使用。
-- `BridgeService.bridgeAsset` 为兼容层占位实现，生产桥接流程建议使用 `liFiBridgeService`。

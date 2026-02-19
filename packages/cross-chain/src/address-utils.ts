@@ -103,17 +103,26 @@ export function isEVMChain(chainId: ChainId): boolean {
 export function getChainIdFromName(chainName: string): ChainId | null {
   const chainMap: Record<string, ChainId> = {
     ethereum: 1,
+    eth: 1,
     polygon: 137,
+    matic: 137,
     arbitrum: 42161,
+    arb: 42161,
     optimism: 10,
+    op: 10,
     bsc: 56,
+    binance: 56,
     avalanche: 43114,
+    avax: 43114,
     fantom: 250,
+    ftm: 250,
     cronos: 25,
     gnosis: 100,
     base: 8453,
     linea: 59144,
     scroll: 534352,
+    solana: 1151111081099710,
+    sol: 1151111081099710,
   }
 
   return chainMap[chainName.toLowerCase()] || null
