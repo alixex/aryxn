@@ -5,6 +5,19 @@ import type { FeeEstimate } from "@/hooks/swap-hooks"
 import type { PaymentToken } from "@/lib/payment"
 import { Button } from "@/components/ui/button"
 
+function parseRouteRequiredError(message?: string | null) {
+  if (!message) return null
+
+  const matched = message.match(/Route required:\s*(swap|bridge)\s*for\s*(\w+)\s*on\s*([\w-]+)/i)
+  if (!matched) return null
+
+  return {
+    action: matched[1].toLowerCase() as "swap" | "bridge",
+    token: matched[2],
+    chain: matched[3],
+  }
+}
+
 interface FeeEstimateProps {
   file: File | null
   files?: File[]
@@ -46,15 +59,25 @@ export function FeeEstimate({
   const selectedTokenError =
     selectedToken !== "AR" ? selectedTokenEstimate?.error : undefined
   const hasFeeError = Boolean(feeError || selectedTokenError)
-
-  const feeErrorTitle = selectedTokenError
-    ? t("upload.feeCalculationFailedWithContext", {
-        token: selectedToken,
-        chain: selectedChain || t("upload.unknownChain"),
-      })
-    : t("upload.feeCalculationFailed")
-
   const feeErrorDetails = feeError || selectedTokenError
+  const routeRequired = parseRouteRequiredError(feeErrorDetails)
+
+  const feeErrorTitle = routeRequired
+    ? routeRequired.action === "swap"
+      ? t("upload.feeRouteRequiredSwap", {
+          token: routeRequired.token,
+          chain: routeRequired.chain,
+        })
+      : t("upload.feeRouteRequiredBridge", {
+          token: routeRequired.token,
+          chain: routeRequired.chain,
+        })
+    : selectedTokenError
+      ? t("upload.feeCalculationFailedWithContext", {
+          token: selectedToken,
+          chain: selectedChain || t("upload.unknownChain"),
+        })
+      : t("upload.feeCalculationFailed")
 
   return (
     <div className="border-border bg-card overflow-hidden rounded-xl border">
@@ -83,7 +106,9 @@ export function FeeEstimate({
               {feeErrorTitle}
             </div>
             <div className="mt-1 text-xs text-amber-700">
-              {t("upload.feeErrorHintDetailed")}
+              {routeRequired
+                ? t("upload.feeRouteRequiredHint")
+                : t("upload.feeErrorHintDetailed")}
             </div>
             {feeErrorDetails && (
               <div className="mt-2 text-[11px] break-all text-amber-800/80">
@@ -91,10 +116,17 @@ export function FeeEstimate({
               </div>
             )}
             <div className="mt-2 text-[11px] text-amber-700/90">
-              {t("upload.feeErrorActions", {
-                token: selectedToken,
-                chain: selectedChain || t("upload.unknownChain"),
-              })}
+              {routeRequired
+                ? t("upload.feeRouteRequiredActions", {
+                    action:
+                      routeRequired.action === "swap"
+                        ? t("upload.routeActionSwap")
+                        : t("upload.routeActionBridge"),
+                  })
+                : t("upload.feeErrorActions", {
+                    token: selectedToken,
+                    chain: selectedChain || t("upload.unknownChain"),
+                  })}
             </div>
             <Button
               type="button"

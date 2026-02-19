@@ -32,6 +32,12 @@ const PRICE_CACHE: PriceCache = {
 
 const CACHE_DURATION_MS = 60 * 1000 // 1 minute
 
+const SUPPORTED_IRYS_FUNDING_TOKENS = new Set<string>([
+  Chains.ETHEREUM,
+  Chains.SOLANA,
+  "usdc-ethereum",
+])
+
 /**
  * Service to handle payment logic for uploads
  */
@@ -105,17 +111,10 @@ export class PaymentService {
     }
 
     const tokenConfig = TOKEN_CONFIG[token]
+    const sourceChain = paymentChain || tokenConfig.chain
+    const irysToken = getIrysFundingToken(sourceChain, token)
 
-    let irysToken: string | null = null
-    if (token === "ETH") {
-      irysToken = Chains.ETHEREUM
-    } else if (token === "SOL") {
-      irysToken = Chains.SOLANA
-    } else if (token === "USDC") {
-      irysToken = getIrysFundingToken(paymentChain || Chains.ETHEREUM, "USDC")
-    }
-
-    if (irysToken) {
+    if (irysToken && SUPPORTED_IRYS_FUNDING_TOKENS.has(irysToken)) {
       try {
         const { irysService } = await import("@/lib/storage")
         const atomicPrice = await irysService.getPrice(dataSize, irysToken)
@@ -133,20 +132,10 @@ export class PaymentService {
       }
     }
 
-    const prices = await this.fetchCryptoPrices()
-    const arUsd = prices.AR
-    const tokenUsd = prices[token]
-
-    if (!arUsd || !tokenUsd || arUsd <= 0 || tokenUsd <= 0) {
-      throw new Error(`Failed to estimate ${token} fee: missing market price`)
-    }
-
-    const tokenAmount = (arFee.ar * arUsd) / tokenUsd
-    return {
-      arAmount: arFee.ar,
-      tokenAmount,
-      formatted: `${tokenAmount.toFixed(6)} ${token}`,
-    }
+    const redirectAction = resolveUploadRedirectAction(sourceChain, token)
+    throw new Error(
+      `Route required: ${redirectAction} for ${token} on ${sourceChain}`,
+    )
   }
 
   /**
@@ -177,7 +166,7 @@ export class PaymentService {
     // TIER 2: Irys Rapid Payment (ETH, SOL, USDC)
     const irysToken = getIrysFundingToken(sourceChain, params.fromToken)
 
-    if (irysToken) {
+    if (irysToken && SUPPORTED_IRYS_FUNDING_TOKENS.has(irysToken)) {
       console.log(`Executing rapid Irys funding with ${params.fromToken}...`)
       try {
         const { irysService } = await import("@/lib/storage")
