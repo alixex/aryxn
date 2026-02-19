@@ -209,6 +209,9 @@ importers:
 
   packages/chain-constants:
     devDependencies:
+      oxlint:
+        specifier: ^1.38.0
+        version: 1.41.0
       typescript:
         specifier: ~5.9.3
         version: 5.9.3

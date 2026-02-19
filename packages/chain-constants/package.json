@@ -1,11 +1,17 @@
 {
   "name": "@aryxn/chain-constants",
   "version": "1.0.0",
-  "description": "Shared constants for Aryxn",
+  "description": "Shared chain constants and utilities for Aryxn multi-chain applications",
   "main": "src/index.ts",
   "types": "src/index.ts",
+  "scripts": {
+    "lint": "oxlint",
+    "format": "oxlint --fix",
+    "type-check": "tsc --noEmit"
+  },
   "license": "AGPL-3.0-or-later",
   "devDependencies": {
-    "typescript": "~5.9.3"
+    "typescript": "~5.9.3",
+    "oxlint": "^1.38.0"
   }
 }
