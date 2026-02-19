@@ -70,14 +70,25 @@ Swap 页面继续承接：
 已修改文件：
 
 - `apps/web/src/lib/payment/payment-service.ts`
+- `apps/web/src/lib/payment/upload-payment-config.ts`
+- `apps/web/src/lib/payment/types.ts`
+- `apps/web/src/lib/payment/index.ts`
+- `apps/web/src/lib/payment/README.md`
+- `apps/web/src/lib/README.md`
 - `apps/web/src/components/upload/PaymentTokenSelector.tsx`
 - `apps/web/src/components/upload/UploadConfigurationCard.tsx`
 - `apps/web/src/pages/Upload.tsx`
 - `apps/web/src/hooks/upload-hooks/use-upload-handler.ts`
+- `apps/web/src/components/upload/BridgeConfirmationDialog.tsx`
 - `apps/web/src/components/upload/UploadExecutionCard.tsx`
 - `apps/web/src/pages/Swap.tsx`
+- `apps/web/src/components/swap/BridgeCard.tsx`
 - `apps/web/src/hooks/swap-hooks/use-fee-calculation.ts`
 - `apps/web/src/hooks/upload-hooks/index.ts`
+- `apps/web/src/i18n/locales/en.json`
+- `apps/web/src/i18n/locales/zh.json`
+- `packages/chain-constants/src/tokens.ts`
+- `packages/chain-constants/src/index.ts`
 
 ## 实施结果
 
@@ -106,10 +117,12 @@ Swap 页面继续承接：
 - `Swap/Bridge` 在 `source=upload` 场景下可自动预填来源 `token` 与可映射的来源链参数（若链不可映射则保留默认链）。
 - 用户主动进入 Swap 页面时增加提示：需先根据账户管理选择账户与代币，再进行 swap/bridge 操作。
 - 上传支付执行阶段新增“按所选支付账户解析钱包上下文”（外部 SOL/SUI/AR 钱包对象或内部 activeWallet），并在 Irys 执行前增加钱包前置校验，失败时返回明确错误而非静默失败。
+- `lib/payment/README` 与 `lib/README` 已完成术语和 API 描述对齐，移除过时示例（如 `getTokenRate/convertAmount`）。
 
 ### 校验
 
 - 类型检查通过：`pnpm --filter=@aryxn/web type-check`
+- 类型检查通过：`pnpm --filter=@aryxn/chain-constants type-check`
 
 ## 测试建议
 
@@ -137,3 +150,58 @@ Swap 页面继续承接：
 - `changelogs/2026-02-19-transaction-history-information-priority.md`
 - `apps/web/src/components/swap/TransactionHistory.tsx`
 - `apps/web/src/hooks/useBridge.ts`
+
+## 上线前检查清单
+
+### 发布前功能检查（必须）
+
+- [ ] Upload 页面可正常选择支付账户（SOL / ETH / SUI / AR）
+- [ ] Upload 页面可正常选择支付代币（USDT / USDC / ETH / SOL / SUI / AR / V2EX）
+- [ ] AR + AR 路径走 `PAID_NATIVE`
+- [ ] ETH/SOL + ETH/SOL/USDC 路径走 `PAID_IRYS`
+- [ ] 其他组合触发 `REQUIRE_SWAP` 或 `REQUIRE_BRIDGE`
+- [ ] 跳转前出现统一确认弹窗，且包含“可能需要重新上传”提示
+- [ ] 跳转到 Swap 后默认标签与 action 参数一致（swap/bridge）
+- [ ] 从 Upload 跳转到 Swap 后，来源提示可见（token/chain/source）
+- [ ] Bridge 历史记录、刷新、恢复动作入口可见
+
+### 发布前技术检查（必须）
+
+- [ ] `pnpm --filter=@aryxn/web type-check` 通过
+- [ ] `pnpm --filter=@aryxn/chain-constants type-check` 通过
+- [ ] i18n 新增文案键在 `en/zh` 均存在
+- [ ] `packages/chain-constants/src/tokens.ts` 与 Web 侧使用保持一致
+
+### 钱包联调检查（建议）
+
+- [ ] Phantom（Solana）连接/切换账号后支付路径正常
+- [ ] Sui Wallet 连接/切换账号后支付路径正常
+- [ ] EVM 外部钱包（MetaMask 等）签名与 Irys funding 正常
+- [ ] 外部钱包断开场景提示明确，不出现静默失败
+
+## 回滚清单
+
+### 快速回滚策略
+
+1. 回滚到本次改造前的 `Upload/Payment/Swap` 相关提交。
+2. 保留数据库与用户数据，不执行数据结构回滚（本次主要为前端逻辑与配置改造）。
+3. 回滚后执行：
+
+```bash
+pnpm --filter=@aryxn/web type-check
+```
+
+4. 重点验收：
+	- Upload AR 直付可用
+	- Swap 页面可正常打开与查看历史
+
+### 受影响关键文件（回滚关注）
+
+- `apps/web/src/hooks/upload-hooks/use-upload-handler.ts`
+- `apps/web/src/components/upload/UploadExecutionCard.tsx`
+- `apps/web/src/components/upload/BridgeConfirmationDialog.tsx`
+- `apps/web/src/components/upload/PaymentTokenSelector.tsx`
+- `apps/web/src/pages/Swap.tsx`
+- `apps/web/src/lib/payment/payment-service.ts`
+- `apps/web/src/lib/payment/upload-payment-config.ts`
+- `packages/chain-constants/src/tokens.ts`
