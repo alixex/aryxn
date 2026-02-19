@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react"
+import { AccountChains } from "@aryxn/chain-constants"
 import { type BalanceResult } from "@/lib/chain"
 import { useWallet } from "./use-wallet"
 
@@ -115,9 +116,9 @@ export function useAccounts() {
   const getExternalAccounts = useCallback(
     (chain?: string) => {
       if (chain) return wallet.getExternalAccounts(chain)
-      const chains = ["ethereum", "bitcoin", "solana", "sui", "arweave"]
       let out: any[] = []
-      for (const c of chains) out = out.concat(wallet.getExternalAccounts(c))
+      for (const c of AccountChains)
+        out = out.concat(wallet.getExternalAccounts(c))
       return out
     },
     [wallet],

@@ -13,6 +13,7 @@ import {
   createSuiClient,
 } from "@aryxn/wallet-core"
 import { RefreshCw } from "lucide-react"
+import { TokenBalanceChains } from "@aryxn/chain-constants"
 import {
   SUPPORTED_TOKENS,
   formatTokenAmount,
@@ -38,6 +39,8 @@ interface TokenBalancesProps {
   chain: string
   isUnlocked: boolean
 }
+
+const TOKEN_BALANCE_CHAIN_SET = new Set<string>(TokenBalanceChains)
 
 // Global cache to prevent re-fetching across remounts
 const globalFetchCache = new Map<string, number>()
@@ -231,11 +234,7 @@ export function TokenBalances({
 
   useEffect(() => {
     let active = true
-    if (
-      isUnlocked &&
-      address &&
-      ["ethereum", "solana", "sui"].includes(chain)
-    ) {
+    if (isUnlocked && address && TOKEN_BALANCE_CHAIN_SET.has(chain)) {
       if (active) fetchBalances()
     }
     return () => {
@@ -244,7 +243,7 @@ export function TokenBalances({
   }, [isUnlocked, address, chain])
 
   // Don't show for unsupported chains
-  if (!isUnlocked || !["ethereum", "solana", "sui"].includes(chain)) return null
+  if (!isUnlocked || !TOKEN_BALANCE_CHAIN_SET.has(chain)) return null
 
   const activeBalances = balances.filter((b) => b.balance > 0n)
 

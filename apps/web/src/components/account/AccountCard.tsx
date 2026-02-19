@@ -6,6 +6,7 @@ import {
   ExternalLink,
   UserCheck,
 } from "lucide-react"
+import { TokenBalanceChains } from "@aryxn/chain-constants"
 import { Button } from "@/components/ui/button"
 import { ConnectButton } from "@rainbow-me/rainbowkit"
 import { BalanceDisplay } from "./BalanceDisplay"
@@ -48,6 +49,8 @@ interface AccountCardProps {
   onToggleBalance?: (show: boolean) => void
   onRefreshBalance?: () => void
 }
+
+const TOKEN_BALANCE_CHAIN_SET = new Set<string>(TokenBalanceChains)
 
 const getChainIcon = (chain?: string) => {
   switch (chain?.toLowerCase()) {
@@ -198,9 +201,7 @@ export function AccountCard({
                   />
 
                   {/* Show token balances for Ethereum, Solana and Sui accounts */}
-                  {(account.chain === "ethereum" ||
-                    account.chain === "solana" ||
-                    account.chain === "sui") && (
+                  {TOKEN_BALANCE_CHAIN_SET.has(account.chain) && (
                     <div className="flex-1">
                       <TokenBalances
                         address={account.address}

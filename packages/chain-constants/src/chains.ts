@@ -24,6 +24,12 @@ export const AccountChains = [
   Chains.ARWEAVE,
 ] as const
 
+export const TokenBalanceChains = [
+  Chains.ETHEREUM,
+  Chains.SOLANA,
+  Chains.SUI,
+] as const
+
 export const ChainIds = {
   ETHEREUM: 1,
   POLYGON: 137,

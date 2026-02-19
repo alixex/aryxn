@@ -14,6 +14,7 @@ import {
   useExternalAggregation,
   type UseExternalWalletsReturn,
 } from "@/hooks/account-hooks/external-wallet/use-external-aggregation"
+import { AccountChains } from "@aryxn/chain-constants"
 import type {
   WalletRecord,
   WalletKey,
@@ -385,9 +386,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   )
 
   const getAccountsByChain = useCallback((): Record<string, AccountInfo[]> => {
-    const chains = ["ethereum", "bitcoin", "solana", "sui", "arweave"]
     const out: Record<string, AccountInfo[]> = {}
-    for (const c of chains)
+    for (const c of AccountChains)
       out[c] = getLocalAccounts(c).concat(getExternalAccounts(c))
     return out
   }, [getLocalAccounts, getExternalAccounts])
