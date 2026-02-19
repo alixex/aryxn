@@ -19,12 +19,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Providers>{children}</Providers>
         <ScrollRestoration />
         <Scripts />
-        {/* coi-serviceworker for Cross-Origin Isolation (required for SQLite OPFS persistence) */}
-        {/* Load after Scripts to avoid hydration conflicts */}
-        <script
-          src="/aryxn/coi-serviceworker.min.js"
-          suppressHydrationWarning
-        />
       </body>
     </html>
   )
