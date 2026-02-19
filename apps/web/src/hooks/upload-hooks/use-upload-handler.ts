@@ -5,9 +5,17 @@ import { useWallet } from "@/hooks/account-hooks"
 import { uploadFile, uploadFiles } from "@/lib/file"
 import type { PaymentToken } from "@/lib/payment"
 import { paymentService } from "@/lib/payment"
+import type { PaymentAccount } from "@/lib/payment"
+import { getIrysFundingToken } from "@/lib/payment"
 import type { WalletKey } from "@/lib/utils"
 import { useConnectorClient } from "wagmi"
 import { clientToSigner } from "@aryxn/wallet-core"
+
+export interface UploadHandlerResult {
+  status: "SUCCESS" | "SWAP_REQUIRED" | "BRIDGE_REQUIRED" | "FAILED"
+  success: number
+  failed: number
+}
 
 export function useUploadHandler() {
   const { t } = useTranslation()
@@ -25,13 +33,21 @@ export function useUploadHandler() {
       encryptUpload: boolean,
       compressUpload: boolean,
       paymentToken: PaymentToken = "AR",
+      paymentAccount: PaymentAccount | null,
     ) => {
-      if (!file) return false
+      if (!file) {
+        return { status: "FAILED", success: 0, failed: 1 } as UploadHandlerResult
+      }
 
       const activeArweave = wallet.active.arweave
       if (!activeArweave) {
         toast.error(t("upload.needAccountToUpload"))
-        return false
+        return { status: "FAILED", success: 0, failed: 1 } as UploadHandlerResult
+      }
+
+      if (!paymentAccount) {
+        toast.error(t("upload.selectPaymentAccount", "Please select a payment account"))
+        return { status: "FAILED", success: 0, failed: 1 } as UploadHandlerResult
       }
 
       setUploading(true)
@@ -51,14 +67,17 @@ export function useUploadHandler() {
         const paymentResult = await paymentService.executePayment({
           fromToken: paymentToken,
           amountInAR: 0,
-          userAddress:
-            wallet.active.evm?.address || wallet.active.solana?.address || "",
+          paymentAccount,
           walletKey: null,
           signer: signer,
         })
 
         if (paymentResult === "PAYMENT_FAILED") {
           throw new Error("Payment execution failed.")
+        }
+
+        if (paymentResult === "REQUIRE_SWAP") {
+          return { status: "SWAP_REQUIRED", success: 0, failed: 0 } as UploadHandlerResult
         }
 
         if (paymentResult === "REQUIRE_BRIDGE") {
@@ -69,16 +88,14 @@ export function useUploadHandler() {
             ),
           )
           // In a real implementation: window.location.href = "/bridge" or showModal()
-          setUploading(false)
-          setPaymentStage(false)
-          return false
+          return { status: "BRIDGE_REQUIRED", success: 0, failed: 0 } as UploadHandlerResult
         }
 
         const useIrys = paymentResult === "PAID_IRYS"
         setPaymentStage(false)
 
         const irysTokenName = useIrys
-          ? (await import("@/lib/payment")).TOKEN_CONFIG[paymentToken].chain
+          ? getIrysFundingToken(paymentAccount.chain, paymentToken) || undefined
           : undefined
 
         setStage(t("upload.uploading") || "Uploading...")
@@ -102,14 +119,14 @@ export function useUploadHandler() {
         )
 
         toast.success(t("upload.successArweave"))
-        return true
+        return { status: "SUCCESS", success: 1, failed: 0 } as UploadHandlerResult
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : String(error)
         toast.error(
           t("upload.failed", { protocol: "Arweave", message: errorMessage }),
         )
-        return false
+        return { status: "FAILED", success: 0, failed: 1 } as UploadHandlerResult
       } finally {
         setUploading(false)
         setProgress(0)
@@ -126,15 +143,21 @@ export function useUploadHandler() {
       encryptUpload: boolean,
       compressUpload: boolean,
       paymentToken: PaymentToken = "AR",
+      paymentAccount: PaymentAccount | null,
     ) => {
       if (files.length === 0) {
-        return { success: 0, failed: 0 }
+        return { status: "FAILED", success: 0, failed: 0 } as UploadHandlerResult
       }
 
       const activeArweave = wallet.active.arweave
       if (!activeArweave) {
         toast.error(t("upload.needAccountToUpload"))
-        return { success: 0, failed: 0 }
+        return { status: "FAILED", success: 0, failed: files.length } as UploadHandlerResult
+      }
+
+      if (!paymentAccount) {
+        toast.error(t("upload.selectPaymentAccount", "Please select a payment account"))
+        return { status: "FAILED", success: 0, failed: files.length } as UploadHandlerResult
       }
 
       setUploading(true)
@@ -157,8 +180,7 @@ export function useUploadHandler() {
         const paymentResult = await paymentService.executePayment({
           fromToken: paymentToken,
           amountInAR: 0,
-          userAddress:
-            wallet.active.evm?.address || wallet.active.solana?.address || "",
+          paymentAccount,
           walletKey: null,
           signer: signer,
         })
@@ -167,18 +189,20 @@ export function useUploadHandler() {
           throw new Error("Payment execution failed.")
         }
 
+        if (paymentResult === "REQUIRE_SWAP") {
+          return { status: "SWAP_REQUIRED", success: 0, failed: 0 } as UploadHandlerResult
+        }
+
         if (paymentResult === "REQUIRE_BRIDGE") {
           // toast.info(...) // Handled by Dialog
-          setUploading(false)
-          setPaymentStage(false)
-          return { success: 0, failed: 0, status: "BRIDGE_REQUIRED" }
+          return { status: "BRIDGE_REQUIRED", success: 0, failed: 0 } as UploadHandlerResult
         }
 
         const useIrys = paymentResult === "PAID_IRYS"
         setPaymentStage(false)
 
         const irysTokenName = useIrys
-          ? (await import("@/lib/payment")).TOKEN_CONFIG[paymentToken].chain
+          ? getIrysFundingToken(paymentAccount.chain, paymentToken) || undefined
           : undefined
 
         setStage(t("upload.uploading") || "Uploading...")
@@ -240,12 +264,20 @@ export function useUploadHandler() {
           )
         }
 
-        return { success: successCount, failed: failedCount }
+        return {
+          status: successCount > 0 ? "SUCCESS" : "FAILED",
+          success: successCount,
+          failed: failedCount,
+        } as UploadHandlerResult
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : String(error)
         toast.error(t("upload.batchError", { message: errorMessage }))
-        return { success: successCount, failed: failedCount }
+        return {
+          status: "FAILED",
+          success: successCount,
+          failed: Math.max(failedCount, files.length - successCount),
+        } as UploadHandlerResult
       } finally {
         setUploading(false)
         setProgress(0)

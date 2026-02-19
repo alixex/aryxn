@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import {
   Settings,
   Clock,
@@ -35,6 +35,7 @@ import {
   type ChainId,
 } from "@aryxn/cross-chain"
 import { useWallet } from "@/providers/wallet-provider"
+import { useSearchParams } from "react-router-dom"
 
 // Supported chains with Li.Fi ChainIds
 const CHAINS = [
@@ -49,6 +50,8 @@ const CHAINS = [
 export function BridgeCard() {
   const { t } = useTranslation()
   const wallet = useWallet()
+  const [searchParams] = useSearchParams()
+  const prefillApplied = useRef(false)
 
   const [chainTypes, setChainTypes] = useState<Record<number, string>>({})
 
@@ -68,6 +71,41 @@ export function BridgeCard() {
     value: token.symbol,
     label: token.symbol,
   }))
+
+  useEffect(() => {
+    if (prefillApplied.current) return
+
+    const source = searchParams.get("source")
+    if (source !== "upload") return
+
+    const tokenParam = (searchParams.get("token") || "").toUpperCase()
+    const chainParam = (searchParams.get("chain") || "").toLowerCase()
+
+    if (tokenParam) {
+      const matchedToken = SUPPORTED_TOKENS.find(
+        (token) => token.symbol.toUpperCase() === tokenParam,
+      )
+      if (matchedToken) {
+        setInputToken(matchedToken)
+      }
+    }
+
+    const chainIdByKey: Record<string, ChainId> = {
+      ethereum: 1,
+      evm: 1,
+      polygon: 137,
+      arbitrum: 42161,
+      optimism: 10,
+      bsc: 56,
+      avalanche: 43114,
+    }
+    const mappedChain = chainIdByKey[chainParam]
+    if (mappedChain) {
+      setSourceChain(mappedChain)
+    }
+
+    prefillApplied.current = true
+  }, [searchParams])
 
   useEffect(() => {
     let isMounted = true

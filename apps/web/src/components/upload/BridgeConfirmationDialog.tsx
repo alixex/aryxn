@@ -9,12 +9,14 @@ import {
 import { Button } from "@/components/ui/button"
 import { useTranslation } from "@/i18n/config"
 import { ArrowRightLeft, Clock, AlertTriangle } from "lucide-react"
+import type { UploadRedirectAction } from "@/lib/payment"
 
 interface BridgeConfirmationDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onConfirm: () => void
   token: string
+  action: UploadRedirectAction
 }
 
 export function BridgeConfirmationDialog({
@@ -22,8 +24,10 @@ export function BridgeConfirmationDialog({
   onOpenChange,
   onConfirm,
   token,
+  action,
 }: BridgeConfirmationDialogProps) {
   const { t } = useTranslation()
+  const isBridge = action === "bridge"
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -33,13 +37,28 @@ export function BridgeConfirmationDialog({
             <ArrowRightLeft className="h-8 w-8 text-amber-500" />
           </div>
           <DialogTitle className="text-center text-xl">
-            {t("upload.bridgeRequiredTitle", "Cross-Chain Bridge Required")}
+            {isBridge
+              ? t("upload.bridgeRequiredTitle", "Cross-Chain Bridge Required")
+              : t("upload.swapRequiredTitle", "Swap Required Before Upload")}
           </DialogTitle>
           <DialogDescription className="pt-2 text-center">
-            {t(
-              "upload.bridgeRequiredDesc",
-              `To pay with ${token}, a cross-chain bridge transaction is required.`,
-            )}
+            {isBridge
+              ? t(
+                  "upload.bridgeRequiredDesc",
+                  {
+                    token,
+                    defaultValue:
+                      "To pay with {{token}}, a cross-chain bridge transaction is required.",
+                  },
+                )
+              : t(
+                  "upload.swapRequiredDesc",
+                  {
+                    token,
+                    defaultValue:
+                      "To pay with {{token}}, a swap is required first.",
+                  },
+                )}
           </DialogDescription>
         </DialogHeader>
 
@@ -49,13 +68,18 @@ export function BridgeConfirmationDialog({
               <Clock className="mt-0.5 h-5 w-5 text-blue-400" />
               <div>
                 <h4 className="text-foreground text-sm font-medium">
-                  {t("upload.bridgeTimeTitle", "Estimated Time")}
+                  {t("upload.redirectTimeTitle", "Estimated Time")}
                 </h4>
                 <p className="text-muted-foreground text-xs">
-                  {t(
-                    "upload.bridgeTimeDesc",
-                    "~5-10 minutes for block confirmations.",
-                  )}
+                  {isBridge
+                    ? t(
+                        "upload.bridgeTimeDesc",
+                        "~5-10 minutes for block confirmations.",
+                      )
+                    : t(
+                        "upload.swapTimeDesc",
+                        "Usually ~1-3 minutes depending on network confirmation.",
+                      )}
                 </p>
               </div>
             </div>
@@ -64,12 +88,12 @@ export function BridgeConfirmationDialog({
               <AlertTriangle className="mt-0.5 h-5 w-5 text-amber-400" />
               <div>
                 <h4 className="text-foreground text-sm font-medium">
-                  {t("upload.bridgeCostTitle", "Network Fees")}
+                  {t("upload.redirectWarningTitle", "Important Notice")}
                 </h4>
                 <p className="text-muted-foreground text-xs">
                   {t(
-                    "upload.bridgeCostDesc",
-                    "Additional gas fees apply for the bridge transaction.",
+                    "upload.redirectWarningDesc",
+                    "After completing swap/bridge, you may need to re-upload the file.",
                   )}
                 </p>
               </div>
@@ -92,7 +116,9 @@ export function BridgeConfirmationDialog({
             }}
             className="bg-amber-500 text-white hover:bg-amber-600 sm:w-32"
           >
-            {t("upload.confirmBridge", "Proceed to Bridge")}
+            {isBridge
+              ? t("upload.confirmBridge", "Proceed to Bridge")
+              : t("upload.confirmSwap", "Proceed to Swap")}
           </Button>
         </DialogFooter>
       </DialogContent>

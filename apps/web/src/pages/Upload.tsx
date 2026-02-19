@@ -34,11 +34,14 @@ export default function UploadPage() {
     encryptUpload: false,
     compressUpload: false,
     paymentToken: "AR",
+    paymentAccount: null,
   })
 
   // Check if user can upload
   const canUpload = Boolean(
-    (selectedFiles.file || selectedFiles.files.length > 0) && hasArweaveAccount,
+    (selectedFiles.file || selectedFiles.files.length > 0) &&
+      hasArweaveAccount &&
+      uploadConfig.paymentAccount,
   )
   const isDisabled = !hasArweaveAccount
 
@@ -129,6 +132,7 @@ export default function UploadPage() {
               encryptUpload={uploadConfig.encryptUpload}
               compressUpload={uploadConfig.compressUpload}
               paymentToken={uploadConfig.paymentToken}
+              paymentAccount={uploadConfig.paymentAccount}
               canUpload={canUpload}
               onUploadComplete={handleUploadComplete}
             />

@@ -6,3 +6,5 @@
  */
 
 export * from "./payment-service"
+export * from "./types"
+export * from "./upload-payment-config"

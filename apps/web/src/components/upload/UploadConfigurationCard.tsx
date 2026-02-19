@@ -7,13 +7,14 @@ import { FeeEstimate } from "./FeeEstimate"
 import { useFeeCalculation } from "@/hooks/swap-hooks"
 import { shouldCompressFile } from "@/lib/utils"
 
-import type { PaymentToken } from "@/lib/payment"
+import type { PaymentAccount, PaymentToken } from "@/lib/payment"
 import { PaymentTokenSelector } from "./PaymentTokenSelector"
 
 export interface UploadConfiguration {
   encryptUpload: boolean
   compressUpload: boolean
   paymentToken: PaymentToken
+  paymentAccount: PaymentAccount | null
 }
 
 interface UploadConfigurationCardProps {
@@ -35,6 +36,7 @@ export function UploadConfigurationCard({
   const [encryptUpload, setEncryptUpload] = useState(false)
   const [compressUpload, setCompressUpload] = useState(false)
   const [paymentToken, setPaymentToken] = useState<PaymentToken>("AR")
+  const [paymentAccount, setPaymentAccount] = useState<PaymentAccount | null>(null)
 
   const {
     estimatedFee,
@@ -79,8 +81,8 @@ export function UploadConfigurationCard({
 
   // Notify parent when configuration changes
   useEffect(() => {
-    onChange({ encryptUpload, compressUpload, paymentToken })
-  }, [encryptUpload, compressUpload, paymentToken, onChange])
+    onChange({ encryptUpload, compressUpload, paymentToken, paymentAccount })
+  }, [encryptUpload, compressUpload, paymentToken, paymentAccount, onChange])
 
   const handleEncryptChange = (checked: boolean) => {
     setEncryptUpload(checked)
@@ -113,7 +115,9 @@ export function UploadConfigurationCard({
 
         <PaymentTokenSelector
           selectedToken={paymentToken}
+          selectedAccount={paymentAccount}
           onSelectToken={setPaymentToken}
+          onSelectAccount={setPaymentAccount}
         />
 
         <FeeEstimate

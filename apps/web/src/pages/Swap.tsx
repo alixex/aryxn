@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { TrendingUp, Wallet, ArrowRightLeft, Send } from "lucide-react"
 import { useConnection } from "wagmi"
+import { useSearchParams } from "react-router-dom"
 import { useTranslation } from "@/i18n/config"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useWallet } from "@/hooks/account-hooks"
@@ -15,6 +16,7 @@ import { TransactionHistory } from "@/components/swap/TransactionHistory"
 
 export default function SwapPage() {
   const { t } = useTranslation()
+  const [searchParams] = useSearchParams()
   const { isConnected, address: externalAddress } = useConnection()
   const wallet = useWallet()
   const activeEvm = wallet.active.evm
@@ -35,7 +37,12 @@ export default function SwapPage() {
       )?.alias
     : undefined
 
-  const [activeTab, setActiveTab] = useState("swap")
+  const defaultTab = searchParams.get("tab") === "bridge" ? "bridge" : "swap"
+  const [activeTab, setActiveTab] = useState(defaultTab)
+  const bridgeFromUpload = searchParams.get("source") === "upload"
+  const bridgeToken = searchParams.get("token") || ""
+  const bridgeChain = searchParams.get("chain") || ""
+  const redirectAction = searchParams.get("action") || ""
 
   return (
     <div className="mesh-gradient relative min-h-screen">
@@ -86,8 +93,37 @@ export default function SwapPage() {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Main Action Area */}
           <div className="lg:col-span-2">
+            <div className="border-border bg-card/50 text-muted-foreground mb-4 rounded-xl border px-4 py-3 text-sm">
+              {t(
+                "dex.accountSelectionHint",
+                "Please choose account and token based on Account settings before swap or bridge.",
+              )}
+            </div>
+
+            {bridgeFromUpload && (activeTab === "bridge" || activeTab === "swap") && (
+              <div className="border-border bg-card/50 text-muted-foreground mb-4 rounded-xl border px-4 py-3 text-sm">
+                {redirectAction === "swap"
+                  ? t(
+                      "dex.swapIntentFromUpload",
+                      "Swap required for upload payment",
+                    )
+                  : t(
+                      "dex.bridgeIntentFromUpload",
+                      "Bridge required for upload payment",
+                    )}
+                {bridgeToken && ` · ${bridgeToken}`}
+                {bridgeChain && ` · ${bridgeChain}`}
+                <div className="mt-1 text-xs opacity-80">
+                  {t(
+                    "dex.uploadRetryHint",
+                    "After completing swap/bridge, return to Upload and submit again.",
+                  )}
+                </div>
+              </div>
+            )}
+
             <Tabs
-              defaultValue="swap"
+              defaultValue={defaultTab}
               value={activeTab}
               onValueChange={setActiveTab}
               className="w-full"

@@ -7,7 +7,13 @@ import { useTranslation } from "@/i18n/config"
 import { UploadButton } from "./UploadButton"
 import { UploadProgress } from "./UploadProgress"
 import { useUploadHandler } from "@/hooks/upload-hooks"
-import type { PaymentToken } from "@/lib/payment"
+import type { UploadHandlerResult } from "@/hooks/upload-hooks"
+import type {
+  PaymentAccount,
+  PaymentToken,
+  UploadRedirectAction,
+} from "@/lib/payment"
+import { useNavigate } from "react-router-dom"
 
 interface UploadExecutionCardProps {
   file: File | null
@@ -16,6 +22,7 @@ interface UploadExecutionCardProps {
   encryptUpload: boolean
   compressUpload: boolean
   paymentToken: PaymentToken
+  paymentAccount: PaymentAccount | null
   canUpload: boolean
   onUploadComplete?: () => void
 }
@@ -27,10 +34,12 @@ export function UploadExecutionCard({
   encryptUpload,
   compressUpload,
   paymentToken,
+  paymentAccount,
   canUpload,
   onUploadComplete,
 }: UploadExecutionCardProps) {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const {
     uploading,
     paymentStage,
@@ -41,17 +50,36 @@ export function UploadExecutionCard({
   } = useUploadHandler()
 
   const [showBridgeDialog, setShowBridgeDialog] = useState(false)
+  const [redirectAction, setRedirectAction] =
+    useState<UploadRedirectAction>("bridge")
 
-  const handleBridgeConfirm = () => {
-    // Navigate to bridge page or trigger bridge flow
-    // For now, simpler simulation
-    window.open("https://portalbridge.com/", "_blank")
-    toast.info(t("upload.bridgeRedirect", "Redirecting to bridge provider..."))
+  const handleRedirectConfirm = () => {
+    const query = new URLSearchParams({
+      tab: redirectAction,
+      source: "upload",
+      token: paymentToken,
+      chain: paymentAccount?.chain || "",
+      action: redirectAction,
+    })
+    navigate(`/swap?${query.toString()}`)
+    toast.info(
+      redirectAction === "bridge"
+        ? t("upload.bridgeRedirect", "Redirecting to swap bridge...")
+        : t("upload.swapRedirect", "Redirecting to swap page..."),
+    )
   }
 
   const handleUploadClick = async () => {
-    let result = false
-    let batchResult = { success: 0, failed: 0 }
+    let singleResult: UploadHandlerResult = {
+      status: "FAILED",
+      success: 0,
+      failed: 1,
+    }
+    let batchResult: UploadHandlerResult = {
+      status: "FAILED",
+      success: 0,
+      failed: 0,
+    }
 
     if (multipleMode && files.length > 0) {
       batchResult = await handleBatchUpload(
@@ -59,32 +87,44 @@ export function UploadExecutionCard({
         encryptUpload,
         compressUpload,
         paymentToken,
+        paymentAccount,
       )
 
-      // Check if bridge required
-      // @ts-ignore - status property added dynamically
-      if (batchResult.status === "BRIDGE_REQUIRED") {
+      if (
+        batchResult.status === "BRIDGE_REQUIRED" ||
+        batchResult.status === "SWAP_REQUIRED"
+      ) {
+        setRedirectAction(
+          batchResult.status === "SWAP_REQUIRED" ? "swap" : "bridge",
+        )
         setShowBridgeDialog(true)
         return
       }
     } else if (file) {
-      // Single file upload
-      const response = await handleUpload(
+      singleResult = await handleUpload(
         file,
         encryptUpload,
         compressUpload,
         paymentToken,
+        paymentAccount,
       )
 
-      if ((response as unknown as string) === "BRIDGE_REQUIRED") {
+      if (
+        singleResult.status === "BRIDGE_REQUIRED" ||
+        singleResult.status === "SWAP_REQUIRED"
+      ) {
+        setRedirectAction(
+          singleResult.status === "SWAP_REQUIRED" ? "swap" : "bridge",
+        )
         setShowBridgeDialog(true)
         return
       }
-
-      result = response === true
     }
 
-    if ((result || batchResult.success > 0) && onUploadComplete) {
+    if (
+      (singleResult.status === "SUCCESS" || batchResult.status === "SUCCESS") &&
+      onUploadComplete
+    ) {
       onUploadComplete()
     }
   }
@@ -94,8 +134,9 @@ export function UploadExecutionCard({
       <BridgeConfirmationDialog
         open={showBridgeDialog}
         onOpenChange={setShowBridgeDialog}
-        onConfirm={handleBridgeConfirm}
+        onConfirm={handleRedirectConfirm}
         token={paymentToken}
+        action={redirectAction}
       />
       <Card className="glass-premium hover:shadow-primary/5 border-none shadow-2xl transition-all duration-500">
         <CardHeader className="glass-strong animate-fade-in-down border-accent/30 bg-card/60 rounded-t-2xl border-b-2 p-6 shadow-lg">

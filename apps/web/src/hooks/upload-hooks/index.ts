@@ -9,4 +9,5 @@
  */
 
 export { useUploadHandler } from "./use-upload-handler"
+export type { UploadHandlerResult } from "./use-upload-handler"
 export { useFileSync } from "./use-file-sync"

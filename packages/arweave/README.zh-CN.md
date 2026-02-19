@@ -28,7 +28,7 @@ Aryxn 的简化版 Arweave 协议封装库，移除了对于特定 Tags (标签)
 | `searchArweaveTransactionsNetwork` | 在 Arweave 网络上搜索交易 |
 | `searchAppTransactions`            | 搜索特定应用的交易        |
 
-**类型:**
+**类型：**
 
 - `ArweaveSearchResult` - 交易搜索结果及其元数据
 - `SearchOptions` - 搜索操作的查询选项
@@ -69,10 +69,10 @@ const results = await searchArweaveTransactionsNetwork({
 
 // 结果包含交易详情
 results.forEach((tx) => {
-  console.log(`交易ID: ${tx.id}`) // 交易唯一标识
-  console.log(`上传者: ${tx.owner.address}`) // 上传者钱包地址
-  console.log(`标签数: ${tx.tags.length}`) // 交易元数据
-  console.log(`大小: ${tx.data.size}`) // 数据大小（字节）
+  console.log(`交易 ID: ${tx.id}`) // 交易唯一标识
+  console.log(`上传者：${tx.owner.address}`) // 上传者钱包地址
+  console.log(`标签数：${tx.tags.length}`) // 交易元数据
+  console.log(`大小：${tx.data.size}`) // 数据大小（字节）
 })
 ```
 
@@ -102,7 +102,7 @@ const freshResults = await searchArweaveTransactionsNetwork({
 // 查看缓存统计信息
 const cache = getSearchCache()
 const stats = cache.getStats()
-console.log(`缓存大小: ${stats.size}/${stats.maxSize}`)
+console.log(`缓存大小：${stats.size}/${stats.maxSize}`)
 
 // 清空所有缓存
 cache.clear()

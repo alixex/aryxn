@@ -135,6 +135,7 @@ export function useFeeCalculation() {
         const tokens: PaymentToken[] = [
           "ETH",
           "SOL",
+          "V2EX",
           "SUI",
           "BTC",
           "USDC",
@@ -321,6 +322,7 @@ export function useFeeCalculation() {
         const tokens: PaymentToken[] = [
           "ETH",
           "SOL",
+          "V2EX",
           "SUI",
           "BTC",
           "USDC",

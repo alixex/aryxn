@@ -1,17 +1,10 @@
 import { estimateArweaveFee } from "@/lib/storage"
 import { Chains } from "@aryxn/chain-constants"
-
-/**
- * Supported payment tokens
- */
-export type PaymentToken =
-  | "AR"
-  | "ETH"
-  | "SOL"
-  | "SUI"
-  | "BTC"
-  | "USDC"
-  | "USDT"
+import type { PaymentAccount, PaymentToken } from "./types"
+import {
+  getIrysFundingToken,
+  resolveUploadRedirectAction,
+} from "./upload-payment-config"
 
 /**
  * Token configuration metadata
@@ -28,6 +21,7 @@ export const TOKEN_CONFIG: Record<
     coingeckoId: "ethereum",
   },
   SOL: { chain: Chains.SOLANA, decimals: 9, symbol: "SOL", coingeckoId: "solana" },
+  V2EX: { chain: Chains.SOLANA, decimals: 9, symbol: "V2EX", coingeckoId: "solana" },
   SUI: { chain: Chains.SUI, decimals: 9, symbol: "SUI", coingeckoId: "sui" },
   BTC: { chain: "bitcoin", decimals: 8, symbol: "BTC", coingeckoId: "bitcoin" },
   USDC: {
@@ -162,34 +156,28 @@ export class PaymentService {
   async executePayment(params: {
     fromToken: PaymentToken
     amountInAR: number
-    userAddress: string
+    paymentAccount: PaymentAccount
     walletKey: any
     signer?: any // Ethers Signer for EVM chains
   }): Promise<
-    "PAID_NATIVE" | "PAID_IRYS" | "REQUIRE_BRIDGE" | "PAYMENT_FAILED"
+    | "PAID_NATIVE"
+    | "PAID_IRYS"
+    | "REQUIRE_SWAP"
+    | "REQUIRE_BRIDGE"
+    | "PAYMENT_FAILED"
   > {
+    const sourceChain = params.paymentAccount.chain
+
     // TIER 1: Native AR
-    if (params.fromToken === "AR") {
+    if (params.fromToken === "AR" && sourceChain === Chains.ARWEAVE) {
       console.log("Using native Arweave payment channel.")
       return "PAID_NATIVE"
     }
 
-    const tokenConfig = TOKEN_CONFIG[params.fromToken]
-
     // TIER 2: Irys Rapid Payment (ETH, SOL, USDC)
-    let irysToken = tokenConfig.chain
-    if (params.fromToken === "USDC") {
-      irysToken = `usdc-${tokenConfig.chain}`
-    }
+    const irysToken = getIrysFundingToken(sourceChain, params.fromToken)
 
-    const supportedIrysTokens = [
-      Chains.ETHEREUM,
-      Chains.SOLANA,
-      "usdc-ethereum",
-      "usdc-solana",
-    ]
-
-    if (supportedIrysTokens.includes(irysToken)) {
+    if (irysToken) {
       console.log(`Executing rapid Irys funding with ${params.fromToken}...`)
       try {
         const { irysService } = await import("@/lib/storage")
@@ -198,9 +186,9 @@ export class PaymentService {
         const irys = await irysService.getIrysInstance({
           token: irysToken,
           wallet:
-            tokenConfig.chain === Chains.ETHEREUM ? params.signer : params.walletKey,
+            sourceChain === Chains.ETHEREUM ? params.signer : params.walletKey,
           rpcUrl:
-            tokenConfig.chain === Chains.ETHEREUM
+            sourceChain === Chains.ETHEREUM
               ? config.ethereumRpcUrl
               : config.solanaRpcUrl,
         })
@@ -217,15 +205,15 @@ export class PaymentService {
       }
     }
 
-    // TIER 3: Cross-Chain / Bridge Fallback (BTC, USDT, Memes)
-    const { requiresBridge } = await import("@aryxn/cross-chain")
-
-    if (await requiresBridge(params.fromToken)) {
-      console.log(`Token ${params.fromToken} requires cross-chain bridge/swap.`)
-      return "REQUIRE_BRIDGE"
-    }
-
-    return "PAYMENT_FAILED"
+    // TIER 3: Redirect to in-app Swap or Bridge flow
+    const redirectAction = resolveUploadRedirectAction(
+      sourceChain,
+      params.fromToken,
+    )
+    console.log(
+      `Token ${params.fromToken} requires in-app ${redirectAction} flow.`,
+    )
+    return redirectAction === "swap" ? "REQUIRE_SWAP" : "REQUIRE_BRIDGE"
   }
 }
 
