@@ -2,6 +2,7 @@ import { useState, useCallback } from "react"
 import {
   liFiBridgeService,
   BridgeStatusTracker,
+  BridgeRecovery,
   getChainIdFromName,
   simulateBridgeRoute,
   type BridgeRouteParams,
@@ -9,6 +10,9 @@ import {
   type RiskAssessment,
   type CostBreakdown,
   type ChainId,
+  type RecoveryAction,
+  type RetryOptions,
+  type SpeedUpOptions,
 } from "@aryxn/cross-chain"
 import { useBridgeHistory } from "@/lib/store/bridge-history"
 import { useWallet } from "@/hooks/account-hooks"
@@ -427,6 +431,258 @@ export function useBridge() {
     ],
   )
 
+  /**
+   * Check recovery options for a transaction
+   */
+  const checkRecoveryOptions = useCallback(
+    async (
+      txHash: string,
+      fromChain: string,
+      toChain: string,
+      timestamp: number,
+    ) => {
+      const fromChainId = getChainIdFromName(fromChain)
+      const toChainId = getChainIdFromName(toChain)
+
+      if (!fromChainId || !toChainId) {
+        return { recoverable: false, suggestedActions: [] }
+      }
+
+      const timeSinceSubmission = Date.now() - timestamp
+      const result = await BridgeRecovery.isRecoverable(
+        txHash,
+        fromChainId,
+        toChainId,
+      )
+
+      const recommendations = await BridgeRecovery.getRecommendations(
+        txHash,
+        fromChainId,
+        toChainId,
+        timeSinceSubmission,
+      )
+
+      return { ...result, recommendations }
+    },
+    [],
+  )
+
+  /**
+   * Retry a failed transaction
+   */
+  const retryTransaction = useCallback(
+    async (
+      transactionId: string,
+      options: RetryOptions = { increaseSlippage: true },
+    ) => {
+      if (!lastQuoteParams) {
+        toast.error("Cannot retry: original parameters not found")
+        return
+      }
+
+      try {
+        setLoading(true)
+        toast.info("Retrying transaction with new route...")
+
+        // Get signer
+        let signer
+        if (
+          walletManager.internal.isUnlocked &&
+          walletManager.internal.activeWallet
+        ) {
+          const rpcUrl = getEthereumRpcUrl(lastQuoteParams.fromChain)
+          const provider = createEvmProvider(rpcUrl)
+          const privateKey = await walletManager.internal.getPrivateKey(
+            walletManager.internal.activeWallet.address,
+          )
+          signer = createEvmWallet(privateKey, provider)
+        } else if (wagmiClient) {
+          signer = await clientToSigner(wagmiClient)
+        } else {
+          throw new Error("No wallet connected")
+        }
+
+        // Retry with recovery tool
+        const result = await BridgeRecovery.retry(
+          lastQuoteParams,
+          signer,
+          options,
+        )
+
+        if (result.success && result.txHash) {
+          // Update old transaction
+          updateTransaction(transactionId, {
+            status: "FAILED",
+            description: "Failed - Retried with new transaction",
+          })
+
+          // Add new transaction
+          const tx = transactions.find((t) => t.id === transactionId)
+          if (tx) {
+            addTransaction({
+              id: `bridge-${Date.now()}`,
+              type: "BRIDGE",
+              status: "PENDING",
+              description: `Retry: ${tx.description}`,
+              timestamp: Date.now(),
+              hash: result.txHash,
+              fromChain: tx.fromChain,
+              toChain: tx.toChain,
+              amount: tx.amount,
+              token: tx.token,
+              fromChainId: tx.fromChainId,
+              toChainId: tx.toChainId,
+            })
+          }
+
+          toast.success("Transaction retried successfully", {
+            description: `New transaction: ${result.txHash.slice(0, 10)}...`,
+          })
+        } else {
+          toast.error("Retry failed", {
+            description: result.message,
+          })
+        }
+      } catch (error) {
+        console.error("[useBridge] Retry failed:", error)
+        toast.error("Failed to retry transaction")
+      } finally {
+        setLoading(false)
+      }
+    },
+    [
+      lastQuoteParams,
+      walletManager,
+      wagmiClient,
+      transactions,
+      updateTransaction,
+      addTransaction,
+    ],
+  )
+
+  /**
+   * Claim a stuck transaction
+   */
+  const claimTransaction = useCallback(
+    async (
+      transactionId: string,
+      txHash: string,
+      fromChain: string,
+      toChain: string,
+    ) => {
+      const fromChainId = getChainIdFromName(fromChain)
+      const toChainId = getChainIdFromName(toChain)
+
+      if (!fromChainId || !toChainId) {
+        toast.error("Invalid chain names")
+        return
+      }
+
+      try {
+        setLoading(true)
+        toast.info("Checking claim status...")
+
+        const result = await BridgeRecovery.claim(
+          txHash,
+          fromChainId,
+          toChainId,
+        )
+
+        if (result.success) {
+          toast.success("Claim successful", {
+            description: result.message,
+          })
+
+          updateTransaction(transactionId, {
+            status: "COMPLETED",
+          })
+        } else {
+          toast.warning("Claim information", {
+            description: result.message,
+            duration: 10000,
+          })
+        }
+      } catch (error) {
+        console.error("[useBridge] Claim failed:", error)
+        toast.error("Failed to check claim status")
+      } finally {
+        setLoading(false)
+      }
+    },
+    [updateTransaction],
+  )
+
+  /**
+   * Speed up a pending transaction
+   */
+  const speedUpTransaction = useCallback(
+    async (
+      transactionId: string,
+      txHash: string,
+      options: SpeedUpOptions = { gasMultiplier: 1.2 },
+    ) => {
+      if (!quote) {
+        toast.error("Cannot speed up: quote not found")
+        return
+      }
+
+      try {
+        setLoading(true)
+        toast.info("Speeding up transaction...")
+
+        // Get signer
+        let signer
+        if (
+          walletManager.internal.isUnlocked &&
+          walletManager.internal.activeWallet
+        ) {
+          const tx = transactions.find((t) => t.id === transactionId)
+          if (!tx?.fromChainId) {
+            throw new Error("Chain ID not found")
+          }
+
+          const rpcUrl = getEthereumRpcUrl(tx.fromChainId)
+          const provider = createEvmProvider(rpcUrl)
+          const privateKey = await walletManager.internal.getPrivateKey(
+            walletManager.internal.activeWallet.address,
+          )
+          signer = createEvmWallet(privateKey, provider)
+        } else if (wagmiClient) {
+          signer = await clientToSigner(wagmiClient)
+        } else {
+          throw new Error("No wallet connected")
+        }
+
+        const result = await BridgeRecovery.speedUp(
+          txHash,
+          quote.route,
+          signer,
+          options,
+        )
+
+        if (result.success && result.txHash) {
+          toast.success("Transaction sped up", {
+            description: result.message,
+          })
+
+          updateTransaction(transactionId, {
+            hash: result.txHash,
+          })
+        } else {
+          toast.warning("Speed up result", {
+            description: result.message,
+          })
+        }
+      } catch (error) {
+        console.error("[useBridge] Speed up failed:", error)
+        toast.error("Failed to speed up transaction")
+      } finally {
+        setLoading(false)
+      }
+    },
+    [quote, walletManager, wagmiClient, transactions, updateTransaction],
+  )
+
   return {
     loading,
     quote,
@@ -435,5 +691,9 @@ export function useBridge() {
     refreshTransactionStatus,
     getRemainingCooldown,
     canRefresh,
+    checkRecoveryOptions,
+    retryTransaction,
+    claimTransaction,
+    speedUpTransaction,
   }
 }

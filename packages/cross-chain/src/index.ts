@@ -7,6 +7,7 @@ export * from "./lifi-bridge-service"
 export * from "./address-utils"
 export * from "./bridge-status-tracker"
 export * from "./bridge-simulation"
+export * from "./bridge-recovery"
 
 /**
  * Bridge Provider Interface
