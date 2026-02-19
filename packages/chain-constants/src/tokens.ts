@@ -100,5 +100,5 @@ export const UploadTokenNativeChainBySymbol: Partial<
   USDT: Chains.ETHEREUM,
   SOL: Chains.SOLANA,
   SUI: Chains.SUI,
-  V2EX: Chains.ETHEREUM,
+  V2EX: Chains.SOLANA,
 }

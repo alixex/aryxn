@@ -21,7 +21,7 @@ export interface TokenInfo {
 
 /**
  * Supported tokens with full metadata
- * Must match the 9 tokens configured in MultiHopSwapper contract
+ * Must match the configured tokens in MultiHopSwapper contract
  */
 export const SUPPORTED_TOKENS: TokenInfo[] = [
   {
@@ -73,18 +73,11 @@ export const SUPPORTED_TOKENS: TokenInfo[] = [
     chain: "arweave",
   },
   {
-    symbol: "PUMP",
-    name: "PUMP",
-    address: TOKEN_ADDRESSES.PUMP,
-    decimals: 18,
-    chain: "ethereum",
-  },
-  {
     symbol: "V2EX",
     name: "V2EX",
     address: TOKEN_ADDRESSES.V2EX,
     decimals: 18,
-    chain: "ethereum",
+    chain: "solana",
   },
   {
     symbol: "SUI",
@@ -97,7 +90,7 @@ export const SUPPORTED_TOKENS: TokenInfo[] = [
 ]
 
 const DEX_TOKEN_SYMBOLS_BY_ACCOUNT_CHAIN: Partial<Record<string, string[]>> = {
-  ethereum: ["USDT", "USDC", "WBTC", "WETH", "PUMP", "V2EX"],
+  ethereum: ["USDT", "USDC", "WBTC", "WETH"],
   solana: ["SOL", "USDC", "USDT", "V2EX"],
   sui: ["SUI", "USDC", "USDT"],
   arweave: ["AR"],

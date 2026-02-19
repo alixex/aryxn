@@ -14,7 +14,6 @@ export const MULTI_HOP_SWAPPER_ADDRESS: Address =
 
 /**
  * Supported token addresses - must match MultiHopSwapper contract configuration
- * These are the 9 tokens supported by the deployed contract
  */
 export const TOKEN_ADDRESSES = {
   // Stablecoins
@@ -28,7 +27,6 @@ export const TOKEN_ADDRESSES = {
   // Wrapped tokens from other chains
   SOL: "0xD31a59c85aE9D8edEFeC411D448f90d4b0d81299" as Address,
   AR: "0x4fadc7a98f2dc96510e42dd1a74141eeae0c1543" as Address,
-  PUMP: "0x89570eBeB055b3319f00A361809e2B5b297f78f7" as Address,
   V2EX: "0x9raUVuzeWUk53co63M4WXLWPWE4Xc6Lpn7RS9dnkpump" as Address, // TODO: Fix invalid address format in contract
   SUI: "0x0b275cfB78b7F8Ffc9D1e66fBa5e7F61Db2c3F20" as Address,
 } as const
