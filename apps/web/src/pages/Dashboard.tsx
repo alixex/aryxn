@@ -28,6 +28,8 @@ import { Button } from "@/components/ui/button"
 import { useFileSync } from "@/hooks/upload-hooks"
 import { EmptyState } from "@/components/ui/empty-state"
 import { StatCard } from "@/components/ui/stat-card"
+import { AccountStatusBadge } from "@/components/account/AccountStatusBadge"
+import { PageHeader } from "@/components/layout/PageHeader"
 
 // 将 FileIndex 转换为 UploadRecord 格式（用于兼容 HistoryTable）
 function fileIndexToUploadRecord(file: FileIndex): UploadRecord {
@@ -182,51 +184,30 @@ export default function DashboardPage() {
 
   return (
     <div className="mesh-gradient relative min-h-screen">
-      <div className="animate-in fade-in slide-in-from-bottom-4 mx-auto max-w-6xl space-y-6 px-3 py-6 duration-1000 sm:space-y-8 sm:px-4 sm:py-8">
-        <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-col gap-3">
-            <h2 className="flex items-center gap-3 text-3xl font-extrabold tracking-tighter sm:text-4xl lg:text-5xl">
-              <div className="bg-gradient-primary glow-purple rounded-xl p-2 text-white shadow-xl ring-1 ring-white/20 sm:rounded-2xl sm:p-2.5">
-                <LayoutDashboard className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8" />
-              </div>
-              <span className="bg-gradient-primary gradient-text leading-tight">
-                {t("common.dashboard")}
-              </span>
-            </h2>
-            <p className="text-subtitle-muted max-w-lg text-base leading-relaxed font-medium">
-              {t("history.desc")}
-            </p>
-          </div>
-
-          <div className="glass-premium hover:shadow-primary/5 flex items-center gap-3 border-none p-3 shadow-2xl transition-all duration-500 sm:px-4 sm:py-2">
-            <div className="flex-1 sm:text-right">
-              <div className="text-muted-foreground mb-0.5 text-[10px] font-bold tracking-wider uppercase">
-                {t("common.activeAccountLabel")}
-              </div>
-              <div className="text-foreground max-w-45 truncate text-sm font-bold">
-                {walletManager.activeAddress
+      <div className="mx-auto max-w-6xl space-y-6 px-3 py-6 sm:space-y-8 sm:px-4 sm:py-8">
+        <PageHeader
+          title={t("common.dashboard")}
+          description={t("history.desc")}
+          icon={<LayoutDashboard className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8" />}
+          iconContainerClassName="bg-gradient-primary glow-purple"
+          rightSlot={
+            <AccountStatusBadge
+              label={t("common.activeAccountLabel")}
+              value={
+                walletManager.activeAddress
                   ? walletManager.wallets.find(
-                      (w: WalletRecord) =>
-                        w.address === walletManager.activeAddress,
+                      (w: WalletRecord) => w.address === walletManager.activeAddress,
                     )?.alias || "Unnamed"
-                  : t("common.noAccount")}
-              </div>
-            </div>
-            <Link to="/account" className="sm:hidden">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="hover:bg-primary/20 h-8 w-8 hover:text-cyan-400"
-                aria-label={t("common.account")}
-              >
-                <Lock
-                  className="text-muted-foreground h-4 w-4"
-                  aria-hidden="true"
-                />
-              </Button>
-            </Link>
-          </div>
-        </div>
+                  : t("common.noAccount")
+              }
+              actionHref="/account"
+              actionAriaLabel={t("common.account")}
+              actionIcon={
+                <Lock className="text-muted-foreground h-4 w-4" aria-hidden="true" />
+              }
+            />
+          }
+        />
 
         {needsAccountSetup && (
           <div className="glass-strong animate-fade-in-down border-accent/30 bg-card/60 flex items-start gap-4 rounded-2xl border-2 p-6 shadow-lg">
