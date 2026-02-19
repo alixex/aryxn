@@ -36,6 +36,7 @@ export function useFeeCalculation() {
       encrypt: boolean,
       compress: boolean,
       ownerAddress?: string,
+      paymentChain?: string,
     ) => {
       if (!file) {
         setEstimatedFee(null)
@@ -147,6 +148,7 @@ export function useFeeCalculation() {
             const estimate = await paymentService.estimateFeeInToken(
               dataSize + (manifestSize || 0),
               token,
+              paymentChain,
             )
             estimatedFeesByToken[token] = { amount: estimate.tokenAmount }
           } catch (err) {
@@ -193,6 +195,7 @@ export function useFeeCalculation() {
       encrypt: boolean,
       compress: boolean,
       ownerAddress?: string,
+      paymentChain?: string,
     ) => {
       if (!files || files.length === 0) {
         setEstimatedFee(null)
@@ -334,6 +337,7 @@ export function useFeeCalculation() {
             const estimate = await paymentService.estimateFeeInToken(
               totalDataSize + (manifestSize || 0),
               token,
+              paymentChain,
             )
             estimatedFeesByToken[token] = { amount: estimate.tokenAmount }
           } catch (err) {

@@ -1,8 +1,9 @@
 import { useTranslation } from "@/i18n/config"
-import { Calculator, Loader2, Zap } from "lucide-react"
+import { Calculator, Loader2, RefreshCw, Zap } from "lucide-react"
 import { formatFileSize, formatTimestamp } from "@/lib/utils"
 import type { FeeEstimate } from "@/hooks/swap-hooks"
 import type { PaymentToken } from "@/lib/payment"
+import { Button } from "@/components/ui/button"
 
 interface FeeEstimateProps {
   file: File | null
@@ -14,6 +15,9 @@ interface FeeEstimateProps {
   compressUpload: boolean
   shouldCompressFile: (size: number, name: string, type: string) => boolean
   selectedToken: PaymentToken
+  selectedChain?: string
+  refreshCooldownSeconds: number
+  onRefresh: () => void
 }
 
 export function FeeEstimate({
@@ -26,6 +30,9 @@ export function FeeEstimate({
   compressUpload,
   shouldCompressFile,
   selectedToken,
+  selectedChain,
+  refreshCooldownSeconds,
+  onRefresh,
 }: FeeEstimateProps) {
   const { t } = useTranslation()
 
@@ -34,6 +41,19 @@ export function FeeEstimate({
 
   const totalSize = displayFiles.reduce((sum, f) => sum + f.size, 0)
   const isMultiple = files.length > 0
+  const selectedTokenEstimate = estimatedFee?.estimatedFeesByToken?.[selectedToken]
+  const selectedTokenError =
+    selectedToken !== "AR" ? selectedTokenEstimate?.error : undefined
+  const hasFeeError = Boolean(feeError || selectedTokenError)
+
+  const feeErrorTitle = selectedTokenError
+    ? t("upload.feeCalculationFailedWithContext", {
+        token: selectedToken,
+        chain: selectedChain || t("upload.unknownChain"),
+      })
+    : t("upload.feeCalculationFailed")
+
+  const feeErrorDetails = feeError || selectedTokenError
 
   return (
     <div className="border-border bg-card overflow-hidden rounded-xl border">
@@ -56,19 +76,45 @@ export function FeeEstimate({
         </div>
       </div>
       <div className="p-4">
-        {feeError ? (
+        {hasFeeError ? (
           <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-3">
-            <div className="text-xs font-medium text-amber-800">{feeError}</div>
+            <div className="text-xs font-semibold text-amber-900">{feeErrorTitle}</div>
             <div className="mt-1 text-xs text-amber-700">
-              {t("upload.feeErrorHint")}
+              {t("upload.feeErrorHintDetailed")}
             </div>
+            {feeErrorDetails && (
+              <div className="mt-2 break-all text-[11px] text-amber-800/80">
+                {t("upload.feeErrorReason", { message: feeErrorDetails })}
+              </div>
+            )}
+            <div className="mt-2 text-[11px] text-amber-700/90">
+              {t("upload.feeErrorActions", {
+                token: selectedToken,
+                chain: selectedChain || t("upload.unknownChain"),
+              })}
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={onRefresh}
+              disabled={calculatingFee || refreshCooldownSeconds > 0}
+              className="mt-3"
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+              {refreshCooldownSeconds > 0
+                ? `${t("common.refresh")} (${refreshCooldownSeconds}s)`
+                : t("common.refresh")}
+            </Button>
           </div>
         ) : estimatedFee ? (
           <div className="space-y-3">
-            {/* AR 费用显示 */}
+            {/* 费用显示 */}
             <div className="bg-background rounded-lg p-4">
               <div className="text-muted-foreground mb-2 text-xs font-medium">
-                {t("upload.feeInAR")}
+                {selectedToken === "AR"
+                  ? t("upload.feeInAR")
+                  : `${selectedToken} ${t("upload.estimatedFee")}`}
               </div>
               <div className="text-foreground text-2xl font-bold">
                 {selectedToken === "AR" ? (

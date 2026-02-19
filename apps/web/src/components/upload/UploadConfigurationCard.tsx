@@ -4,11 +4,11 @@ import { Settings } from "lucide-react"
 import { useTranslation } from "@/i18n/config"
 import { UploadOptions } from "./UploadOptions"
 import { FeeEstimate } from "./FeeEstimate"
+import { PaymentTokenSelector } from "@/components/upload/PaymentTokenSelector"
 import { useFeeCalculation } from "@/hooks/swap-hooks"
 import { shouldCompressFile } from "@/lib/utils"
 
 import type { PaymentAccount, PaymentToken } from "@/lib/payment"
-import { PaymentTokenSelector } from "./PaymentTokenSelector"
 
 export interface UploadConfiguration {
   encryptUpload: boolean
@@ -32,6 +32,7 @@ export function UploadConfigurationCard({
   ownerAddress,
   onChange,
 }: UploadConfigurationCardProps) {
+  const REFRESH_COOLDOWN_SECONDS = 5
   const { t } = useTranslation()
   const [encryptUpload, setEncryptUpload] = useState(false)
   const [compressUpload, setCompressUpload] = useState(false)
@@ -39,6 +40,8 @@ export function UploadConfigurationCard({
   const [paymentAccount, setPaymentAccount] = useState<PaymentAccount | null>(
     null,
   )
+  const [refreshNonce, setRefreshNonce] = useState(0)
+  const [refreshCooldownSeconds, setRefreshCooldownSeconds] = useState(0)
 
   const {
     estimatedFee,
@@ -67,9 +70,21 @@ export function UploadConfigurationCard({
   useEffect(() => {
     const multipleMode = files.length > 0
     if (multipleMode) {
-      calculateBatchFee(files, encryptUpload, compressUpload, ownerAddress)
+      calculateBatchFee(
+        files,
+        encryptUpload,
+        compressUpload,
+        ownerAddress,
+        paymentAccount?.chain,
+      )
     } else if (file) {
-      calculateFee(file, encryptUpload, compressUpload, ownerAddress)
+      calculateFee(
+        file,
+        encryptUpload,
+        compressUpload,
+        ownerAddress,
+        paymentAccount?.chain,
+      )
     }
   }, [
     file,
@@ -77,8 +92,10 @@ export function UploadConfigurationCard({
     encryptUpload,
     compressUpload,
     ownerAddress,
+    paymentAccount?.chain,
     calculateFee,
     calculateBatchFee,
+    refreshNonce,
   ])
 
   // Notify parent when configuration changes
@@ -92,6 +109,23 @@ export function UploadConfigurationCard({
 
   const handleCompressChange = (checked: boolean) => {
     setCompressUpload(checked)
+  }
+
+  useEffect(() => {
+    if (refreshCooldownSeconds <= 0) return
+
+    const timer = setInterval(() => {
+      setRefreshCooldownSeconds((prev) => Math.max(0, prev - 1))
+    }, 1000)
+
+    return () => clearInterval(timer)
+  }, [refreshCooldownSeconds])
+
+  const handleRefreshFee = () => {
+    if (calculatingFee || refreshCooldownSeconds > 0) return
+
+    setRefreshNonce((prev) => prev + 1)
+    setRefreshCooldownSeconds(REFRESH_COOLDOWN_SECONDS)
   }
 
   return (
@@ -132,6 +166,9 @@ export function UploadConfigurationCard({
           compressUpload={compressUpload}
           shouldCompressFile={shouldCompressFile}
           selectedToken={paymentToken}
+          selectedChain={paymentAccount?.chain}
+          refreshCooldownSeconds={refreshCooldownSeconds}
+          onRefresh={handleRefreshFee}
         />
       </CardContent>
     </Card>

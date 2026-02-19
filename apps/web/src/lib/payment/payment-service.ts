@@ -88,6 +88,7 @@ export class PaymentService {
   async estimateFeeInToken(
     dataSize: number,
     token: PaymentToken,
+    paymentChain?: string,
   ): Promise<{
     arAmount: number
     tokenAmount: number
@@ -103,28 +104,48 @@ export class PaymentService {
       }
     }
 
-    try {
-      const tokenConfig = TOKEN_CONFIG[token]
-      const irysToken = tokenConfig.chain // Irys uses chain name for token parameter often, or token symbol
+    const tokenConfig = TOKEN_CONFIG[token]
 
-      // Irys getPrice returns atomic units
-      const { irysService } = await import("@/lib/storage")
-      const atomicPrice = await irysService.getPrice(dataSize, irysToken)
+    let irysToken: string | null = null
+    if (token === "ETH") {
+      irysToken = Chains.ETHEREUM
+    } else if (token === "SOL") {
+      irysToken = Chains.SOLANA
+    } else if (token === "USDC") {
+      irysToken = getIrysFundingToken(paymentChain || Chains.ETHEREUM, "USDC")
+    }
 
-      const tokenAmount = atomicPrice / 10 ** tokenConfig.decimals
+    if (irysToken) {
+      try {
+        const { irysService } = await import("@/lib/storage")
+        const atomicPrice = await irysService.getPrice(dataSize, irysToken)
+        const tokenAmount = atomicPrice / 10 ** tokenConfig.decimals
 
-      return {
-        arAmount: arFee.ar,
-        tokenAmount,
-        formatted: `${tokenAmount.toFixed(6)} ${token}`,
+        return {
+          arAmount: arFee.ar,
+          tokenAmount,
+          formatted: `${tokenAmount.toFixed(6)} ${token}`,
+        }
+      } catch (error) {
+        throw new Error(
+          `Failed to estimate ${token} fee on ${irysToken}: ${error instanceof Error ? error.message : String(error)}`,
+        )
       }
-    } catch (error) {
-      console.warn("Failed to get Irys price, falling back to 0", error)
-      return {
-        arAmount: arFee.ar,
-        tokenAmount: 0,
-        formatted: `Error`,
-      }
+    }
+
+    const prices = await this.fetchCryptoPrices()
+    const arUsd = prices.AR
+    const tokenUsd = prices[token]
+
+    if (!arUsd || !tokenUsd || arUsd <= 0 || tokenUsd <= 0) {
+      throw new Error(`Failed to estimate ${token} fee: missing market price`)
+    }
+
+    const tokenAmount = (arFee.ar * arUsd) / tokenUsd
+    return {
+      arAmount: arFee.ar,
+      tokenAmount,
+      formatted: `${tokenAmount.toFixed(6)} ${token}`,
     }
   }
 

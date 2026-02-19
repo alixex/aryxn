@@ -10,7 +10,7 @@ import { Wallet, Coins, RefreshCw } from "lucide-react"
 import type { PaymentAccount, PaymentToken } from "@/lib/payment"
 import {
   getUploadPaymentSupportedChains,
-  getUploadSelectableTokens,
+  getUploadSelectableTokensByChain,
 } from "@/lib/payment"
 import { useWallet } from "@/hooks/account-hooks"
 import { useEffect, useMemo, useState } from "react"
@@ -48,7 +48,10 @@ export function PaymentTokenSelector({
 
   const accountsByChain = wallet.getAccountsByChain()
   const supportedChains = getUploadPaymentSupportedChains()
-  const selectableTokens = getUploadSelectableTokens()
+  const selectableTokens = useMemo(
+    () => getUploadSelectableTokensByChain(selectedAccount?.chain),
+    [selectedAccount?.chain],
+  )
 
   const supportedAccounts = useMemo(() => {
     return supportedChains.flatMap((chain) => {
