@@ -45,7 +45,7 @@ export function UploadOptions({
             checked={encryptUpload}
             onCheckedChange={onEncryptChange}
             disabled={!isUnlocked}
-            className="data-[state=checked]:border-foreground data-[state=checked]:bg-foreground h-5 w-5 border-2"
+            className="bg-transparent border-white data-[state=checked]:border-primary-foreground data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
           />
         </div>
         <div className="flex-1">
@@ -77,7 +77,7 @@ export function UploadOptions({
             checked={compressUpload}
             onCheckedChange={onCompressChange}
             disabled={!canCompress}
-            className="data-[state=checked]:border-foreground data-[state=checked]:bg-foreground h-5 w-5 border-2"
+            className="bg-transparent border-white data-[state=checked]:border-primary-foreground data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
           />
         </div>
         <div className="flex-1">
