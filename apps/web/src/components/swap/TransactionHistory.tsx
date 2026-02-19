@@ -22,6 +22,7 @@ import { useBridgeHistory } from "@/lib/store/bridge-history"
 import { useBridge } from "@/hooks/useBridge"
 import { useState, useEffect, useMemo } from "react"
 import { useWallet } from "@/hooks/account-hooks"
+import { Button } from "@/components/ui/button"
 
 const SYNC_CHAINS = AppSyncChains
 type HistoryFilter = "ALL" | "SWAP" | "BRIDGE" | "SEND"
@@ -231,22 +232,62 @@ function RecoveryActions({
 export function TransactionHistory() {
   const { t } = useTranslation()
   const wallet = useWallet()
-  const { transactions, syncing, syncWithChain } = useBridgeHistory()
+  const {
+    transactions,
+    syncing,
+    syncWithChain,
+    loadTransactions,
+    loaded,
+    getSyncCooldownLeft,
+  } = useBridgeHistory()
   const [expandedTxId, setExpandedTxId] = useState<string | null>(null)
   const [filter, setFilter] = useState<HistoryFilter>("ALL")
+  const [cooldownLeftMs, setCooldownLeftMs] = useState(0)
 
   const address = wallet.active.evm?.address
 
-  // Auto-sync on mount / address change
+  // Load persisted history from storage database on mount
   useEffect(() => {
-    if (address) {
-      SYNC_CHAINS.forEach((chain) => syncWithChain(chain, address))
+    if (!loaded) {
+      void loadTransactions()
     }
-  }, [address, syncWithChain])
+  }, [loadTransactions, loaded])
 
-  const handleRefresh = () => {
+  useEffect(() => {
+    if (!address) {
+      setCooldownLeftMs(0)
+      return
+    }
+
+    let active = true
+
+    const refreshCooldown = async () => {
+      const left = await getSyncCooldownLeft(address)
+      if (active) {
+        setCooldownLeftMs(left)
+      }
+    }
+
+    void refreshCooldown()
+    const timer = setInterval(() => {
+      void refreshCooldown()
+    }, 1000)
+
+    return () => {
+      active = false
+      clearInterval(timer)
+    }
+  }, [address, getSyncCooldownLeft, syncing])
+
+  const handleRefresh = async () => {
+    if (cooldownLeftMs > 0) return
+
     if (address) {
-      SYNC_CHAINS.forEach((chain) => syncWithChain(chain, address))
+      for (const chain of SYNC_CHAINS) {
+        await syncWithChain(chain, address)
+      }
+      const left = await getSyncCooldownLeft(address)
+      setCooldownLeftMs(left)
     }
   }
 
@@ -276,17 +317,27 @@ export function TransactionHistory() {
           <History className="h-5 w-5 text-cyan-400" />
           {t("dex.history", "Recent Activity")}
         </h3>
-        <button
-          onClick={handleRefresh}
-          disabled={syncing || !address}
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => void handleRefresh()}
+          disabled={syncing || !address || cooldownLeftMs > 0}
           className={cn(
-            "text-muted-foreground hover:bg-secondary/30 rounded-full p-1 transition-colors hover:text-cyan-400",
-            syncing && "animate-spin text-cyan-400",
+            "text-muted-foreground hover:bg-secondary/30 h-8 gap-1 rounded-full px-3 transition-colors hover:text-cyan-400",
+            (syncing || cooldownLeftMs > 0) && "text-cyan-400",
           )}
-          title="Refresh History"
+          title={t("history.syncFromArweave", "Sync")}
         >
-          <RotateCw className="h-4 w-4" />
-        </button>
+          <RotateCw className={cn("h-4 w-4", syncing && "animate-spin")} />
+          {syncing
+            ? t("history.syncing", "Syncing")
+            : cooldownLeftMs > 0
+              ? t("history.syncCooldown", "Sync ({{seconds}}s)", {
+                  seconds: Math.ceil(cooldownLeftMs / 1000),
+                })
+              : t("history.syncFromArweave", "Sync")}
+        </Button>
       </div>
 
       <div className="max-h-100 space-y-1.5 overflow-y-auto p-2">

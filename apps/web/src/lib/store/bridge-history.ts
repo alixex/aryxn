@@ -1,8 +1,16 @@
 import { create } from "zustand"
-import { persist, createJSONStorage } from "zustand/middleware"
+import { AppSyncChains } from "@aryxn/chain-constants"
 import { AggregateHistoryProvider, type ChainRecord } from "@aryxn/query-chain"
 import { getEthereumRpcUrl } from "@/lib/chain/rpc-config"
-import { createEncryptedStorage } from "./encrypted-storage"
+import {
+  clearBridgeTransactions,
+  getBridgeSyncTimestamp,
+  listBridgeTransactions,
+  setBridgeSyncTimestamp,
+  upsertBridgeTransaction,
+} from "./bridge-history-repo"
+
+const HISTORY_SYNC_COOLDOWN_MS = 30 * 1000
 
 export interface BridgeTransaction {
   id: string
@@ -23,109 +31,140 @@ export interface BridgeTransaction {
 interface BridgeHistoryState {
   transactions: BridgeTransaction[]
   syncing: boolean
+  loaded: boolean
   lastSynced: Record<string, number> // key: "chain:address" -> timestamp
   addTransaction: (tx: BridgeTransaction) => void
   updateTransaction: (id: string, updates: Partial<BridgeTransaction>) => void
   clearHistory: () => void
+  loadTransactions: () => Promise<void>
+  getSyncCooldownLeft: (address: string) => Promise<number>
   syncWithChain: (chain: string, address: string) => Promise<void>
 }
 
 // Initializing the provider
 const historyProvider = new AggregateHistoryProvider(getEthereumRpcUrl())
 
-export const useBridgeHistory = create<BridgeHistoryState>()(
-  persist(
-    (set, get) => ({
-      transactions: [],
-      syncing: false,
-      lastSynced: {},
-      addTransaction: (tx) =>
-        set((state) => {
-          // Deduplicate if a transaction with the same hash already exists
-          const exists = state.transactions.find(
-            (t) => t.hash && t.hash === tx.hash,
-          )
-          if (exists) return state
-          return { transactions: [tx, ...state.transactions].slice(0, 100) }
-        }),
-      updateTransaction: (id, updates) =>
-        set((state) => ({
-          transactions: state.transactions.map((tx) =>
-            tx.id === id ? { ...tx, ...updates } : tx,
-          ),
-        })),
-      clearHistory: () => set({ transactions: [] }),
-      syncWithChain: async (chain, address) => {
-        if (get().syncing) return
+export const useBridgeHistory = create<BridgeHistoryState>()((set, get) => ({
+  transactions: [],
+  syncing: false,
+  loaded: false,
+  lastSynced: {},
+  addTransaction: (tx) => {
+    set((state) => {
+      const exists = state.transactions.find((t) => t.hash && t.hash === tx.hash)
+      if (exists) return state
+      return { transactions: [tx, ...state.transactions].slice(0, 100) }
+    })
 
-        // Persistent Rate Limit (e.g., 5 minutes)
-        const key = `${chain}:${address}`
-        const lastSyncTime = get().lastSynced[key] || 0
-        const now = Date.now()
-        // If synced less than 5 minutes ago, skip
-        if (now - lastSyncTime < 5 * 60 * 1000) {
-          console.log(
-            `[BridgeHistory] Skipping sync for ${key}: cached recently`,
-          )
-          return
-        }
+    void upsertBridgeTransaction(tx)
+  },
+  updateTransaction: (id, updates) => {
+    let updatedTx: BridgeTransaction | null = null
 
-        set({ syncing: true })
+    set((state) => {
+      const transactions = state.transactions.map((tx) => {
+        if (tx.id !== id) return tx
+        updatedTx = { ...tx, ...updates }
+        return updatedTx
+      })
+      return { transactions }
+    })
 
-        try {
-          await historyProvider.startSync(
-            chain,
-            address,
-            (record: ChainRecord) => {
-              // Incremental Update
-              set((state) => {
-                const existingIndex = state.transactions.findIndex(
-                  (t) => t.hash === record.id || t.id === record.id,
-                )
+    if (updatedTx) {
+      void upsertBridgeTransaction(updatedTx)
+    }
+  },
+  clearHistory: () => {
+    set({ transactions: [] })
+    void clearBridgeTransactions()
+  },
+  loadTransactions: async () => {
+    const rows = await listBridgeTransactions(100)
+    set({ transactions: rows, loaded: true })
+  },
+  getSyncCooldownLeft: async (address) => {
+    const now = Date.now()
+    let maxRemaining = 0
 
-                if (existingIndex !== -1) {
-                  // Update existing record (e.g. status promotion)
-                  const updatedTransactions = [...state.transactions]
-                  updatedTransactions[existingIndex] = {
-                    ...updatedTransactions[existingIndex],
-                    status: record.status as any,
-                    // Don't overwrite description if we have a better local one
-                  }
-                  return { transactions: updatedTransactions }
-                } else {
-                  // Add new record
-                  const newTx: BridgeTransaction = {
-                    id: record.id,
-                    hash: record.id,
-                    type: record.type as any,
-                    status: record.status as any,
-                    description: `${record.type} ${record.amount} ${record.token}`,
-                    timestamp: record.timestamp,
-                    amount: record.amount,
-                    token: record.token,
-                    fromChain: record.chain,
-                  }
-                  return {
-                    transactions: [newTx, ...state.transactions].slice(0, 100),
-                  }
-                }
-              })
-            },
-            true, // Force sync in provider because we handle rate limiting here at persistent level
-          )
+    for (const chain of AppSyncChains) {
+      const key = `${chain}:${address}`
+      const memoryTs = get().lastSynced[key] || 0
+      const persistedTs = await getBridgeSyncTimestamp(key)
+      const lastTs = Math.max(memoryTs, persistedTs)
 
-          // Update last synced time
-          set((state) => ({
-            lastSynced: { ...state.lastSynced, [key]: Date.now() },
-          }))
-        } finally {
-          set({ syncing: false })
-        }
-      },
-    }),
-    {
-      name: "aryxn-bridge-history",
-      storage: createJSONStorage(() => createEncryptedStorage()),
-    },
-  ),
-)
+      if (!lastTs) continue
+
+      const remaining = Math.max(0, HISTORY_SYNC_COOLDOWN_MS - (now - lastTs))
+      if (remaining > maxRemaining) {
+        maxRemaining = remaining
+      }
+    }
+
+    return maxRemaining
+  },
+  syncWithChain: async (chain, address) => {
+    if (get().syncing) return
+
+    const key = `${chain}:${address}`
+    const now = Date.now()
+    const memoryTs = get().lastSynced[key] || 0
+    const persistedTs = await getBridgeSyncTimestamp(key)
+    const lastTs = Math.max(memoryTs, persistedTs)
+
+    if (now - lastTs < HISTORY_SYNC_COOLDOWN_MS) {
+      return
+    }
+
+    set({ syncing: true })
+
+    try {
+      await historyProvider.startSync(
+        chain,
+        address,
+        (record: ChainRecord) => {
+          set((state) => {
+            const existingIndex = state.transactions.findIndex(
+              (t) => t.hash === record.id || t.id === record.id,
+            )
+
+            if (existingIndex !== -1) {
+              const updatedTransactions = [...state.transactions]
+              const updatedTx: BridgeTransaction = {
+                ...updatedTransactions[existingIndex],
+                status: record.status as any,
+              }
+              updatedTransactions[existingIndex] = updatedTx
+              void upsertBridgeTransaction(updatedTx)
+              return { transactions: updatedTransactions }
+            }
+
+            const newTx: BridgeTransaction = {
+              id: record.id,
+              hash: record.id,
+              type: record.type as any,
+              status: record.status as any,
+              description: `${record.type} ${record.amount} ${record.token}`,
+              timestamp: record.timestamp,
+              amount: record.amount,
+              token: record.token,
+              fromChain: record.chain,
+            }
+
+            void upsertBridgeTransaction(newTx)
+            return {
+              transactions: [newTx, ...state.transactions].slice(0, 100),
+            }
+          })
+        },
+        true,
+      )
+
+      set((state) => ({
+        lastSynced: { ...state.lastSynced, [key]: Date.now() },
+      }))
+      await setBridgeSyncTimestamp(key, Date.now())
+    } finally {
+      set({ syncing: false })
+    }
+  },
+}))
