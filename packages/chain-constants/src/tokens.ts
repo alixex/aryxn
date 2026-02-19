@@ -91,6 +91,15 @@ export const UploadSelectablePaymentTokens = [
   "V2EX",
 ] as const satisfies readonly PaymentTokenSymbol[]
 
+export const UploadSelectableTokensByAccountChain: Readonly<
+  Partial<Record<string, readonly PaymentTokenSymbol[]>>
+> = {
+  [Chains.ARWEAVE]: ["AR"],
+  [Chains.ETHEREUM]: ["ETH", "USDC", "USDT"],
+  [Chains.SOLANA]: ["SOL", "USDC", "USDT", "V2EX"],
+  [Chains.SUI]: ["SUI", "USDC", "USDT"],
+} as const
+
 export const UploadTokenNativeChainBySymbol: Partial<
   Record<PaymentTokenSymbol, string>
 > = {

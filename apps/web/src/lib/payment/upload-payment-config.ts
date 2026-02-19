@@ -2,6 +2,7 @@ import {
   Chains,
   UploadPaymentSupportedChains,
   UploadSelectablePaymentTokens,
+  UploadSelectableTokensByAccountChain,
   UploadTokenNativeChainBySymbol,
 } from "@aryxn/chain-constants"
 import type { PaymentToken, UploadRedirectAction } from "./types"
@@ -16,12 +17,8 @@ export interface UploadPaymentConfig {
 export const UPLOAD_PAYMENT_CONFIG: UploadPaymentConfig = {
   supportedAccountChains: [...UploadPaymentSupportedChains],
   selectableTokens: [...UploadSelectablePaymentTokens] as PaymentToken[],
-  selectableTokensByAccountChain: {
-    [Chains.ARWEAVE]: ["AR"],
-    [Chains.ETHEREUM]: ["ETH", "USDC", "USDT"],
-    [Chains.SOLANA]: ["SOL", "USDC", "USDT", "V2EX"],
-    [Chains.SUI]: ["SUI", "USDC", "USDT"],
-  },
+  selectableTokensByAccountChain:
+    UploadSelectableTokensByAccountChain as Partial<Record<string, PaymentToken[]>>,
   tokenNativeChains: UploadTokenNativeChainBySymbol,
 }
 
