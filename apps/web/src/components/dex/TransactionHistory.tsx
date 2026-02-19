@@ -117,7 +117,7 @@ export function TransactionHistory() {
         </button>
       </div>
 
-      <div className="max-h-[400px] space-y-2 overflow-y-auto p-2">
+      <div className="max-h-100 space-y-2 overflow-y-auto p-2">
         {transactions.length === 0 ? (
           <div className="text-muted-foreground py-8 text-center text-sm">
             {t("dex.noHistory", "No recent transactions")}

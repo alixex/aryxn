@@ -48,7 +48,7 @@ export function Navbar() {
           <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-4">
             <NavLogo />
             {/* 搜索框（大屏幕显示） */}
-            <div className="hidden max-w-md min-w-[200px] flex-1 lg:block">
+            <div className="hidden max-w-md min-w-50 flex-1 lg:block">
               <ArweaveSearch />
             </div>
           </div>

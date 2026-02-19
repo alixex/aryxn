@@ -39,6 +39,7 @@ export interface BridgeRouteParams {
   toAddress: string
   priority?: BridgePriority
   slippage?: number // Percentage (default: 0.5%)
+  preferredBridges?: string[] // Optional list of preferred bridge protocols
 }
 
 /**
@@ -82,6 +83,32 @@ export class LiFiBridgeService {
     HIGH: 100000, // > $100K: Require batch or CEX
   }
 
+  // Protocol optimization constants
+  private static readonly USDC_TOKEN_SYMBOLS = ["USDC", "USDC.e", "USDbC"]
+  private static readonly USDT_TOKEN_SYMBOLS = ["USDT", "USDT.e"]
+  private static readonly STABLECOIN_SYMBOLS = [
+    ...LiFiBridgeService.USDC_TOKEN_SYMBOLS,
+    ...LiFiBridgeService.USDT_TOKEN_SYMBOLS,
+    "DAI",
+    "BUSD",
+    "FRAX",
+  ]
+
+  // EVM chain IDs
+  private static readonly EVM_CHAINS = [
+    1, // Ethereum
+    137, // Polygon
+    42161, // Arbitrum
+    10, // Optimism
+    56, // BSC
+    43114, // Avalanche
+    8453, // Base
+    324, // zkSync Era
+  ]
+
+  // Solana chain ID
+  private static readonly SOLANA_CHAIN = 1151111081099710
+
   /**
    * Get optimal bridge route based on priority
    */
@@ -98,6 +125,9 @@ export class LiFiBridgeService {
       slippage = 0.5,
     } = params
 
+    // Get optimized bridge preferences based on token type and chains
+    const preferredBridges = await this.getOptimizedBridges(params)
+
     const routesRequest: RoutesRequest = {
       fromChainId: fromChain,
       toChainId: toChain,
@@ -111,8 +141,15 @@ export class LiFiBridgeService {
         order: this.getPriorityOrder(priority),
         // Limit number of routes for faster response
         maxPriceImpact: 0.05, // 5% max price impact
+        // Use optimized bridge preferences if available
+        ...(preferredBridges && { allowBridges: preferredBridges }),
       },
     }
+
+    console.log("[LiFiBridgeService] Fetching routes with params:", {
+      ...routesRequest,
+      preferredBridges,
+    })
 
     const result = await getRoutes(routesRequest)
 
@@ -272,6 +309,119 @@ export class LiFiBridgeService {
       default:
         return "RECOMMENDED"
     }
+  }
+
+  /**
+   * Detect if a token is USDC based on symbol or address
+   */
+  private async isUSDC(
+    tokenAddress: string,
+    chainId: ChainId,
+  ): Promise<boolean> {
+    try {
+      const tokens = await this.getTokensForChain(chainId)
+      const token = tokens.find(
+        (t) => t.address.toLowerCase() === tokenAddress.toLowerCase(),
+      )
+      return (
+        token !== undefined &&
+        LiFiBridgeService.USDC_TOKEN_SYMBOLS.includes(token.symbol)
+      )
+    } catch {
+      return false
+    }
+  }
+
+  /**
+   * Detect if a token is a stablecoin
+   */
+  private async isStablecoin(
+    tokenAddress: string,
+    chainId: ChainId,
+  ): Promise<boolean> {
+    try {
+      const tokens = await this.getTokensForChain(chainId)
+      const token = tokens.find(
+        (t) => t.address.toLowerCase() === tokenAddress.toLowerCase(),
+      )
+      return (
+        token !== undefined &&
+        LiFiBridgeService.STABLECOIN_SYMBOLS.includes(token.symbol)
+      )
+    } catch {
+      return false
+    }
+  }
+
+  /**
+   * Check if chain is EVM-compatible
+   */
+  private isEVMChain(chainId: ChainId): boolean {
+    return LiFiBridgeService.EVM_CHAINS.includes(Number(chainId))
+  }
+
+  /**
+   * Check if chain is Solana
+   */
+  private isSolanaChain(chainId: ChainId): boolean {
+    return Number(chainId) === LiFiBridgeService.SOLANA_CHAIN
+  }
+
+  /**
+   * Get optimized bridge preferences based on token and chains
+   * Returns array of preferred bridge tool names for Li.Fi
+   */
+  private async getOptimizedBridges(
+    params: BridgeRouteParams,
+  ): Promise<string[] | undefined> {
+    const { fromChain, toChain, fromToken, priority } = params
+
+    // If user manually specified preferred bridges, use those
+    if (params.preferredBridges && params.preferredBridges.length > 0) {
+      return params.preferredBridges
+    }
+
+    const isFromEVM = this.isEVMChain(fromChain)
+    const isToEVM = this.isEVMChain(toChain)
+    const involveSolana =
+      this.isSolanaChain(fromChain) || this.isSolanaChain(toChain)
+
+    // USDC optimization: Prefer Circle CCTP (cheapest, official)
+    const isUSDCToken = await this.isUSDC(fromToken, fromChain)
+    if (isUSDCToken && isFromEVM && isToEVM) {
+      console.log(
+        "[LiFiBridgeService] USDC detected on EVM chains, preferring Circle CCTP",
+      )
+      return ["cbridge"] // Circle's CCTP is available through cBridge on Li.Fi
+    }
+
+    // Across Protocol: Fast EVM-to-EVM transfers (for urgent priority)
+    if (priority === "fastest" && isFromEVM && isToEVM) {
+      console.log(
+        "[LiFiBridgeService] Fast priority on EVM chains, preferring Across Protocol",
+      )
+      return ["across"]
+    }
+
+    // Wormhole: Solana integration
+    if (involveSolana) {
+      console.log(
+        "[LiFiBridgeService] Solana chain detected, preferring Wormhole",
+      )
+      return ["wormhole"]
+    }
+
+    // Stablecoin optimization for cheapest route
+    const isStablecoinToken = await this.isStablecoin(fromToken, fromChain)
+    if (isStablecoinToken && priority === "cheapest") {
+      console.log(
+        "[LiFiBridgeService] Stablecoin detected with cheapest priority, preferring low-fee bridges",
+      )
+      return ["stargate", "cbridge", "hop"] // Low-fee stablecoin bridges
+    }
+
+    // No specific optimization, let Li.Fi choose
+    return undefined
   }
 
   /**
