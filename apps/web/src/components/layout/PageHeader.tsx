@@ -19,7 +19,7 @@ export function PageHeader({
   titleClassName,
 }: PageHeaderProps) {
   return (
-    <div className="flex flex-col gap-6 sm:min-h-[124px] sm:flex-row sm:items-start sm:justify-between">
+    <div className="flex flex-col gap-6 sm:min-h-31 sm:flex-row sm:items-start sm:justify-between">
       <div className="flex flex-col gap-3 sm:self-start">
         <h2 className="flex items-center gap-3 text-3xl font-extrabold tracking-tighter sm:text-4xl lg:text-5xl">
           <div

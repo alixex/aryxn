@@ -13,7 +13,7 @@ export default function NotFound() {
       <div className="flex min-h-[65vh] items-center justify-center px-4">
         <Card className="border-border/50 bg-card/40 w-full max-w-xl shadow-xl backdrop-blur-sm">
           <CardHeader className="pt-8 text-center">
-            <div className="from-primary/15 to-secondary/15 ring-primary/30 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br ring-1">
+            <div className="from-primary/15 to-secondary/15 ring-primary/30 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-linear-to-br ring-1">
               <Compass className="text-primary h-8 w-8" />
             </div>
             <CardTitle className="text-3xl">{t("notFound.code")}</CardTitle>

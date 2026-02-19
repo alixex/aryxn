@@ -1,12 +1,14 @@
-# Payment and DEX Services
+# Payment and Routing Services
 
-支付处理和 DEX（去中心化交易所）集成服务。
+上传支付分流、费用估算和 Swap/Bridge 路由服务。
 
 ## 目录结构
 
 ```
 payment/
-├── payment-service.ts         # 支付处理和代币管理
+├── payment-service.ts         # 支付执行与费用估算
+├── upload-payment-config.ts   # 上传支付统一配置
+├── types.ts                   # 支付类型定义
 ├── index.ts                   # 统一导出
 └── README.md                  # 本文件
 ```
@@ -15,19 +17,13 @@ payment/
 
 ### `payment-service.ts`
 
-处理多链支付和代币转换。
+处理上传支付执行（直付 / Irys / 跳转 Swap / 跳转 Bridge）与费用估算。
 
 ```typescript
 import { paymentService, type PaymentToken } from "@/lib/payment"
 
-// 获取支持的代币
-const tokens = paymentService.getSupportedTokens()
-
-// 获取代币汇率
-const rate = await paymentService.getTokenRate("USDC", "AR")
-
-// 计算支付金额
-const arAmount = await paymentService.convertAmount("USDC", "100", "AR")
+const estimate = await paymentService.estimateFeeInToken(1024 * 1024, "USDC")
+console.log(estimate.formatted)
 ```
 
 ## 支持的代币
@@ -37,6 +33,7 @@ type PaymentToken =
   | "AR" // Arweave
   | "ETH" // Ethereum
   | "SOL" // Solana
+  | "V2EX" // V2EX
   | "SUI" // SUI
   | "BTC" // Bitcoin
   | "USDC" // USD Coin
@@ -45,44 +42,12 @@ type PaymentToken =
 
 ## 使用示例
 
-### 场景 1: 获取支持的代币列表
+### 场景 1: 代币配置查询（常量包）
 
 ```typescript
-import { paymentService } from "@/lib/payment"
+import { PaymentTokenMetadata } from "@aryxn/chain-constants"
 
-const supported = paymentService.getSupportedTokens()
-// => ["AR", "ETH", "SOL", "SUI", "BTC", "USDC", "USDT"]
-
-supported.forEach((token) => {
-  console.log(`支持 ${token}`)
-})
-```
-
-### 场景 2: 换汇
-
-```typescript
-import { paymentService } from "@/lib/payment"
-
-// 用户有 100 USDC，想转换为 AR
-const arAmount = await paymentService.convertAmount("USDC", "100", "AR")
-console.log(`100 USDC = ${arAmount} AR`)
-```
-
-### 场景 3: 获取汇率
-
-```typescript
-import { paymentService } from "@/lib/payment"
-
-const rate = await paymentService.getTokenRate("ETH", "AR")
-console.log(`1 ETH = ${rate} AR`)
-```
-
-### 场景 4: 代币配置查询
-
-```typescript
-import { TOKEN_CONFIG } from "@/lib/payment"
-
-const ethConfig = TOKEN_CONFIG["ETH"]
+const ethConfig = PaymentTokenMetadata["ETH"]
 // => {
 //   chain: "ethereum",
 //   decimals: 18,
@@ -91,7 +56,21 @@ const ethConfig = TOKEN_CONFIG["ETH"]
 // }
 ```
 
-## 代币配置
+### 场景 2: 上传支付统一配置
+
+```typescript
+import {
+  getUploadPaymentSupportedChains,
+  getUploadSelectableTokens,
+} from "@/lib/payment"
+
+const chains = getUploadPaymentSupportedChains()
+const tokens = getUploadSelectableTokens()
+```
+
+## 代币配置（来源）
+
+`TOKEN_CONFIG` 在 `@/lib/payment` 中导出，但底层数据源来自 `@aryxn/chain-constants` 包的 `PaymentTokenMetadata`，避免多处重复维护。
 
 ```typescript
 interface TokenConfig {
@@ -109,59 +88,35 @@ interface TokenConfig {
 ```
 用户选择支付代币
   ↓
-验证余额充足
+系统执行支付分流判定
   ↓
-如果不是 AR，从 DEX 获取汇率
+AR 且来源链为 ARWEAVE → PAID_NATIVE
   ↓
-显示费用和汇兑金额
+ETH/SOL/USDC 且可走 Irys → PAID_IRYS
   ↓
-用户确认
+其他情况 → REQUIRE_SWAP 或 REQUIRE_BRIDGE
   ↓
-执行支付/交换
+弹确认提示（提示可能需要重新上传）
   ↓
-更新账户余额
+用户确认后跳转到 Swap 对应页面执行
 ```
 
 ### 费用计算
 
 ```typescript
-// 上传费用
-const uploadFeeAR = 0.5 // AR
-
-// 如果用户支付 USDC
-const usdcExchangeRate = await paymentService.getTokenRate("USDC", "AR")
-const feeUSDC = uploadFeeAR * usdcExchangeRate
-const exchangeFee = feeUSDC * 0.01 // 1% 交换费
-const totalUSDC = feeUSDC + exchangeFee
+const estimate = await paymentService.estimateFeeInToken(file.size, "USDC")
+// => { arAmount, tokenAmount, formatted }
 ```
 
 ## API 参考
 
-### `paymentService.getSupportedTokens()`
+### `paymentService.estimateFeeInToken(dataSize, token)`
 
-获取所有支持的代币。
-
-```typescript
-const tokens = await paymentService.getSupportedTokens()
-// => PaymentToken[]
-```
-
-### `paymentService.getTokenRate(from, to)`
-
-获取两种代币之间的汇率。
+估算上传数据在指定代币下的支付金额。
 
 ```typescript
-const rate = await paymentService.getTokenRate("USDC", "AR")
-// => 数字比率
-```
-
-### `paymentService.convertAmount(from, amount, to)`
-
-转换代币金额。
-
-```typescript
-const arAmount = await paymentService.convertAmount("USDC", "100.50", "AR")
-// => "12.34"（AR 金额）
+const fee = await paymentService.estimateFeeInToken(1024 * 1024, "USDC")
+// => { arAmount, tokenAmount, formatted }
 ```
 
 ### `TOKEN_CONFIG`
@@ -180,61 +135,40 @@ const config = TOKEN_CONFIG[token]
 ✅ **推荐**
 
 ```typescript
-// 先验证支持的代币
+// 先验证支持的代币（数据来源于 @aryxn/chain-constants）
 if (!TOKEN_CONFIG[selectedToken]) {
   throw new Error("不支持的代币")
 }
-
-// 缓存汇率以优化性能
-const rates = new Map()
-for (const token of supportedTokens) {
-  const rate = await paymentService.getTokenRate(token, "AR")
-  rates.set(token, rate)
-}
-
-// 向用户显示多个代币的费用选项
-const fees = await Promise.all(
-  supportedTokens.map(async (token) => ({
-    token,
-    fee: await paymentService.convertAmount("AR", baseFeeAR.toString(), token),
-  })),
-)
 ```
 
 ❌ **不推荐**
 
 ```typescript
 // 直接使用未验证的代币
-paymentService.convertAmount(userInput, amount, "AR")
-
-// 每次请求都重新获取汇率
-for (let i = 0; i < 100; i++) {
-  await paymentService.getTokenRate("USDC", "AR") // 太频繁
-}
+paymentService.estimateFeeInToken(fileSize, userInput as any)
 
 // 忽略小数位数差异
 const amount = "100" // 不知道精度
 ```
 
-## 与 DEX 的集成
+## 与 Swap/Bridge 的集成
 
-Payment 服务自动与 swap-hooks 集成，用于：
+Payment 服务与页面层协作方式：
 
-1. **多链交换** - 支持 Ethereum、Polygon 等网络
-2. **价格查询** - 通过 DEX 当前价格而非固定汇率
-3. **自动路由** - 找到最优的交换路径
-
-参考 `@/hooks/swap-hooks` 了解交换详情。
+1. **上传页触发支付判定** - 返回 `PAID_NATIVE / PAID_IRYS / REQUIRE_SWAP / REQUIRE_BRIDGE`
+2. **统一确认提示** - 需要跳转时先提示用户确认，并告知可能需要重新上传
+3. **Swap 页面承接流程** - 用户在 Swap/Bridge 页面自主选择账户和代币完成操作
 
 ## 依赖关系
 
-- `@/hooks/swap-hooks` - 交换实现
+- `@/hooks/useBridge` - 跨链桥接状态与恢复动作
 - `@/lib/chain` - 多链工具
+- `@aryxn/chain-constants` - 共享链/代币常量与上传支付配置
 - CoinGecko API - 历史汇率数据
 
 ## 设计原则
 
 - **原子性**: 支付成功或完全失败
-- **透明性**: 显示所有费用和汇率
-- **可靠性**: 自动重试失败的交换
+- **透明性**: 显示费用并清晰提示后续需要跳转的动作
+- **可靠性**: 上传触发跳转前必须经用户确认
 - **安全性**: 价格偏差检查防止滑点

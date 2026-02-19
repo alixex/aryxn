@@ -1,5 +1,5 @@
 import { estimateArweaveFee } from "@/lib/storage"
-import { Chains } from "@aryxn/chain-constants"
+import { Chains, PaymentTokenMetadata } from "@aryxn/chain-constants"
 import type { PaymentAccount, PaymentToken } from "./types"
 import {
   getIrysFundingToken,
@@ -12,31 +12,10 @@ import {
 export const TOKEN_CONFIG: Record<
   PaymentToken,
   { chain: string; decimals: number; symbol: string; coingeckoId: string }
-> = {
-  AR: { chain: Chains.ARWEAVE, decimals: 12, symbol: "AR", coingeckoId: "arweave" },
-  ETH: {
-    chain: Chains.ETHEREUM,
-    decimals: 18,
-    symbol: "ETH",
-    coingeckoId: "ethereum",
-  },
-  SOL: { chain: Chains.SOLANA, decimals: 9, symbol: "SOL", coingeckoId: "solana" },
-  V2EX: { chain: Chains.SOLANA, decimals: 9, symbol: "V2EX", coingeckoId: "solana" },
-  SUI: { chain: Chains.SUI, decimals: 9, symbol: "SUI", coingeckoId: "sui" },
-  BTC: { chain: "bitcoin", decimals: 8, symbol: "BTC", coingeckoId: "bitcoin" },
-  USDC: {
-    chain: Chains.ETHEREUM,
-    decimals: 6,
-    symbol: "USDC",
-    coingeckoId: "usd-coin",
-  },
-  USDT: {
-    chain: "ethereum",
-    decimals: 6,
-    symbol: "USDT",
-    coingeckoId: "tether",
-  },
-}
+> = PaymentTokenMetadata as Record<
+  PaymentToken,
+  { chain: string; decimals: number; symbol: string; coingeckoId: string }
+>
 
 /**
  * Simple in-memory cache for token prices

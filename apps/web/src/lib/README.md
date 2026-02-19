@@ -6,11 +6,11 @@
 
 ```
 lib/
-├── chain/           # 多链工具（余额查询、代币配置）
+├── chain/           # 多链工具（余额查询）
 ├── crypto/          # 加密和安全（加密/解密、密钥管理）
 ├── database/        # 数据存储（SQLite、Vault DB）
 ├── file/            # 文件管理（索引、同步、Manifest）
-├── payment/         # 支付和 DEX（代币交换、汇率）
+├── payment/         # 支付和 DEX（上传支付路由、费用估算）
 ├── storage/         # Arweave 存储（上传、搜索）
 ├── utils/           # 通用工具（格式化、压缩、类型）
 ├── wallet/          # 钱包管理（导出/导入、备份恢复）
@@ -22,11 +22,11 @@ lib/
 
 | 模块         | 职责         | 关键功能                                                |
 | ------------ | ------------ | ------------------------------------------------------- |
-| **chain**    | 多链支持     | `getBalance()`, `TOKEN_CONFIG`                          |
+| **chain**    | 多链支持     | `getBalance()`, `getExplorerTxUrl()`                    |
 | **crypto**   | 安全加密     | `encryptData()`, `decryptData()`, `deriveKey()`         |
 | **database** | 数据持久化   | `db.run()`, `db.get()`, `db.all()`                      |
 | **file**     | 文件管理     | `uploadFile()`, `searchFiles()`, `syncFilesToArweave()` |
-| **payment**  | 支付处理     | `convertAmount()`, `getTokenRate()`                     |
+| **payment**  | 支付处理     | `estimateFeeInToken()`, `executePayment()`              |
 | **storage**  | Arweave 操作 | `uploadToArweave()`, `searchArweaveFiles()`             |
 | **utils**    | 常见工具     | `cn()`, `formatFileSize()`, `compressData()`            |
 | **wallet**   | 钱包备份     | `exportWallet()`, `exportVault()`, `importVault()`      |
@@ -115,12 +115,13 @@ const files = await searchFiles("", {
 })
 ```
 
-#### 5. 获取代币汇率
+#### 5. 估算上传支付费用
 
 ```typescript
 import { paymentService } from "@/lib/payment"
 
-const arAmount = await paymentService.convertAmount("USDC", "100", "AR")
+const estimate = await paymentService.estimateFeeInToken(1024 * 1024, "USDC")
+console.log(estimate.formatted)
 ```
 
 #### 6. 上传到 Arweave
@@ -214,14 +215,14 @@ const results = await searchFiles("", { owner: address })
 
 ### 💳 Payment (支付处理)
 
-**用途**: 多代币支付处理和 DEX 集成
+**用途**: 上传支付分流、费用估算和 Swap/Bridge 路由
 
-**支持的代币**: AR, ETH, SOL, SUI, BTC, USDC, USDT
+**支持的代币**: AR, ETH, SOL, V2EX, SUI, BTC, USDC, USDT
 
 ```typescript
 import { paymentService } from "@/lib/payment"
 
-const converted = await paymentService.convertAmount("USDC", "100", "AR")
+const estimate = await paymentService.estimateFeeInToken(1024 * 1024, "USDC")
 ```
 
 [详细说明](./payment/README.md)
@@ -367,11 +368,10 @@ async function uploadWithPayment(file, token) {
 
   // 计算费用
   const feeAR = 0.5
-  const feeInToken = await paymentService.convertAmount(
-    "AR",
-    feeAR.toString(),
-    token,
-  )
+    const feeInToken = await paymentService.estimateFeeInToken(
+      file.size,
+      token,
+    )
 
   // 上传
   const fileIndex = await uploadFile(compressed, { owner: address })
@@ -454,5 +454,5 @@ A: 目前使用 AES-GCM，可扩展为支持其他算法。
 
 ---
 
-**最后更新**: 2026-02-16  
+**最后更新**: 2026-02-19  
 **版本**: 1.0.0

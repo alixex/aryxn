@@ -88,6 +88,7 @@ Swap 页面继续承接：
 	- `lib/payment/types.ts`（共享类型）
 	- `lib/payment/upload-payment-config.ts`（上传支付配置与路由辅助）
 	- `payment-service` 仅保留执行逻辑，便于后续维护与扩展。
+- `Token configuration metadata` 已迁移到 `packages/chain-constants/src/tokens.ts`，并由 Web 侧直接复用，减少重复定义与漂移风险。
 - 支付选择改为“账户优先、代币后选”，并把选择的支付账户透传到执行层。
 - 按账户链约束代币：
 	- Arweave: `AR`
