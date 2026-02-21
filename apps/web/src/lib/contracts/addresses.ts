@@ -15,6 +15,11 @@ export const MULTI_HOP_SWAPPER_MAPPING: Record<number, Address> = {
 }
 
 /**
+ * Default swapper address for backward compatibility
+ */
+export const MULTI_HOP_SWAPPER_ADDRESS = MULTI_HOP_SWAPPER_MAPPING[ChainIds.ETHEREUM]
+
+/**
  * Common token addresses by Chain ID
  */
 export const TOKEN_MAPPING: Record<number, Record<string, Address>> = {

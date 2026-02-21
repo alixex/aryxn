@@ -153,8 +153,8 @@ export function useTransactionHistory() {
         const { user, tokenIn, tokenOut, amountIn, amountOut, fee, gasUsed } =
           log.args as any
 
-        const tokenInInfo = getTokenByAddress(tokenIn)
-        const tokenOutInfo = getTokenByAddress(tokenOut)
+        const tokenInInfo = getTokenByAddress(tokenIn, publicClient.chain.id)
+        const tokenOutInfo = getTokenByAddress(tokenOut, publicClient.chain.id)
 
         return {
           hash: log.transactionHash!,

@@ -5,7 +5,7 @@
 
 import { useState, useCallback, useEffect } from "react"
 import type { Address, WalletRecord } from "@aryxn/wallet-core"
-import { Chains } from "@aryxn/chain-constants"
+import { ChainIds, Chains } from "@aryxn/chain-constants"
 import {
   MULTI_HOP_SWAPPER_ABI,
   ERC20_ABI,
@@ -408,8 +408,11 @@ export function useInternalSwap({
         setSwapSuccess(true)
         setSwapState(SwapState.SUCCESS)
 
-        const inputTokenInfo = getTokenByAddress(inputToken)
-        const outputTokenInfo = getTokenByAddress(outputToken)
+        const inputTokenInfo = getTokenByAddress(inputToken, ChainIds.ETHEREUM)
+        const outputTokenInfo = getTokenByAddress(
+          outputToken,
+          ChainIds.ETHEREUM,
+        )
         const inputSymbol = inputTokenInfo?.symbol ?? "UNKNOWN"
         const outputSymbol = outputTokenInfo?.symbol ?? "UNKNOWN"
 

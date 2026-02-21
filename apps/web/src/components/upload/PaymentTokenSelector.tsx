@@ -15,8 +15,8 @@ import {
 import { useWallet } from "@/hooks/account-hooks"
 import { useEffect, useMemo, useState } from "react"
 import { getBalance } from "@/lib/chain"
-import { TOKEN_ADDRESSES } from "@/lib/contracts/addresses"
-import { Chains } from "@aryxn/chain-constants"
+import { getTokenAddressOnChain } from "@/lib/contracts/token-config"
+import { Chains, ChainIds } from "@aryxn/chain-constants"
 
 interface PaymentTokenSelectorProps {
   selectedToken: PaymentToken
@@ -103,7 +103,7 @@ export function PaymentTokenSelector({
     try {
       const tokenAddress =
         selectedAccount.chain === Chains.ETHEREUM
-          ? (TOKEN_ADDRESSES as Record<string, string>)[selectedToken]
+          ? getTokenAddressOnChain(selectedToken, ChainIds.ETHEREUM)
           : undefined
 
       const res = await getBalance(
