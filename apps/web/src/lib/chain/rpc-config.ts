@@ -91,7 +91,7 @@ export function getSolanaRpcUrl(): string {
     }
   }
 
-  return "https://api.mainnet-beta.solana.com"
+  return "https://rpc.ankr.com/solana"
 }
 
 /**
