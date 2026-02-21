@@ -306,50 +306,56 @@ export function ConfigImportExport() {
               <DialogTrigger asChild>
                 <Button
                   variant="outline"
-                  className="border-primary/80 bg-primary/5 hover:bg-primary/10 hover:border-primary w-full sm:flex-1"
+                  className="btn-interactive border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/50 group relative h-12 w-full overflow-hidden sm:flex-1"
                 >
-                  <Download className="mr-2 h-4 w-4 shrink-0" />
-                  <span className="truncate">{t("identities.export")}</span>
+                  <div className="from-primary/10 absolute inset-0 bg-gradient-to-r to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                  <Download className="text-primary mr-2 h-4 w-4 shrink-0" />
+                  <span className="truncate font-semibold">
+                    {t("identities.export")}
+                  </span>
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                  <div className="bg-secondary mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full">
-                    <ShieldCheck className="text-foreground h-6 w-6" />
-                  </div>
-                  <DialogTitle className="text-center text-xl">
-                    {t("identities.exportConfig")}
-                  </DialogTitle>
-                  <DialogDescription className="text-center text-sm">
-                    {t("identities.exportConfigDesc")}
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-5">
-                  <div className="space-y-3">
-                    <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
-                      <div className="mb-2 flex items-start gap-2">
-                        <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
-                        <p className="text-xs font-semibold text-amber-900">
+              <DialogContent className="bg-card/80 fixed top-1/2 left-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 overflow-hidden border-white/10 p-0 backdrop-blur-xl sm:max-w-md">
+                <div className="from-primary/10 bg-gradient-to-b to-transparent p-6 pb-0">
+                  <DialogHeader>
+                    <div className="bg-primary/10 border-primary/20 mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border shadow-inner">
+                      <ShieldCheck className="text-primary h-7 w-7" />
+                    </div>
+                    <DialogTitle className="from-foreground to-foreground/70 bg-gradient-to-r bg-clip-text text-center text-2xl font-bold text-transparent">
+                      {t("identities.exportConfig")}
+                    </DialogTitle>
+                    <DialogDescription className="text-muted-foreground/80 mt-2 text-center text-sm">
+                      {t("identities.exportConfigDesc")}
+                    </DialogDescription>
+                  </DialogHeader>
+                </div>
+                <div className="space-y-6 p-6">
+                  <div className="space-y-4">
+                    <div className="group relative overflow-hidden rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
+                      <div className="absolute top-0 left-0 h-full w-1 bg-amber-500" />
+                      <div className="mb-2 flex items-start gap-3">
+                        <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" />
+                        <p className="text-sm font-bold text-amber-200">
                           {t("identities.exportSecurityNotice")}
                         </p>
                       </div>
-                      <ul className="mt-2 ml-6 space-y-1.5 text-xs text-amber-800">
-                        <li className="flex items-start gap-1.5">
-                          <span className="mt-0.5">•</span>
+                      <ul className="mt-2 ml-8 space-y-2 text-xs leading-relaxed font-medium text-amber-200/80">
+                        <li className="flex items-start gap-2">
+                          <span className="text-amber-500">•</span>
                           <span>{t("identities.exportSecurityTip1")}</span>
                         </li>
-                        <li className="flex items-start gap-1.5">
-                          <span className="mt-0.5">•</span>
+                        <li className="flex items-start gap-2">
+                          <span className="text-amber-500">•</span>
                           <span>{t("identities.exportSecurityTip2")}</span>
                         </li>
-                        <li className="flex items-start gap-1.5">
-                          <span className="mt-0.5">•</span>
+                        <li className="flex items-start gap-2">
+                          <span className="text-amber-500">•</span>
                           <span>{t("identities.exportSecurityTip3")}</span>
                         </li>
                       </ul>
                     </div>
                     <div className="space-y-2">
-                      <div className="relative">
+                      <div className="group relative">
                         <Input
                           id="export-password"
                           type={showExportPassword ? "text" : "password"}
@@ -359,7 +365,7 @@ export function ConfigImportExport() {
                             setExportPassword(e.target.value)
                             setPasswordError("")
                           }}
-                          className={`h-11 pr-11 ${
+                          className={`focus:border-primary/50 focus:ring-primary/20 h-12 border-white/10 bg-white/5 pr-11 transition-all ${
                             passwordError
                               ? "border-destructive focus-visible:ring-destructive"
                               : ""
@@ -379,7 +385,7 @@ export function ConfigImportExport() {
                           onClick={() =>
                             setShowExportPassword(!showExportPassword)
                           }
-                          className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 transition-colors"
+                          className="text-muted-foreground hover:text-primary absolute top-1/2 right-3 -translate-y-1/2 p-2 transition-colors"
                         >
                           {showExportPassword ? (
                             <EyeOff className="h-4 w-4" />
@@ -389,37 +395,54 @@ export function ConfigImportExport() {
                         </button>
                       </div>
                       {passwordError && (
-                        <div className="text-destructive flex items-center gap-1.5 text-sm">
+                        <div className="text-destructive animate-in fade-in slide-in-from-top-1 flex items-center gap-1.5 text-sm font-medium">
                           <AlertCircle className="h-4 w-4 shrink-0" />
                           <span>{passwordError}</span>
                         </div>
                       )}
                     </div>
                   </div>
-                  <div className="border-border bg-secondary/50 flex items-center space-x-2 rounded-lg border p-3">
-                    <input
-                      type="checkbox"
-                      id="include-uploads-export"
-                      checked={includeUploads}
-                      onChange={(e) => setIncludeUploads(e.target.checked)}
-                      className="border-border text-foreground focus:ring-ring h-4 w-4 rounded"
-                    />
+                  <div className="group flex cursor-pointer items-center space-x-3 rounded-xl border border-white/10 bg-white/5 p-4 transition-colors hover:bg-white/10">
+                    <div className="relative flex h-5 w-5 items-center justify-center">
+                      <input
+                        type="checkbox"
+                        id="include-uploads-export"
+                        checked={includeUploads}
+                        onChange={(e) => setIncludeUploads(e.target.checked)}
+                        className="peer checked:border-primary checked:bg-primary h-5 w-5 cursor-pointer appearance-none rounded border-2 border-white/20 transition-all"
+                      />
+                      <div className="pointer-events-none absolute text-white opacity-0 transition-opacity peer-checked:opacity-100">
+                        <svg
+                          className="h-3.5 w-3.5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      </div>
+                    </div>
                     <label
                       htmlFor="include-uploads-export"
-                      className="text-foreground flex-1 cursor-pointer text-sm"
+                      className="text-foreground/90 flex-1 cursor-pointer text-sm font-semibold select-none"
                     >
                       {t("identities.includeUploads")}
                     </label>
                   </div>
-                  <div className="flex gap-2 pt-2">
+                  <div className="flex gap-3 pt-2">
                     <Button
-                      variant="outline"
+                      variant="ghost"
                       onClick={() => {
                         setIsExportDialogOpen(false)
                         setExportPassword("")
                         setPasswordError("")
                       }}
-                      className="flex-1"
+                      className="h-12 flex-1 font-semibold hover:bg-white/5"
                       disabled={isExporting}
                     >
                       {t("common.close")}
@@ -427,7 +450,7 @@ export function ConfigImportExport() {
                     <Button
                       onClick={handleExport}
                       disabled={isExporting || !exportPassword}
-                      className="bg-primary text-primary-foreground hover:bg-primary/90 flex-1"
+                      className="bg-primary text-primary-foreground hover:bg-primary-hover shadow-primary/40 btn-interactive h-12 flex-1 font-bold shadow-lg transition-all"
                     >
                       {isExporting ? (
                         <>
@@ -465,38 +488,62 @@ export function ConfigImportExport() {
               <DialogTrigger asChild>
                 <Button
                   variant="outline"
-                  className="border-primary/80 bg-primary/5 hover:bg-primary/10 hover:border-primary w-full sm:flex-1"
+                  className="btn-interactive border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/50 group relative h-12 w-full overflow-hidden sm:flex-1"
                 >
-                  <Upload className="mr-2 h-4 w-4 shrink-0" />
-                  <span className="truncate">{t("identities.import")}</span>
+                  <div className="from-primary/10 absolute inset-0 bg-gradient-to-r to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                  <Upload className="text-primary mr-2 h-4 w-4 shrink-0" />
+                  <span className="truncate font-semibold">
+                    {t("identities.import")}
+                  </span>
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl">
-                <DialogHeader>
-                  <div className="bg-secondary mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full">
-                    <ShieldCheck className="text-foreground h-6 w-6" />
-                  </div>
-                  <DialogTitle className="text-center text-xl">
-                    {t("identities.importConfig")}
-                  </DialogTitle>
-                  <DialogDescription className="text-center text-sm">
-                    {t("identities.importConfigDesc")}
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-5">
+              <DialogContent className="bg-card/80 fixed top-1/2 left-1/2 z-50 w-full max-w-xl -translate-x-1/2 -translate-y-1/2 overflow-hidden border-white/10 p-0 backdrop-blur-xl">
+                <div className="from-primary/10 bg-gradient-to-b to-transparent p-6 pb-0">
+                  <DialogHeader>
+                    <div className="bg-primary/10 border-primary/20 mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border shadow-inner">
+                      <Upload className="text-primary h-7 w-7" />
+                    </div>
+                    <DialogTitle className="from-foreground to-foreground/70 bg-gradient-to-r bg-clip-text text-center text-2xl font-bold text-transparent">
+                      {t("identities.importConfig")}
+                    </DialogTitle>
+                    <DialogDescription className="text-muted-foreground/80 mt-2 text-center text-sm">
+                      {t("identities.importConfigDesc")}
+                    </DialogDescription>
+                  </DialogHeader>
+                </div>
+                <div className="space-y-6 p-6">
                   {!selectedConfig ? (
-                    <>
-                      <div className="border-border bg-secondary/50 flex items-center space-x-2 rounded-lg border p-3">
-                        <input
-                          type="checkbox"
-                          id="include-uploads-import"
-                          checked={includeUploads}
-                          onChange={(e) => setIncludeUploads(e.target.checked)}
-                          className="border-border text-foreground focus:ring-ring h-4 w-4 rounded"
-                        />
+                    <div className="space-y-6">
+                      <div className="group flex cursor-pointer items-center space-x-3 rounded-xl border border-white/10 bg-white/5 p-4 transition-colors hover:bg-white/10">
+                        <div className="relative flex h-5 w-5 items-center justify-center">
+                          <input
+                            type="checkbox"
+                            id="include-uploads-import"
+                            checked={includeUploads}
+                            onChange={(e) =>
+                              setIncludeUploads(e.target.checked)
+                            }
+                            className="peer checked:border-primary checked:bg-primary h-5 w-5 cursor-pointer appearance-none rounded border-2 border-white/20 transition-all"
+                          />
+                          <div className="pointer-events-none absolute text-white opacity-0 transition-opacity peer-checked:opacity-100">
+                            <svg
+                              className="h-3.5 w-3.5"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M5 13l4 4L19 7"
+                              />
+                            </svg>
+                          </div>
+                        </div>
                         <label
                           htmlFor="include-uploads-import"
-                          className="text-foreground flex-1 cursor-pointer text-sm"
+                          className="text-foreground/90 flex-1 cursor-pointer text-sm font-semibold select-none"
                         >
                           {t("identities.includeUploads")}
                         </label>
@@ -513,29 +560,33 @@ export function ConfigImportExport() {
                       <Button
                         onClick={handleImportClick}
                         disabled={isImporting}
-                        className="border-primary/80 bg-primary/5 hover:bg-primary/10 hover:border-primary w-full"
-                        variant="outline"
+                        className="btn-interactive bg-primary text-primary-foreground shadow-primary/30 relative h-12 w-full overflow-hidden rounded-xl border-none font-bold shadow-lg"
+                        variant="default"
                       >
-                        <Upload className="mr-2 h-4 w-4" />
-                        {t("identities.selectConfigFile")}
+                        <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                        <Upload className="mr-3 h-5 w-5 transition-transform group-hover:-translate-y-1" />
+                        <span className="text-sm font-bold tracking-wide uppercase">
+                          {t("identities.selectConfigFile")}
+                        </span>
                       </Button>
-                    </>
+                    </div>
                   ) : (
-                    <>
-                      <div className="rounded-lg border border-green-200 bg-green-50 p-3">
-                        <div className="flex items-center gap-2">
-                          <CheckCircle2 className="h-4 w-4 text-green-600" />
-                          <span className="text-sm font-semibold text-green-900">
+                    <div className="animate-in fade-in zoom-in-95 space-y-6 duration-300">
+                      <div className="relative overflow-hidden rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4">
+                        <div className="absolute top-0 left-0 h-full w-1 bg-emerald-500" />
+                        <div className="flex items-center gap-3">
+                          <CheckCircle2 className="h-6 w-6 text-emerald-500" />
+                          <span className="text-sm font-bold text-emerald-100">
                             {t("identities.configFileSelected")}
                           </span>
                         </div>
-                        <p className="mt-1 text-xs text-green-800">
+                        <p className="mt-2 ml-9 text-xs leading-relaxed font-medium text-emerald-200/70">
                           {t("identities.importPasswordHint")}
                         </p>
                       </div>
 
                       <div className="space-y-2">
-                        <div className="relative">
+                        <div className="group relative">
                           <Input
                             id="import-password"
                             type={showImportPassword ? "text" : "password"}
@@ -547,7 +598,7 @@ export function ConfigImportExport() {
                               setImportPassword(e.target.value)
                               setImportPasswordError("")
                             }}
-                            className={`h-11 pr-11 ${
+                            className={`focus:border-primary/50 focus:ring-primary/20 h-12 border-white/10 bg-white/5 pr-11 transition-all ${
                               importPasswordError
                                 ? "border-destructive focus-visible:ring-destructive"
                                 : ""
@@ -567,7 +618,7 @@ export function ConfigImportExport() {
                             onClick={() =>
                               setShowImportPassword(!showImportPassword)
                             }
-                            className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 transition-colors"
+                            className="text-muted-foreground hover:text-primary absolute top-1/2 right-3 -translate-y-1/2 p-2 transition-colors"
                           >
                             {showImportPassword ? (
                               <EyeOff className="h-4 w-4" />
@@ -577,16 +628,16 @@ export function ConfigImportExport() {
                           </button>
                         </div>
                         {importPasswordError && (
-                          <div className="text-destructive flex items-center gap-1.5 text-sm">
+                          <div className="text-destructive animate-in fade-in slide-in-from-top-1 flex items-center gap-1.5 text-sm font-medium">
                             <AlertCircle className="h-4 w-4 shrink-0" />
                             <span>{importPasswordError}</span>
                           </div>
                         )}
                       </div>
 
-                      <div className="flex gap-2 pt-2">
+                      <div className="flex gap-3 pt-2">
                         <Button
-                          variant="outline"
+                          variant="ghost"
                           onClick={() => {
                             setSelectedConfig(null)
                             setImportPassword("")
@@ -595,7 +646,7 @@ export function ConfigImportExport() {
                               fileInputRef.current.value = ""
                             }
                           }}
-                          className="flex-1"
+                          className="h-12 flex-1 font-semibold hover:bg-white/5"
                           disabled={isImporting}
                         >
                           {t("common.back")}
@@ -603,7 +654,7 @@ export function ConfigImportExport() {
                         <Button
                           onClick={handleImport}
                           disabled={isImporting || !importPassword}
-                          className="bg-primary text-primary-foreground hover:bg-primary/90 flex-1"
+                          className="bg-primary text-primary-foreground hover:bg-primary-hover shadow-primary/40 btn-interactive h-12 flex-1 font-bold shadow-lg transition-all"
                         >
                           {isImporting ? (
                             <>
@@ -618,49 +669,69 @@ export function ConfigImportExport() {
                           )}
                         </Button>
                       </div>
-                    </>
+                    </div>
                   )}
 
                   {importResult && (
-                    <div className="rounded-lg border p-4">
-                      <div className="mb-2 flex items-center gap-2">
-                        {importResult.success ? (
-                          <CheckCircle2 className="h-5 w-5 text-green-600" />
-                        ) : (
-                          <AlertCircle className="h-5 w-5 text-yellow-600" />
-                        )}
-                        <span className="font-semibold">
+                    <div className="animate-in fade-in slide-in-from-bottom-2 rounded-xl border border-white/10 bg-white/5 p-5 duration-500">
+                      <div className="mb-4 flex items-center gap-3">
+                        <div
+                          className={`rounded-lg p-2 ${importResult.success ? "bg-emerald-500/20" : "bg-amber-500/20"}`}
+                        >
+                          {importResult.success ? (
+                            <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                          ) : (
+                            <AlertCircle className="h-5 w-5 text-amber-500" />
+                          )}
+                        </div>
+                        <span className="text-lg font-bold">
                           {importResult.success
                             ? t("identities.importCompleted")
                             : t("identities.importCompletedWithErrors")}
                         </span>
                       </div>
-                      <div className="text-muted-foreground space-y-1 text-sm">
-                        <div>
-                          {t("identities.importedWallets", {
-                            count: importResult.importedWallets,
-                          })}
-                        </div>
-                        <div>
-                          {t("identities.importedMetadata", {
-                            count: importResult.importedMetadata,
-                          })}
-                        </div>
-                        {includeUploads && (
-                          <div>
-                            {t("identities.importedUploads", {
-                              count: importResult.importedUploads,
-                            })}
+                      <div className="space-y-3">
+                        <div className="grid grid-cols-1 gap-2">
+                          <div className="flex items-center justify-between rounded-lg border border-white/5 bg-white/5 p-3">
+                            <span className="text-foreground text-sm font-semibold">
+                              {t("identities.importedWallets", {
+                                count: importResult.importedWallets,
+                              })}
+                            </span>
                           </div>
-                        )}
-                        {importResult.errors.length > 0 && (
-                          <div className="mt-2 rounded bg-yellow-50 p-2">
-                            <div className="mb-1 font-semibold text-yellow-800">
-                              {t("identities.errors")}:
+                          <div className="flex items-center justify-between rounded-lg border border-white/5 bg-white/5 p-3">
+                            <span className="text-foreground text-sm font-semibold">
+                              {t("identities.importedMetadata", {
+                                count: importResult.importedMetadata,
+                              })}
+                            </span>
+                          </div>
+                          {includeUploads && (
+                            <div className="flex items-center justify-between rounded-lg border border-white/5 bg-white/5 p-3">
+                              <span className="text-foreground text-sm font-semibold">
+                                {t("identities.importedUploads", {
+                                  count: importResult.importedUploads,
+                                })}
+                              </span>
                             </div>
-                            <ul className="list-disc pl-5 text-xs text-yellow-700">
+                          )}
+                        </div>
+
+                        {importResult.errors.length > 0 && (
+                          <div className="border-destructive/30 bg-destructive/5 mt-4 rounded-xl border p-4">
+                            <div className="text-destructive mb-2 flex items-center gap-2 font-bold">
+                              <AlertCircle className="h-4 w-4" />
+                              <span>{t("identities.errors")}:</span>
+                            </div>
+                            <ul className="text-destructive/80 space-y-1.5 text-xs font-medium">
                               {importResult.errors.map((error, index) => (
-                                <li key={index}>{error}</li>
+                                <li
+                                  key={index}
+                                  className="flex items-start gap-2"
+                                >
+                                  <span className="mt-1">•</span>
+                                  <span>{error}</span>
+                                </li>
                               ))}
                             </ul>
                           </div>

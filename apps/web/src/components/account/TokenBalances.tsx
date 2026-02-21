@@ -61,9 +61,11 @@ export function TokenBalances({
     const provider = createEvmProvider(getEthereumRpcUrl())
     const tokenBalances: TokenBalance[] = []
 
-    // Only fetch USDT and USDC
+    // Only fetch USDT and USDC for Ethereum Mainnet
     const filteredTokens = SUPPORTED_TOKENS.filter(
-      (t) => t.symbol === "USDT" || t.symbol === "USDC",
+      (t) =>
+        String(t.chainId) === String(Chains.ETHEREUM) &&
+        (t.symbol === "USDT" || t.symbol === "USDC"),
     )
 
     for (const token of filteredTokens) {
@@ -131,6 +133,7 @@ export function TokenBalances({
   }
 
   const fetchSuiBalances = async () => {
+    // SuiClient expect a standard network name or URL
     const client = createSuiClient("mainnet")
     const tokenBalances: TokenBalance[] = []
 
