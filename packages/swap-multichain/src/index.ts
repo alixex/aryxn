@@ -1,23 +1,21 @@
-import { Wallet } from "@coral-xyz/anchor"
+import { Wallet, Idl } from "@coral-xyz/anchor"
 import { Signer, ContractTransactionResponse } from "ethers"
 import { SolanaSwapper } from "@aryxn/swap-solana"
-import {
-  EthereumSwapper,
-  SwapStep as EthSwapStep,
-  ProtectionLevel,
-} from "@aryxn/swap-ethereum"
+import { EthereumSwapper, ProtectionLevel } from "@aryxn/swap-ethereum"
 import { QuoteResponse as JupQuoteResponse } from "@jup-ag/api"
 import { Chains, SwappableChains } from "@aryxn/chain-constants"
 
 type SwappableChain = (typeof SwappableChains)[number]
 
 /**
- * 多链交换 SDK
- * 统一管理以太坊和 Solana 的交换操作，利用底层的链特定 SDK
+ * Multi-chain swap SDK.
+ * Unified interface for Ethereum (EVM) and Solana swap operations,
+ * delegating to the chain-specific SDKs internally.
  */
 export class MultiChainSwapper {
-  public ethSwapper: EthereumSwapper
-  public solSwapper: SolanaSwapper
+  // Exposed as readonly for testing/inspection; prefer the unified methods.
+  readonly ethSwapper: EthereumSwapper
+  readonly solSwapper: SolanaSwapper
 
   constructor(config: {
     ethereumRpcUrl: string
@@ -36,38 +34,44 @@ export class MultiChainSwapper {
   }
 
   /**
-   * 初始化后端程序 (需要 IDL)
+   * Attach a Solana wallet. Must be called before executeSwap() on Solana.
+   * Pass the generated IDL (e.g. `import IDL from '../idl/universal_router.json'`).
    */
-  async setupSolana(wallet: Wallet, idl: any) {
+  setupSolana(wallet: Wallet, idl: Idl): void {
     this.solSwapper.setWallet(wallet, idl)
   }
 
   /**
-   * 获取报价 (自动检测链)
+   * Fetch a swap quote. Currently only Solana (Jupiter) quotes are supported;
+   * EVM quotes are computed on-chain by PathFinder at swap time.
    */
   async getQuote(params: {
     chain: SwappableChain
-    inputMint: string // EVM 下为 token address
+    inputMint: string // token address for EVM; mint address for Solana
     outputMint: string
     amount: string | number
     slippageBps?: number
-  }) {
+  }): Promise<JupQuoteResponse | null> {
     if (params.chain === Chains.SOLANA) {
-      return await this.solSwapper.getQuote({
+      return this.solSwapper.getQuote({
         inputMint: params.inputMint,
         outputMint: params.outputMint,
         amount: Number(params.amount),
         slippageBps: params.slippageBps,
       })
-    } else {
-      // EVM 的报价目前通常由合约或 SDK 层面的 PathFinder 提供
-      // 这里简化直接返回
-      return null
     }
+    // EVM: PathFinder resolves the best route on-chain at swap time.
+    return null
   }
 
   /**
-   * 统一交换接口
+   * Unified swap interface. Delegates to the correct chain SDK.
+   *
+   * For Ethereum: `params.amountIn` and `params.minAmountOut` must be token
+   * amounts in smallest unit (wei / token decimals) as bigint or numeric string.
+   * `deadline` is a Unix timestamp in seconds as bigint.
+   *
+   * NOTE: Native ETH is not supported for EVM swaps — use WETH.
    */
   async executeSwap(params: {
     chain: SwappableChain
@@ -76,53 +80,56 @@ export class MultiChainSwapper {
     tokenOut: string
     amountIn: string | bigint
     minAmountOut: string | bigint
-    // 特定链参数
+    // Chain-specific params
     solana?: {
       quoteResponse: JupQuoteResponse
     }
     ethereum?: {
-      deadline: number
-      route: EthSwapStep[]
+      /** Unix timestamp in seconds as bigint */
+      deadline: bigint
       protection?: ProtectionLevel
     }
   }): Promise<string | ContractTransactionResponse> {
     if (params.chain === Chains.SOLANA) {
       if (!params.solana?.quoteResponse)
         throw new Error("Missing Solana quote response")
-      return await this.solSwapper.swap({
+      return this.solSwapper.swap({
         user: (params.signer as Wallet).publicKey,
         quoteResponse: params.solana.quoteResponse,
       })
     } else {
       if (!params.ethereum)
         throw new Error("Missing Ethereum specific parameters")
-      return await this.ethSwapper.swap({
+      return this.ethSwapper.swap({
         signer: params.signer as Signer,
         tokenIn: params.tokenIn,
         tokenOut: params.tokenOut,
         amountIn: BigInt(params.amountIn),
         minAmountOut: BigInt(params.minAmountOut),
         deadline: params.ethereum.deadline,
-        route: params.ethereum.route,
         protection: params.ethereum.protection,
       })
     }
   }
 
   /**
-   * 提现手续费 (仅管理员)
+   * Withdraw accumulated protocol fees (admin only).
+   *
+   * For EVM: calls `EthereumSwapper.withdrawFees()` directly via the public API.
+   * For Solana: fees are paid to the recipient in real-time; no withdrawal needed.
    */
   async withdrawFees(params: {
     chain: SwappableChain
     signer: Signer | Wallet
     tokenAddress: string
-  }) {
+  }): Promise<ContractTransactionResponse | void> {
     if (params.chain === Chains.ETHEREUM) {
-      // EVM 需要调用 withdrawFees
-      const contract = this.ethSwapper["contract"].connect(params.signer)
-      return await contract.withdrawFees(params.tokenAddress)
+      // Delegates to the public withdrawFees method — no private field access needed.
+      return this.ethSwapper.withdrawFees(
+        params.signer as Signer,
+        params.tokenAddress,
+      )
     } else {
-      // Solana 目前是实时到账，暂不需要手动 withdraw
       console.log(
         "Solana fees are collected in real-time to the recipient wallet.",
       )
