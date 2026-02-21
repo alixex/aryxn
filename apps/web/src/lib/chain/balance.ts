@@ -6,6 +6,11 @@ import {
   getEthereumRpcUrl,
   getSolanaRpcUrl,
   getBitcoinApiUrl,
+  getPolygonRpcUrl,
+  getArbitrumRpcUrl,
+  getOptimismRpcUrl,
+  getBaseRpcUrl,
+  getSuiRpcUrl,
 } from "./rpc-config"
 
 export type { BalanceResult }
@@ -39,9 +44,16 @@ function getRpcUrlForChain(chain: string): string | undefined {
     case "bitcoin":
     case "btc":
       return getBitcoinApiUrl()
+    case "polygon":
+      return getPolygonRpcUrl()
+    case "arbitrum":
+      return getArbitrumRpcUrl()
+    case "optimism":
+      return getOptimismRpcUrl()
+    case "base":
+      return getBaseRpcUrl()
     case "sui":
-      // Sui uses default in wallet-core if not provided, or we could add a config here
-      return undefined
+      return getSuiRpcUrl()
     case "arweave":
       return undefined // Uses default arweave.net
     default:
