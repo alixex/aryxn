@@ -10,21 +10,13 @@
     "lint": "oxlint src",
     "type-check": "tsc -b --noEmit"
   },
+  "files": [
+    "src"
+  ],
   "dependencies": {
     "@aryxn/chain-constants": "workspace:*",
     "@aryxn/crypto": "workspace:*",
     "@aryxn/storage": "workspace:*",
-    "@aryxn/wallet-core": "workspace:*",
-    "@irys/sdk": "^0.2.11",
-    "arweave": "^1.15.5",
-    "fflate": "^0.8.2"
-  },
-  "devDependencies": {
-    "@types/node": "^22.13.1",
-    "oxlint": "^1.38.0",
-    "typescript": "^5.7.3"
-  },
-  "files": [
-    "src"
-  ]
+    "@aryxn/wallet-core": "workspace:*"
+  }
 }

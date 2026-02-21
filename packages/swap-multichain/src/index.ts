@@ -3,7 +3,7 @@ import type { Idl } from "@coral-xyz/anchor"
 import type { Signer, ContractTransactionResponse } from "ethers"
 import { SolanaSwapper } from "@aryxn/swap-solana"
 import { EthereumSwapper, ProtectionLevel } from "@aryxn/swap-ethereum"
-import type { QuoteResponse as JupQuoteResponse } from "@jup-ag/api"
+
 import { Chains, SwappableChains } from "@aryxn/chain-constants"
 
 type SwappableChain = (typeof SwappableChains)[number]
@@ -52,7 +52,7 @@ export class MultiChainSwapper {
     outputMint: string
     amount: string | number
     slippageBps?: number
-  }): Promise<JupQuoteResponse | null> {
+  }): Promise<any | null> {
     if (params.chain === Chains.SOLANA) {
       return this.solSwapper.getQuote({
         inputMint: params.inputMint,
@@ -83,7 +83,7 @@ export class MultiChainSwapper {
     minAmountOut: string | bigint
     // Chain-specific params
     solana?: {
-      quoteResponse: JupQuoteResponse
+      quoteResponse: any
     }
     ethereum?: {
       /** Unix timestamp in seconds as bigint */

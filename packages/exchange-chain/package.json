@@ -15,14 +15,6 @@
     "@aryxn/cross-chain": "workspace:*",
     "@aryxn/query-chain": "workspace:*",
     "@aryxn/swap-multichain": "workspace:*",
-    "@aryxn/wallet-core": "workspace:*",
-    "ethers": "^6.11.1",
-    "@solana/web3.js": "^1.91.1",
-    "@coral-xyz/anchor": "^0.30.1"
-  },
-  "devDependencies": {
-    "tsup": "^8.0.0",
-    "typescript": "^5.0.0",
-    "oxlint": "^1.38.0"
+    "@aryxn/wallet-core": "workspace:*"
   }
 }

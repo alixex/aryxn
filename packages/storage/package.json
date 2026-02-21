@@ -10,15 +10,10 @@
     "lint": "oxlint src",
     "type-check": "tsc -b --noEmit"
   },
-  "dependencies": {
-    "@aryxn/crypto": "workspace:*",
-    "@sqlite.org/sqlite-wasm": "3.51.1-build2"
-  },
-  "devDependencies": {
-    "oxlint": "^1.38.0",
-    "typescript": "~5.9.3"
-  },
   "files": [
     "dist"
-  ]
+  ],
+  "dependencies": {
+    "@aryxn/crypto": "workspace:*"
+  }
 }

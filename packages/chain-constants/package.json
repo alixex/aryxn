@@ -9,9 +9,5 @@
     "format": "oxlint --fix",
     "type-check": "tsc -b --noEmit"
   },
-  "license": "AGPL-3.0-or-later",
-  "devDependencies": {
-    "typescript": "~5.9.3",
-    "oxlint": "^1.38.0"
-  }
+  "license": "AGPL-3.0-or-later"
 }

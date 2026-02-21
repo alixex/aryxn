@@ -3,10 +3,15 @@ import type { PublicKey } from "@solana/web3.js"
 
 interface SolanaProvider {
   isPhantom?: boolean
-  connect: (options?: { onlyIfTrusted?: boolean }) => Promise<{ publicKey: PublicKey }>
+  connect: (options?: {
+    onlyIfTrusted?: boolean
+  }) => Promise<{ publicKey: PublicKey }>
   disconnect: () => Promise<void>
   on?: (event: string, handler: (...args: unknown[]) => void) => void
-  removeListener?: (event: string, handler: (...args: unknown[]) => void) => void
+  removeListener?: (
+    event: string,
+    handler: (...args: unknown[]) => void,
+  ) => void
 }
 
 interface SuiWalletProvider {
@@ -14,7 +19,10 @@ interface SuiWalletProvider {
   requestPermissions: () => Promise<void>
   disconnect: () => Promise<void>
   on?: (event: string, handler: (...args: unknown[]) => void) => void
-  removeListener?: (event: string, handler: (...args: unknown[]) => void) => void
+  removeListener?: (
+    event: string,
+    handler: (...args: unknown[]) => void,
+  ) => void
 }
 
 declare global {
