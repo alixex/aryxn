@@ -1,15 +1,40 @@
-import { ethers, Provider, Signer, ContractTransactionResponse } from "ethers"
+import {
+  ethers,
+  Provider,
+  Signer,
+  Contract,
+  ContractTransactionResponse,
+} from "ethers"
+
+/**
+ * Typed contract interface for UniversalRouter.
+ * Extends BaseContract with the exact methods defined in UNIVERSAL_ROUTER_ABI,
+ * eliminating the need for `as any` or typechain.
+ */
+type RouterContract = Contract & {
+  getStats(): Promise<{
+    totalVolume: bigint
+    totalFees: bigint
+    lastUpdate: bigint
+    paused: boolean
+  }>
+  swap(params: SwapParams): Promise<ContractTransactionResponse>
+  setFeeRate(rate: number): Promise<ContractTransactionResponse>
+  withdrawFees(token: string): Promise<ContractTransactionResponse>
+  setFeeRecipient(recipient: string): Promise<ContractTransactionResponse>
+  setPaused(paused: boolean): Promise<ContractTransactionResponse>
+}
 
 /**
  * Ethereum Swapper SDK
- * 以太坊交换 SDK，封装与 UniversalRouter 合约的交互
+ * Wraps interactions with the UniversalRouter EVM contract.
+ *
+ * NOTE: The UniversalRouter contract only supports ERC-20 tokens.
+ * Native ETH is NOT supported — use WETH instead.
  */
 export class EthereumSwapper {
-  public static readonly NATIVE_ETH =
-    "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
-
   private provider: Provider
-  private contract: any
+  private contract: RouterContract
   private contractAddress: string
 
   constructor(config: { rpcUrl: string; contractAddress: string }) {
@@ -19,12 +44,14 @@ export class EthereumSwapper {
       config.contractAddress,
       UNIVERSAL_ROUTER_ABI,
       this.provider,
-    )
+    ) as RouterContract
   }
 
   /**
-   * 执行交换
-   * @param params 交换参数
+   * Execute a token swap via the UniversalRouter contract.
+   *
+   * @param params Swap parameters
+   * @throws Error if tokenIn is native ETH — use WETH instead
    */
   async swap(params: {
     signer: Signer
@@ -32,47 +59,59 @@ export class EthereumSwapper {
     tokenOut: string
     amountIn: bigint
     minAmountOut: bigint
-    /** Unix timestamp (seconds). Use bigint to avoid JS number precision loss. */
+    /** Unix timestamp in seconds as bigint to avoid JS number precision loss */
     deadline: bigint
     protection?: ProtectionLevel
     /** If true, only approve the exact amountIn instead of MaxUint256 */
     exactApproval?: boolean
   }): Promise<ContractTransactionResponse> {
-    const contractWithSigner = this.contract.connect(params.signer)
-    const userAddress = await params.signer.getAddress()
-    const isNativeIn =
-      params.tokenIn.toLowerCase() ===
-        EthereumSwapper.NATIVE_ETH.toLowerCase() ||
-      params.tokenIn === ethers.ZeroAddress
-
-    // 1. 处理授权 (非原生 ETH 且需要授权)
-    if (!isNativeIn) {
-      const tokenContract = new ethers.Contract(
-        params.tokenIn,
-        ERC20_ABI,
-        params.signer,
+    // FIX: The UniversalRouter contract uses IERC20.safeTransferFrom and
+    // explicitly rejects address(0) as tokenIn. Native ETH is not supported.
+    // Callers must wrap ETH into WETH before swapping.
+    const NATIVE_ETH_SENTINELS = [
+      "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+      ethers.ZeroAddress,
+    ]
+    if (
+      NATIVE_ETH_SENTINELS.some(
+        (s) => params.tokenIn.toLowerCase() === s.toLowerCase(),
       )
-
-      const allowance = await tokenContract.allowance(
-        userAddress,
-        this.contractAddress,
+    ) {
+      throw new Error(
+        "Native ETH is not supported by UniversalRouter. " +
+          "Please wrap ETH to WETH before swapping.",
       )
-
-      if (allowance < params.amountIn) {
-        const approveAmount = params.exactApproval
-          ? params.amountIn
-          : ethers.MaxUint256
-        const approveTx = await tokenContract.approve(
-          this.contractAddress,
-          approveAmount,
-        )
-        await approveTx.wait()
-      }
     }
 
-    // 2. 准备 SwapParams 结构体
-    const swapParams = {
-      tokenIn: isNativeIn ? ethers.ZeroAddress : params.tokenIn,
+    const contractWithSigner = this.contract.connect(
+      params.signer,
+    ) as RouterContract
+    const userAddress = await params.signer.getAddress()
+
+    // 1. Handle ERC-20 approval
+    const tokenContract = new ethers.Contract(
+      params.tokenIn,
+      ERC20_ABI,
+      params.signer,
+    )
+    const allowance: bigint = await tokenContract.allowance(
+      userAddress,
+      this.contractAddress,
+    )
+    if (allowance < params.amountIn) {
+      const approveAmount = params.exactApproval
+        ? params.amountIn
+        : ethers.MaxUint256
+      const approveTx = await tokenContract.approve(
+        this.contractAddress,
+        approveAmount,
+      )
+      await approveTx.wait()
+    }
+
+    // 2. Build SwapParams struct
+    const swapParams: SwapParams = {
+      tokenIn: params.tokenIn,
       tokenOut: params.tokenOut,
       amountIn: params.amountIn,
       minAmountOut: params.minAmountOut,
@@ -81,21 +120,25 @@ export class EthereumSwapper {
       protection: params.protection ?? ProtectionLevel.MEDIUM,
     }
 
-    // 3. 执行交换
-    const txOptions = isNativeIn ? { value: params.amountIn } : {}
-    return await contractWithSigner.swap(swapParams, txOptions)
+    // 3. Execute swap
+    return contractWithSigner.swap(swapParams)
   }
 
   /**
-   * 获取预估统计信息
+   * Fetch protocol statistics from the contract.
+   *
+   * Note: ethers v6 returns a Result object that supports both named-field
+   * and index access. We destructure into a plain POJO for clean typing.
    */
-  async getStats(): Promise<{
-    totalVolume: bigint
-    totalFees: bigint
-    lastUpdate: bigint
-    paused: boolean
-  }> {
-    return await this.contract.getStats()
+  async getStats(): Promise<RouterStats> {
+    // ethers v6 returns a Result object — destructure into a plain POJO
+    const result = await this.contract.getStats()
+    return {
+      totalVolume: result.totalVolume,
+      totalFees: result.totalFees,
+      lastUpdate: result.lastUpdate,
+      paused: result.paused,
+    }
   }
 
   /**
@@ -108,8 +151,9 @@ export class EthereumSwapper {
   ): Promise<ContractTransactionResponse> {
     if (rateInBps > 100)
       throw new Error("Fee rate must not exceed 100 bps (1%)")
-    const contractWithSigner = this.contract.connect(signer)
-    return await contractWithSigner.setFeeRate(rateInBps)
+    return (this.contract.connect(signer) as RouterContract).setFeeRate(
+      rateInBps,
+    )
   }
 
   /**
@@ -119,7 +163,7 @@ export class EthereumSwapper {
     signer: Signer,
     token: string,
   ): Promise<ContractTransactionResponse> {
-    return await this.contract.connect(signer).withdrawFees(token)
+    return (this.contract.connect(signer) as RouterContract).withdrawFees(token)
   }
 
   /**
@@ -129,7 +173,9 @@ export class EthereumSwapper {
     signer: Signer,
     recipient: string,
   ): Promise<ContractTransactionResponse> {
-    return await this.contract.connect(signer).setFeeRecipient(recipient)
+    return (this.contract.connect(signer) as RouterContract).setFeeRecipient(
+      recipient,
+    )
   }
 
   /**
@@ -139,7 +185,7 @@ export class EthereumSwapper {
     signer: Signer,
     paused: boolean,
   ): Promise<ContractTransactionResponse> {
-    return await this.contract.connect(signer).setPaused(paused)
+    return (this.contract.connect(signer) as RouterContract).setPaused(paused)
   }
 }
 
@@ -179,6 +225,15 @@ export interface SwapParams {
   /** Unix timestamp in seconds as bigint */
   deadline: bigint
   protection: ProtectionLevel
+}
+
+/** Plain-object shape of the on-chain getStats() return value */
+export interface RouterStats {
+  totalVolume: bigint
+  totalFees: bigint
+  /** Unix timestamp of last update (seconds) */
+  lastUpdate: bigint
+  paused: boolean
 }
 
 // ========== ABI 定义 ==========
