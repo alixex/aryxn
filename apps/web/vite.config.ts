@@ -48,13 +48,9 @@ export default defineConfig({
         },
       },
       [PROXY_SOLANA]: {
-        target: "https://rpc.ankr.com/solana",
+        target: "https://api.mainnet-beta.solana.com",
         changeOrigin: true,
         rewrite: (path) => path.replace(new RegExp(`^${PROXY_SOLANA}`), ""),
-        headers: {
-          Origin: "https://rpc.ankr.com",
-          Referer: "https://rpc.ankr.com",
-        },
         configure: (proxy) => {
           proxy.on("error", (err) => {
             console.error("Solana RPC proxy error:", err)

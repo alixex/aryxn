@@ -5,7 +5,7 @@ import type { ExchangeRequest, ExchangeRoute } from "@aryxn/exchange-chain"
 import { getSwapperAddress, TOKEN_MAPPING } from "@/lib/contracts/addresses"
 
 // Constants for Solana (should be move to a better config file later)
-const SOLANA_PROGRAM_ID = "6D79S2p2B8q1p2...dummy"
+const SOLANA_PROGRAM_ID = "G2qM2J683JFYibZZCTefyX2W8YT9TRp5npyqm9ddtgHv"
 
 export function useExchange() {
   const chainId = useChainId()
