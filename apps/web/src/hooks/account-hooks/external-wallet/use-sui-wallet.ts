@@ -100,8 +100,11 @@ export function useSuiWallet(): UseSuiWalletReturn {
     const suiWallet = window.suiWallet
     if (suiWallet) {
       // Sui Wallet 在账户变化时会触发事件
-      const handleAccountsChanged = (accounts: string[]) => {
-        if (accounts && accounts.length > 0) {
+
+      // 适配 (...args: unknown[]) => void 类型
+      const handleAccountsChanged = (...args: unknown[]) => {
+        const accounts = args[0] as string[] | undefined
+        if (accounts && Array.isArray(accounts) && accounts.length > 0) {
           setAddress(accounts[0])
           setIsConnected(true)
         } else {
