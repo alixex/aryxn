@@ -1,9 +1,4 @@
-import {
-  getStatus,
-  type Route,
-  type ChainId,
-  type StatusResponse,
-} from "@lifi/sdk"
+import { getStatus, type ChainId, type StatusResponse } from "@lifi/sdk"
 import { EvmChainIds } from "@aryxn/chain-constants"
 import type { Signer } from "ethers"
 import {
@@ -233,7 +228,6 @@ export class BridgeRecovery {
    */
   static async speedUp(
     txHash: string,
-    route: Route,
     signer: Signer,
     options: SpeedUpOptions = {},
   ): Promise<RecoveryResult> {
@@ -286,28 +280,25 @@ export class BridgeRecovery {
         }
       }
 
-      // Get transaction request from route
-      const firstStep = route.steps[0]
-      if (!firstStep || !firstStep.transactionRequest) {
-        throw new Error("No transaction request in route")
-      }
-
-      const txRequest = firstStep.transactionRequest
-
-      // Send replacement transaction with same nonce but higher gas
+      // Re-use the exact on-chain tx data/to/value so the replacement transaction
+      // carries the same payload. Do NOT re-use a stale Route transactionRequest
+      // (which may contain an expired bridge deadline in its calldata).
       const replacementTx = await signer.sendTransaction({
-        to: txRequest.to as string,
-        data: txRequest.data as string,
-        value: txRequest.value ? BigInt(txRequest.value) : undefined,
+        to: tx.to ?? undefined,
+        data: tx.data,
+        value: tx.value,
         nonce: tx.nonce, // Same nonce to replace
         gasLimit: tx.gasLimit,
-        gasPrice: tx.gasPrice ? newGasPrice : undefined,
-        maxFeePerGas: tx.maxFeePerGas ? newGasPrice : undefined,
-        maxPriorityFeePerGas: tx.maxPriorityFeePerGas
-          ? (tx.maxPriorityFeePerGas *
-              BigInt(Math.floor(gasMultiplier * 100))) /
-            100n
-          : undefined,
+        ...(tx.gasPrice != null
+          ? { gasPrice: newGasPrice }
+          : {
+              maxFeePerGas: newGasPrice,
+              maxPriorityFeePerGas: tx.maxPriorityFeePerGas
+                ? (tx.maxPriorityFeePerGas *
+                    BigInt(Math.floor(gasMultiplier * 100))) /
+                  100n
+                : undefined,
+            }),
       })
 
       console.log(

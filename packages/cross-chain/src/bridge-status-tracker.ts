@@ -68,7 +68,11 @@ export class BridgeStatusTracker {
       }
     })
 
-    localStorage.setItem(RATE_LIMIT_KEY, JSON.stringify(rateLimits))
+    try {
+      localStorage.setItem(RATE_LIMIT_KEY, JSON.stringify(rateLimits))
+    } catch {
+      // localStorage unavailable (Node.js / SSR / React Native)
+    }
   }
 
   /**
@@ -151,13 +155,21 @@ export class BridgeStatusTracker {
   static clearRateLimit(txHash: string): void {
     const rateLimits = this.getRateLimits()
     delete rateLimits[txHash]
-    localStorage.setItem(RATE_LIMIT_KEY, JSON.stringify(rateLimits))
+    try {
+      localStorage.setItem(RATE_LIMIT_KEY, JSON.stringify(rateLimits))
+    } catch {
+      // localStorage unavailable (Node.js / SSR / React Native)
+    }
   }
 
   /**
    * Clear all rate limits
    */
   static clearAllRateLimits(): void {
-    localStorage.removeItem(RATE_LIMIT_KEY)
+    try {
+      localStorage.removeItem(RATE_LIMIT_KEY)
+    } catch {
+      // localStorage unavailable (Node.js / SSR / React Native)
+    }
   }
 }

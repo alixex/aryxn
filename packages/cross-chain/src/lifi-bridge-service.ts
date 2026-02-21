@@ -80,8 +80,8 @@ export interface RiskAssessment {
 export class LiFiBridgeService {
   private static readonly RISK_THRESHOLDS = {
     LOW: 1000, // < $1K: No warning
-    MEDIUM: 10000, // $1K-10K: Suggest batch
-    HIGH: 100000, // > $100K: Require batch or CEX
+    MEDIUM: 10000, // $1K-$10K: Suggest batch
+    HIGH: 10000, // > $10K: Require batch or CEX
   }
 
   // Protocol optimization constants
@@ -378,7 +378,7 @@ export class LiFiBridgeService {
       console.log(
         "[LiFiBridgeService] USDC detected on EVM chains, preferring Circle CCTP",
       )
-      return ["cbridge"] // Circle's CCTP is available through cBridge on Li.Fi
+      return ["cctp"] // Circle's native CCTP bridge via Li.Fi
     }
 
     // Across Protocol: Fast EVM-to-EVM transfers (for urgent priority)
@@ -467,13 +467,28 @@ export class LiFiBridgeService {
       const txRequest = firstStep.transactionRequest
       console.log("[LiFiBridgeService] Transaction request:", txRequest)
 
+      // Determine gas fields: EIP-1559 and legacy are mutually exclusive in ethers v6
+      const isEIP1559 = txRequest.maxFeePerGas != null
+      const gasOverrides = isEIP1559
+        ? {
+            maxFeePerGas: BigInt(txRequest.maxFeePerGas!),
+            maxPriorityFeePerGas: txRequest.maxPriorityFeePerGas
+              ? BigInt(txRequest.maxPriorityFeePerGas)
+              : undefined,
+          }
+        : {
+            gasPrice: txRequest.gasPrice
+              ? BigInt(txRequest.gasPrice)
+              : undefined,
+          }
+
       // Send the transaction using the signer
       const tx = await signer.sendTransaction({
         to: txRequest.to as string,
         data: txRequest.data as string,
         value: txRequest.value ? BigInt(txRequest.value) : undefined,
         gasLimit: txRequest.gasLimit ? BigInt(txRequest.gasLimit) : undefined,
-        gasPrice: txRequest.gasPrice ? BigInt(txRequest.gasPrice) : undefined,
+        ...gasOverrides,
       })
 
       console.log("[LiFiBridgeService] Transaction sent:", tx.hash)

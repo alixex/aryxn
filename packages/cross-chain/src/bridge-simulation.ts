@@ -56,13 +56,17 @@ export async function getRouteTransactionRequest(
     : await getStepTransaction(firstStep)
 }
 
-export async function simulateEvm(tx: {
-  to?: string
-  data?: string
-  value?: string | bigint
-}): Promise<void> {
+export async function simulateEvm(
+  tx: {
+    to?: string
+    data?: string
+    value?: string | bigint
+  },
+  fromAddress?: string,
+): Promise<void> {
   const provider = createEvmProvider(RPCs.EVM_MAINNET_RPC)
   await provider.call({
+    from: fromAddress,
     to: tx.to as string,
     data: tx.data as string | undefined,
     value: tx.value ? BigInt(tx.value) : undefined,
@@ -80,10 +84,10 @@ export async function simulateSolana(data: string | string[]): Promise<void> {
   }
 }
 
-export async function simulateSui(data: unknown): Promise<void> {
+export async function simulateSui(data: string): Promise<void> {
   const client = createSuiClientWithUrl(RPCs.SUI_MAINNET)
   const result = await client.dryRunTransactionBlock({
-    transactionBlock: data as any,
+    transactionBlock: data,
   })
   if (result.effects?.status?.status !== "success") {
     throw new Error(result.effects?.status?.error || "Sui simulation failed")
@@ -122,11 +126,14 @@ export async function simulateBridgeRoute(
     }
 
     if (chainType === "EVM") {
-      await simulateEvm({
-        to: txRequest.to,
-        data: txRequest.data,
-        value: txRequest.value,
-      })
+      await simulateEvm(
+        {
+          to: txRequest.to,
+          data: txRequest.data,
+          value: txRequest.value,
+        },
+        step.action.fromAddress,
+      )
       return { status: "PASSED", chainType }
     }
 
@@ -143,11 +150,11 @@ export async function simulateBridgeRoute(
     }
 
     if (chainType === "MVM") {
-      if (!txRequest.data) {
+      if (!txRequest.data || typeof txRequest.data !== "string") {
         return {
           status: "FAILED",
           chainType,
-          error: "Missing Sui transaction data",
+          error: "Missing or invalid Sui transaction data",
         }
       }
       await simulateSui(txRequest.data)
