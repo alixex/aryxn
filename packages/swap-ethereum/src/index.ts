@@ -32,8 +32,10 @@ export class EthereumSwapper {
     tokenOut: string
     amountIn: bigint
     minAmountOut: bigint
-    deadline: number
+    /** Unix timestamp (seconds). Use bigint to avoid JS number precision loss. */
+    deadline: bigint
     protection?: ProtectionLevel
+    /** If true, only approve the exact amountIn instead of MaxUint256 */
     exactApproval?: boolean
   }): Promise<ContractTransactionResponse> {
     const contractWithSigner = this.contract.connect(params.signer)
@@ -87,8 +89,57 @@ export class EthereumSwapper {
   /**
    * 获取预估统计信息
    */
-  async getStats() {
+  async getStats(): Promise<{
+    totalVolume: bigint
+    totalFees: bigint
+    lastUpdate: bigint
+    paused: boolean
+  }> {
     return await this.contract.getStats()
+  }
+
+  /**
+   * 设置费率 (仅 owner 可调用) — L-3
+   * @param rateInBps 费率 bps，最大 100 (1%)
+   */
+  async setFeeRate(
+    signer: Signer,
+    rateInBps: number,
+  ): Promise<ContractTransactionResponse> {
+    if (rateInBps > 100)
+      throw new Error("Fee rate must not exceed 100 bps (1%)")
+    const contractWithSigner = this.contract.connect(signer)
+    return await contractWithSigner.setFeeRate(rateInBps)
+  }
+
+  /**
+   * 提取手续费 (仅 owner 可调用)
+   */
+  async withdrawFees(
+    signer: Signer,
+    token: string,
+  ): Promise<ContractTransactionResponse> {
+    return await this.contract.connect(signer).withdrawFees(token)
+  }
+
+  /**
+   * 设置手续费接收地址 (仅 owner 可调用)
+   */
+  async setFeeRecipient(
+    signer: Signer,
+    recipient: string,
+  ): Promise<ContractTransactionResponse> {
+    return await this.contract.connect(signer).setFeeRecipient(recipient)
+  }
+
+  /**
+   * 暂停/恢复合约 (仅 owner 可调用)
+   */
+  async setPaused(
+    signer: Signer,
+    paused: boolean,
+  ): Promise<ContractTransactionResponse> {
+    return await this.contract.connect(signer).setPaused(paused)
   }
 }
 
@@ -125,19 +176,25 @@ export interface SwapParams {
   amountIn: bigint
   minAmountOut: bigint
   recipient: string
-  deadline: number
+  /** Unix timestamp in seconds as bigint */
+  deadline: bigint
   protection: ProtectionLevel
 }
 
 // ========== ABI 定义 ==========
 
 const UNIVERSAL_ROUTER_ABI = [
+  // Core swap
   "function swap((address tokenIn, address tokenOut, uint256 amountIn, uint256 minAmountOut, address recipient, uint256 deadline, uint8 protection) params) external payable returns (uint256)",
+  // Read
   "function getStats() external view returns (uint256 totalVolume, uint256 totalFees, uint256 lastUpdate, bool paused)",
+  "function feeRecipient() external view returns (address)",
+  "function accumulatedFees(address token) external view returns (uint256)",
+  // Admin
   "function withdrawFees(address token) external",
   "function setFeeRecipient(address _feeRecipient) external",
   "function setPaused(bool _paused) external",
-  "function feeRecipient() external view returns (address)",
+  "function setFeeRate(uint16 rate) external", // L-3: added after security audit
 ]
 
 const ERC20_ABI = [
