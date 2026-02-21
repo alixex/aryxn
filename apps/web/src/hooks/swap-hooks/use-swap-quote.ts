@@ -78,9 +78,12 @@ export function useSwapQuote({
         args: [tokenIn, tokenOut, amountIn],
       })
 
-      const [route, estimatedOut] = result as [Address[], bigint]
+      const [routeResult, estimatedOut] = result
+      // Spread from readonly (wagmi inferred) to mutable for QuoteData.route
+      const route: Address[] = [...routeResult]
 
-      // Calculate fee (BASE_FEE = 4 bps = 0.04%)
+      // Calculate fee (matches the contract's default feeRate = 4 bps = 0.04%).
+      // If the contract's feeRate is updated via setFeeRate(), update BASE_FEE here too.
       const FEE_DENOMINATOR = 10000n
       const BASE_FEE = 4n
       const fee = (amountIn * BASE_FEE) / FEE_DENOMINATOR

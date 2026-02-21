@@ -29,7 +29,8 @@ export const MULTI_HOP_SWAPPER_ABI = [
       },
     ],
     outputs: [{ name: "amountOut", type: "uint256", internalType: "uint256" }],
-    stateMutability: "payable",
+    // UniversalRouter does NOT accept native ETH — uses IERC20.safeTransferFrom
+    stateMutability: "nonpayable",
   },
   {
     type: "function",
@@ -106,6 +107,16 @@ export const MULTI_HOP_SWAPPER_ABI = [
   {
     type: "error",
     name: "InvalidPath",
+    inputs: [],
+  },
+  {
+    type: "error",
+    name: "DeadlineExpired",
+    inputs: [{ name: "deadline", type: "uint256", internalType: "uint256" }],
+  },
+  {
+    type: "error",
+    name: "Paused",
     inputs: [],
   },
 ] as const satisfies Abi

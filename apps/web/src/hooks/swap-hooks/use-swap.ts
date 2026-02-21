@@ -141,11 +141,12 @@ export function useMultiHopSwap({
       try {
         const price = await publicClient.getGasPrice()
         setGasPrice((Number(price) / 1e9).toFixed(2))
-      } catch (err: any) {
+      } catch (err: unknown) {
         // Silently handle CORS and network errors
         if (
-          err?.message?.includes("CORS") ||
-          err?.message?.includes("Failed to fetch")
+          err instanceof Error &&
+          (err.message.includes("CORS") ||
+            err.message.includes("Failed to fetch"))
         ) {
           setGasPrice("50") // Fallback gas price in gwei
         } else {
