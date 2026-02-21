@@ -4,7 +4,7 @@ import {
   getBitcoinAddressFromWIF,
   type BitcoinUtxoInput,
 } from "@aryxn/crypto"
-import { getBitcoinApiUrl } from "./rpc-config"
+import { getBitcoinApiUrl } from "@/lib/chain"
 
 interface BitcoinFeeEstimates {
   [targetBlock: string]: number

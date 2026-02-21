@@ -17,7 +17,7 @@ import {
   getPolygonRpcUrl,
   getOptimismRpcUrl,
   getArbitrumRpcUrl,
-} from "@/lib/chain/rpc-config"
+} from "@/lib/chain"
 
 const chains = [mainnet, polygon, optimism, arbitrum] as const
 

@@ -24,7 +24,7 @@ import {
   createEvmWallet,
   clientToSigner,
 } from "@aryxn/wallet-core"
-import { getEthereumRpcUrl } from "@/lib/chain/rpc-config"
+import { getEthereumRpcUrl } from "@/lib/chain"
 import { useClient } from "wagmi"
 import { toast } from "sonner"
 

@@ -23,7 +23,7 @@ import {
   getTokenByAddress,
 } from "@/lib/contracts/token-config"
 import { useInternal } from "@/hooks/account-hooks"
-import { getEthereumRpcUrl } from "@/lib/chain/rpc-config"
+import { getEthereumRpcUrl } from "@/lib/chain"
 import { useBridgeHistory } from "@/lib/store/bridge-history"
 
 export const SwapState = {

@@ -1,7 +1,7 @@
 import { create } from "zustand"
 import { AppSyncChains } from "@aryxn/chain-constants"
 import { AggregateHistoryProvider, type ChainRecord } from "@aryxn/query-chain"
-import { getEthereumRpcUrl } from "@/lib/chain/rpc-config"
+import { getEthereumRpcUrl } from "@/lib/chain"
 import {
   clearBridgeTransactions,
   getBridgeSyncTimestamp,

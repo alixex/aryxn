@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@aryxn/chain-constants": "workspace:*",
+    "@aryxn/wallet-core": "workspace:*",
     "viem": "^2.0.0"
   },
   "devDependencies": {

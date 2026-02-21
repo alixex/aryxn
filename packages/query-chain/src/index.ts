@@ -10,15 +10,19 @@ import { BitcoinAdapter } from "./adapters/bitcoin"
 import { ArweaveAdapter } from "./adapters/arweave"
 import { SuiAdapter } from "./adapters/sui"
 import { Chains } from "@aryxn/chain-constants"
+import { getEthereumRpcUrl } from "./rpc"
 
 export * from "./types"
+export * from "./rpc"
+export * from "./balance"
 export { ArweaveAdapter } from "./adapters/arweave"
 
 export class AggregateHistoryProvider {
   private adapters: Map<string, IHistoryAdapter> = new Map()
 
-  constructor(evmRpcUrl: string) {
-    this.adapters.set(Chains.ETHEREUM, new EVMAdapter(evmRpcUrl))
+  constructor(evmRpcUrl?: string) {
+    const rpc = evmRpcUrl || getEthereumRpcUrl()
+    this.adapters.set(Chains.ETHEREUM, new EVMAdapter(rpc))
     this.adapters.set(Chains.SOLANA, new SolanaAdapter())
     this.adapters.set(Chains.BITCOIN, new BitcoinAdapter())
     this.adapters.set(Chains.ARWEAVE, new ArweaveAdapter())

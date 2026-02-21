@@ -8,7 +8,7 @@ import {
   createEvmContract,
 } from "@aryxn/wallet-core"
 import { ERC20_ABI } from "@/lib/contracts/multi-hop-swapper-abi"
-import { getEthereumRpcUrl } from "@/lib/chain/rpc-config"
+import { getEthereumRpcUrl } from "@/lib/chain"
 import { type TokenInfo } from "@/lib/contracts/token-config"
 import { useBridgeHistory } from "@/lib/store/bridge-history"
 import { toast } from "sonner"
