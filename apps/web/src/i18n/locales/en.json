@@ -480,7 +480,10 @@
     "accountSelectionHint": "Please choose account and token based on Account settings before swap or bridge.",
     "uploadRetryHint": "After completing swap/bridge, return to Upload and submit again.",
     "error": "Error",
-    "viewOnEtherscan": "View transaction on Etherscan →"
+    "viewOnEtherscan": "View transaction on Etherscan →",
+    "estimatedTime": "Estimated Time",
+    "provider": "Provider",
+    "fee": "Fee"
   },
   "swap": {
     "destinationChain": "Destination Chain",
@@ -494,6 +497,7 @@
     "fee": "Fee",
     "time": "Time",
     "via": "Via",
+    "estimatedTime": "Estimated Time",
     "providerFallback": "Bridge",
     "feeBreakdown": "Fee Breakdown",
     "bridgeFee": "Bridge Fee",

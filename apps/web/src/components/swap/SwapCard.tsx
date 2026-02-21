@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react"
-import { ArrowDownUp, Settings, Info, Zap } from "lucide-react"
+import { useEffect, useState } from "react"
+import { ArrowDownUp, Settings, Info } from "lucide-react"
 import { useConnection } from "wagmi"
 import { useTranslation } from "@/i18n/config"
 import { Button } from "@/components/ui/button"
@@ -13,17 +13,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { BridgePreview } from "@/components/bridge/BridgePreview"
 import { SwapTokenAmountInput } from "@/components/swap/SwapTokenAmountInput"
-import { useBridgeSwap } from "@/hooks/bridge-hooks/use-bridge-swap"
-import { useLiFiRoute } from "@/hooks/bridge-hooks/use-lifi-route"
-import { useMultiHopSwap, SwapState, useInternalSwap } from "@/hooks/swap-hooks"
+import { useExchange } from "@/hooks/use-exchange"
 import {
   SUPPORTED_TOKENS,
   getDexTokensByAccountChain,
   type TokenInfo,
 } from "@/lib/contracts/token-config"
-import { useWallet, formatTimestamp } from "@/hooks/account-hooks"
+import { useWallet } from "@/hooks/account-hooks"
 import { Chains } from "@aryxn/chain-constants"
 
 type DexSelectableAccount = {
@@ -34,26 +31,18 @@ type DexSelectableAccount = {
 }
 
 interface SwapCardProps {
-  selectedAccount: DexSelectableAccount | null
+  selectedAccount: DexSelectableAccount
   onNavigateToHistory?: () => void
+  onClose?: () => void
 }
 
-export function SwapCard({
-  selectedAccount,
-  onNavigateToHistory,
-}: SwapCardProps) {
+export function SwapCard({ selectedAccount }: SwapCardProps) {
   const { t } = useTranslation()
-  const { isConnected } = useConnection()
   const wallet = useWallet()
+  const { isConnected } = useConnection()
   const activeEvm = wallet.active.evm
 
-  // Check if internal wallet is available for Ethereum
-  const hasInternalEthAccount = !!activeEvm && !activeEvm.isExternal
-
-  // Determine which wallet type to use
-  const useInternalWallet = hasInternalEthAccount && !isConnected
-  const isWalletReady = isConnected || !!activeEvm
-
+  const exchange = useExchange()
   const selectedChain = selectedAccount?.chain || Chains.ETHEREUM
   const chainTokens = getDexTokensByAccountChain(selectedChain)
 
@@ -63,62 +52,47 @@ export function SwapCard({
   )
   const [outputToken, setOutputToken] = useState<TokenInfo>(
     chainTokens[1] || chainTokens[0] || SUPPORTED_TOKENS[1],
-  ) // Changed default to USDC (index 1 usually)
+  )
   const [inputAmount, setInputAmount] = useState("")
-  const [slippage, setSlippage] = useState(1.0) // 1% default slippage
+  const [slippage, setSlippage] = useState(1.0)
   const [showSettings, setShowSettings] = useState(false)
-  const [outputChain, setOutputChain] = useState<string | null>(null)
+  const [outputChain, setOutputChain] = useState<string>(selectedChain)
 
+  const isWalletReady = isConnected || !!activeEvm
+
+  // Update quote when inputs change
   useEffect(() => {
-    if (chainTokens.length === 0) return
-    setInputToken((prev) =>
-      chainTokens.some((token) => token.symbol === prev.symbol)
-        ? prev
-        : chainTokens[0],
-    )
-    setOutputToken((prev) =>
-      chainTokens.some((token) => token.symbol === prev.symbol)
-        ? prev
-        : chainTokens[1] || chainTokens[0],
-    )
+    if (!inputAmount || parseFloat(inputAmount) === 0) return
+
+    const timer = setTimeout(() => {
+      exchange.getQuote({
+        fromChain: selectedChain,
+        toChain: outputChain,
+        fromToken: inputToken.symbol,
+        toToken: outputToken.symbol,
+        fromAmount: inputAmount,
+        slippage,
+      })
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [
+    inputAmount,
+    inputToken.symbol,
+    outputToken.symbol,
+    selectedChain,
+    outputChain,
+    slippage,
+    exchange.getQuote,
+  ])
+
+  // Sync output chain with selected chain if not explicitly bridging
+  useEffect(() => {
+    if (selectedChain !== Chains.BITCOIN && selectedChain !== Chains.ARWEAVE) {
+      if (outputChain === selectedChain) return
+      setOutputChain(selectedChain)
+    }
   }, [selectedChain])
-
-  // External wallet swap hook (wagmi)
-  const externalSwap = useMultiHopSwap({
-    inputToken: inputToken.address,
-    outputToken: outputToken.address,
-    inputAmount,
-    decimalsIn: inputToken.decimals,
-    decimalsOut: outputToken.decimals,
-    slippage,
-  })
-
-  // Internal wallet swap hook (ethers)
-  const internalSwap = useInternalSwap({
-    inputToken: inputToken.address,
-    outputToken: outputToken.address,
-    inputAmount,
-    decimalsIn: inputToken.decimals,
-    decimalsOut: outputToken.decimals,
-    slippage,
-  })
-
-  // Use the appropriate swap hook based on wallet type
-  const {
-    swapState,
-    outputAmount,
-    quote,
-    formattedBalance,
-    hasInsufficientBalance,
-    approve,
-    gasEstimate,
-    gasPrice,
-    error,
-    executeSwap,
-    swapHash,
-    swapSuccess,
-    lastUpdated,
-  } = useInternalWallet ? internalSwap : externalSwap
 
   // Swap tokens (flip input/output)
   const handleSwapTokens = () => {
@@ -126,12 +100,6 @@ export function SwapCard({
     setOutputToken(inputToken)
   }
 
-  // Set max amount
-  const handleMaxClick = () => {
-    setInputAmount(formattedBalance)
-  }
-
-  // Validate and format input
   const handleInputChange = (value: string) => {
     if (value === "") {
       setInputAmount("")
@@ -140,63 +108,33 @@ export function SwapCard({
     const regex = /^\d*\.?\d*$/
     if (!regex.test(value)) return
     if ((value.match(/\./g) || []).length > 1) return
-    const numValue = parseFloat(value)
-    if (numValue < 0) return
     setInputAmount(value)
   }
 
-  // Get button state and text
-  const getButtonState = () => {
-    if (isBridgeMode()) {
-      if (!outputChain) {
-        return {
-          text: t("swap.selectChain"),
-          disabled: true,
-          variant: "default" as const,
-        }
-      }
+  const isBridgeFlow =
+    outputChain !== selectedChain ||
+    selectedChain === Chains.BITCOIN ||
+    selectedChain === Chains.ARWEAVE
 
-      if (!inputAmount || parseFloat(inputAmount) === 0) {
-        return {
-          text: t("dex.enterAmount"),
-          disabled: true,
-          variant: "default" as const,
-        }
-      }
+  // Available output chains
+  const getAvailableOutputChains = (): string[] => {
+    return [
+      Chains.ETHEREUM,
+      Chains.SOLANA,
+      Chains.ARBITRUM,
+      Chains.BASE,
+      Chains.OPTIMISM,
+      Chains.POLYGON,
+    ]
+  }
 
-      if (bridgeExecuting) {
-        return {
-          text: statusMessageKey
-            ? t(statusMessageKey)
-            : t("bridge.statusProcessing"),
-          disabled: true,
-          variant: "default" as const,
-        }
-      }
-
-      if (bridgeRouteLoading) {
-        return {
-          text: t("dex.fetchingQuote") + "…",
-          disabled: true,
-          variant: "default" as const,
-        }
-      }
-
-      if (!bestRoute) {
-        return {
-          text: t("bridge.routeUnavailable", "Route unavailable"),
-          disabled: true,
-          variant: "destructive" as const,
-        }
-      }
-
-      return {
-        text: t("bridge.executeSwap", "Execute Bridge Swap"),
-        disabled: false,
-        variant: "default" as const,
-      }
+  const handleButtonClick = () => {
+    if (exchange.route) {
+      exchange.executeExchange(exchange.route)
     }
+  }
 
+  const getButtonState = () => {
     if (!isWalletReady) {
       return {
         text: t("dex.pleaseConnectWallet"),
@@ -204,7 +142,6 @@ export function SwapCard({
         variant: "default" as const,
       }
     }
-
     if (!inputAmount || parseFloat(inputAmount) === 0) {
       return {
         text: t("dex.enterAmount"),
@@ -212,191 +149,29 @@ export function SwapCard({
         variant: "default" as const,
       }
     }
-
-    if (hasInsufficientBalance) {
+    if (exchange.loading) {
       return {
-        text: t("dex.insufficientBalance"),
-        disabled: true,
-        variant: "destructive" as const,
-      }
-    }
-
-    if (inputToken.address === outputToken.address) {
-      return {
-        text: t("dex.selectToken"),
+        text: t("dex.fetchingQuote") + "…",
         disabled: true,
         variant: "default" as const,
       }
     }
-
-    switch (swapState) {
-      case SwapState.FETCHING_QUOTE:
-        return {
-          text: t("dex.fetchingQuote") + "…",
-          disabled: true,
-          variant: "default" as const,
-        }
-      case SwapState.NEEDS_APPROVAL:
-        return {
-          text: t("dex.approve", { token: inputToken.symbol }),
-          disabled: false,
-          variant: "default" as const,
-        }
-      case SwapState.APPROVING:
-        return {
-          text: t("dex.approving") + "…",
-          disabled: true,
-          variant: "default" as const,
-        }
-      case SwapState.READY:
-        return {
-          text: t("dex.swap"),
-          disabled: false,
-          variant: "default" as const,
-        }
-      case SwapState.SWAPPING:
-        return {
-          text: t("dex.swapping") + "…",
-          disabled: true,
-          variant: "default" as const,
-        }
-      case SwapState.CONFIRMING:
-        return {
-          text: t("dex.confirming") + "…",
-          disabled: true,
-          variant: "default" as const,
-        }
-      case SwapState.SUCCESS:
-        return {
-          text: t("dex.swapSuccess"),
-          disabled: false,
-          variant: "default" as const,
-        }
-      case SwapState.ERROR:
-        return {
-          text: t("dex.swapFailed"),
-          disabled: false,
-          variant: "destructive" as const,
-        }
-      default:
-        return {
-          text: t("dex.swap"),
-          disabled: true,
-          variant: "default" as const,
-        }
-    }
-  }
-
-  const handleButtonClick = () => {
-    if (isBridgeMode()) {
-      if (!bestRoute || bridgeExecuting) return
-      executeBridgeSwap(bestRoute).catch(() => {})
-      return
-    }
-
-    if (swapState === SwapState.NEEDS_APPROVAL) {
-      approve()
-    } else if (swapState === SwapState.READY) {
-      executeSwap()
-    } else if (swapState === SwapState.SUCCESS) {
-      setInputAmount("")
-    }
-  }
-
-  // Detect if this is a bridge swap vs normal swap
-  const isBridgeMode = (): boolean => {
-    if (!selectedAccount) return false
-    const inputChain = selectedAccount.chain
-
-    // Bridge mode if input is BTC/AR (always cross-chain)
-    if (inputChain === Chains.BITCOIN || inputChain === Chains.ARWEAVE) {
-      return true
-    }
-
-    // Bridge mode if user selected different output chain
-    if (outputChain && outputChain !== inputChain) {
-      return true
-    }
-
-    return false
-  }
-
-  // Get available output chains based on input
-  const getAvailableOutputChains = (): string[] => {
-    if (!selectedAccount) return []
-    const inputChain = selectedAccount.chain
-
-    // For BTC/AR, can only auto-select ETH/SOL
-    if (inputChain === Chains.BITCOIN || inputChain === Chains.ARWEAVE) {
-      return [Chains.ETHEREUM, Chains.SOLANA]
-    }
-
-    // For other chains, can bridge to any chain
-    const allChains = [
-      Chains.ETHEREUM,
-      Chains.SOLANA,
-      Chains.ARBITRUM,
-      Chains.OPTIMISM,
-      Chains.POLYGON,
-    ]
-    return allChains.filter((c) => c !== inputChain)
-  }
-
-  const bridgeMode = isBridgeMode()
-  const swapSupported = selectedChain === Chains.ETHEREUM
-  const hasTokenForChain = chainTokens.length > 0
-
-  const bridgeRequest = useMemo(() => {
-    if (
-      !bridgeMode ||
-      !outputChain ||
-      !inputAmount ||
-      parseFloat(inputAmount) <= 0 ||
-      !hasTokenForChain
-    ) {
-      return null
+    if (exchange.error) {
+      return {
+        text: t("dex.swapFailed"),
+        disabled: false,
+        variant: "destructive" as const,
+      }
     }
 
     return {
-      fromChain: selectedChain,
-      fromToken: inputToken.address,
-      fromAmount: inputAmount,
-      toChain: outputChain,
-      toToken: outputToken.address,
+      text: isBridgeFlow
+        ? t("bridge.executeSwap", "Execute Exchange")
+        : t("dex.swap"),
+      disabled: !exchange.route,
+      variant: "default" as const,
     }
-  }, [
-    bridgeMode,
-    hasTokenForChain,
-    outputChain,
-    inputAmount,
-    selectedChain,
-    inputToken.address,
-    outputToken.address,
-  ])
-
-  const {
-    bestRoute,
-    loading: bridgeRouteLoading,
-    error: bridgeRouteError,
-  } = useLiFiRoute(bridgeRequest, { enabled: !!bridgeRequest })
-
-  const {
-    executing: bridgeExecuting,
-    status: bridgeStatus,
-    statusMessageKey,
-    error: bridgeSwapError,
-    execute: executeBridgeSwap,
-  } = useBridgeSwap({
-    fromChain: selectedChain,
-    toChain: outputChain || selectedChain,
-    fromToken: inputToken.symbol,
-    toToken: outputToken.symbol,
-    fromAmount: inputAmount,
-    toAmount: outputAmount,
-    feePercentage: bestRoute?.fees.percentage || 0,
-    bridgeProvider: bestRoute?.steps[0]?.tool || "",
-    estimatedTime: bestRoute?.estimate.duration || 0,
-  })
+  }
 
   const buttonState = getButtonState()
   const tokenOptions = chainTokens.map((token) => ({
@@ -428,24 +203,6 @@ export function SwapCard({
       </CardHeader>
 
       <CardContent className="space-y-4 p-6">
-        {!swapSupported && (
-          <div className="border-border bg-card rounded-xl border px-3 py-2 text-xs">
-            {t(
-              "dex.swapEvmOnly",
-              "Swap currently supports Ethereum accounts. Please switch to an Ethereum account.",
-            )}
-          </div>
-        )}
-
-        {swapSupported && !hasTokenForChain && (
-          <div className="border-border bg-card rounded-xl border px-3 py-2 text-xs">
-            {t(
-              "dex.noTokensForChain",
-              "No swap tokens are configured for the selected account chain.",
-            )}
-          </div>
-        )}
-
         {/* Settings Panel */}
         {showSettings && (
           <div className="animate-fade-in border-border bg-card rounded-xl border p-4">
@@ -479,274 +236,140 @@ export function SwapCard({
                 className="w-20"
               />
             </div>
-            <p className="text-muted-foreground mt-2 text-xs">
-              {t("dex.slippageTooltip")}
-            </p>
           </div>
         )}
 
         {/* Input Token */}
-        {hasTokenForChain && (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label className="text-foreground text-sm font-semibold">
-                {t("dex.from")}
-              </Label>
-              {isWalletReady && (
-                <div className="text-muted-foreground text-xs">
-                  {t("dex.balance")}:{" "}
-                  <span className="text-foreground font-semibold">
-                    {formattedBalance}
-                  </span>{" "}
-                  <button
-                    onClick={handleMaxClick}
-                    className="bg-secondary text-foreground ml-2 rounded px-2 py-1 text-[10px] font-bold transition-colors hover:text-cyan-400"
-                    aria-label={t("dex.setMaxAmount", "Set maximum amount")}
-                  >
-                    MAX
-                  </button>
-                  {lastUpdated && (
-                    <div className="text-muted-foreground/50 mt-1 text-[10px]">
-                      {formatTimestamp(lastUpdated)}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-            <SwapTokenAmountInput
-              tokenValue={inputToken.symbol}
-              onTokenChange={(symbol) => {
-                const token = chainTokens.find((item) => item.symbol === symbol)
-                if (token) setInputToken(token)
-              }}
-              tokenOptions={tokenOptions}
-              amountValue={inputAmount}
-              onAmountChange={handleInputChange}
-              amountPlaceholder="0.0"
-              amountType="text"
-              amountInputMode="decimal"
-              amountAriaLabel={t("dex.inputAmount", "Input amount")}
-              amountClassName="lg:text-3xl [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-            />
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <Label className="text-foreground text-sm font-semibold">
+              {t("dex.from")}
+            </Label>
           </div>
-        )}
+          <SwapTokenAmountInput
+            tokenValue={inputToken.symbol}
+            onTokenChange={(symbol: string) => {
+              const token = chainTokens.find(
+                (item: any) => item.symbol === symbol,
+              )
+              if (token) setInputToken(token)
+            }}
+            tokenOptions={tokenOptions}
+            amountValue={inputAmount}
+            onAmountChange={handleInputChange}
+            amountPlaceholder="0.0"
+            amountType="text"
+            amountInputMode="decimal"
+          />
+        </div>
 
         {/* Swap Direction Button */}
-        {hasTokenForChain && (
-          <div className="flex justify-center py-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleSwapTokens}
-              className="border-border bg-background hover:bg-accent h-10 w-10 rounded-full border-2 shadow-md transition-all hover:scale-110 hover:border-cyan-400/50"
-              aria-label={t("dex.swapTokens", "Swap token positions")}
-            >
-              <ArrowDownUp className="text-foreground h-5 w-5" />
-            </Button>
-          </div>
-        )}
+        <div className="flex justify-center py-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleSwapTokens}
+            className="border-border bg-background hover:bg-accent h-10 w-10 rounded-full border-2 shadow-md transition-all hover:scale-110 hover:border-cyan-400/50"
+          >
+            <ArrowDownUp className="text-foreground h-5 w-5" />
+          </Button>
+        </div>
 
         {/* Output Token */}
-        {hasTokenForChain && (
-          <div className="space-y-3">
+        <div className="space-y-3">
+          <Label className="text-foreground text-sm font-semibold">
+            {t("dex.to")}
+          </Label>
+          <SwapTokenAmountInput
+            tokenValue={outputToken.symbol}
+            onTokenChange={(symbol: string) => {
+              const token = chainTokens.find(
+                (item: any) => item.symbol === symbol,
+              )
+              if (token) setOutputToken(token)
+            }}
+            tokenOptions={tokenOptions}
+            amountValue={exchange.route?.toAmount || "0"}
+            amountReadOnly
+            amountPlaceholder="0.0"
+          />
+        </div>
+
+        {/* Destination Chain Selector */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
             <Label className="text-foreground text-sm font-semibold">
-              {t("dex.to")} ({t("dex.expectedOutput")})
+              {t("swap.destinationChain")}
             </Label>
-            <SwapTokenAmountInput
-              tokenValue={outputToken.symbol}
-              onTokenChange={(symbol) => {
-                const token = chainTokens.find((item) => item.symbol === symbol)
-                if (token) setOutputToken(token)
-              }}
-              tokenOptions={tokenOptions}
-              amountValue={outputAmount}
-              amountReadOnly
-              amountPlaceholder="0.0"
-              className="bg-card"
-              tokenTriggerClassName="bg-background hover:bg-secondary"
-              amountClassName="text-3xl"
-            />
-          </div>
-        )}
-
-        {/* Bridge mode: Output chain selector */}
-        {isBridgeMode() && (
-          <div className="space-y-2">
-            <Label>{t("swap.destinationChain")}</Label>
-            <Select value={outputChain || ""} onValueChange={setOutputChain}>
-              <SelectTrigger>
-                <SelectValue placeholder={t("swap.selectChain")} />
-              </SelectTrigger>
-              <SelectContent>
-                {getAvailableOutputChains().map((chain) => (
-                  <SelectItem key={chain} value={chain}>
-                    {chain}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
-
-        {bridgeMode && (
-          <>
-            <BridgePreview
-              route={bestRoute}
-              loading={bridgeRouteLoading}
-              error={bridgeRouteError || bridgeSwapError}
-            />
-            {statusMessageKey && (
-              <p className="text-muted-foreground text-xs">
-                {t(statusMessageKey)}
-              </p>
+            {isBridgeFlow && (
+              <span className="rounded-full bg-cyan-500/10 px-2 py-0.5 text-[10px] font-bold text-cyan-500">
+                BRIDGE
+              </span>
             )}
-          </>
-        )}
+          </div>
+          <Select value={outputChain} onValueChange={setOutputChain}>
+            <SelectTrigger className="bg-background/50 w-full">
+              <SelectValue placeholder={t("swap.selectChain")} />
+            </SelectTrigger>
+            <SelectContent className="glass-strong border-accent/20">
+              {getAvailableOutputChains().map((chain) => (
+                <SelectItem
+                  key={chain}
+                  value={chain}
+                  className="hover:bg-accent/20"
+                >
+                  <span className="capitalize">{chain}</span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
-        {/* Route and Details */}
-        {quote && (
+        {/* Details Display */}
+        {exchange.route && (
           <div className="border-border bg-card space-y-3 rounded-xl border p-4">
-            <div className="text-foreground flex items-center gap-2 text-sm font-semibold">
-              <Zap className="h-4 w-4" aria-hidden="true" />
-              {t("dex.swapDetails")}
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">
+                {isBridgeFlow
+                  ? t("bridge.estimatedTime")
+                  : t("dex.estimatedTime", "Estimated Time")}
+              </span>
+              <span className="text-foreground font-semibold">
+                {Math.ceil(exchange.route.estimatedTime / 60)} mins
+              </span>
             </div>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">{t("dex.route")}</span>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">{t("dex.provider")}</span>
+              <span className="text-foreground font-semibold">
+                {exchange.route.provider}
+              </span>
+            </div>
+            {exchange.route.feePercent > 0 && (
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">{t("dex.fee")}</span>
                 <span className="text-foreground font-semibold">
-                  {quote.route.length === 2 ? (
-                    <span className="bg-secondary text-foreground rounded-full px-2 py-0.5 text-xs">
-                      {t("dex.directSwap")}
-                    </span>
-                  ) : (
-                    <span className="bg-secondary text-foreground rounded-full px-2 py-0.5 text-xs">
-                      {quote.route.length - 1}{" "}
-                      {t(quote.route.length > 2 ? "dex.hops" : "dex.hop")}
-                    </span>
-                  )}
+                  {exchange.route.feePercent.toFixed(2)}%
                 </span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">
-                  {t("dex.protocolFee")}
-                </span>
-                <span className="text-foreground font-semibold">0.04%</span>
-              </div>
-              {gasPrice && (
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">
-                    {t("dex.gasPrice")}
-                  </span>
-                  <span className="text-foreground font-semibold">
-                    {gasPrice} Gwei
-                  </span>
-                </div>
-              )}
-              {gasEstimate !== "0" && (
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">
-                    {t("dex.estimatedGas")}
-                  </span>
-                  <span className="text-foreground font-semibold">
-                    {(Number(gasEstimate) / 1000).toFixed(0)}k units
-                  </span>
-                </div>
-              )}
-              <div className="border-border border-t pt-2">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">
-                    {t("dex.minimumReceived")}
-                  </span>
-                  <span className="text-foreground font-bold">
-                    {quote.formattedMinimumOutput} {outputToken.symbol}
-                  </span>
-                </div>
-              </div>
-            </div>
+            )}
           </div>
         )}
 
         {/* Error Display */}
-        {(error || bridgeSwapError) && (
-          <div className="animate-shake border-destructive bg-destructive/10 rounded-xl border p-4">
-            <div className="flex gap-3">
-              <Info
-                className="text-destructive h-5 w-5 shrink-0"
-                aria-hidden="true"
-              />
-              <div className="flex-1">
-                <p className="text-destructive font-semibold">
-                  {t("dex.error")}
-                </p>
-                <p className="text-destructive/80 mt-1 text-sm">
-                  {bridgeSwapError || error}
-                </p>
-              </div>
+        {exchange.error && (
+          <div className="animate-shake border-destructive/30 bg-destructive/10 rounded-xl border p-4">
+            <div className="text-destructive flex gap-3">
+              <Info className="h-5 w-5 shrink-0" />
+              <p className="text-sm">{exchange.error}</p>
             </div>
           </div>
         )}
 
-        {/* Bridge Success Display */}
-        {bridgeStatus === "complete" && (
-          <div className="animate-fade-in border-border bg-card rounded-xl border p-4">
-            <div className="flex gap-3">
-              <div className="bg-secondary flex h-8 w-8 shrink-0 items-center justify-center rounded-full">
-                <Info className="text-foreground h-4 w-4" aria-hidden="true" />
-              </div>
-              <div className="flex-1 space-y-2">
-                <div>
-                  <p className="text-foreground font-semibold">
-                    {t("bridge.statusCompleted")}
-                  </p>
-                  <p className="text-muted-foreground mt-1 text-sm">
-                    {t("bridge.via")}:{" "}
-                    {bestRoute?.steps[0]?.tool || t("bridge.providerFallback")}
-                  </p>
-                </div>
-                {onNavigateToHistory && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={onNavigateToHistory}
-                    className="w-full"
-                  >
-                    {t("bridge.viewHistory")}
-                  </Button>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Success Display */}
-        {swapSuccess && swapHash && (
-          <div className="animate-fade-in border-border bg-card rounded-xl border p-4">
-            <div className="flex gap-3">
-              <div className="bg-secondary flex h-8 w-8 shrink-0 items-center justify-center rounded-full">
-                <Info className="text-foreground h-4 w-4" aria-hidden="true" />
-              </div>
-              <div className="flex-1">
-                <p className="text-foreground font-semibold">
-                  {t("dex.swapSuccess")}
-                </p>
-                <a
-                  href={`https://etherscan.io/tx/${swapHash}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-muted-foreground mt-1 inline-block text-sm underline hover:text-cyan-400"
-                >
-                  {t("dex.viewOnEtherscan")}
-                </a>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Swap Button */}
+        {/* Execute Button */}
         <Button
           onClick={handleButtonClick}
-          disabled={!swapSupported || !hasTokenForChain || buttonState.disabled}
-          className="h-14 w-full rounded-xl text-lg font-bold shadow-lg transition-all hover:scale-[1.02] disabled:scale-100"
+          disabled={buttonState.disabled}
+          className="h-14 w-full rounded-xl text-lg font-bold shadow-lg transition-all hover:scale-[1.02] active:scale-95"
           variant={buttonState.variant}
         >
           {buttonState.text}

@@ -3,13 +3,18 @@ import { defineConfig } from "vite"
 import tailwindcss from "@tailwindcss/vite"
 import { nodePolyfills } from "vite-plugin-node-polyfills"
 import wasm from "vite-plugin-wasm"
-import { RPCs } from "@aryxn/chain-constants"
+import tsconfigPaths from "vite-tsconfig-paths"
+
+// Proxy paths previously from RPCs.PROXY_EVM / RPCs.PROXY_SOLANA
+const PROXY_EVM = "/api/rpc"
+const PROXY_SOLANA = "/api/solana-rpc"
 
 export default defineConfig({
   base: "/aryxn/",
   plugins: [
     tailwindcss(),
     wasm(),
+    tsconfigPaths(),
     // Node.js polyfills for Web3 libraries (Solana, Ethereum, etc.)
     nodePolyfills({
       globals: {
@@ -32,24 +37,23 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      [RPCs.PROXY_EVM]: {
-        target: RPCs.EVM_MAINNET_RPC,
+      [PROXY_EVM]: {
+        target: "https://eth.llamarpc.com",
         changeOrigin: true,
-        rewrite: (path) => path.replace(new RegExp(`^${RPCs.PROXY_EVM}`), ""),
+        rewrite: (path) => path.replace(new RegExp(`^${PROXY_EVM}`), ""),
         configure: (proxy) => {
           proxy.on("error", (err) => {
             console.error("RPC proxy error:", err)
           })
         },
       },
-      [RPCs.PROXY_SOLANA]: {
-        target: RPCs.SOLANA_ANKR,
+      [PROXY_SOLANA]: {
+        target: "https://rpc.ankr.com/solana",
         changeOrigin: true,
-        rewrite: (path) =>
-          path.replace(new RegExp(`^${RPCs.PROXY_SOLANA}`), ""),
+        rewrite: (path) => path.replace(new RegExp(`^${PROXY_SOLANA}`), ""),
         headers: {
-          Origin: RPCs.SOLANA_ANKR_ORIGIN,
-          Referer: RPCs.SOLANA_ANKR_ORIGIN,
+          Origin: "https://rpc.ankr.com",
+          Referer: "https://rpc.ankr.com",
         },
         configure: (proxy) => {
           proxy.on("error", (err) => {

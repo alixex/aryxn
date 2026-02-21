@@ -50,6 +50,7 @@
     "@aryxn/chain-constants": "workspace:*",
     "@aryxn/cross-chain": "workspace:*",
     "@aryxn/crypto": "workspace:*",
+    "@aryxn/exchange-chain": "workspace:*",
     "@aryxn/query-chain": "workspace:*",
     "@aryxn/storage": "workspace:*",
     "@aryxn/swap-multichain": "workspace:*",
@@ -98,6 +99,7 @@
     "typescript": "~5.9.3",
     "vite": "^7.3.1",
     "vite-plugin-node-polyfills": "^0.24.0",
-    "vite-plugin-wasm": "^3.5.0"
+    "vite-plugin-wasm": "^3.5.0",
+    "vite-tsconfig-paths": "^6.1.1"
   }
 }

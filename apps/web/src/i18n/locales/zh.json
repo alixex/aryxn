@@ -480,7 +480,10 @@
     "accountSelectionHint": "进入 Swap/Bridge 后请先根据账户管理选择账户与代币。",
     "uploadRetryHint": "完成 swap/bridge 后，请返回上传页面重新提交。",
     "error": "错误",
-    "viewOnEtherscan": "在 Etherscan 上查看交易 →"
+    "viewOnEtherscan": "在 Etherscan 上查看交易 →",
+    "estimatedTime": "预估耗时",
+    "provider": "提供商",
+    "fee": "费用"
   },
   "swap": {
     "destinationChain": "目标链",
@@ -494,6 +497,7 @@
     "fee": "费用",
     "time": "时间",
     "via": "通过",
+    "estimatedTime": "预估耗时",
     "providerFallback": "跨链桥",
     "feeBreakdown": "费用拆分",
     "bridgeFee": "桥费用",

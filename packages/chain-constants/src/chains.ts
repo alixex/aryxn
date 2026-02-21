@@ -4,6 +4,10 @@ export const Chains = {
   BITCOIN: "bitcoin",
   ARWEAVE: "arweave",
   SUI: "sui",
+  BASE: "base",
+  ARBITRUM: "arbitrum",
+  OPTIMISM: "optimism",
+  POLYGON: "polygon",
 } as const
 
 export type ChainType = (typeof Chains)[keyof typeof Chains]
