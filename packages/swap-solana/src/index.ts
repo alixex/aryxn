@@ -3,12 +3,14 @@ import {
   PublicKey,
   SystemProgram,
   AccountMeta,
+  Transaction,
+  TransactionInstruction,
 } from "@solana/web3.js"
-import { AnchorProvider, Program, Wallet, Idl, BN } from "@coral-xyz/anchor"
+import { AnchorProvider, Program, Wallet, BN, Idl } from "@coral-xyz/anchor"
 import {
   createJupiterApiClient,
   QuoteResponse,
-  Instruction,
+  Instruction as JupInstruction,
   AccountMeta as JupAccountMeta,
 } from "@jup-ag/api"
 import {
@@ -16,13 +18,66 @@ import {
   TOKEN_PROGRAM_ID,
 } from "@solana/spl-token"
 
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+/** Shape of the on-chain RouterState account */
+interface RouterStateAccount {
+  authority: PublicKey
+  feeRecipient: PublicKey
+  defaultFeeBps: number
+  paused: boolean
+}
+
+/** A single routing step passed to executeSwap */
+interface SwapStep {
+  dexId: string
+  dexProgramId: PublicKey
+  dexType:
+    | { jupiter: Record<string, never> }
+    | { custom: Record<string, never> }
+  instructionData: Buffer
+  accountCount: number
+}
+
+/** Arguments for the executeSwap instruction */
+interface SwapRoute {
+  steps: SwapStep[]
+  minAmountOut: BN
+}
+
+/** IDL-typed program for universal-router */
+// The IDL is passed by the caller so we keep it generic here; callers should
+// import `UniversalRouter` from the generated types and pass it via setWallet.
+type RouterProgram = Program<Idl>
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function jupAccountToSolana(acc: JupAccountMeta): AccountMeta {
+  return {
+    pubkey: new PublicKey(acc.pubkey),
+    isWritable: acc.isWritable,
+    isSigner: acc.isSigner,
+  }
+}
+
+function jupInstructionToTx(ix: JupInstruction): TransactionInstruction {
+  return new TransactionInstruction({
+    programId: new PublicKey(ix.programId),
+    keys: ix.accounts.map(jupAccountToSolana),
+    data: Buffer.from(ix.data, "base64"),
+  })
+}
+
+// ─── SDK ──────────────────────────────────────────────────────────────────────
+
 /**
  * Solana Swapper SDK
- * 封装与 universal-router 程序的交互，集成 Jupiter API
+ * Wraps universal-router program interactions and integrates Jupiter API.
  */
 export class SolanaSwapper {
   private connection: Connection
-  public program: Program<any> | null = null
+  private provider: AnchorProvider | null = null
+  private program: RouterProgram | null = null
   private programId: PublicKey
   private jupiterApi: ReturnType<typeof createJupiterApiClient>
 
@@ -33,47 +88,53 @@ export class SolanaSwapper {
   }
 
   /**
-   * 设置钱包（必须在调用其他方法前调用）
+   * Attach a wallet. Must be called before swap() or initialize().
+   * Pass the generated IDL object (e.g. `import IDL from '../idl/universal_router.json'`).
    */
-  setWallet(wallet: Wallet, idl: any) {
-    const provider = new AnchorProvider(
+  setWallet(wallet: Wallet, idl: Idl): void {
+    this.provider = new AnchorProvider(
       this.connection,
       wallet,
       AnchorProvider.defaultOptions(),
     )
-    this.program = new Program(idl as Idl, provider)
+    this.program = new Program(idl, this.provider)
   }
 
-  /**
-   * 获取 Jupiter 报价
-   */
+  /** Fetch a Jupiter quote */
   async getQuote(params: {
     inputMint: string
     outputMint: string
     amount: number
     slippageBps?: number
   }): Promise<QuoteResponse> {
-    return await this.jupiterApi.quoteGet({
+    return this.jupiterApi.quoteGet({
       inputMint: params.inputMint,
       outputMint: params.outputMint,
       amount: params.amount,
-      slippageBps: params.slippageBps || 50,
+      slippageBps: params.slippageBps ?? 50,
     })
   }
 
+  private requireProgram(): RouterProgram {
+    if (!this.program || !this.provider) {
+      throw new Error("Wallet not set. Call setWallet() first.")
+    }
+    return this.program
+  }
+
   /**
-   * 执行交换
+   * Execute a token swap via the on-chain universal-router.
+   * Returns the confirmed transaction signature.
    */
   async swap(params: {
     user: PublicKey
     quoteResponse: QuoteResponse
   }): Promise<string> {
-    if (!this.program) {
-      throw new Error("Wallet not set. Call setWallet() first.")
-    }
+    const program = this.requireProgram()
+    const provider = this.provider!
 
-    // 1. 从 Jupiter 获取所有交换相关的指令
-    const instructions = await this.jupiterApi.swapInstructionsPost({
+    // 1. Fetch swap instructions from Jupiter
+    const jupInstructions = await this.jupiterApi.swapInstructionsPost({
       swapRequest: {
         quoteResponse: params.quoteResponse,
         userPublicKey: params.user.toBase58(),
@@ -81,36 +142,41 @@ export class SolanaSwapper {
       },
     })
 
-    // 2. 发送 Jupiter 的 Setup 指令（如 Wrap SOL / 创建 ATA），必须独立发送
-    //    不能混入 executeSwap，否则链上指令数据解析会失败
-    if (
-      instructions.setupInstructions &&
-      instructions.setupInstructions.length > 0
-    ) {
-      const { Transaction, VersionedTransaction } =
-        await import("@solana/web3.js")
-      for (const ix of instructions.setupInstructions) {
-        const txIx = {
-          programId: new PublicKey(ix.programId),
-          keys: ix.accounts.map((acc: JupAccountMeta) => ({
-            pubkey: new PublicKey(acc.pubkey),
-            isWritable: acc.isWritable,
-            isSigner: acc.isSigner,
-          })),
-          data: Buffer.from(ix.data, "base64"),
-        }
-        const tx = new Transaction().add(txIx)
-        tx.feePayer = params.user
-        tx.recentBlockhash = (
-          await this.connection.getLatestBlockhash()
-        ).blockhash
-        await (this.program.provider as any).sendAndConfirm(tx)
+    // 2. Send Jupiter setup instructions (Wrap SOL / create ATAs) as
+    //    separate pre-transactions — they cannot be embedded in executeSwap
+    //    because the on-chain instruction parser would misread the data.
+    if (jupInstructions.setupInstructions.length > 0) {
+      const { blockhash } = await this.connection.getLatestBlockhash()
+      for (const ix of jupInstructions.setupInstructions) {
+        const tx = new Transaction({
+          feePayer: params.user,
+          recentBlockhash: blockhash,
+        }).add(jupInstructionToTx(ix))
+        await provider.sendAndConfirm(tx)
       }
     }
 
-    // 3. 准备程序账户
+    // 3. Derive on-chain accounts
     const inputMint = new PublicKey(params.quoteResponse.inputMint)
     const outputMint = new PublicKey(params.quoteResponse.outputMint)
+
+    const [routerState] = PublicKey.findProgramAddressSync(
+      [Buffer.from("router_state")],
+      this.programId,
+    )
+
+    // Fetch fee recipient from chain.
+    // We cast only the account namespace (not the whole program) to the known
+    // shape so TypeScript can verify the returned object's structure.
+    type RouterStateFetcher = {
+      fetch: (pk: PublicKey) => Promise<RouterStateAccount>
+    }
+    const routerStateNs = program.account as unknown as {
+      routerState: RouterStateFetcher
+    }
+    const routerStateAccount =
+      await routerStateNs.routerState.fetch(routerState)
+    const feeRecipient: PublicKey = routerStateAccount.feeRecipient
 
     const userSourceToken = getAssociatedTokenAddressSync(
       inputMint,
@@ -121,16 +187,6 @@ export class SolanaSwapper {
       params.user,
     )
 
-    const [routerState] = PublicKey.findProgramAddressSync(
-      [Buffer.from("router_state")],
-      this.programId,
-    )
-
-    const routerStateAccount = await (
-      this.program.account as any
-    ).routerState.fetch(routerState)
-    const feeRecipient = routerStateAccount.feeRecipient
-
     const [inputTokenConfig] = PublicKey.findProgramAddressSync(
       [Buffer.from("token_config"), inputMint.toBuffer()],
       this.programId,
@@ -140,34 +196,27 @@ export class SolanaSwapper {
       this.programId,
     )
 
-    // 4. 构建核心 Swap 指令的 SwapStep 和 Remaining Accounts
-    const swapIx = instructions.swapInstruction
-    const ixData = Buffer.from(swapIx.data, "base64")
+    // 4. Build the single SwapStep from Jupiter's core swap instruction
+    const swapIx = jupInstructions.swapInstruction
+    const step: SwapStep = {
+      dexId: "jupiter_aggregator",
+      dexProgramId: new PublicKey(swapIx.programId),
+      dexType: { jupiter: {} },
+      instructionData: Buffer.from(swapIx.data, "base64"),
+      accountCount: swapIx.accounts.length,
+    }
 
-    const steps = [
-      {
-        dexId: "jupiter_aggregator",
-        dexProgramId: new PublicKey(swapIx.programId),
-        dexType: { jupiter: {} },
-        instructionData: ixData,
-        accountCount: swapIx.accounts.length,
-      },
-    ]
+    const remainingAccounts: AccountMeta[] =
+      swapIx.accounts.map(jupAccountToSolana)
 
-    const remainingAccounts: AccountMeta[] = swapIx.accounts.map(
-      (acc: JupAccountMeta) => ({
-        pubkey: new PublicKey(acc.pubkey),
-        isWritable: acc.isWritable,
-        isSigner: acc.isSigner,
-      }),
-    )
+    const route: SwapRoute = {
+      steps: [step],
+      minAmountOut: new BN(params.quoteResponse.otherAmountThreshold),
+    }
 
-    // 5. 调用 Universal Router 的 execute_swap
-    return await (this.program.methods as any)
-      .executeSwap(new BN(params.quoteResponse.inAmount), {
-        steps,
-        minAmountOut: new BN(params.quoteResponse.otherAmountThreshold),
-      })
+    // 5. Call executeSwap on the universal-router program
+    return program.methods
+      .executeSwap(new BN(params.quoteResponse.inAmount), route)
       .accounts({
         routerState,
         inputTokenConfig,
@@ -178,33 +227,27 @@ export class SolanaSwapper {
         user: params.user,
         tokenProgram: TOKEN_PROGRAM_ID,
         systemProgram: SystemProgram.programId,
-      } as any)
+      })
       .remainingAccounts(remainingAccounts)
       .rpc()
   }
 
   /**
-   * 初始化程序 (管理员用)
+   * Initialize the router program (admin only).
    */
   async initialize(
     defaultFeeBps: number,
     feeRecipient: PublicKey,
   ): Promise<string> {
-    if (!this.program) throw new Error("Program not initialized")
+    const program = this.requireProgram()
 
-    const [routerState] = PublicKey.findProgramAddressSync(
-      [Buffer.from("router_state")],
-      this.programId,
-    )
-
-    return await (this.program.methods as any)
+    return program.methods
       .initialize(defaultFeeBps)
       .accounts({
-        routerState,
-        authority: this.program.provider.publicKey,
+        authority: this.provider!.wallet.publicKey,
         feeRecipient,
         systemProgram: SystemProgram.programId,
-      } as any)
+      })
       .rpc()
   }
 }
