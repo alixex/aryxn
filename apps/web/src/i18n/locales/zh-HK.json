@@ -414,6 +414,10 @@
     "openExplorer": "打開瀏覽器",
     "searchTx": "搜尋交易"
   },
+  "swap": {
+    "destinationChain": "目標鏈",
+    "selectChain": "選擇鏈"
+  },
   "bridge": {
     "youGet": "獲得",
     "step": "步驟",

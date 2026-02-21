@@ -482,6 +482,10 @@
     "error": "Error",
     "viewOnEtherscan": "View transaction on Etherscan →"
   },
+  "swap": {
+    "destinationChain": "Destination Chain",
+    "selectChain": "Select Chain"
+  },
   "bridge": {
     "youGet": "You Get",
     "step": "step",
