@@ -1,3 +1,5 @@
+import { RPCs } from "@aryxn/chain-constants"
+
 /**
  * 直接通过标签查询文件记录的同步工具函数
  * 不使用清单文件，直接从 Arweave 查询文件交易
@@ -163,7 +165,7 @@ export async function queryFileTransactions(
         },
       }
 
-      const response: Response = await fetch("https://arweave.net/graphql", {
+      const response: Response = await fetch(RPCs.ARWEAVE_GATEWAY, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -652,7 +654,7 @@ export async function calculateFileHashFromArweave(
   try {
     // 使用 no-store 缓存策略，避免浏览器缓存文件到磁盘
     // 因为我们只需要计算 hash，不需要保存文件
-    const response = await fetch(`https://arweave.net/${txId}`, {
+    const response = await fetch(`${RPCs.ARWEAVE_BASE}/${txId}`, {
       cache: "no-store",
     })
     if (!response.ok) {

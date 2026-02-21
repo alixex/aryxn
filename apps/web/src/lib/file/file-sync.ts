@@ -5,6 +5,7 @@
 
 import { arweave } from "@/lib/storage"
 import { db } from "@/lib/database"
+import { RPCs } from "@aryxn/chain-constants"
 import { searchFiles } from "./file-manager"
 import {
   MANIFEST_APP_NAME,
@@ -226,7 +227,7 @@ async function getLatestManifestTxId(
       },
     }
 
-    const response = await fetch("https://arweave.net/graphql", {
+    const response = await fetch(RPCs.ARWEAVE_GATEWAY, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -390,7 +391,7 @@ export async function downloadManifestByTxId(
   txId: string,
 ): Promise<IncrementalManifest | null> {
   try {
-    const manifestResponse = await fetch(`https://arweave.net/${txId}`)
+    const manifestResponse = await fetch(`${RPCs.ARWEAVE_BASE}/${txId}`)
     if (!manifestResponse.ok) {
       throw new Error(`Failed to fetch manifest: ${manifestResponse.status}`)
     }
@@ -616,7 +617,7 @@ export async function downloadManifest(
       },
     }
 
-    const response = await fetch("https://arweave.net/graphql", {
+    const response = await fetch(RPCs.ARWEAVE_GATEWAY, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

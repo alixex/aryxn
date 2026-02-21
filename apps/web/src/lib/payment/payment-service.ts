@@ -1,5 +1,9 @@
 import { estimateArweaveFee } from "@/lib/storage"
-import { Chains, PaymentTokenMetadata } from "@aryxn/chain-constants"
+import {
+  Chains,
+  PaymentTokenMetadata,
+  COINGECKO_API_URL,
+} from "@aryxn/chain-constants"
 import type { PaymentAccount, PaymentToken } from "./types"
 import {
   getIrysFundingToken,
@@ -83,7 +87,7 @@ export class PaymentService {
         .map((c) => c.coingeckoId)
         .join(",")
       const response = await fetch(
-        `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd`,
+        `${COINGECKO_API_URL}/simple/price?ids=${ids}&vs_currencies=usd`,
       )
 
       if (!response.ok) {

@@ -7,6 +7,8 @@
  * - Custom endpoints via env vars bypass proxy
  */
 
+import { RPCs } from "@aryxn/chain-constants"
+
 function isBrowser() {
   return typeof window !== "undefined"
 }
@@ -26,15 +28,15 @@ export function getEthereumRpcUrl(): string {
     const origin = window.location.origin
     // Use Vite dev proxy for all environments
     if (origin.includes("localhost") || origin.includes("127.0.0.1")) {
-      return `${origin}/api/rpc`
+      return `${origin}${RPCs.PROXY_EVM}`
     }
 
     // Use Infura (supports CORS) - more reliable than llamarpc
-    return "https://eth-mainnet.g.alchemy.com/v2/demo"
+    return RPCs.EVM_FALLBACK_RPC
   }
 
   // Server-side: direct access
-  return "https://eth.llamarpc.com"
+  return RPCs.EVM_MAINNET_RPC
 }
 
 /**
@@ -46,7 +48,7 @@ export function getPolygonRpcUrl(): string {
     return envUrl
   }
 
-  return "https://polygon-rpc.com"
+  return RPCs.POLYGON_RPC
 }
 
 /**
@@ -58,7 +60,7 @@ export function getOptimismRpcUrl(): string {
     return envUrl
   }
 
-  return "https://mainnet.optimism.io"
+  return RPCs.OPTIMISM_RPC
 }
 
 /**
@@ -70,7 +72,7 @@ export function getArbitrumRpcUrl(): string {
     return envUrl
   }
 
-  return "https://arb1.arbitrum.io/rpc"
+  return RPCs.ARBITRUM_RPC
 }
 
 /**
@@ -87,11 +89,11 @@ export function getSolanaRpcUrl(): string {
     const origin = window.location.origin
     // Use Vite dev proxy for all environments
     if (origin.includes("localhost") || origin.includes("127.0.0.1")) {
-      return `${origin}/api/solana-rpc`
+      return `${origin}${RPCs.PROXY_SOLANA}`
     }
   }
 
-  return "https://rpc.ankr.com/solana"
+  return RPCs.SOLANA_ANKR
 }
 
 /**
@@ -103,12 +105,12 @@ export function getSuiRpcUrl(): string {
     return envUrl
   }
 
-  return "https://rpc.mainnet.sui.io"
+  return RPCs.SUI_MAINNET
 }
 
 /**
  * Bitcoin API endpoint
  */
 export function getBitcoinApiUrl(): string {
-  return "https://blockstream.info/api"
+  return RPCs.BITCOIN_API
 }

@@ -3,7 +3,18 @@ export const RPCs = {
   BITCOIN_MEMPOOL: "https://mempool.space/api",
   EVM_BLOCKSCOUT: "https://eth.blockscout.com/api/v2",
   EVM_MAINNET_RPC: "https://eth.llamarpc.com",
+  EVM_FALLBACK_RPC: "https://eth-mainnet.g.alchemy.com/v2/demo",
   SOLANA_MAINNET: "https://api.mainnet-beta.solana.com",
+  SOLANA_ANKR: "https://rpc.ankr.com/solana",
+  SOLANA_ANKR_ORIGIN: "https://rpc.ankr.com",
   SUI_MAINNET: "https://fullnode.mainnet.sui.io:443",
   IRYS_NODE: "https://node1.irys.xyz",
+  POLYGON_RPC: "https://polygon-rpc.com",
+  OPTIMISM_RPC: "https://mainnet.optimism.io",
+  ARBITRUM_RPC: "https://arb1.arbitrum.io/rpc",
+  BITCOIN_API: "https://blockstream.info/api",
+  ARWEAVE_BASE: "https://arweave.net",
+  // Proxy paths used in Vite config and client-side RPC config
+  PROXY_EVM: "/api/rpc",
+  PROXY_SOLANA: "/api/solana-rpc",
 } as const
