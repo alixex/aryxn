@@ -11,6 +11,19 @@ export async function initializeVaultDb() {
       await db.exec(sql)
     }
 
+    // Run simple migrations for existing tables
+    const migrations = [
+      "ALTER TABLE bridge_transactions ADD COLUMN user_address TEXT",
+    ]
+
+    for (const sql of migrations) {
+      try {
+        await db.exec(sql)
+      } catch (e) {
+        console.error(`Failed to migrate: ${sql}`, e)
+      }
+    }
+
     // Apply indexes
     for (const sql of INDEXES) {
       try {
