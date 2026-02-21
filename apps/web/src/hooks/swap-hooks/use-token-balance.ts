@@ -3,7 +3,7 @@
  */
 
 import { useEffect, useState } from "react"
-import { useConnection, usePublicClient, useReadContract } from "wagmi"
+import { useAccount, usePublicClient, useReadContract } from "wagmi"
 import type { Address } from "@aryxn/wallet-core"
 import { ERC20_ABI } from "@/lib/contracts/multi-hop-swapper-abi"
 import { formatTokenAmount } from "@/lib/contracts/token-config"
@@ -31,7 +31,7 @@ export function useTokenBalance({
   decimals,
   enabled = true,
 }: UseTokenBalanceParams): TokenBalanceResult {
-  const { address: accountAddress } = useConnection()
+  const { address: accountAddress } = useAccount()
 
   const {
     data: balance,
@@ -80,7 +80,7 @@ export function useTokenBalance({
 export function useMultipleTokenBalances(
   tokens: Array<{ address: Address; decimals: number }>,
 ) {
-  const { address: accountAddress } = useConnection()
+  const { address: accountAddress } = useAccount()
   const publicClient = usePublicClient()
   const [balances, setBalances] = useState<Map<Address, bigint>>(new Map())
   const [isLoading, setIsLoading] = useState(false)

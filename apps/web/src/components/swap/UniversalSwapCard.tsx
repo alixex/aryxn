@@ -8,7 +8,7 @@ import {
   DollarSign,
   TrendingUp,
 } from "lucide-react"
-import { useConnection } from "wagmi"
+import { useAccount } from "wagmi"
 import { useTranslation } from "@/i18n/config"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -92,7 +92,7 @@ const BRIDGE_CHAINS = [
 export function UniversalSwapCard({ selectedAccount }: UniversalSwapCardProps) {
   const { t } = useTranslation()
   const wallet = useWallet()
-  const { isConnected } = useConnection()
+  const { isConnected } = useAccount()
   const activeEvm = wallet.active.evm
 
   // Unified State

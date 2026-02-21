@@ -67,7 +67,7 @@
     "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-slot": "^1.2.4",
     "@radix-ui/react-tabs": "^1.1.13",
-    "@rainbow-me/rainbowkit": "^2.2.10",
+    "@rainbow-me/rainbowkit": "2.1.7",
     "@solana/spl-token": "^0.4.14",
     "@solana/web3.js": "^1.98.4",
     "@sqlite.org/sqlite-wasm": "3.51.1-build2",
@@ -102,7 +102,7 @@
     "tiny-secp256k1": "^2.2.4",
     "use-debounce": "^10.0.0",
     "viem": "^2.45.0",
-    "wagmi": "2.9.0",
+    "wagmi": "2.10.11",
     "webextension-polyfill-ts": "^0.25.0",
     "zustand": "^5.0.11"
   }

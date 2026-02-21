@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect, useCallback } from "react"
-import { useConnection, usePublicClient } from "wagmi"
+import { useAccount, usePublicClient } from "wagmi"
 import type { Address, Hash } from "@aryxn/wallet-core"
 import { MULTI_HOP_SWAPPER_ABI } from "@/lib/contracts/multi-hop-swapper-abi"
 import { MULTI_HOP_SWAPPER_ADDRESS } from "@/lib/contracts/addresses"
@@ -61,7 +61,7 @@ function saveTransactions(address: Address, transactions: SwapTransaction[]) {
  * Hook for managing swap transaction history
  */
 export function useTransactionHistory() {
-  const { address } = useConnection()
+  const { address } = useAccount()
   const publicClient = usePublicClient()
   const [transactions, setTransactions] = useState<SwapTransaction[]>([])
   const [isLoading, setIsLoading] = useState(false)

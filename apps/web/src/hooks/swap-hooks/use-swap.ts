@@ -4,7 +4,7 @@
 
 import { useState, useCallback, useEffect } from "react"
 import {
-  useConnection,
+  useAccount,
   usePublicClient,
   useWriteContract,
   useWaitForTransactionReceipt,
@@ -63,7 +63,7 @@ export function useMultiHopSwap({
   decimalsOut,
   slippage,
 }: UseMultiHopSwapParams) {
-  const { address, isConnected } = useConnection()
+  const { address, isConnected } = useAccount()
   const publicClient = usePublicClient()
   const chainId = useChainId()
   const swapperAddress = getSwapperAddress(chainId)

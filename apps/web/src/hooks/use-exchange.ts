@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from "react"
-import { useConnection, useChainId } from "wagmi"
+import { useAccount, useChainId } from "wagmi"
 import { ExchangeSDK } from "@aryxn/exchange-chain"
 import type { ExchangeRequest, ExchangeRoute } from "@aryxn/exchange-chain"
 import { getSwapperAddress, TOKEN_MAPPING } from "@/lib/contracts/addresses"
@@ -9,7 +9,7 @@ const SOLANA_PROGRAM_ID = "G2qM2J683JFYibZZCTefyX2W8YT9TRp5npyqm9ddtgHv"
 
 export function useExchange() {
   const chainId = useChainId()
-  const { address } = useConnection()
+  const { address } = useAccount()
 
   const sdk = useMemo(() => {
     return new ExchangeSDK({

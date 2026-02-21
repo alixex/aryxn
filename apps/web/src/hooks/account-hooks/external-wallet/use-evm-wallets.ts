@@ -3,7 +3,7 @@
  */
 
 import { useState, useEffect } from "react"
-import { useConnection, useConnections } from "wagmi"
+import { useAccount, useConnections } from "wagmi"
 import type { Connector } from "wagmi"
 
 export interface UseEvmWalletsReturn {
@@ -21,7 +21,7 @@ export function useEvmWallets(): UseEvmWalletsReturn {
     address: paymentAddress,
     isConnected: isPaymentConnected,
     connector,
-  } = useConnection()
+  } = useAccount()
   const connections = useConnections()
 
   // 所有 EVM 账户地址

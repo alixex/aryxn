@@ -8,7 +8,7 @@ import {
   ArrowRight,
   History,
 } from "lucide-react"
-import { useConnection } from "wagmi"
+import { useAccount } from "wagmi"
 import { Link, useSearchParams } from "react-router-dom"
 import { useTranslation } from "@/i18n/config"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -59,7 +59,7 @@ function chainLabel(chain: string) {
 export default function SwapPage() {
   const { t } = useTranslation()
   const [searchParams] = useSearchParams()
-  const { isConnected, address: externalAddress } = useConnection()
+  const { isConnected, address: externalAddress } = useAccount()
   const wallet = useWallet()
   const activeEvm = wallet.active.evm
   const internalActiveAddress = wallet.internal.activeAddress

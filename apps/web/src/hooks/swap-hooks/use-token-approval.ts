@@ -4,7 +4,7 @@
 
 import { useEffect } from "react"
 import {
-  useConnection,
+  useAccount,
   useReadContract,
   useWriteContract,
   useWaitForTransactionReceipt,
@@ -40,7 +40,7 @@ export function useTokenApproval({
   requiredAmount,
   enabled = true,
 }: UseTokenApprovalParams): TokenApprovalResult {
-  const { address: accountAddress } = useConnection()
+  const { address: accountAddress } = useAccount()
 
   // Read current allowance
   const { data: allowance, refetch: refetchAllowance } = useReadContract({
