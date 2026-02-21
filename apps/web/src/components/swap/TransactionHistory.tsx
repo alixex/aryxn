@@ -60,13 +60,21 @@ function BridgeRefreshButton({
   txHash,
   fromChain,
   toChain,
+  onRefresh,
+  canRefresh,
+  getRemainingCooldown,
 }: {
   txHash: string
   fromChain: string
   toChain: string
+  onRefresh: (
+    txHash: string,
+    fromChain: string,
+    toChain: string,
+  ) => Promise<void>
+  canRefresh: (txHash: string) => boolean
+  getRemainingCooldown: (txHash: string) => number
 }) {
-  const { refreshTransactionStatus, getRemainingCooldown, canRefresh } =
-    useBridge()
   const [cooldown, setCooldown] = useState(0)
   const [refreshing, setRefreshing] = useState(false)
 
@@ -86,7 +94,7 @@ function BridgeRefreshButton({
 
     setRefreshing(true)
     try {
-      await refreshTransactionStatus(txHash, fromChain, toChain)
+      await onRefresh(txHash, fromChain, toChain)
     } finally {
       setRefreshing(false)
     }
@@ -121,6 +129,10 @@ function RecoveryActions({
   fromChain,
   toChain,
   timestamp,
+  onRetry,
+  onClaim,
+  onSpeedUp,
+  checkRecoveryOptions,
 }: {
   txId: string
   txHash: string
@@ -128,13 +140,25 @@ function RecoveryActions({
   toChain: string
   status: string
   timestamp: number
+  onRetry: (txId: string) => void
+  onClaim: (
+    txId: string,
+    txHash: string,
+    fromChain: string,
+    toChain: string,
+  ) => void
+  onSpeedUp: (txId: string, txHash: string) => void
+  checkRecoveryOptions: (
+    txHash: string,
+    fromChain: string,
+    toChain: string,
+    timestamp: number,
+  ) => Promise<{
+    recoverable: boolean
+    suggestedActions: RecoveryAction[]
+    recommendations: { recommended: RecoveryAction | null; reasons: string[] }
+  }>
 }) {
-  const {
-    checkRecoveryOptions,
-    retryTransaction,
-    claimTransaction,
-    speedUpTransaction,
-  } = useBridge()
   const [checking, setChecking] = useState(false)
   const [suggestedActions, setSuggestedActions] = useState<RecoveryAction[]>([])
   const [recommended, setRecommended] = useState<RecoveryAction | null>(null)
@@ -170,23 +194,11 @@ function RecoveryActions({
     return null
   }
 
-  const handleRetry = () => {
-    retryTransaction(txId, { increaseSlippage: true })
-  }
-
-  const handleClaim = () => {
-    claimTransaction(txId, txHash, fromChain, toChain)
-  }
-
-  const handleSpeedUp = () => {
-    speedUpTransaction(txId, txHash, { gasMultiplier: 1.2 })
-  }
-
   return (
     <div className="mt-1 flex flex-wrap gap-1">
       {suggestedActions.includes("RETRY") && (
         <button
-          onClick={handleRetry}
+          onClick={() => onRetry(txId)}
           className={cn(
             "text-muted-foreground hover:bg-secondary/30 flex items-center gap-1 rounded-full px-2 py-1 text-xs transition-colors hover:text-yellow-400",
             recommended === "RETRY" && "bg-yellow-500/10 text-yellow-400",
@@ -200,7 +212,7 @@ function RecoveryActions({
 
       {suggestedActions.includes("CLAIM") && (
         <button
-          onClick={handleClaim}
+          onClick={() => onClaim(txId, txHash, fromChain, toChain)}
           className={cn(
             "text-muted-foreground hover:bg-secondary/30 flex items-center gap-1 rounded-full px-2 py-1 text-xs transition-colors hover:text-green-400",
             recommended === "CLAIM" && "bg-green-500/10 text-green-400",
@@ -214,7 +226,7 @@ function RecoveryActions({
 
       {suggestedActions.includes("SPEED_UP") && (
         <button
-          onClick={handleSpeedUp}
+          onClick={() => onSpeedUp(txId, txHash)}
           className={cn(
             "text-muted-foreground hover:bg-secondary/30 flex items-center gap-1 rounded-full px-2 py-1 text-xs transition-colors hover:text-cyan-400",
             recommended === "SPEED_UP" && "bg-cyan-500/10 text-cyan-400",
@@ -240,6 +252,15 @@ export function TransactionHistory() {
     loaded,
     getSyncCooldownLeft,
   } = useBridgeHistory()
+  const {
+    refreshTransactionStatus,
+    canRefresh,
+    getRemainingCooldown,
+    checkRecoveryOptions,
+    retryTransaction,
+    claimTransaction,
+    speedUpTransaction,
+  } = useBridge()
   const [expandedTxId, setExpandedTxId] = useState<string | null>(null)
   const [filter, setFilter] = useState<HistoryFilter>("ALL")
   const [cooldownLeftMs, setCooldownLeftMs] = useState(0)
@@ -546,6 +567,9 @@ export function TransactionHistory() {
                           txHash={tx.hash}
                           fromChain={tx.fromChain}
                           toChain={tx.toChain}
+                          onRefresh={refreshTransactionStatus}
+                          canRefresh={canRefresh}
+                          getRemainingCooldown={getRemainingCooldown}
                         />
                       )}
 
@@ -558,6 +582,16 @@ export function TransactionHistory() {
                             toChain={tx.toChain}
                             status={tx.status}
                             timestamp={tx.timestamp}
+                            onRetry={(id) =>
+                              retryTransaction(id, { increaseSlippage: true })
+                            }
+                            onClaim={claimTransaction}
+                            onSpeedUp={(id, hash) =>
+                              speedUpTransaction(id, hash, {
+                                gasMultiplier: 1.2,
+                              })
+                            }
+                            checkRecoveryOptions={checkRecoveryOptions}
                           />
                         )}
                     </div>

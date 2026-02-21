@@ -168,8 +168,23 @@ export function getTokenByAddress(address: Address, chainId: number): TokenInfo 
  */
 export function getTokenBySymbol(symbol: string, chainId: number): TokenInfo | undefined {
   return SUPPORTED_TOKENS.find(
-    (token) => 
-      token.symbol.toUpperCase() === symbol.toUpperCase() && 
+    (token) =>
+      token.symbol.toUpperCase() === symbol.toUpperCase() &&
       token.chainId === chainId
   )
+}
+
+/**
+ * Resolve a token's contract address on a specific destination chain by its symbol.
+ * Returns undefined if the token is not configured for that chain.
+ *
+ * Example:
+ *   getTokenAddressOnChain("USDC", ChainIds.POLYGON)
+ *   // → "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"
+ */
+export function getTokenAddressOnChain(
+  symbol: string,
+  chainId: number,
+): Address | undefined {
+  return getTokenBySymbol(symbol, chainId)?.address
 }

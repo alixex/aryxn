@@ -14,7 +14,10 @@ import {
   type RetryOptions,
   type SpeedUpOptions,
 } from "@aryxn/cross-chain"
-import { useBridgeHistory } from "@/lib/store/bridge-history"
+import {
+  useBridgeHistory,
+  type BridgeTransaction,
+} from "@/lib/store/bridge-history"
 import { useWallet } from "@/hooks/account-hooks"
 import {
   createEvmProvider,
@@ -91,7 +94,7 @@ export function useBridge() {
           return
         }
 
-        const updates: Record<string, any> = {
+        const updates: Partial<BridgeTransaction> = {
           lastUpdate: trackingInfo.lastUpdate,
         }
 
@@ -191,6 +194,14 @@ export function useBridge() {
     } finally {
       setLoading(false)
     }
+  }, [])
+
+  /**
+   * Clear current quote
+   */
+  const clearQuote = useCallback(() => {
+    setQuote(null)
+    setLastQuoteParams(null)
   }, [])
 
   /**
@@ -335,6 +346,10 @@ export function useBridge() {
             })
 
             if (index < batches.length - 1) {
+              toast.info(
+                `Batch ${index + 1}/${batches.length} submitted. Next batch will auto-send in 60s.`,
+                { duration: 5000 },
+              )
               await new Promise((resolve) => setTimeout(resolve, 60000))
             }
           }
@@ -639,11 +654,6 @@ export function useBridge() {
       txHash: string,
       options: SpeedUpOptions = { gasMultiplier: 1.2 },
     ) => {
-      if (!quote) {
-        toast.error("Cannot speed up: quote not found")
-        return
-      }
-
       try {
         setLoading(true)
         toast.info("Speeding up transaction...")
@@ -672,12 +682,8 @@ export function useBridge() {
           throw new Error("No wallet connected")
         }
 
-        const result = await BridgeRecovery.speedUp(
-          txHash,
-          quote.route,
-          signer,
-          options,
-        )
+        // speedUp reads the original on-chain tx data — no route needed
+        const result = await BridgeRecovery.speedUp(txHash, signer, options)
 
         if (result.success && result.txHash) {
           toast.success("Transaction sped up", {
@@ -699,13 +705,14 @@ export function useBridge() {
         setLoading(false)
       }
     },
-    [quote, walletManager, wagmiClient, transactions, updateTransaction],
+    [walletManager, wagmiClient, transactions, updateTransaction],
   )
 
   return {
     loading,
     quote,
     getQuote,
+    clearQuote,
     executeBridge,
     refreshTransactionStatus,
     getRemainingCooldown,

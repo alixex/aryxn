@@ -26,6 +26,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   SUPPORTED_TOKENS,
   getDexTokensByAccountChain,
+  getTokenAddressOnChain,
   type TokenInfo,
 } from "@/lib/contracts/token-config"
 import { useBridge } from "@/hooks/useBridge"
@@ -38,6 +39,7 @@ import {
   type BridgePriority,
   type ChainId,
 } from "@aryxn/cross-chain"
+import { parseUnits } from "viem"
 import { useWallet } from "@/providers/wallet-provider"
 import { useSearchParams } from "react-router-dom"
 import { Chains } from "@aryxn/chain-constants"
@@ -81,8 +83,9 @@ export function BridgeCard({ selectedAccount }: BridgeCardProps) {
   // Destination address
   const [destAddress, setDestAddress] = useState("")
   const [addressError, setAddressError] = useState("")
+  const [tokenSupportError, setTokenSupportError] = useState("")
 
-  const { loading, quote, getQuote, executeBridge } = useBridge()
+  const { loading, quote, getQuote, clearQuote, executeBridge } = useBridge()
   const selectedChain = selectedAccount?.chain
   const chainTokens = getDexTokensByAccountChain(selectedChain)
   const tokenOptions = chainTokens.map((token) => ({
@@ -184,6 +187,11 @@ export function BridgeCard({ selectedAccount }: BridgeCardProps) {
     }
   }, [destAddress, destChain])
 
+  // Reset token support error when chain or token changes
+  useEffect(() => {
+    setTokenSupportError("")
+  }, [sourceChain, destChain, inputToken])
+
   // Debounced quote fetching
   useEffect(() => {
     if (
@@ -194,16 +202,35 @@ export function BridgeCard({ selectedAccount }: BridgeCardProps) {
       sourceAddress
     ) {
       const timer = setTimeout(() => {
-        // Convert amount to wei (assuming 18 decimals for now)
-        const amountWei = (
-          parseFloat(inputAmount) * Math.pow(10, inputToken.decimals)
-        ).toString()
+        // Use parseUnits to avoid floating-point precision loss
+        let amountWei: string
+        try {
+          amountWei = parseUnits(inputAmount, inputToken.decimals).toString()
+        } catch {
+          return // Invalid number input, skip quote
+        }
+
+        // Resolve toToken address on the destination chain
+        const toTokenAddress = getTokenAddressOnChain(
+          inputToken.symbol,
+          Number(destChain),
+        )
+        if (!toTokenAddress) {
+          // Token not configured for destination chain
+          setTokenSupportError(
+            `${inputToken.symbol} is not supported on ${getChainName(destChain)}`,
+          )
+          clearQuote()
+          return
+        }
+
+        setTokenSupportError("")
 
         getQuote({
           fromChain: sourceChain,
           toChain: destChain,
           fromToken: inputToken.address,
-          toToken: inputToken.address, // Same token for now
+          toToken: toTokenAddress,
           amount: amountWei,
           fromAddress: sourceAddress,
           toAddress: destAddress,
@@ -338,6 +365,16 @@ export function BridgeCard({ selectedAccount }: BridgeCardProps) {
             </Select>
           </div>
         </div>
+
+        {tokenSupportError && (
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle>Token Not Supported</AlertTitle>
+            <AlertDescription className="text-sm">
+              {tokenSupportError}
+            </AlertDescription>
+          </Alert>
+        )}
 
         {(isSimulationUnsupported(sourceChain) ||
           isSimulationUnsupported(destChain)) && (
@@ -498,6 +535,7 @@ export function BridgeCard({ selectedAccount }: BridgeCardProps) {
             !hasTokenForChain ||
             !destAddress ||
             !!addressError ||
+            !!tokenSupportError ||
             loading
           }
           onClick={() =>
