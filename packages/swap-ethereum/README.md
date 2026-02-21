@@ -16,7 +16,7 @@ pnpm add @aryxn/swap-ethereum
 import { EthereumSwapper, CHAIN_CONFIGS } from "@aryxn/swap-ethereum"
 
 // Easily get WETH/USDC addresses for different chains
-const baseConfig = CHAIN_CONFIGS.BASE;
+const baseConfig = CHAIN_CONFIGS.BASE
 
 const swapper = new EthereumSwapper({
   rpcUrl: "https://base-mainnet.g.alchemy.com/v2/...",
