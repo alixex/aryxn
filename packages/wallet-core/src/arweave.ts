@@ -2,7 +2,7 @@
  * Arweave balance utilities
  */
 import Arweave from "arweave"
-import { BalanceResult } from "./types"
+import type { BalanceResult } from "./types"
 
 /**
  * Get Arweave balance

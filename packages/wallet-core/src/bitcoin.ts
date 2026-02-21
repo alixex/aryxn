@@ -1,7 +1,7 @@
 /**
  * Bitcoin balance utilities
  */
-import { BalanceResult } from "./types"
+import type { BalanceResult } from "./types"
 
 /**
  * Get Bitcoin balance

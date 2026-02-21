@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "tsc --watch",
     "lint": "oxlint src",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc -b --noEmit"
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.31.1",
@@ -17,6 +17,7 @@
     "@solana/web3.js": "^1.98.4"
   },
   "devDependencies": {
+    "@types/node": "^25.3.0",
     "oxlint": "^1.38.0",
     "typescript": "~5.9.3"
   },

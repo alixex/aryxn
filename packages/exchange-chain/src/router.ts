@@ -2,7 +2,7 @@ import { Chains } from "@aryxn/chain-constants"
 import { MultiChainSwapper } from "@aryxn/swap-multichain"
 import { LiFiBridgeService } from "@aryxn/cross-chain"
 import { getEthereumRpcUrl, getSolanaRpcUrl } from "@aryxn/query-chain"
-import { ExchangeRequest, ExchangeRoute, ExchangeConfig } from "./types"
+import type { ExchangeRequest, ExchangeRoute, ExchangeConfig } from "./types"
 
 export class ExchangeRouter {
   private swapper: MultiChainSwapper

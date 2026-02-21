@@ -1,5 +1,3 @@
-import { Chains } from "@aryxn/chain-constants"
-
 /**
  * Common supported tokens for default UI hints
  */

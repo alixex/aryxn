@@ -1,4 +1,4 @@
-import {
+import type {
   ChainType,
   TransactionType,
   TransactionStatus,

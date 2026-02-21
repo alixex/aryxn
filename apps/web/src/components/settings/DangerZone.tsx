@@ -11,13 +11,11 @@ import {
 import { useTranslation } from "@/i18n/config"
 
 export default function DangerZone({
-  onRequestClear,
   onConfirmClear,
   isClearing,
   open,
   setOpen,
 }: {
-  onRequestClear: () => void
   onConfirmClear: () => void
   isClearing: boolean
   open: boolean

@@ -1,13 +1,13 @@
-import {
+import type {
   IHistoryAdapter,
   OnRecordCallback,
   FetchOptions,
   ChainRecord,
 } from "../types"
+import type { TransactionType } from "@aryxn/chain-constants"
 import {
   Chains,
   TransactionTypes,
-  TransactionType,
   TransactionStatuses,
   RPCs,
 } from "@aryxn/chain-constants"

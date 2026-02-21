@@ -20,6 +20,7 @@ const HISTORY_SYNC_COOLDOWN_MS = 30 * 1000
 
 export interface BridgeTransaction {
   id: string
+  userAddress: string
   type: "SWAP" | "BRIDGE" | "SEND" | "RECEIVE" | "UNKNOWN"
   status: "PENDING" | "COMPLETED" | "FAILED"
   description: string
@@ -42,7 +43,10 @@ interface BridgeHistoryState {
   addTransaction: (tx: BridgeTransaction) => void
   updateTransaction: (id: string, updates: Partial<BridgeTransaction>) => void
   clearHistory: () => void
-  loadTransactions: () => Promise<void>
+  loadTransactions: (
+    filterType?: "ALL" | "SWAP" | "SEND" | "RECEIVE" | "BRIDGE",
+    filterAddress?: string,
+  ) => Promise<void>
   getSyncCooldownLeft: (address: string) => Promise<number>
   syncWithChain: (chain: string, address: string) => Promise<void>
   // New bridge swap methods
@@ -95,8 +99,12 @@ export const useBridgeHistory = create<BridgeHistoryState>()((set, get) => ({
     set({ transactions: [] })
     void clearBridgeTransactions()
   },
-  loadTransactions: async () => {
-    const rows = await listBridgeTransactions(100)
+  loadTransactions: async (filterType, filterAddress) => {
+    const rows = await listBridgeTransactions({
+      limit: 100,
+      type: filterType,
+      address: filterAddress,
+    })
     set({ transactions: rows, loaded: true })
   },
   getSyncCooldownLeft: async (address) => {
@@ -157,6 +165,7 @@ export const useBridgeHistory = create<BridgeHistoryState>()((set, get) => ({
 
             const newTx: BridgeTransaction = {
               id: record.id,
+              userAddress: address,
               hash: record.id,
               type: record.type as any,
               status: record.status as any,

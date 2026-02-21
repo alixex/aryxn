@@ -1,5 +1,3 @@
-import { Chains } from "@aryxn/chain-constants"
-
 export type ExchangeType = "SWAP" | "BRIDGE"
 
 export interface ExchangeConfig {

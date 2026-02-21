@@ -15,7 +15,7 @@ export const createEvmProvider = (rpcUrl: string) => {
   return new JsonRpcProvider(rpcUrl)
 }
 
-import { BalanceResult } from "./types"
+import type { BalanceResult } from "./types"
 
 /**
  * Get ETH or ERC20 balance for an address

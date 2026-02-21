@@ -125,8 +125,8 @@ export function FeeEstimate({
             >
               <RefreshCw className="h-3.5 w-3.5" />
               {refreshCooldownSeconds > 0
-                ? `${t("common.refresh")} (${refreshCooldownSeconds}s)`
-                : t("common.refresh")}
+                ? `${t("common.refresh", "Refresh")} (${refreshCooldownSeconds}s)`
+                : t("common.refresh", "Refresh")}
             </Button>
           </div>
         ) : estimatedFee ? (
@@ -172,7 +172,7 @@ export function FeeEstimate({
                 estimatedFee.manifestFeeAR > 0 && (
                   <div className="mt-1 flex items-center justify-between text-xs">
                     <span className="text-muted-foreground">
-                      {t("upload.manifestFee") || "清单文件费用"}:
+                      {t("upload.manifestFee")}:
                     </span>
                     <span className="text-foreground font-medium">
                       {estimatedFee.manifestFeeAR.toFixed(6)} AR

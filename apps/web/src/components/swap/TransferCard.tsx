@@ -14,7 +14,7 @@ import {
 import { useTransfer } from "@/hooks/swap-hooks/use-transfer"
 import { useBitcoinTransfer } from "@/hooks/swap-hooks/use-bitcoin-transfer"
 import { useWallet } from "@/hooks/account-hooks"
-import { Chains } from "@aryxn/chain-constants"
+import { Chains, ChainIds } from "@aryxn/chain-constants"
 
 type DexSelectableAccount = {
   chain: string
@@ -61,7 +61,7 @@ export function TransferCard({ selectedAccount }: TransferCardProps) {
   const tokenOptions = chainTokens.map((token) => ({
     value: token.symbol,
     label: token.symbol,
-    badge: token.chain,
+    badge: String(token.chainId),
   }))
 
   const handleRecipientChange = (value: string) => {
@@ -72,11 +72,11 @@ export function TransferCard({ selectedAccount }: TransferCardProps) {
       return
     }
 
-    if (value.startsWith("0x") && inputToken.chain !== Chains.ETHEREUM) {
+    if (value.startsWith("0x") && inputToken.chainId !== ChainIds.ETHEREUM) {
       setWarning("Warning: You are sending non-EVM tokens to an EVM address.")
     } else if (
       !value.startsWith("0x") &&
-      inputToken.chain === Chains.ETHEREUM &&
+      inputToken.chainId === ChainIds.ETHEREUM &&
       value.length > 0
     ) {
       setWarning("Warning: Ethereum tokens require a 0x address.")

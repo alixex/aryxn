@@ -1,10 +1,5 @@
-import {
-  ethers,
-  Provider,
-  Signer,
-  Contract,
-  ContractTransactionResponse,
-} from "ethers"
+import type { Provider, Signer, ContractTransactionResponse } from "ethers"
+import { ethers, Contract } from "ethers"
 
 /**
  * Typed contract interface for UniversalRouter.
@@ -210,11 +205,13 @@ export const CHAIN_CONFIGS = {
 
 // ========== 类型定义 ==========
 
-export enum ProtectionLevel {
-  BASIC = 0,
-  MEDIUM = 1,
-  HIGH = 2,
-}
+export const ProtectionLevel = {
+  BASIC: 0,
+  MEDIUM: 1,
+  HIGH: 2,
+} as const
+export type ProtectionLevel =
+  (typeof ProtectionLevel)[keyof typeof ProtectionLevel]
 
 export interface SwapParams {
   tokenIn: string

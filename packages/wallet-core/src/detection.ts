@@ -3,7 +3,7 @@ import * as solana from "@solana/web3.js"
 import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519"
 import Arweave from "arweave"
 import { Chains } from "@aryxn/chain-constants"
-import { WalletKey, WalletRecord } from "./types"
+import type { WalletKey, WalletRecord } from "./types"
 import { defaultArweave } from "./arweave-init"
 import {
   validateMnemonic,

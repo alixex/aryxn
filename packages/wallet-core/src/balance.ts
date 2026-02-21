@@ -1,7 +1,7 @@
 /**
  * Unified Balance Dispatcher
  */
-import { BalanceResult, BalanceOptions } from "./types"
+import type { BalanceResult, BalanceOptions } from "./types"
 import { getArweaveBalance } from "./arweave"
 import { getBitcoinBalance } from "./bitcoin"
 import { getEvmBalance, createEvmProvider } from "./evm"

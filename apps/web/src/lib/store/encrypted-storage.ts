@@ -12,7 +12,7 @@ const STORAGE_KEY_KEY = "aryxn_storage_key"
 // Initialize encryption key lazily
 let _encryptionKey: Uint8Array | null = null
 
-async function getEncryptionKey(): Promise<Uint8Array> {
+export async function getEncryptionKey(): Promise<Uint8Array> {
   if (_encryptionKey) return _encryptionKey
 
   const sodium = await initSodium()

@@ -34,7 +34,8 @@ export function AccountSelector({ file }: AccountSelectorProps) {
       const { key, address } = await generateArweaveWallet()
       const alias = `AR-${address.slice(0, 6)}`
       // Convert JWKInterface to ArweaveJWK
-      const arweaveKey = key as unknown as import("@/lib/types").ArweaveJWK
+      const arweaveKey =
+        key as unknown as import("@aryxn/wallet-core").ArweaveJWK
       await walletManager.addWallet(arweaveKey, alias)
       await walletManager.selectWallet(address)
       toast.success(t("upload.autoCreateArSuccess", { alias }))

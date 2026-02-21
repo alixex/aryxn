@@ -133,6 +133,7 @@ export function useBitcoinTransfer(
 
         addTransaction({
           id: crypto.randomUUID(),
+          userAddress: selectedAccount.address,
           type: "SEND",
           status: "PENDING",
           description: `Sent ${amountBtc} BTC to ${recipient.slice(0, 8)}...`,

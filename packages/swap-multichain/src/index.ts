@@ -1,8 +1,9 @@
-import { Wallet, Idl } from "@coral-xyz/anchor"
-import { Signer, ContractTransactionResponse } from "ethers"
+import { Wallet } from "@coral-xyz/anchor"
+import type { Idl } from "@coral-xyz/anchor"
+import type { Signer, ContractTransactionResponse } from "ethers"
 import { SolanaSwapper } from "@aryxn/swap-solana"
 import { EthereumSwapper, ProtectionLevel } from "@aryxn/swap-ethereum"
-import { QuoteResponse as JupQuoteResponse } from "@jup-ag/api"
+import type { QuoteResponse as JupQuoteResponse } from "@jup-ag/api"
 import { Chains, SwappableChains } from "@aryxn/chain-constants"
 
 type SwappableChain = (typeof SwappableChains)[number]

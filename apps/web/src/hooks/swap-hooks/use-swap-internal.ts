@@ -418,6 +418,7 @@ export function useInternalSwap({
 
         addTransaction({
           id: crypto.randomUUID(),
+          userAddress: internalWallet.address,
           type: "SWAP",
           status: "COMPLETED",
           description: `Swap ${inputAmount || "0"} ${inputSymbol} to ${quote.formattedOutput} ${outputSymbol}`,

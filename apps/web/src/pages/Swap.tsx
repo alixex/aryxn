@@ -26,8 +26,7 @@ import { AccountStatusBadge } from "@/components/account/AccountStatusBadge"
 import { PageHeader } from "@/components/layout/PageHeader"
 import { AccountChains, Chains } from "@aryxn/chain-constants"
 // Components
-import { SwapCard } from "@/components/swap/SwapCard"
-import { BridgeCard } from "@/components/swap/BridgeCard"
+import { UniversalSwapCard } from "@/components/swap/UniversalSwapCard"
 import { TransferCard } from "@/components/swap/TransferCard"
 import { TransactionHistory } from "@/components/swap/TransactionHistory"
 
@@ -80,7 +79,12 @@ export default function SwapPage() {
       )?.alias
     : undefined
 
-  const defaultTab = searchParams.get("tab") === "bridge" ? "bridge" : "swap"
+  const defaultTab =
+    searchParams.get("tab") === "transfer"
+      ? "transfer"
+      : searchParams.get("tab") === "history"
+        ? "history"
+        : "swap"
   const [activeTab, setActiveTab] = useState(defaultTab)
   const bridgeFromUpload = searchParams.get("source") === "upload"
   const bridgeToken = searchParams.get("token") || ""
@@ -319,13 +323,6 @@ export default function SwapPage() {
                         {t("dex.swap", "Swap")}
                       </TabsTrigger>
                       <TabsTrigger
-                        value="bridge"
-                        className="flex-1 gap-2 sm:w-32"
-                      >
-                        <TrendingUp className="h-4 w-4" />
-                        {t("dex.bridge", "Bridge")}
-                      </TabsTrigger>
-                      <TabsTrigger
                         value="transfer"
                         className="flex-1 gap-2 sm:w-32"
                       >
@@ -343,14 +340,10 @@ export default function SwapPage() {
                   </div>
 
                   <TabsContent value="swap" className="mt-0">
-                    <SwapCard
+                    <UniversalSwapCard
                       selectedAccount={selectedAccount}
                       onNavigateToHistory={() => setActiveTab("history")}
                     />
-                  </TabsContent>
-
-                  <TabsContent value="bridge" className="mt-0">
-                    <BridgeCard selectedAccount={selectedAccount} />
                   </TabsContent>
 
                   <TabsContent value="transfer" className="mt-0">

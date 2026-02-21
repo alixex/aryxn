@@ -1,6 +1,6 @@
 import { ExchangeRouter } from "./router"
 import { AggregateHistoryProvider } from "@aryxn/query-chain"
-import { ExchangeConfig } from "./types"
+import type { ExchangeConfig } from "./types"
 
 export * from "./types"
 export * from "./constants"

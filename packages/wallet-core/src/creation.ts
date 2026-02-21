@@ -2,7 +2,7 @@ import { ethers } from "ethers"
 import * as solana from "@solana/web3.js"
 import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519"
 import Arweave from "arweave"
-import { WalletRecord } from "./types"
+import type { WalletRecord } from "./types"
 import { defaultArweave } from "./arweave-init"
 import {
   generateMnemonic,

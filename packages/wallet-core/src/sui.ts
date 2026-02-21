@@ -26,7 +26,7 @@ export const createSuiClientWithUrl = (rpcUrl: string) => {
   return new SuiClient({ url: rpcUrl })
 }
 
-import { BalanceResult } from "./types"
+import type { BalanceResult } from "./types"
 
 /**
  * Get SUI balance for an address

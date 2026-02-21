@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "tsc --watch",
     "lint": "oxlint",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc -b --noEmit"
   },
   "dependencies": {
     "@aryxn/arweave": "workspace:*",

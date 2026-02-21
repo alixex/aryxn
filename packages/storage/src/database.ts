@@ -1,4 +1,4 @@
-import { SqlitePromiser, SqlValue, DbRow } from "./types"
+import type { SqlitePromiser, SqlValue, DbRow } from "./types"
 
 /**
  * 动态导入 SQLite WASM，避免在 SSR 构建时出错

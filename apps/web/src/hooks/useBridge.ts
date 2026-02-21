@@ -332,6 +332,7 @@ export function useBridge() {
 
             addTransaction({
               id: transactionId,
+              userAddress: walletManager.active.evm?.address || "",
               type: "BRIDGE",
               status: "PENDING",
               description: `Batch ${index + 1}/${batches.length}: Bridge ${batchAmount} ${token} from ${fromChainName} to ${toChainName}`,
@@ -404,6 +405,7 @@ export function useBridge() {
 
         addTransaction({
           id: transactionId,
+          userAddress: walletManager.active.evm?.address || "",
           type: "BRIDGE",
           status: "PENDING",
           description: `Bridge ${amount} ${token} from ${fromChainName} to ${toChainName}`,
@@ -554,6 +556,7 @@ export function useBridge() {
           if (tx) {
             addTransaction({
               id: `bridge-${Date.now()}`,
+              userAddress: walletManager.active.evm?.address || "",
               type: "BRIDGE",
               status: "PENDING",
               description: `Retry: ${tx.description}`,

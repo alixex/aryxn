@@ -1,4 +1,3 @@
-import React from "react"
 import { ShieldCheck, Info } from "lucide-react"
 import { ConfigImportExport } from "@/components/account/ConfigImportExport"
 

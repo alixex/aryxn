@@ -20,12 +20,19 @@ import { useTranslation } from "@/i18n/config"
 import { cn } from "@/lib/utils"
 import { useBridgeHistory } from "@/lib/store/bridge-history"
 import { useBridge } from "@/hooks/useBridge"
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect } from "react"
 import { useWallet } from "@/hooks/account-hooks"
 import { Button } from "@/components/ui/button"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 const SYNC_CHAINS = AppSyncChains
-type HistoryFilter = "ALL" | "SWAP" | "BRIDGE" | "SEND"
+type HistoryFilter = "ALL" | "SWAP" | "SEND" | "RECEIVE"
 
 function formatRelativeTime(timestamp: number) {
   const seconds = Math.max(1, Math.floor((Date.now() - timestamp) / 1000))
@@ -249,7 +256,6 @@ export function TransactionHistory() {
     syncing,
     syncWithChain,
     loadTransactions,
-    loaded,
     getSyncCooldownLeft,
   } = useBridgeHistory()
   const {
@@ -266,13 +272,21 @@ export function TransactionHistory() {
   const [cooldownLeftMs, setCooldownLeftMs] = useState(0)
 
   const address = wallet.active.evm?.address
+  const [selectedAddress, setSelectedAddress] = useState<string | undefined>(
+    address,
+  )
 
-  // Load persisted history from storage database on mount
+  // Update selected address if active address changes
   useEffect(() => {
-    if (!loaded) {
-      void loadTransactions()
+    if (address && !selectedAddress) {
+      setSelectedAddress(address)
     }
-  }, [loadTransactions, loaded])
+  }, [address, selectedAddress])
+
+  // Load from OPFS SQLite when filter or address changes
+  useEffect(() => {
+    void loadTransactions(filter, selectedAddress)
+  }, [filter, selectedAddress, loadTransactions])
 
   useEffect(() => {
     if (!address) {
@@ -316,20 +330,7 @@ export function TransactionHistory() {
     setExpandedTxId((prev) => (prev === txId ? null : txId))
   }
 
-  const filteredTransactions = useMemo(() => {
-    if (filter === "ALL") return transactions
-    return transactions.filter((tx) => tx.type === filter)
-  }, [transactions, filter])
-
-  const filterCounts = useMemo(
-    () => ({
-      ALL: transactions.length,
-      SWAP: transactions.filter((tx) => tx.type === "SWAP").length,
-      BRIDGE: transactions.filter((tx) => tx.type === "BRIDGE").length,
-      SEND: transactions.filter((tx) => tx.type === "SEND").length,
-    }),
-    [transactions],
-  )
+  const filteredTransactions = transactions // previously useMemo for in-memory
 
   return (
     <div className="glass-premium overflow-hidden rounded-xl border-none shadow-2xl">
@@ -362,53 +363,62 @@ export function TransactionHistory() {
       </div>
 
       <div className="max-h-100 space-y-1.5 overflow-y-auto p-2">
-        <div className="mb-2 flex flex-wrap gap-2 px-1">
-          {[
-            {
-              value: "ALL" as const,
-              label: t("common.all", "全部"),
-              count: filterCounts.ALL,
-            },
-            {
-              value: "SWAP" as const,
-              label: t("dex.swap", "交换"),
-              count: filterCounts.SWAP,
-            },
-            {
-              value: "BRIDGE" as const,
-              label: t("dex.bridge", "跨链"),
-              count: filterCounts.BRIDGE,
-            },
-            {
-              value: "SEND" as const,
-              label: t("dex.transfer", "发送"),
-              count: filterCounts.SEND,
-            },
-          ].map((item) => (
-            <button
-              key={item.value}
-              type="button"
-              onClick={() => setFilter(item.value)}
-              className={cn(
-                "flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs transition-all duration-200",
-                filter === item.value
-                  ? "bg-secondary text-foreground scale-[1.03]"
-                  : "text-muted-foreground hover:bg-secondary/40",
-              )}
-            >
-              <span>{item.label}</span>
-              <span
+        <div className="mb-2 flex flex-col gap-2 px-1 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap gap-2">
+            {[
+              {
+                value: "ALL" as const,
+                label: t("common.all", "All"),
+              },
+              {
+                value: "SWAP" as const,
+                label: t("dex.swap", "Swap"),
+              },
+              {
+                value: "SEND" as const,
+                label: t("dex.transfer", "Send"),
+              },
+              {
+                value: "RECEIVE" as const,
+                label: t("dex.receive", "Receive"),
+              },
+            ].map((item) => (
+              <button
+                key={item.value}
+                type="button"
+                onClick={() => setFilter(item.value)}
                 className={cn(
-                  "rounded-full px-1.5 py-0.5 text-[10px] leading-none",
+                  "flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-all duration-200",
                   filter === item.value
-                    ? "bg-foreground/10 text-foreground"
-                    : "bg-muted text-muted-foreground",
+                    ? "bg-secondary text-foreground scale-[1.03] shadow-sm"
+                    : "text-muted-foreground hover:bg-secondary/40",
                 )}
               >
-                {item.count}
-              </span>
-            </button>
-          ))}
+                <span>{item.label}</span>
+              </button>
+            ))}
+          </div>
+
+          <div className="w-full sm:w-auto">
+            <Select
+              value={selectedAddress || "all"}
+              onValueChange={(val) =>
+                setSelectedAddress(val === "all" ? undefined : val)
+              }
+            >
+              <SelectTrigger className="bg-secondary/30 glass-strong text-muted-foreground h-8 w-full border-none text-xs sm:w-[140px]">
+                <SelectValue placeholder="All Addresses" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Addresses</SelectItem>
+                {wallet.active.accounts?.map((acc) => (
+                  <SelectItem key={acc.address} value={acc.address}>
+                    {shortHash(acc.address)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {filteredTransactions.length === 0 ? (

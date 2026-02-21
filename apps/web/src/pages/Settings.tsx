@@ -207,7 +207,6 @@ export default function SettingsPage() {
         />
 
         <DangerZone
-          onRequestClear={() => setShowConfirmDialog(true)}
           onConfirmClear={handleClearAllData}
           isClearing={isClearing}
           open={showConfirmDialog}

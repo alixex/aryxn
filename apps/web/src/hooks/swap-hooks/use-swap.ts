@@ -215,6 +215,7 @@ export function useMultiHopSwap({
 
     addTransaction({
       id: crypto.randomUUID(),
+      userAddress: address || "",
       type: "SWAP",
       status: "COMPLETED",
       description: `Swap ${inputAmount || "0"} ${inputSymbol} to ${quote.formattedOutput} ${outputSymbol}`,

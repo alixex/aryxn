@@ -57,11 +57,12 @@ export interface CostBreakdown {
 /**
  * Risk assessment levels
  */
-export enum RiskLevel {
-  LOW = "LOW",
-  MEDIUM = "MEDIUM",
-  HIGH = "HIGH",
-}
+export const RiskLevel = {
+  LOW: "LOW",
+  MEDIUM: "MEDIUM",
+  HIGH: "HIGH",
+} as const
+export type RiskLevel = (typeof RiskLevel)[keyof typeof RiskLevel]
 
 /**
  * Risk assessment result

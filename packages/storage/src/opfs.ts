@@ -1,4 +1,4 @@
-import { OpfsFileInfo } from "./types"
+import type { OpfsFileInfo } from "./types"
 
 /**
  * 列出 OPFS 中的所有文件及其大小（用于调试）

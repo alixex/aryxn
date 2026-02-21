@@ -98,6 +98,7 @@ export function useTransfer() {
           toast.success("Transfer sent!", { id: toastId })
           addTransaction({
             id: crypto.randomUUID(),
+            userAddress: activeEvm.address,
             type: "SEND",
             status: "COMPLETED", // Simplified for now, typically starts as PENDING
             description: `Sent ${amount} ${token.symbol} to ${recipient.slice(0, 6)}...`,

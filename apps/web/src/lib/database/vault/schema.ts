@@ -58,6 +58,7 @@ export const SCHEMA = [
   )`,
   `CREATE TABLE IF NOT EXISTS bridge_transactions (
     id TEXT PRIMARY KEY,
+    user_address TEXT,
     type TEXT NOT NULL,
     status TEXT NOT NULL,
     description TEXT NOT NULL,
@@ -89,6 +90,7 @@ export const INDEXES = [
   "CREATE INDEX IF NOT EXISTS idx_wallets_vault ON wallets(vault_id)",
   "CREATE INDEX IF NOT EXISTS idx_wallets_address ON wallets(address)",
   "CREATE INDEX IF NOT EXISTS idx_wallets_chain ON wallets(chain)",
+  "CREATE INDEX IF NOT EXISTS idx_bridge_tx_address ON bridge_transactions(user_address)",
   "CREATE INDEX IF NOT EXISTS idx_bridge_tx_timestamp ON bridge_transactions(timestamp DESC)",
   "CREATE INDEX IF NOT EXISTS idx_bridge_tx_type ON bridge_transactions(type)",
   "CREATE INDEX IF NOT EXISTS idx_bridge_tx_status ON bridge_transactions(status)",

@@ -27,7 +27,7 @@ export const createSolanaPublicKey = (address: string) => {
   return new PublicKey(address)
 }
 
-import { BalanceResult } from "./types"
+import type { BalanceResult } from "./types"
 
 /**
  * Get SOL balance for a public key
