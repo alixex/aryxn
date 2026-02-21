@@ -42,7 +42,8 @@
     "searchCapabilitiesDesc": "• 支持文件名和描述的部分匹配搜索\n• 默认只搜索自己上传的文件\n• 输入存储 ID（43 字符）可搜索任何文件\n• 支持多词搜索（空格分隔）",
     "balance": "余额",
     "updatedAt": "更新于",
-    "usingAccount": "从账户付款"
+    "usingAccount": "使用账户",
+    "error": "错误"
   },
   "chain": {
     "arweave": "Arweave 钱包",
@@ -480,6 +481,34 @@
     "uploadRetryHint": "完成 swap/bridge 后，请返回上传页面重新提交。",
     "error": "错误",
     "viewOnEtherscan": "在 Etherscan 上查看交易 →"
+  },
+  "bridge": {
+    "youGet": "得到",
+    "step": "步",
+    "steps": "步",
+    "rate": "汇率",
+    "fee": "费用",
+    "time": "时间",
+    "via": "通过",
+    "providerFallback": "跨链桥",
+    "feeBreakdown": "费用拆分",
+    "bridgeFee": "桥费用",
+    "swapFee": "兑换费用",
+    "lifiFee": "路由费用",
+    "breakdownUnavailable": "暂无法提供费用拆分",
+    "riskTitle": "风险提示",
+    "riskHighFee": "当前费率相对较高",
+    "riskSlow": "预计完成时间可能较长",
+    "riskMultiStep": "执行步骤较多，失败面会增加",
+    "statusCompleted": "跨链已完成",
+    "statusFailed": "跨链失败",
+    "statusBridging": "跨链中...",
+    "statusSwapping": "兑换中...",
+    "statusProcessing": "处理中...",
+    "statusCheckFailed": "状态检查失败",
+    "executeSwap": "执行跨链兑换",
+    "routeUnavailable": "暂无可用路由",
+    "viewHistory": "查看历史记录"
   },
   "notFound": {
     "code": "404",

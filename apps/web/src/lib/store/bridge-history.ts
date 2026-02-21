@@ -9,6 +9,12 @@ import {
   setBridgeSyncTimestamp,
   upsertBridgeTransaction,
 } from "./bridge-history-repo"
+import {
+  upsertBridgeSwap,
+  listBridgeSwaps as listBridgeSwapsFromRepo,
+  getBridgeSwap as getBridgeSwapFromRepo,
+} from "./bridge-swap-repo"
+import type { BridgeSwapRecord } from "@/lib/bridge/route-types"
 
 const HISTORY_SYNC_COOLDOWN_MS = 30 * 1000
 
@@ -39,6 +45,15 @@ interface BridgeHistoryState {
   loadTransactions: () => Promise<void>
   getSyncCooldownLeft: (address: string) => Promise<number>
   syncWithChain: (chain: string, address: string) => Promise<void>
+  // New bridge swap methods
+  addBridgeSwap: (swap: BridgeSwapRecord) => Promise<void>
+  updateBridgeSwapStatus: (
+    id: string,
+    status: BridgeSwapRecord["status"],
+    error?: string,
+  ) => Promise<void>
+  getBridgeSwap: (id: string) => Promise<BridgeSwapRecord | null>
+  listBridgeSwaps: () => Promise<BridgeSwapRecord[]>
 }
 
 // Initializing the provider
@@ -51,7 +66,9 @@ export const useBridgeHistory = create<BridgeHistoryState>()((set, get) => ({
   lastSynced: {},
   addTransaction: (tx) => {
     set((state) => {
-      const exists = state.transactions.find((t) => t.hash && t.hash === tx.hash)
+      const exists = state.transactions.find(
+        (t) => t.hash && t.hash === tx.hash,
+      )
       if (exists) return state
       return { transactions: [tx, ...state.transactions].slice(0, 100) }
     })
@@ -166,5 +183,29 @@ export const useBridgeHistory = create<BridgeHistoryState>()((set, get) => ({
     } finally {
       set({ syncing: false })
     }
+  },
+  addBridgeSwap: async (swap: BridgeSwapRecord) => {
+    await upsertBridgeSwap(swap)
+  },
+  updateBridgeSwapStatus: async (
+    id: string,
+    status: BridgeSwapRecord["status"],
+    error?: string,
+  ) => {
+    const swap = await getBridgeSwapFromRepo(id)
+    if (swap) {
+      await upsertBridgeSwap({
+        ...swap,
+        status,
+        errorMessage: error,
+        updatedAt: Date.now(),
+      })
+    }
+  },
+  getBridgeSwap: async (id: string) => {
+    return getBridgeSwapFromRepo(id)
+  },
+  listBridgeSwaps: async () => {
+    return listBridgeSwapsFromRepo({ limit: 100 })
   },
 }))

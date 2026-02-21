@@ -5,6 +5,9 @@ import { ethers, Provider, Signer, ContractTransactionResponse } from "ethers"
  * 以太坊交换 SDK，封装与 UniversalRouter 合约的交互
  */
 export class EthereumSwapper {
+  public static readonly NATIVE_ETH =
+    "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+
   private provider: Provider
   private contract: any
   private contractAddress: string
@@ -21,7 +24,7 @@ export class EthereumSwapper {
 
   /**
    * 执行交换
-   * @param params 交换参数，包含多步路由
+   * @param params 交换参数
    */
   async swap(params: {
     signer: Signer
@@ -30,56 +33,55 @@ export class EthereumSwapper {
     amountIn: bigint
     minAmountOut: bigint
     deadline: number
-    route: SwapStep[]
-    protection?: number // ProtectionLevel enum
+    protection?: ProtectionLevel
+    exactApproval?: boolean
   }): Promise<ContractTransactionResponse> {
     const contractWithSigner = this.contract.connect(params.signer)
+    const userAddress = await params.signer.getAddress()
+    const isNativeIn =
+      params.tokenIn.toLowerCase() ===
+        EthereumSwapper.NATIVE_ETH.toLowerCase() ||
+      params.tokenIn === ethers.ZeroAddress
 
-    // 1. 先授权代币 (针对 tokenIn)
-    const tokenContract = new ethers.Contract(
-      params.tokenIn,
-      ERC20_ABI,
-      params.signer,
-    )
-
-    const allowance = await tokenContract.allowance(
-      await params.signer.getAddress(),
-      this.contractAddress,
-    )
-
-    if (allowance < params.amountIn) {
-      const approveTx = await tokenContract.approve(
-        this.contractAddress,
-        ethers.MaxUint256, // 授权最大值以减少未来交易频率
+    // 1. 处理授权 (非原生 ETH 且需要授权)
+    if (!isNativeIn) {
+      const tokenContract = new ethers.Contract(
+        params.tokenIn,
+        ERC20_ABI,
+        params.signer,
       )
-      await approveTx.wait()
+
+      const allowance = await tokenContract.allowance(
+        userAddress,
+        this.contractAddress,
+      )
+
+      if (allowance < params.amountIn) {
+        const approveAmount = params.exactApproval
+          ? params.amountIn
+          : ethers.MaxUint256
+        const approveTx = await tokenContract.approve(
+          this.contractAddress,
+          approveAmount,
+        )
+        await approveTx.wait()
+      }
     }
 
     // 2. 准备 SwapParams 结构体
     const swapParams = {
-      tokenIn: params.tokenIn,
+      tokenIn: isNativeIn ? ethers.ZeroAddress : params.tokenIn,
       tokenOut: params.tokenOut,
       amountIn: params.amountIn,
       minAmountOut: params.minAmountOut,
-      recipient: await params.signer.getAddress(),
+      recipient: userAddress,
       deadline: params.deadline,
-      protection: params.protection || 0, // 默认 BASIC
+      protection: params.protection ?? ProtectionLevel.MEDIUM,
     }
 
-    // 3. 执行交换 (注意：合约期望 (SwapParams params, SwapStep[] route))
-    // 实际合约接口中路径寻找可能由链下完成并传入
-    return await contractWithSigner.swap(swapParams)
-  }
-
-  /**
-   * 手动执行带有预定义路由的交换
-   */
-  async swapWithRoute(params: {
-    signer: Signer
-    swapParams: SwapParams
-  }): Promise<ContractTransactionResponse> {
-    const contractWithSigner = this.contract.connect(params.signer)
-    return await contractWithSigner.swap(params.swapParams)
+    // 3. 执行交换
+    const txOptions = isNativeIn ? { value: params.amountIn } : {}
+    return await contractWithSigner.swap(swapParams, txOptions)
   }
 
   /**
@@ -90,19 +92,31 @@ export class EthereumSwapper {
   }
 }
 
+/**
+ * 常用链配置预设
+ */
+export const CHAIN_CONFIGS = {
+  BASE: {
+    WETH: "0x4200000000000000000000000000000000000006",
+    USDC: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    CB_BTC: "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
+  },
+  ARBITRUM: {
+    WETH: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
+    USDC: "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+  },
+  MAINNET: {
+    WETH: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+    USDC: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+  },
+}
+
 // ========== 类型定义 ==========
 
 export enum ProtectionLevel {
   BASIC = 0,
   MEDIUM = 1,
   HIGH = 2,
-}
-
-export interface SwapStep {
-  dexId: number
-  tokenOut: string
-  pool: string
-  data: string // hex string
 }
 
 export interface SwapParams {
@@ -118,7 +132,7 @@ export interface SwapParams {
 // ========== ABI 定义 ==========
 
 const UNIVERSAL_ROUTER_ABI = [
-  "function swap((address tokenIn, address tokenOut, uint256 amountIn, uint256 minAmountOut, address recipient, uint256 deadline, uint8 protection) params) external returns (uint256)",
+  "function swap((address tokenIn, address tokenOut, uint256 amountIn, uint256 minAmountOut, address recipient, uint256 deadline, uint8 protection) params) external payable returns (uint256)",
   "function getStats() external view returns (uint256 totalVolume, uint256 totalFees, uint256 lastUpdate, bool paused)",
   "function withdrawFees(address token) external",
   "function setFeeRecipient(address _feeRecipient) external",

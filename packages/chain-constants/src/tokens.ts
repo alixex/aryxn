@@ -119,5 +119,4 @@ export const DexTokenSymbolsByAccountChain: Readonly<
   [Chains.SOLANA]: ["SOL", "USDC", "USDT", "V2EX"],
   [Chains.SUI]: ["SUI", "USDC", "USDT"],
   [Chains.ARWEAVE]: ["AR"],
-  [Chains.BITCOIN]: ["WBTC"],
 } as const

@@ -1,6 +1,5 @@
 /**
  * Main swap hook - orchestrates the complete swap workflow
- * Integrates balance checking, approval, quote fetching, and swap execution
  */
 
 import { useState, useCallback, useEffect } from "react"
@@ -9,15 +8,19 @@ import {
   usePublicClient,
   useWriteContract,
   useWaitForTransactionReceipt,
+  useChainId,
 } from "wagmi"
 import type { Address } from "@aryxn/wallet-core"
 import { Chains } from "@aryxn/chain-constants"
 import { MULTI_HOP_SWAPPER_ABI } from "@/lib/contracts/multi-hop-swapper-abi"
-import { MULTI_HOP_SWAPPER_ADDRESS } from "@/lib/contracts/addresses"
+import { getSwapperAddress } from "@/lib/contracts/addresses"
 import { useSwapQuote } from "./use-swap-quote"
 import { useTokenBalance } from "./use-token-balance"
 import { useTokenApproval } from "./use-token-approval"
-import { parseTokenAmount, getTokenByAddress } from "@/lib/contracts/token-config"
+import {
+  parseTokenAmount,
+  getTokenByAddress,
+} from "@/lib/contracts/token-config"
 import { useBridgeHistory } from "@/lib/store/bridge-history"
 
 export interface SwapRoute {
@@ -28,8 +31,6 @@ export interface SwapRoute {
 
 /**
  * Swap state constants
- * Using object literal instead of enum for erasableSyntaxOnly compatibility
- * NOTE: This is duplicated from use-swap-internal.ts - exported there instead
  */
 const SwapState = {
   IDLE: "idle",
@@ -64,6 +65,9 @@ export function useMultiHopSwap({
 }: UseMultiHopSwapParams) {
   const { address, isConnected } = useConnection()
   const publicClient = usePublicClient()
+  const chainId = useChainId()
+  const swapperAddress = getSwapperAddress(chainId)
+
   const [swapState, setSwapState] = useState<SwapState>(SwapState.IDLE)
   const [error, setError] = useState<string>("")
   const [gasPrice, setGasPrice] = useState<string>("")
@@ -107,7 +111,7 @@ export function useMultiHopSwap({
   const { needsApproval, isApproving, isWaitingForApproval, approve } =
     useTokenApproval({
       tokenAddress: inputToken,
-      spenderAddress: MULTI_HOP_SWAPPER_ADDRESS,
+      spenderAddress: swapperAddress,
       requiredAmount: amountIn,
       enabled: isConnected && amountIn > 0n,
     })
@@ -158,22 +162,26 @@ export function useMultiHopSwap({
   // Estimate gas for swap
   useEffect(() => {
     const estimateGas = async () => {
-      if (!quote || !address || amountIn === 0n) {
+      if (!quote || !address || amountIn === 0n || !swapperAddress) {
         setGasEstimate(0n)
         return
       }
 
       try {
         const gas = await publicClient?.estimateContractGas({
-          address: MULTI_HOP_SWAPPER_ADDRESS,
+          address: swapperAddress,
           abi: MULTI_HOP_SWAPPER_ABI,
           functionName: "swap",
           args: [
-            inputToken,
-            outputToken,
-            amountIn,
-            quote.minimumOutput,
-            quote.route,
+            {
+              tokenIn: inputToken,
+              tokenOut: outputToken,
+              amountIn: amountIn,
+              minAmountOut: quote.minimumOutput,
+              recipient: address,
+              deadline: BigInt(Math.floor(Date.now() / 1000) + 1200),
+              protection: 1, // MEDIUM
+            },
           ],
           account: address,
         })
@@ -185,14 +193,22 @@ export function useMultiHopSwap({
     }
 
     estimateGas()
-  }, [quote, address, amountIn, inputToken, outputToken, publicClient])
+  }, [
+    quote,
+    address,
+    amountIn,
+    inputToken,
+    outputToken,
+    publicClient,
+    swapperAddress,
+  ])
 
   // Record successful swaps into unified history
   useEffect(() => {
     if (!swapSuccess || !swapHash || !quote) return
 
-    const inputTokenInfo = getTokenByAddress(inputToken)
-    const outputTokenInfo = getTokenByAddress(outputToken)
+    const inputTokenInfo = getTokenByAddress(inputToken, chainId)
+    const outputTokenInfo = getTokenByAddress(outputToken, chainId)
     const inputSymbol = inputTokenInfo?.symbol ?? "UNKNOWN"
     const outputSymbol = outputTokenInfo?.symbol ?? "UNKNOWN"
 
@@ -216,6 +232,7 @@ export function useMultiHopSwap({
     outputToken,
     inputAmount,
     addTransaction,
+    chainId,
   ])
 
   // Update swap state
@@ -290,7 +307,7 @@ export function useMultiHopSwap({
 
   // Execute swap
   const executeSwap = useCallback(() => {
-    if (!quote || !address || amountIn === 0n) {
+    if (!quote || !address || amountIn === 0n || !swapperAddress) {
       setError("Invalid swap parameters")
       return
     }
@@ -304,15 +321,19 @@ export function useMultiHopSwap({
     setError("")
 
     writeContract({
-      address: MULTI_HOP_SWAPPER_ADDRESS,
+      address: swapperAddress,
       abi: MULTI_HOP_SWAPPER_ABI,
       functionName: "swap",
       args: [
-        inputToken,
-        outputToken,
-        amountIn,
-        quote.minimumOutput,
-        quote.route,
+        {
+          tokenIn: inputToken,
+          tokenOut: outputToken,
+          amountIn: amountIn,
+          minAmountOut: quote.minimumOutput,
+          recipient: address,
+          deadline: BigInt(Math.floor(Date.now() / 1000) + 1200),
+          protection: 1, // MEDIUM
+        },
       ],
     })
   }, [
@@ -323,6 +344,7 @@ export function useMultiHopSwap({
     writeContract,
     inputToken,
     outputToken,
+    swapperAddress,
   ])
 
   // Legacy format for route (for compatibility)

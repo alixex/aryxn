@@ -42,7 +42,8 @@
     "searchCapabilitiesDesc": "• Supports partial matching for file names and descriptions\n• By default, only searches files you uploaded\n• Enter transaction ID (43 chars) to search any file\n• Supports multi-word search (space-separated)",
     "balance": "Balance",
     "updatedAt": "Updated at",
-    "usingAccount": "Using Account"
+    "usingAccount": "Using Account",
+    "error": "Error"
   },
   "chain": {
     "arweave": "Arweave Wallet",
@@ -480,6 +481,34 @@
     "uploadRetryHint": "After completing swap/bridge, return to Upload and submit again.",
     "error": "Error",
     "viewOnEtherscan": "View transaction on Etherscan →"
+  },
+  "bridge": {
+    "youGet": "You Get",
+    "step": "step",
+    "steps": "steps",
+    "rate": "Rate",
+    "fee": "Fee",
+    "time": "Time",
+    "via": "Via",
+    "providerFallback": "Bridge",
+    "feeBreakdown": "Fee Breakdown",
+    "bridgeFee": "Bridge Fee",
+    "swapFee": "Swap Fee",
+    "lifiFee": "Routing Fee",
+    "breakdownUnavailable": "Fee breakdown unavailable",
+    "riskTitle": "Risk Notice",
+    "riskHighFee": "Fee rate is relatively high",
+    "riskSlow": "Estimated completion may be slow",
+    "riskMultiStep": "Multiple execution steps increase failure surface",
+    "statusCompleted": "Bridge completed",
+    "statusFailed": "Bridge failed",
+    "statusBridging": "Bridging...",
+    "statusSwapping": "Swapping...",
+    "statusProcessing": "Processing...",
+    "statusCheckFailed": "Status check failed",
+    "executeSwap": "Execute Bridge Swap",
+    "routeUnavailable": "Route unavailable",
+    "viewHistory": "View History"
   },
   "notFound": {
     "code": "404",

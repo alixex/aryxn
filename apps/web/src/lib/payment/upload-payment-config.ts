@@ -18,7 +18,9 @@ export const UPLOAD_PAYMENT_CONFIG: UploadPaymentConfig = {
   supportedAccountChains: [...UploadPaymentSupportedChains],
   selectableTokens: [...UploadSelectablePaymentTokens] as PaymentToken[],
   selectableTokensByAccountChain:
-    UploadSelectableTokensByAccountChain as Partial<Record<string, PaymentToken[]>>,
+    UploadSelectableTokensByAccountChain as Partial<
+      Record<string, PaymentToken[]>
+    >,
   tokenNativeChains: UploadTokenNativeChainBySymbol,
 }
 

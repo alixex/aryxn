@@ -82,15 +82,6 @@ export function getSolanaRpcUrl(): string {
     return envUrl
   }
 
-  // In browser, use CORS-friendly proxy
-  if (isBrowser()) {
-    const origin = window.location.origin
-    // Use Vite dev proxy for all environments
-    if (origin.includes("localhost") || origin.includes("127.0.0.1")) {
-      return `${origin}/api/solana-rpc`
-    }
-  }
-
   return "https://api.mainnet-beta.solana.com"
 }
 

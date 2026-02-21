@@ -89,7 +89,8 @@ export function BridgeCard({ selectedAccount }: BridgeCardProps) {
     value: token.symbol,
     label: token.symbol,
   }))
-  const sourceAddress = selectedAccount?.address || wallet.active?.evm?.address || ""
+  const sourceAddress =
+    selectedAccount?.address || wallet.active?.evm?.address || ""
   const bridgeSupported = selectedChain === Chains.ETHEREUM
   const hasTokenForChain = chainTokens.length > 0
 
@@ -247,10 +248,16 @@ export function BridgeCard({ selectedAccount }: BridgeCardProps) {
           <Alert className="border-yellow-500/50 bg-yellow-500/10">
             <AlertTriangle className="h-4 w-4 text-yellow-500" />
             <AlertTitle className="text-yellow-700 dark:text-yellow-400">
-              {t("dex.bridgeEvmOnly", "Bridge currently supports Ethereum accounts.")}
+              {t(
+                "dex.bridgeEvmOnly",
+                "Bridge currently supports Ethereum accounts.",
+              )}
             </AlertTitle>
             <AlertDescription className="text-sm text-yellow-600 dark:text-yellow-300">
-              {t("dex.switchToEthAccount", "Please switch to an Ethereum account to continue.")}
+              {t(
+                "dex.switchToEthAccount",
+                "Please switch to an Ethereum account to continue.",
+              )}
             </AlertDescription>
           </Alert>
         )}
@@ -259,7 +266,10 @@ export function BridgeCard({ selectedAccount }: BridgeCardProps) {
           <Alert className="border-yellow-500/50 bg-yellow-500/10">
             <AlertTriangle className="h-4 w-4 text-yellow-500" />
             <AlertTitle className="text-yellow-700 dark:text-yellow-400">
-              {t("dex.noTokensForChain", "No swap tokens are configured for the selected account chain.")}
+              {t(
+                "dex.noTokensForChain",
+                "No swap tokens are configured for the selected account chain.",
+              )}
             </AlertTitle>
           </Alert>
         )}
@@ -345,30 +355,30 @@ export function BridgeCard({ selectedAccount }: BridgeCardProps) {
 
         {/* Asset Input */}
         {hasTokenForChain && (
-        <div className="space-y-3">
-          <div className="flex justify-between">
-            <Label className="text-foreground text-sm font-semibold">
-              Asset to Bridge
-            </Label>
-            <span className="text-muted-foreground text-xs">Balance: 0.00</span>
-          </div>
+          <div className="space-y-3">
+            <div className="flex justify-between">
+              <Label className="text-foreground text-sm font-semibold">
+                Asset to Bridge
+              </Label>
+              <span className="text-muted-foreground text-xs">
+                Balance: 0.00
+              </span>
+            </div>
 
-          <SwapTokenAmountInput
-            tokenValue={inputToken.symbol}
-            onTokenChange={(symbol) => {
-              const token = chainTokens.find(
-                (item) => item.symbol === symbol,
-              )
-              if (token) setInputToken(token)
-            }}
-            tokenOptions={tokenOptions}
-            amountValue={inputAmount}
-            onAmountChange={setInputAmount}
-            amountType="number"
-            amountInputMode="decimal"
-            amountPlaceholder="0.0"
-          />
-        </div>
+            <SwapTokenAmountInput
+              tokenValue={inputToken.symbol}
+              onTokenChange={(symbol) => {
+                const token = chainTokens.find((item) => item.symbol === symbol)
+                if (token) setInputToken(token)
+              }}
+              tokenOptions={tokenOptions}
+              amountValue={inputAmount}
+              onAmountChange={setInputAmount}
+              amountType="number"
+              amountInputMode="decimal"
+              amountPlaceholder="0.0"
+            />
+          </div>
         )}
 
         {/* Destination Address Input */}

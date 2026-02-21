@@ -39,7 +39,8 @@
     "searchErrorHint": "提示：Arweave 搜尋只能查找最近的交易，如果找不到結果，請嘗試其他關鍵詞",
     "searchLimitHint": "提示：搜尋僅查找最近的交易（最多 5000 條），如果找不到結果，請嘗試其他關鍵詞",
     "searchCapabilities": "搜尋功能說明",
-    "searchCapabilitiesDesc": "• 支援檔案名稱和描述的部分匹配搜尋\n• 預設只搜尋自己上傳的檔案\n• 輸入儲存 ID（43 字元）可搜尋任何檔案\n• 支援多詞搜尋（空格分隔）"
+    "searchCapabilitiesDesc": "• 支援檔案名稱和描述的部分匹配搜尋\n• 預設只搜尋自己上傳的檔案\n• 輸入儲存 ID（43 字元）可搜尋任何檔案\n• 支援多詞搜尋（空格分隔）",
+    "error": "錯誤"
   },
   "unlock": {
     "title": "開啟隱私金庫",
@@ -412,6 +413,34 @@
     "hide": "收起",
     "openExplorer": "打開瀏覽器",
     "searchTx": "搜尋交易"
+  },
+  "bridge": {
+    "youGet": "獲得",
+    "step": "步驟",
+    "steps": "步驟",
+    "rate": "匯率",
+    "fee": "費用",
+    "time": "時間",
+    "via": "通過",
+    "providerFallback": "跨鏈橋",
+    "feeBreakdown": "費用拆分",
+    "bridgeFee": "橋費用",
+    "swapFee": "兌換費用",
+    "lifiFee": "路由費用",
+    "breakdownUnavailable": "暫時無法提供費用拆分",
+    "riskTitle": "風險提示",
+    "riskHighFee": "當前費率相對較高",
+    "riskSlow": "預計完成時間可能較長",
+    "riskMultiStep": "執行步驟較多，失敗面會增加",
+    "statusCompleted": "跨鏈已完成",
+    "statusFailed": "跨鏈失敗",
+    "statusBridging": "跨鏈中...",
+    "statusSwapping": "兌換中...",
+    "statusProcessing": "處理中...",
+    "statusCheckFailed": "狀態檢查失敗",
+    "executeSwap": "執行跨鏈兌換",
+    "routeUnavailable": "暫無可用路由",
+    "viewHistory": "查看歷史記錄"
   },
   "notFound": {
     "code": "404",

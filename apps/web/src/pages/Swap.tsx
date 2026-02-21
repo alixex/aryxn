@@ -92,7 +92,9 @@ export default function SwapPage() {
     const discoveredChains = Object.keys(accountsByChain)
     const orderedChains = [
       ...AccountChains,
-      ...discoveredChains.filter((chain) => !AccountChains.includes(chain as any)),
+      ...discoveredChains.filter(
+        (chain) => !AccountChains.includes(chain as any),
+      ),
     ]
 
     return orderedChains.flatMap((chain) =>
@@ -263,7 +265,8 @@ export default function SwapPage() {
                     {selectedAccount && (
                       <div className="text-right">
                         <div className="text-foreground text-sm font-medium">
-                          {selectedAccount.alias || formatAddress(selectedAccount.address)}
+                          {selectedAccount.alias ||
+                            formatAddress(selectedAccount.address)}
                         </div>
                         <div className="text-muted-foreground font-mono text-xs">
                           {selectedAccount.address}
@@ -273,11 +276,18 @@ export default function SwapPage() {
                   </div>
 
                   <Select
-                    value={selectedAccount ? accountKey(selectedAccount) : undefined}
+                    value={
+                      selectedAccount ? accountKey(selectedAccount) : undefined
+                    }
                     onValueChange={handleSelectAccount}
                   >
                     <SelectTrigger className="h-11 rounded-xl">
-                      <SelectValue placeholder={t("upload.selectPaymentAccount", "Select account")} />
+                      <SelectValue
+                        placeholder={t(
+                          "upload.selectPaymentAccount",
+                          "Select account",
+                        )}
+                      />
                     </SelectTrigger>
                     <SelectContent>
                       {selectableAccounts.map((account) => (
@@ -285,7 +295,8 @@ export default function SwapPage() {
                           key={accountKey(account)}
                           value={accountKey(account)}
                         >
-                          {chainLabel(account.chain)} · {account.alias || formatAddress(account.address)}
+                          {chainLabel(account.chain)} ·{" "}
+                          {account.alias || formatAddress(account.address)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -300,11 +311,17 @@ export default function SwapPage() {
                 >
                   <div className="mb-6 flex items-center justify-between">
                     <TabsList className="glass-premium h-12 w-full p-1 sm:w-auto">
-                      <TabsTrigger value="swap" className="flex-1 gap-2 sm:w-32">
+                      <TabsTrigger
+                        value="swap"
+                        className="flex-1 gap-2 sm:w-32"
+                      >
                         <ArrowRightLeft className="h-4 w-4" />
                         {t("dex.swap", "Swap")}
                       </TabsTrigger>
-                      <TabsTrigger value="bridge" className="flex-1 gap-2 sm:w-32">
+                      <TabsTrigger
+                        value="bridge"
+                        className="flex-1 gap-2 sm:w-32"
+                      >
                         <TrendingUp className="h-4 w-4" />
                         {t("dex.bridge", "Bridge")}
                       </TabsTrigger>
@@ -315,7 +332,10 @@ export default function SwapPage() {
                         <Send className="h-4 w-4" />
                         {t("dex.transfer", "Send")}
                       </TabsTrigger>
-                      <TabsTrigger value="history" className="flex-1 gap-2 sm:w-32">
+                      <TabsTrigger
+                        value="history"
+                        className="flex-1 gap-2 sm:w-32"
+                      >
                         <History className="h-4 w-4" />
                         {t("history.title", "History")}
                       </TabsTrigger>
@@ -323,7 +343,10 @@ export default function SwapPage() {
                   </div>
 
                   <TabsContent value="swap" className="mt-0">
-                    <SwapCard selectedAccount={selectedAccount} />
+                    <SwapCard
+                      selectedAccount={selectedAccount}
+                      onNavigateToHistory={() => setActiveTab("history")}
+                    />
                   </TabsContent>
 
                   <TabsContent value="bridge" className="mt-0">

@@ -125,5 +125,6 @@ export const fromBase64 = (base64: string) => {
 }
 
 export * from "./keys"
+export * from "./bitcoin-transfer"
 export * from "./mnemonic"
 export * from "./encryption"

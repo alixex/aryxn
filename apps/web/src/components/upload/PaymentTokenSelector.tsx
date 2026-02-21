@@ -153,7 +153,7 @@ export function PaymentTokenSelector({
 
       <div className="grid gap-3 sm:grid-cols-2">
         <Select
-          value={selectedAccount ? accountValue(selectedAccount) : undefined}
+          value={selectedAccount ? accountValue(selectedAccount) : ""}
           onValueChange={handleAccountChange}
         >
           <SelectTrigger className="border-border bg-background h-12 w-full rounded-xl shadow-sm transition-all hover:shadow-md">

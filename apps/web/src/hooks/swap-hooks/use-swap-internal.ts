@@ -57,6 +57,7 @@ export function useInternalSwap({
   decimalsOut,
   slippage,
 }: UseInternalSwapParams) {
+  const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000"
   const walletManager = useInternal()
   const addTransaction = useBridgeHistory((state) => state.addTransaction)
   const [swapState, setSwapState] = useState<SwapState>(SwapState.IDLE)
@@ -99,6 +100,28 @@ export function useInternalSwap({
 
     return { provider, wallet }
   }, [isWalletReady, walletManager.activeWallet])
+
+  const ensureSwapperReady = useCallback(async () => {
+    if (MULTI_HOP_SWAPPER_ADDRESS.toLowerCase() === ZERO_ADDRESS) {
+      setError("Swap contract is not configured")
+      return null
+    }
+
+    const result = await getProviderAndSigner()
+    if (!result) {
+      return null
+    }
+
+    const { provider, wallet } = result
+    const swapperCode = await provider.getCode(MULTI_HOP_SWAPPER_ADDRESS)
+
+    if (!swapperCode || swapperCode === "0x") {
+      setError("Swap contract is not deployed on the current network")
+      return null
+    }
+
+    return { provider, wallet }
+  }, [getProviderAndSigner])
 
   // Fetch token balance
   useEffect(() => {
@@ -171,7 +194,7 @@ export function useInternalSwap({
         return
       }
 
-      const result = await getProviderAndSigner()
+      const result = await ensureSwapperReady()
       if (!result) return
 
       setSwapState(SwapState.FETCHING_QUOTE)
@@ -224,7 +247,7 @@ export function useInternalSwap({
     amountIn,
     decimalsOut,
     slippage,
-    getProviderAndSigner,
+    ensureSwapperReady,
   ])
 
   // Update swap state based on conditions
@@ -287,9 +310,8 @@ export function useInternalSwap({
       return
     }
 
-    const result = await getProviderAndSigner()
+    const result = await ensureSwapperReady()
     if (!result) {
-      setError("Failed to get wallet")
       return
     }
 
@@ -331,7 +353,7 @@ export function useInternalSwap({
       setError(err.message || "Approval failed")
       setSwapState(SwapState.ERROR)
     }
-  }, [isWalletReady, inputToken, getProviderAndSigner])
+  }, [isWalletReady, inputToken, ensureSwapperReady])
 
   // Execute swap
   const executeSwap = useCallback(async () => {
@@ -346,9 +368,8 @@ export function useInternalSwap({
       return
     }
 
-    const result = await getProviderAndSigner()
+    const result = await ensureSwapperReady()
     if (!result) {
-      setError("Failed to get wallet")
       return
     }
 
@@ -430,7 +451,7 @@ export function useInternalSwap({
     outputToken,
     inputAmount,
     addTransaction,
-    getProviderAndSigner,
+    ensureSwapperReady,
   ])
 
   const formattedBalance = formatTokenAmount(inputBalance, decimalsIn)

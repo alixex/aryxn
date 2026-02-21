@@ -38,7 +38,11 @@ export class RouteRequiredError extends Error {
   readonly token: PaymentToken
   readonly chain: string
 
-  constructor(action: UploadRedirectAction, token: PaymentToken, chain: string) {
+  constructor(
+    action: UploadRedirectAction,
+    token: PaymentToken,
+    chain: string,
+  ) {
     super(`Route required: ${action} for ${token} on ${chain}`)
     this.name = "RouteRequiredError"
     this.action = action
@@ -48,8 +52,7 @@ export class RouteRequiredError extends Error {
 }
 
 function isIrysUnsupportedTokenError(error: unknown): boolean {
-  const message =
-    error instanceof Error ? error.message : String(error || "")
+  const message = error instanceof Error ? error.message : String(error || "")
   return /unknown\/?unsupported token|unsupported token|invalid token/i.test(
     message,
   )

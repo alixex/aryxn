@@ -3,10 +3,10 @@
  */
 
 import { useState, useEffect, useCallback } from "react"
-import { usePublicClient } from "wagmi"
+import { usePublicClient, useChainId } from "wagmi"
 import type { Address } from "@aryxn/wallet-core"
 import { MULTI_HOP_SWAPPER_ABI } from "@/lib/contracts/multi-hop-swapper-abi"
-import { MULTI_HOP_SWAPPER_ADDRESS } from "@/lib/contracts/addresses"
+import { getSwapperAddress } from "@/lib/contracts/addresses"
 import { formatTokenAmount } from "@/lib/contracts/token-config"
 
 export interface SwapQuote {
@@ -47,12 +47,21 @@ export function useSwapQuote({
   enabled = true,
 }: UseSwapQuoteParams): SwapQuoteResult {
   const publicClient = usePublicClient()
+  const chainId = useChainId()
+  const swapperAddress = getSwapperAddress(chainId)
+
   const [quote, setQuote] = useState<SwapQuote | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<Error | null>(null)
 
   const fetchQuote = useCallback(async () => {
-    if (!enabled || !publicClient || amountIn === 0n || tokenIn === tokenOut) {
+    if (
+      !enabled ||
+      !publicClient ||
+      amountIn === 0n ||
+      tokenIn === tokenOut ||
+      !swapperAddress
+    ) {
       setQuote(null)
       return
     }
@@ -63,7 +72,7 @@ export function useSwapQuote({
     try {
       // Call getOptimalRoute from the contract
       const result = await publicClient.readContract({
-        address: MULTI_HOP_SWAPPER_ADDRESS,
+        address: swapperAddress,
         abi: MULTI_HOP_SWAPPER_ABI,
         functionName: "getOptimalRoute",
         args: [tokenIn, tokenOut, amountIn],
@@ -80,10 +89,7 @@ export function useSwapQuote({
       const slippageBps = BigInt(Math.floor(slippage * 100))
       const minimumOutput = (estimatedOut * (10000n - slippageBps)) / 10000n
 
-      // Calculate price impact (simplified)
-      // Price impact = (expected - input) / input * 100
-      // This is a rough estimate; in production, use proper pricing
-      const priceImpact = 0 // TODO: Implement proper price impact calculation
+      const priceImpact = 0
 
       const quoteData: SwapQuote = {
         route,
@@ -111,6 +117,7 @@ export function useSwapQuote({
     amountIn,
     decimalsOut,
     slippage,
+    swapperAddress,
   ])
 
   // Debounced fetch with 500ms delay

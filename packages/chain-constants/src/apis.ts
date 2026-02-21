@@ -1,0 +1,9 @@
+/**
+ * External API endpoints for cross-chain and bridge services
+ */
+
+/**
+ * Li.Fi cross-chain liquidity aggregation API
+ * @see https://docs.li.fi/
+ */
+export const LIFI_API_URL = "https://li.quest/v1"
