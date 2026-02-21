@@ -109,6 +109,18 @@ export function getSuiRpcUrl(): string {
 }
 
 /**
+ * Get Base RPC endpoint
+ */
+export function getBaseRpcUrl(): string {
+  const envUrl = import.meta.env.VITE_BASE_RPC_URL
+  if (envUrl) {
+    return envUrl
+  }
+
+  return RPCs.BASE_RPC
+}
+
+/**
  * Bitcoin API endpoint
  */
 export function getBitcoinApiUrl(): string {

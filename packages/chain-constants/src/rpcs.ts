@@ -12,6 +12,7 @@ export const RPCs = {
   POLYGON_RPC: "https://polygon-rpc.com",
   OPTIMISM_RPC: "https://mainnet.optimism.io",
   ARBITRUM_RPC: "https://arb1.arbitrum.io/rpc",
+  BASE_RPC: "https://mainnet.base.org",
   BITCOIN_API: "https://blockstream.info/api",
   ARWEAVE_BASE: "https://arweave.net",
   // Proxy paths used in Vite config and client-side RPC config

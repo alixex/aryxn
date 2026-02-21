@@ -112,6 +112,7 @@ export const ExplorerTxBaseByChain = {
   btc: "https://mempool.space/tx/",
   arweave: "https://arweave.net/tx/",
   ar: "https://arweave.net/tx/",
+  base: "https://basescan.org/tx/",
   sui: "https://suiscan.xyz/mainnet/tx/",
 } as const
 
