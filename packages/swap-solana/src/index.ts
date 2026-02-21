@@ -81,17 +81,34 @@ export class SolanaSwapper {
       },
     })
 
-    // 2. 准备程序账户
-    const [routerState] = PublicKey.findProgramAddressSync(
-      [Buffer.from("router_state")],
-      this.programId,
-    )
+    // 2. 发送 Jupiter 的 Setup 指令（如 Wrap SOL / 创建 ATA），必须独立发送
+    //    不能混入 executeSwap，否则链上指令数据解析会失败
+    if (
+      instructions.setupInstructions &&
+      instructions.setupInstructions.length > 0
+    ) {
+      const { Transaction, VersionedTransaction } =
+        await import("@solana/web3.js")
+      for (const ix of instructions.setupInstructions) {
+        const txIx = {
+          programId: new PublicKey(ix.programId),
+          keys: ix.accounts.map((acc: JupAccountMeta) => ({
+            pubkey: new PublicKey(acc.pubkey),
+            isWritable: acc.isWritable,
+            isSigner: acc.isSigner,
+          })),
+          data: Buffer.from(ix.data, "base64"),
+        }
+        const tx = new Transaction().add(txIx)
+        tx.feePayer = params.user
+        tx.recentBlockhash = (
+          await this.connection.getLatestBlockhash()
+        ).blockhash
+        await (this.program.provider as any).sendAndConfirm(tx)
+      }
+    }
 
-    const routerStateAccount = await (
-      this.program.account as any
-    ).routerState.fetch(routerState)
-    const feeRecipient = routerStateAccount.feeRecipient
-
+    // 3. 准备程序账户
     const inputMint = new PublicKey(params.quoteResponse.inputMint)
     const outputMint = new PublicKey(params.quoteResponse.outputMint)
 
@@ -104,58 +121,51 @@ export class SolanaSwapper {
       params.user,
     )
 
+    const [routerState] = PublicKey.findProgramAddressSync(
+      [Buffer.from("router_state")],
+      this.programId,
+    )
+
+    const routerStateAccount = await (
+      this.program.account as any
+    ).routerState.fetch(routerState)
+    const feeRecipient = routerStateAccount.feeRecipient
+
     const [inputTokenConfig] = PublicKey.findProgramAddressSync(
       [Buffer.from("token_config"), inputMint.toBuffer()],
       this.programId,
     )
-
     const [outputTokenConfig] = PublicKey.findProgramAddressSync(
       [Buffer.from("token_config"), outputMint.toBuffer()],
       this.programId,
     )
 
-    // 3. 构建 SwapStep 和 Remaining Accounts
-    const steps: any[] = []
-    const remainingAccounts: AccountMeta[] = []
+    // 4. 构建核心 Swap 指令的 SwapStep 和 Remaining Accounts
+    const swapIx = instructions.swapInstruction
+    const ixData = Buffer.from(swapIx.data, "base64")
 
-    // 辅助函数：转换 Jupiter 指令到 SwapStep
-    const pushInstruction = (ix: Instruction, dexId: string) => {
-      const ixData = Buffer.from(ix.data, "base64")
-
-      steps.push({
-        dexId: dexId,
-        dexProgramId: new PublicKey(ix.programId),
-        dexType: { jupiter: {} }, // 映射到合约的 DexType::Jupiter
+    const steps = [
+      {
+        dexId: "jupiter_aggregator",
+        dexProgramId: new PublicKey(swapIx.programId),
+        dexType: { jupiter: {} },
         instructionData: ixData,
-        accountCount: ix.accounts.length,
-      })
+        accountCount: swapIx.accounts.length,
+      },
+    ]
 
-      ix.accounts.forEach((acc: JupAccountMeta) => {
-        remainingAccounts.push({
-          pubkey: new PublicKey(acc.pubkey),
-          isWritable: acc.isWritable,
-          isSigner: acc.isSigner,
-        })
-      })
-    }
-
-    // 处理 Setup 指令
-    instructions.setupInstructions.forEach((ix: Instruction, i: number) =>
-      pushInstruction(ix, `jup_setup_${i}`),
+    const remainingAccounts: AccountMeta[] = swapIx.accounts.map(
+      (acc: JupAccountMeta) => ({
+        pubkey: new PublicKey(acc.pubkey),
+        isWritable: acc.isWritable,
+        isSigner: acc.isSigner,
+      }),
     )
 
-    // 处理核心 Swap 指令
-    pushInstruction(instructions.swapInstruction, "jupiter_aggregator")
-
-    // 处理 Cleanup 指令 (如果有)
-    if (instructions.cleanupInstruction) {
-      pushInstruction(instructions.cleanupInstruction, "jup_cleanup")
-    }
-
-    // 4. 调用 Universal Router 的 execute_swap
+    // 5. 调用 Universal Router 的 execute_swap
     return await (this.program.methods as any)
       .executeSwap(new BN(params.quoteResponse.inAmount), {
-        steps: steps,
+        steps,
         minAmountOut: new BN(params.quoteResponse.otherAmountThreshold),
       })
       .accounts({

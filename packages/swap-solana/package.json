@@ -2,8 +2,8 @@
   "name": "@aryxn/swap-solana",
   "version": "1.0.0",
   "description": "TypeScript SDK for Solana swaps",
-  "main": "src/index.ts",
-  "types": "src/index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "license": "MIT",
   "scripts": {
     "dev": "tsc --watch",
@@ -11,7 +11,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@coral-xyz/anchor": "^0.30.1",
+    "@coral-xyz/anchor": "^0.31.1",
     "@jup-ag/api": "^6.0.48",
     "@solana/spl-token": "^0.4.14",
     "@solana/web3.js": "^1.98.4"
