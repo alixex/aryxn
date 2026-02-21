@@ -146,11 +146,13 @@ export class SolanaSwapper {
     //    separate pre-transactions — they cannot be embedded in executeSwap
     //    because the on-chain instruction parser would misread the data.
     if (jupInstructions.setupInstructions.length > 0) {
-      const { blockhash } = await this.connection.getLatestBlockhash()
+      const { blockhash, lastValidBlockHeight } =
+        await this.connection.getLatestBlockhash()
       for (const ix of jupInstructions.setupInstructions) {
         const tx = new Transaction({
           feePayer: params.user,
-          recentBlockhash: blockhash,
+          blockhash,
+          lastValidBlockHeight,
         }).add(jupInstructionToTx(ix))
         await provider.sendAndConfirm(tx)
       }
