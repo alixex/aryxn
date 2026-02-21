@@ -306,11 +306,11 @@ export function ConfigImportExport() {
               <DialogTrigger asChild>
                 <Button
                   variant="outline"
-                  className="btn-interactive border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/50 group relative h-12 w-full overflow-hidden sm:flex-1"
+                  className="btn-interactive border-primary/50 bg-primary/20 hover:bg-primary/30 hover:border-primary/70 group shadow-primary/10 relative h-12 w-full overflow-hidden shadow-lg sm:flex-1"
                 >
-                  <div className="from-primary/10 absolute inset-0 bg-gradient-to-r to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-                  <Download className="text-primary mr-2 h-4 w-4 shrink-0" />
-                  <span className="truncate font-semibold">
+                  <div className="from-primary/30 absolute inset-0 bg-gradient-to-r to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                  <Download className="mr-2 h-4 w-4 shrink-0 text-white/90 transition-transform group-hover:-translate-y-0.5" />
+                  <span className="truncate font-bold tracking-tight text-white">
                     {t("identities.export")}
                   </span>
                 </Button>
@@ -488,11 +488,11 @@ export function ConfigImportExport() {
               <DialogTrigger asChild>
                 <Button
                   variant="outline"
-                  className="btn-interactive border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/50 group relative h-12 w-full overflow-hidden sm:flex-1"
+                  className="btn-interactive border-primary/50 bg-primary/20 hover:bg-primary/30 hover:border-primary/70 group shadow-primary/10 relative h-12 w-full overflow-hidden shadow-lg sm:flex-1"
                 >
-                  <div className="from-primary/10 absolute inset-0 bg-gradient-to-r to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-                  <Upload className="text-primary mr-2 h-4 w-4 shrink-0" />
-                  <span className="truncate font-semibold">
+                  <div className="from-primary/30 absolute inset-0 bg-gradient-to-r to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                  <Upload className="mr-2 h-4 w-4 shrink-0 text-white/90 transition-transform group-hover:-translate-y-0.5" />
+                  <span className="truncate font-bold tracking-tight text-white">
                     {t("identities.import")}
                   </span>
                 </Button>
@@ -560,12 +560,12 @@ export function ConfigImportExport() {
                       <Button
                         onClick={handleImportClick}
                         disabled={isImporting}
-                        className="btn-interactive bg-primary text-primary-foreground shadow-primary/30 relative h-12 w-full overflow-hidden rounded-xl border-none font-bold shadow-lg"
+                        className="btn-interactive relative h-12 w-full overflow-hidden rounded-xl border border-white/20 bg-gradient-to-r from-indigo-600 to-violet-600 font-bold text-white shadow-lg ring-1 shadow-indigo-500/30 ring-white/10 hover:shadow-indigo-500/50"
                         variant="default"
                       >
-                        <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
                         <Upload className="mr-3 h-5 w-5 transition-transform group-hover:-translate-y-1" />
-                        <span className="text-sm font-bold tracking-wide uppercase">
+                        <span className="text-sm font-bold tracking-widest uppercase">
                           {t("identities.selectConfigFile")}
                         </span>
                       </Button>
