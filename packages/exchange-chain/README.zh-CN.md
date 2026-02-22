@@ -26,6 +26,7 @@ pnpm add @aryxn/exchange-chain
 ## 依赖要求
 
 此包依赖于以下其他 `@aryxn` 工作区包：
+
 - `@aryxn/chain-constants`
 - `@aryxn/cross-chain`
 - `@aryxn/query-chain`
@@ -37,36 +38,36 @@ pnpm add @aryxn/exchange-chain
 ### 基础示例
 
 ```typescript
-import { ExchangeSDK } from '@aryxn/exchange-chain';
+import { ExchangeSDK } from "@aryxn/exchange-chain"
 
 const sdk = new ExchangeSDK({
-  ethereumContractAddress: '0x...',
-  solanaProgramId: '...',
-  supportedChains: ['ETHEREUM', 'SOLANA', 'BITCOIN'],
-  bridgedChains: ['BITCOIN'], // 强制对比特币使用桥接，即使是在同一条链上
+  ethereumContractAddress: "0x...",
+  solanaProgramId: "...",
+  supportedChains: ["ETHEREUM", "SOLANA", "BITCOIN"],
+  bridgedChains: ["BITCOIN"], // 强制对比特币使用桥接，即使是在同一条链上
   rpcUrls: {
-    'ETHEREUM': 'https://mainnet.infura.io/v3/...',
-    'SOLANA': 'https://api.mainnet-beta.solana.com'
+    ETHEREUM: "https://mainnet.infura.io/v3/...",
+    SOLANA: "https://api.mainnet-beta.solana.com",
   },
   tokenMappings: {
     // 可选的自定义代币解析
-    'ETHEREUM': { 'ETH': '0x...' }
-  }
-});
+    ETHEREUM: { ETH: "0x..." },
+  },
+})
 
 // 获取交易路由
 const route = await sdk.router.getRoute({
-  fromChain: 'ETHEREUM',
-  toChain: 'SOLANA',
-  fromToken: 'USDC',
-  toToken: 'native',
-  fromAmount: '1000000', // 1 USDC (6位小数)
-  recipient: '...'
-});
+  fromChain: "ETHEREUM",
+  toChain: "SOLANA",
+  fromToken: "USDC",
+  toToken: "native",
+  fromAmount: "1000000", // 1 USDC (6位小数)
+  recipient: "...",
+})
 
 if (route) {
-  console.log(`预计输出: ${route.toAmount}`);
-  console.log(`类型: ${route.type}`); // 'SWAP' 或 'BRIDGE'
+  console.log(`预计输出: ${route.toAmount}`)
+  console.log(`类型: ${route.type}`) // 'SWAP' 或 'BRIDGE'
 }
 ```
 
