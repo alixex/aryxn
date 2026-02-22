@@ -75,19 +75,19 @@ Aryxn Web 绝非一个薄脆的传统 DApp 前端展示层。它实质上是一�
 
 ### 5.1 性能与加载优化 (Performance & Loading)
 
-- **路由组件懒加载**: 针对繁重的页面级组件（如携带大量 SDK 的页面），通过 React Router 的按需加载特性有效缩减首屏加载体积。
-- **数据缓存与分页**: 若 SQLite 中历史文件过多，采用增量分页（Cursor Pagination）取代全量取回，避免阻塞渲染和主线程。
+- **路由组件懒加载 (已完成)**: 针对繁重的页面级组件（如携带大量 SDK 的页面），通过 React Router 的按需加载特性有效缩减首屏加载体积。
+- **数据缓存与分页 (已完成)**: 若 SQLite 中历史文件过多，采用增量分页（Cursor Pagination）取代全量取回，避免阻塞渲染和主线程。
 
 ### 5.2 用户体验与渲染 (UX & Rendering)
 
-- **全局后台同步控制**: 将与页面绑定的 `scheduleAutoSync` 上提至全局 Context 或独立的 Background Task 中，防止高频切换路由导致的重复初始化。
-- **长列表虚拟滚动**: 针对 `HistoryTable` 内成百上千条的记录，引入长列表虚拟化方案保证滚动丝滑。
+- **全局后台同步控制 (已完成)**: 将与页面绑定的 `scheduleAutoSync` 上提至全局 Context 或独立的 Background Task 中，防止高频切换路由导致的重复初始化。
+- **长列表虚拟滚动 (已完成)**: 针对 `HistoryTable` 内成百上千条的记录，引入长列表虚拟化方案保证滚动丝滑。
 
 ### 5.3 代码架构与状态维护 (Architecture & State)
 
-- **衍生状态统一收敛**: 收拢散落的相似判定（如 `needsAccountSetup`），内置于 Hooks 的返回中，提高代码复用率。
-- **运行时类型校验增强**: 对跨界入参或存续于库中的本地化弱状态（如 SQLite 提出来的数据），引入更严格的 Schema Runtime Safety 处理。
+- **衍生状态统一收敛 (已完成)**: 收拢散落的相似判定（如 `needsAccountSetup`），内置于 Hooks 的返回中，提高代码复用率。
+- **运行时类型校验增强 (已完成)**: 对跨界入参或存续于库中的本地化弱状态（如 SQLite 提出来的数据），引入更严格的 Schema Runtime Safety 处理。
 
 ### 5.4 钱包与网络请求优化 (Network & RPC)
 
-- **统一的 RPC 余额轮询/节流**: 针对全链环境请求，在底层增加附带 TTL 与时间戳缓存机制的 RPC 防抖调度器，避免 API 滥用和 Rate Limit 触发。
+- **统一的 RPC 余额轮询/节流 (已完成)**: 针对全链环境请求，在底层增加附带 TTL 与时间戳缓存机制的 RPC 防抖调度器，避免 API 滥用和 Rate Limit 触发。
