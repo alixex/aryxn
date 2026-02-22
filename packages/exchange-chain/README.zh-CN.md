@@ -42,6 +42,12 @@ import { ExchangeSDK } from '@aryxn/exchange-chain';
 const sdk = new ExchangeSDK({
   ethereumContractAddress: '0x...',
   solanaProgramId: '...',
+  supportedChains: ['ETHEREUM', 'SOLANA', 'BITCOIN'],
+  bridgedChains: ['BITCOIN'], // 强制对比特币使用桥接，即使是在同一条链上
+  rpcUrls: {
+    'ETHEREUM': 'https://mainnet.infura.io/v3/...',
+    'SOLANA': 'https://api.mainnet-beta.solana.com'
+  },
   tokenMappings: {
     // 可选的自定义代币解析
     'ETHEREUM': { 'ETH': '0x...' }

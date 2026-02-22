@@ -42,6 +42,12 @@ import { ExchangeSDK } from '@aryxn/exchange-chain';
 const sdk = new ExchangeSDK({
   ethereumContractAddress: '0x...',
   solanaProgramId: '...',
+  supportedChains: ['ETHEREUM', 'SOLANA', 'BITCOIN'],
+  bridgedChains: ['BITCOIN'], // Force bridge for Bitcoin even if on same chain
+  rpcUrls: {
+    'ETHEREUM': 'https://mainnet.infura.io/v3/...',
+    'SOLANA': 'https://api.mainnet-beta.solana.com'
+  },
   tokenMappings: {
     // Optional custom token resolution
     'ETHEREUM': { 'ETH': '0x...' }

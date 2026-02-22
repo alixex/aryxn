@@ -12,8 +12,8 @@ export class ExchangeRouter {
   constructor(config: ExchangeConfig) {
     this.config = config
     this.swapper = new MultiChainSwapper({
-      ethereumRpcUrl: getEthereumRpcUrl(),
-      solanaRpcUrl: getSolanaRpcUrl(),
+      ethereumRpcUrl: config.rpcUrls?.ETHEREUM || getEthereumRpcUrl(),
+      solanaRpcUrl: config.rpcUrls?.SOLANA || getSolanaRpcUrl(),
       ethereumContractAddress: config.ethereumContractAddress,
       solanaProgramId: config.solanaProgramId,
     })
@@ -39,6 +39,12 @@ export class ExchangeRouter {
    * Determine the best route for an exchange request
    */
   async getRoute(request: ExchangeRequest): Promise<ExchangeRoute | null> {
+    // Validate if chains are supported if provided in config
+    if (this.config.supportedChains) {
+      if (!this.config.supportedChains.includes(request.fromChain)) return null
+      if (!this.config.supportedChains.includes(request.toChain)) return null
+    }
+
     const isBridge = this.isBridgeRequired(request)
 
     if (isBridge) {
@@ -51,7 +57,12 @@ export class ExchangeRouter {
   private isBridgeRequired(request: ExchangeRequest): boolean {
     if (request.fromChain !== request.toChain) return true
 
-    // BTC and AR are always handled via bridge/cross-chain services in this architecture
+    // If bridgedChains are explicitly configured, use them
+    if (this.config.bridgedChains) {
+      return this.config.bridgedChains.includes(request.fromChain)
+    }
+
+    // Fallback to legacy hardcoded logic for safety/seamless transition
     if (
       request.fromChain === Chains.BITCOIN ||
       request.fromChain === Chains.ARWEAVE
