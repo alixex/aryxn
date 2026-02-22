@@ -32,7 +32,7 @@ export const SUPPORTED_TOKENS: TokenInfo[] = [
     decimals: 6,
     coingeckoId: "usd-coin",
     chainId: ChainIds.ETHEREUM,
-    icon: "🔷",
+    icon: "ethereum",
   },
   {
     symbol: "WETH",
@@ -41,7 +41,7 @@ export const SUPPORTED_TOKENS: TokenInfo[] = [
     decimals: 18,
     coingeckoId: "weth",
     chainId: ChainIds.ETHEREUM,
-    icon: "🔷",
+    icon: "ethereum",
   },
   {
     symbol: "WBTC",
@@ -50,7 +50,7 @@ export const SUPPORTED_TOKENS: TokenInfo[] = [
     decimals: 8,
     coingeckoId: "wrapped-bitcoin",
     chainId: ChainIds.ETHEREUM,
-    icon: "🔷",
+    icon: "ethereum",
   },
 
   // Base
@@ -61,7 +61,7 @@ export const SUPPORTED_TOKENS: TokenInfo[] = [
     decimals: 6,
     coingeckoId: "usd-coin",
     chainId: ChainIds.BASE,
-    icon: "🔵",
+    icon: "base",
   },
   {
     symbol: "WETH",
@@ -70,7 +70,7 @@ export const SUPPORTED_TOKENS: TokenInfo[] = [
     decimals: 18,
     coingeckoId: "weth",
     chainId: ChainIds.BASE,
-    icon: "🔵",
+    icon: "base",
   },
   {
     symbol: "cbBTC",
@@ -79,7 +79,7 @@ export const SUPPORTED_TOKENS: TokenInfo[] = [
     decimals: 8,
     coingeckoId: "coinbase-wrapped-btc",
     chainId: ChainIds.BASE,
-    icon: "🔵",
+    icon: "base",
   },
 
   // Arbitrum
@@ -90,7 +90,7 @@ export const SUPPORTED_TOKENS: TokenInfo[] = [
     decimals: 6,
     coingeckoId: "usd-coin",
     chainId: ChainIds.ARBITRUM,
-    icon: "🫐",
+    icon: "arbitrum",
   },
   {
     symbol: "WETH",
@@ -99,7 +99,7 @@ export const SUPPORTED_TOKENS: TokenInfo[] = [
     decimals: 18,
     coingeckoId: "weth",
     chainId: ChainIds.ARBITRUM,
-    icon: "🫐",
+    icon: "arbitrum",
   },
   {
     symbol: "WBTC",
@@ -108,7 +108,7 @@ export const SUPPORTED_TOKENS: TokenInfo[] = [
     decimals: 8,
     coingeckoId: "wrapped-bitcoin",
     chainId: ChainIds.ARBITRUM,
-    icon: "🫐",
+    icon: "arbitrum",
   },
   // Optimism
   {
@@ -118,7 +118,7 @@ export const SUPPORTED_TOKENS: TokenInfo[] = [
     decimals: 6,
     coingeckoId: "usd-coin",
     chainId: ChainIds.OPTIMISM,
-    icon: "🔴",
+    icon: "optimism",
   },
   {
     symbol: "WETH",
@@ -127,7 +127,7 @@ export const SUPPORTED_TOKENS: TokenInfo[] = [
     decimals: 18,
     coingeckoId: "weth",
     chainId: ChainIds.OPTIMISM,
-    icon: "🔴",
+    icon: "optimism",
   },
   {
     symbol: "WBTC",
@@ -136,7 +136,7 @@ export const SUPPORTED_TOKENS: TokenInfo[] = [
     decimals: 8,
     coingeckoId: "wrapped-bitcoin",
     chainId: ChainIds.OPTIMISM,
-    icon: "🔴",
+    icon: "optimism",
   },
 ]
 

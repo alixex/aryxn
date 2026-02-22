@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { BridgeConfirmationDialog } from "./BridgeConfirmationDialog"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Upload, Info, X, Zap, ArrowRightLeft } from "lucide-react"
+import { Upload, Info, X } from "lucide-react"
 import { useTranslation } from "@/i18n/config"
 import { UploadButton } from "./UploadButton"
 import { UploadProgress } from "./UploadProgress"
@@ -11,6 +11,7 @@ import {
   getIrysFundingToken,
   resolveUploadRedirectAction,
 } from "@/lib/payment/upload-payment-config"
+import { ChainIcon } from "@/components/common/ChainIcon"
 import type {
   PaymentAccount,
   PaymentToken,
@@ -190,8 +191,8 @@ export function UploadExecutionCard({
                   )
                   if (irysToken) {
                     return (
-                      <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[9px] font-bold text-emerald-500 ring-1 ring-emerald-500/20">
-                        <Zap className="h-2.5 w-2.5" />
+                      <span className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[9px] font-bold text-emerald-500 ring-1 ring-emerald-500/20">
+                        <ChainIcon chain={paymentAccount.chain} size="xs" />
                         {t("upload.pathDirect", "DIRECT")}
                       </span>
                     )
@@ -201,8 +202,8 @@ export function UploadExecutionCard({
                     paymentToken,
                   )
                   return (
-                    <span className="flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[9px] font-bold text-amber-500 ring-1 ring-amber-500/20">
-                      <ArrowRightLeft className="h-2.5 w-2.5" />
+                    <span className="flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2 py-0.5 text-[9px] font-bold text-amber-500 ring-1 ring-amber-500/20">
+                      <ChainIcon chain={paymentAccount.chain} size="xs" />
                       {redirect === "swap"
                         ? t("upload.pathSwap", "SWAP")
                         : t("upload.pathBridge", "BRIDGE")}

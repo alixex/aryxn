@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { SwapTokenAmountInput } from "@/components/swap/SwapTokenAmountInput"
+import { ChainIcon } from "@/components/common/ChainIcon"
 import {
   SUPPORTED_TOKENS,
   getDexTokensByAccountChain,
@@ -110,8 +111,11 @@ export function TransferCard({ selectedAccount }: TransferCardProps) {
   return (
     <Card className="glass-premium animate-fade-in-down border-none shadow-2xl transition-all duration-500">
       <CardHeader className="glass-strong animate-fade-in-down border-accent/30 bg-card/60 rounded-t-2xl border-b-2 p-6 shadow-lg">
-        <CardTitle className="text-foreground text-lg font-bold">
-          {t("dex.transfer", "Send Assets")}
+        <CardTitle className="flex items-center gap-3 text-lg font-bold">
+          <ChainIcon chain={selectedChain} size="sm" />
+          <span className="text-foreground">
+            {t("dex.transfer", "Send Assets")}
+          </span>
         </CardTitle>
       </CardHeader>
 

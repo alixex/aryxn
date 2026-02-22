@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { useTranslation } from "@/i18n/config"
 import { ArrowRightLeft, Clock, AlertTriangle } from "lucide-react"
+import { ChainIcon } from "@/components/common/ChainIcon"
 import type { UploadRedirectAction } from "@/lib/payment"
 
 interface BridgeConfirmationDialogProps {
@@ -32,17 +33,6 @@ export function BridgeConfirmationDialog({
 }: BridgeConfirmationDialogProps) {
   const { t } = useTranslation()
   const isBridge = action === "bridge"
-
-  const getChainIcon = (chain: string) => {
-    const c = chain.toLowerCase()
-    if (c.includes("eth")) return "🔷"
-    if (c.includes("base")) return "🔵"
-    if (c.includes("arb")) return "🫐"
-    if (c.includes("opt") || c.includes("op")) return "🔴"
-    if (c.includes("sol")) return "☀️"
-    if (c.includes("arw") || c.includes("irys")) return "🐘"
-    return "🌐"
-  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -76,8 +66,8 @@ export function BridgeConfirmationDialog({
 
         {/* Route Preview */}
         <div className="bg-muted/30 ring-border/50 flex items-center justify-between rounded-xl p-4 ring-1 ring-inset">
-          <div className="flex flex-col items-center gap-1">
-            <span className="text-2xl">{getChainIcon(sourceChain)}</span>
+          <div className="flex flex-col items-center gap-2">
+            <ChainIcon chain={sourceChain} size="md" />
             <span className="text-[10px] font-bold uppercase opacity-60">
               {sourceChain}
             </span>
@@ -97,8 +87,8 @@ export function BridgeConfirmationDialog({
               {isBridge ? "Slow & Secure" : "Fast & Cheap"}
             </span>
           </div>
-          <div className="flex flex-col items-center gap-1">
-            <span className="text-2xl">{getChainIcon(targetChain)}</span>
+          <div className="flex flex-col items-center gap-2">
+            <ChainIcon chain={targetChain} size="md" />
             <span className="text-[10px] font-bold uppercase opacity-60">
               {targetChain}
             </span>

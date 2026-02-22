@@ -7,6 +7,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
+import { ChainIcon } from "@/components/common/ChainIcon"
 
 type DexTokenOption = {
   value: string
@@ -62,12 +63,11 @@ export function SwapTokenAmountInput({
           )}
         >
           <SelectValue>
-            <div className="flex items-center gap-1.5">
-              {tokenOptions.find((o) => o.value === tokenValue)?.icon && (
-                <span className="text-lg">
-                  {tokenOptions.find((o) => o.value === tokenValue)?.icon}
-                </span>
-              )}
+            <div className="flex items-center gap-2">
+              <ChainIcon
+                chain={tokenOptions.find((o) => o.value === tokenValue)?.icon}
+                size="sm"
+              />
               <span className="text-base">{tokenValue}</span>
             </div>
           </SelectValue>
@@ -75,8 +75,8 @@ export function SwapTokenAmountInput({
         <SelectContent>
           {tokenOptions.map((option) => (
             <SelectItem key={option.value} value={option.value}>
-              <div className="flex items-center gap-2">
-                {option.icon && <span className="text-lg">{option.icon}</span>}
+              <div className="flex items-center gap-3">
+                <ChainIcon chain={option.icon} size="sm" />
                 <span className="text-foreground font-bold">
                   {option.label}
                 </span>

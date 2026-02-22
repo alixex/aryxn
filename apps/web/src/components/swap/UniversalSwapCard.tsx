@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/popover"
 
 import { SwapTokenAmountInput } from "@/components/swap/SwapTokenAmountInput"
+import { ChainIcon } from "@/components/common/ChainIcon"
 import { useExchange } from "@/hooks/use-exchange"
 import { useBridge } from "@/hooks/useBridge"
 import { useWallet } from "@/hooks/account-hooks"
@@ -387,8 +388,6 @@ export function UniversalSwapCard({ selectedAccount }: UniversalSwapCardProps) {
     onChange: (v: string) => void,
     label: string,
   ) => {
-    const activeChain = BRIDGE_CHAINS.find((c) => c.constant === value)
-
     return (
       <div className="bg-secondary/30 hover:bg-secondary/50 flex w-fit items-center gap-2 rounded-lg p-1 pr-3 transition-colors">
         <span className="text-muted-foreground pl-2 text-xs font-semibold tracking-wider uppercase">
@@ -398,16 +397,13 @@ export function UniversalSwapCard({ selectedAccount }: UniversalSwapCardProps) {
           <SelectTrigger className="h-7 border-none bg-transparent px-2 font-bold shadow-none focus:ring-0">
             <SelectValue>
               <div className="flex items-center gap-1.5">
-                {activeChain && (
-                  <span className="text-xs">{activeChain.icon}</span>
-                )}
+                <ChainIcon chain={value} size="xs" />
                 <span className="capitalize">{value}</span>
               </div>
             </SelectValue>
           </SelectTrigger>
           <SelectContent className="glass-strong border-accent/20 max-h-[300px]">
             {getAvailableOutputChains().map((chain) => {
-              const chainData = BRIDGE_CHAINS.find((c) => c.constant === chain)
               return (
                 <SelectItem
                   key={chain}
@@ -415,7 +411,7 @@ export function UniversalSwapCard({ selectedAccount }: UniversalSwapCardProps) {
                   className="hover:bg-accent/20 cursor-pointer"
                 >
                   <div className="flex items-center gap-2">
-                    {chainData && <span>{chainData.icon}</span>}
+                    <ChainIcon chain={chain} size="xs" />
                     <span className="capitalize">{chain}</span>
                   </div>
                 </SelectItem>
