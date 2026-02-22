@@ -2,7 +2,7 @@ import { useState } from "react"
 import { BridgeConfirmationDialog } from "./BridgeConfirmationDialog"
 import { toast } from "sonner"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Upload } from "lucide-react"
+import { Upload, Info, X } from "lucide-react"
 import { useTranslation } from "@/i18n/config"
 import { UploadButton } from "./UploadButton"
 import { UploadProgress } from "./UploadProgress"
@@ -45,6 +45,8 @@ export function UploadExecutionCard({
     paymentStage,
     progress,
     stage,
+    recoveryMessage,
+    clearRecovery,
     handleUpload,
     handleBatchUpload,
   } = useUploadHandler()
@@ -148,6 +150,25 @@ export function UploadExecutionCard({
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6 pt-6">
+          {recoveryMessage && (
+            <div className="animate-in fade-in slide-in-from-top-4 bg-primary/10 text-primary ring-primary/20 flex items-start gap-2 rounded-lg p-3 text-xs ring-1 duration-300">
+              <Info className="mt-0.5 h-4 w-4 shrink-0" />
+              <div className="flex-1">
+                <p className="font-semibold">
+                  {t("upload.resumeTitle", "Pending Payment Found")}
+                </p>
+                <p className="opacity-80">{recoveryMessage}</p>
+              </div>
+              <button
+                onClick={clearRecovery}
+                className="hover:bg-primary/20 rounded-full p-1 transition-colors"
+                title={t("upload.clearRecovery", "Dismiss")}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          )}
+
           <UploadButton
             uploading={uploading}
             file={file}
@@ -155,10 +176,26 @@ export function UploadExecutionCard({
             encryptUpload={encryptUpload}
             onClick={handleUploadClick}
           />
+
+          {!uploading && !paymentStage && canUpload && (
+            <p className="animate-in fade-in text-muted-foreground/60 text-center text-[10px] italic duration-700">
+              {paymentToken === "BTC"
+                ? t(
+                    "upload.transparency.slow",
+                    "BTC takes 30-60m. You can close this page after initiating.",
+                  )
+                : t(
+                    "upload.transparency.default",
+                    "Exchanges may take 5-10m. Funds are safe if you refresh.",
+                  )}
+            </p>
+          )}
+
           {(uploading || paymentStage) && (
             <UploadProgress
               progress={{
-                stage: paymentStage ? t("upload.processingPayment") : stage,
+                stage:
+                  stage || (paymentStage ? t("upload.processingPayment") : ""),
                 progress: progress,
               }}
             />

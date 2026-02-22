@@ -73,6 +73,20 @@ export const SCHEMA = [
     to_chain_id INTEGER,
     updated_at INTEGER NOT NULL
   )`,
+  `CREATE TABLE IF NOT EXISTS upload_payment_intents (
+    id TEXT PRIMARY KEY,
+    tx_hash TEXT,
+    from_chain TEXT NOT NULL,
+    from_token TEXT NOT NULL,
+    to_token TEXT NOT NULL,
+    ar_address TEXT NOT NULL,
+    file_metadata TEXT,
+    status TEXT NOT NULL,
+    payment_type TEXT NOT NULL,
+    target_balance_type TEXT,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+  )`,
 ]
 
 export const INDEXES = [
@@ -95,6 +109,9 @@ export const INDEXES = [
   "CREATE INDEX IF NOT EXISTS idx_bridge_tx_type ON bridge_transactions(type)",
   "CREATE INDEX IF NOT EXISTS idx_bridge_tx_status ON bridge_transactions(status)",
   "CREATE INDEX IF NOT EXISTS idx_bridge_tx_hash ON bridge_transactions(hash)",
+  "CREATE INDEX IF NOT EXISTS idx_payment_intent_status ON upload_payment_intents(status)",
+  "CREATE INDEX IF NOT EXISTS idx_payment_intent_updated ON upload_payment_intents(updated_at DESC)",
+  "CREATE INDEX IF NOT EXISTS idx_payment_intent_hash ON upload_payment_intents(tx_hash)",
 ]
 
 export const FTS_SCHEMA = `

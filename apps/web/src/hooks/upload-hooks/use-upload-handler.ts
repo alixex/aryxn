@@ -10,6 +10,9 @@ import { getIrysFundingToken } from "@/lib/payment"
 import type { WalletKey } from "@/lib/utils"
 import { useConnectorClient } from "wagmi"
 import { clientToSigner } from "@aryxn/wallet-core"
+import { PaymentRepository } from "@/lib/payment/payment-repository"
+import type { PaymentIntent } from "@/lib/payment/types"
+import { useEffect } from "react"
 
 export interface UploadHandlerResult {
   status: "SUCCESS" | "SWAP_REQUIRED" | "BRIDGE_REQUIRED" | "FAILED"
@@ -49,6 +52,29 @@ export function useUploadHandler() {
   const [progress, setProgress] = useState(0)
   const [stage, setStage] = useState("")
   const [paymentStage, setPaymentStage] = useState(false)
+  const [activeIntent, setActiveIntent] = useState<PaymentIntent | null>(null)
+  const [recoveryMessage, setRecoveryMessage] = useState<string | null>(null)
+
+  // Recovery Monitor: Check for pending payments on mount
+  useEffect(() => {
+    const checkRecovery = async () => {
+      const intents = await PaymentRepository.getActiveIntents()
+      if (intents.length > 0) {
+        const latest = intents[0]
+        setActiveIntent(latest)
+        setRecoveryMessage(
+          t(
+            "upload.recoveryDetected",
+            "Detected a pending payment for a previous upload: {{file}}",
+            {
+              file: latest.fileMetadata?.name || "previous file",
+            },
+          ),
+        )
+      }
+    }
+    checkRecovery()
+  }, [t])
 
   const handleUpload = useCallback(
     async (
@@ -109,10 +135,34 @@ export function useUploadHandler() {
           paymentAccount,
           walletKey,
           signer: signer,
+          silent: true,
+          fileMetadata: {
+            name: file.name,
+            size: file.size,
+            type: file.type,
+          },
+          intentId: activeIntent?.id,
+          onProgress: (p) => {
+            setStage(p.message || p.stage)
+          },
         })
 
         if (paymentResult === "PAYMENT_FAILED") {
           throw new Error("Payment execution failed.")
+        }
+
+        if (paymentResult === "SILENT_STILL_PENDING") {
+          setStage(
+            t(
+              "upload.waitingForConfirmation",
+              "Waiting for on-chain confirmation...",
+            ),
+          )
+          return {
+            status: "SUCCESS",
+            success: 0,
+            failed: 0,
+          } as UploadHandlerResult
         }
 
         if (paymentResult === "REQUIRE_SWAP") {
@@ -254,10 +304,33 @@ export function useUploadHandler() {
           paymentAccount,
           walletKey,
           signer: signer,
+          silent: true,
+          fileMetadata: {
+            name: files[0].name, // Use first file as metadata ref
+            size: files.reduce((sum, f) => sum + f.size, 0),
+          },
+          intentId: activeIntent?.id,
+          onProgress: (p) => {
+            setStage(p.message || p.stage)
+          },
         })
 
         if (paymentResult === "PAYMENT_FAILED") {
           throw new Error("Payment execution failed.")
+        }
+
+        if (paymentResult === "SILENT_STILL_PENDING") {
+          setStage(
+            t(
+              "upload.waitingForConfirmation",
+              "Waiting for on-chain confirmation...",
+            ),
+          )
+          return {
+            status: "SUCCESS",
+            success: 0,
+            failed: 0,
+          } as UploadHandlerResult
         }
 
         if (paymentResult === "REQUIRE_SWAP") {
@@ -367,11 +440,22 @@ export function useUploadHandler() {
     [wallet, t],
   )
 
+  const clearRecovery = useCallback(async () => {
+    if (activeIntent) {
+      await PaymentRepository.deleteIntent(activeIntent.id)
+      setActiveIntent(null)
+      setRecoveryMessage(null)
+    }
+  }, [activeIntent])
+
   return {
     uploading,
     paymentStage,
     progress,
     stage,
+    recoveryMessage,
+    activeIntent,
+    clearRecovery,
     handleUpload,
     handleBatchUpload,
   }

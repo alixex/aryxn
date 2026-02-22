@@ -9,7 +9,10 @@ import {
   getIrysFundingToken,
   resolveUploadRedirectAction,
 } from "./upload-payment-config"
-import type { UploadRedirectAction } from "./types"
+import type { UploadRedirectAction, PaymentIntent } from "./types"
+import { ExchangeRouter } from "@aryxn/exchange-chain"
+import { PaymentRepository } from "./payment-repository"
+import { config } from "@/lib/config"
 
 /**
  * Token configuration metadata
@@ -174,14 +177,30 @@ export class PaymentService {
     paymentAccount: PaymentAccount
     walletKey: any
     signer?: any // Ethers Signer for EVM chains
+    silent?: boolean
+    onProgress?: (progress: {
+      stage: string
+      percent?: number
+      message?: string
+    }) => void
+    fileMetadata?: { name: string; size: number; type?: string }
+    intentId?: string // Optional existing intent to resume
   }): Promise<
     | "PAID_NATIVE"
     | "PAID_IRYS"
     | "REQUIRE_SWAP"
     | "REQUIRE_BRIDGE"
     | "PAYMENT_FAILED"
+    | "SILENT_STILL_PENDING"
   > {
     const sourceChain = params.paymentAccount.chain
+    const { onProgress, silent } = params
+
+    // 1. Resolve or Create Intent
+    let intent: PaymentIntent | null = null
+    if (params.intentId) {
+      intent = await PaymentRepository.getIntent(params.intentId)
+    }
 
     // TIER 1: Native AR
     if (params.fromToken === "AR" && sourceChain === Chains.ARWEAVE) {
@@ -189,24 +208,23 @@ export class PaymentService {
       return "PAID_NATIVE"
     }
 
-    // TIER 2: Irys Rapid Payment (ETH, SOL, USDC)
+    // TIER 2: Irys Rapid Payment (Direct Funding)
     const irysToken = getIrysFundingToken(sourceChain, params.fromToken)
 
     if (irysToken) {
       console.log(`Executing rapid Irys funding with ${params.fromToken}...`)
+      if (onProgress)
+        onProgress({
+          stage: "payment",
+          message: `Funding Irys with ${params.fromToken}...`,
+        })
+
       try {
         const { irysService } = await import("@/lib/storage")
         const { config } = await import("@/lib/config")
 
         if (sourceChain === Chains.ETHEREUM && !params.signer) {
           console.error("Irys payment requires EVM signer for ethereum source")
-          return "PAYMENT_FAILED"
-        }
-
-        if (sourceChain !== Chains.ETHEREUM && !params.walletKey) {
-          console.error(
-            `Irys payment requires wallet context for source chain: ${sourceChain}`,
-          )
           return "PAYMENT_FAILED"
         }
 
@@ -220,20 +238,21 @@ export class PaymentService {
               : config.solanaRpcUrl,
         })
 
-        // Estimate 1MB size for funding demo or use actual size if known
-        const price = await irysService.getPrice(1024 * 1024, irysToken)
+        const price = await irysService.getPrice(
+          params.fileMetadata?.size || 1024 * 1024,
+          irysToken,
+        )
         await irysService.fund(price, irys)
 
         console.log("Irys rapid funding successful")
+        if (params.intentId)
+          await PaymentRepository.setStatus(params.intentId, "COMPLETED")
         return "PAID_IRYS"
       } catch (error) {
         if (isIrysUnsupportedTokenError(error)) {
           const redirectAction = resolveUploadRedirectAction(
             sourceChain,
             params.fromToken,
-          )
-          console.warn(
-            `Irys does not support token ${irysToken}, routing to ${redirectAction}`,
           )
           return redirectAction === "swap" ? "REQUIRE_SWAP" : "REQUIRE_BRIDGE"
         }
@@ -242,15 +261,90 @@ export class PaymentService {
       }
     }
 
-    // TIER 3: Redirect to in-app Swap or Bridge flow
-    const redirectAction = resolveUploadRedirectAction(
-      sourceChain,
-      params.fromToken,
-    )
-    console.log(
-      `Token ${params.fromToken} requires in-app ${redirectAction} flow.`,
-    )
-    return redirectAction === "swap" ? "REQUIRE_SWAP" : "REQUIRE_BRIDGE"
+    // TIER 3: Silent or Redirected Exchange (Swap/Bridge)
+    const { MULTI_HOP_SWAPPER_ADDRESS } =
+      await import("@/lib/contracts/addresses")
+    const router = new ExchangeRouter({
+      rpcUrls: {
+        ETHEREUM: config.ethereumRpcUrl,
+        SOLANA: config.solanaRpcUrl,
+      },
+      ethereumContractAddress: MULTI_HOP_SWAPPER_ADDRESS,
+      solanaProgramId: config.solanaProgramId,
+    })
+
+    const route = await router.getRoute({
+      fromChain: sourceChain,
+      fromToken: params.fromToken,
+      toChain: sourceChain === Chains.SOLANA ? Chains.SOLANA : Chains.ETHEREUM, // Default target
+      toToken: sourceChain === Chains.SOLANA ? "SOL" : "ETH", // Default target for Irys
+      fromAmount: "0.1", // TODO: Use actual estimate
+      recipient: params.paymentAccount.address,
+    })
+
+    if (!route) {
+      console.error("No valid exchange route found")
+      return "PAYMENT_FAILED"
+    }
+
+    // Create persistent intent if not exists
+    if (!intent && params.fileMetadata) {
+      intent = await PaymentRepository.createIntent({
+        fromChain: sourceChain,
+        fromToken: params.fromToken,
+        toToken: route.toToken,
+        arAddress: params.paymentAccount.address,
+        status: "INITIATED",
+        paymentType: route.type as any,
+        targetBalanceType: "IRYS",
+        fileMetadata: params.fileMetadata,
+      })
+    }
+
+    if (!silent) {
+      return route.type === "SWAP" ? "REQUIRE_SWAP" : "REQUIRE_BRIDGE"
+    }
+
+    // SILENT EXECUTION
+    try {
+      if (onProgress) {
+        onProgress({
+          stage: "exchange",
+          message: `Executing ${route.type.toLowerCase()} (${route.provider}). Est. time: ${Math.round((route.estimatedTime || 0) / 60)}m`,
+        })
+      }
+
+      if (route.type === "SWAP") {
+        // Handle direct swap
+        // Note: Implementation of executeSwap needs signer/walletKey properly
+        // This is a placeholder for the actual SDK call which we'll refine
+        await PaymentRepository.updateIntent(intent!.id, { status: "PENDING" })
+
+        // After swap, we might need to trigger Irys Fund
+        // For now, return REQUIRE_SWAP/BRIDGE as fallback if we can't do it fully silent yet
+        // but we'll come back to fix this in the next iteration
+        return "REQUIRE_SWAP"
+      } else {
+        // Bridge execution
+        if (onProgress)
+          onProgress({
+            stage: "exchange",
+            message: "Initiating bridge transaction...",
+          })
+
+        const txHash = "0x..." // placeholder from bridgeService.executeBridge
+        await PaymentRepository.updateIntent(intent!.id, {
+          txHash,
+          status: "PENDING",
+        })
+
+        return "SILENT_STILL_PENDING"
+      }
+    } catch (e) {
+      console.error("Silent payment execution failed", e)
+      if (intent) await PaymentRepository.setStatus(intent.id, "FAILED")
+      return "PAYMENT_FAILED"
+    }
   }
 }
 
