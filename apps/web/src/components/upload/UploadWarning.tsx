@@ -5,11 +5,13 @@ import { AlertCircle, ArrowRight } from "lucide-react"
 
 interface UploadWarningProps {
   isLocked: boolean
+  isUnlocked?: boolean
   hasExternalWallet: boolean
 }
 
 export function UploadWarning({
   isLocked,
+  isUnlocked,
   hasExternalWallet,
 }: UploadWarningProps) {
   const { t } = useTranslation()

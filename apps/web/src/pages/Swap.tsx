@@ -6,10 +6,9 @@ import {
   Send,
   AlertCircle,
   ArrowRight,
-  History,
 } from "lucide-react"
 import { useAccount } from "wagmi"
-import { Link, useSearchParams, useNavigate } from "react-router-dom"
+import { Link, useSearchParams } from "react-router-dom"
 import { useTranslation } from "@/i18n/config"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
@@ -59,7 +58,6 @@ function chainLabel(chain: string) {
 export default function SwapPage() {
   const { t } = useTranslation()
   const [searchParams] = useSearchParams()
-  const navigate = useNavigate()
   const { isConnected, address: externalAddress } = useAccount()
   const wallet = useWallet()
   const activeEvm = wallet.active.evm
@@ -327,22 +325,11 @@ export default function SwapPage() {
                         <Send className="h-4 w-4" />
                         {t("dex.transfer", "Send")}
                       </TabsTrigger>
-                      <Button
-                        variant="ghost"
-                        className="data-[state=active]:bg-background text-muted-foreground hover:bg-background flex-1 gap-2 rounded-md px-4 py-2 text-sm font-semibold hover:text-cyan-400 sm:w-32"
-                        onClick={() => navigate("/?tab=activity")}
-                      >
-                        <History className="h-4 w-4" />
-                        {t("history.title", "History")}
-                      </Button>
                     </TabsList>
                   </div>
 
                   <TabsContent value="swap" className="mt-0">
-                    <UniversalSwapCard
-                      selectedAccount={selectedAccount}
-                      onNavigateToHistory={() => navigate("/?tab=activity")}
-                    />
+                    <UniversalSwapCard selectedAccount={selectedAccount} />
                   </TabsContent>
 
                   <TabsContent value="transfer" className="mt-0">

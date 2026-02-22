@@ -37,13 +37,14 @@ export default function UploadPage() {
     paymentAccount: null,
   })
 
-  // Check if user can upload
+  // Check if user can upload (unlocked allows reaching the final step where AR is auto-generated)
+  const isUnlocked = wallet.internal.isUnlocked
   const canUpload = Boolean(
     (selectedFiles.file || selectedFiles.files.length > 0) &&
-    hasArweaveAccount &&
+    isUnlocked &&
     uploadConfig.paymentAccount,
   )
-  const isDisabled = !hasArweaveAccount
+  const isDisabled = !isUnlocked
 
   // Calculate current step
   const currentStep = useMemo(() => {
@@ -98,11 +99,12 @@ export default function UploadPage() {
         <div className="grid gap-6">
           <UploadWarning
             isLocked={!hasArweaveAccount}
+            isUnlocked={isUnlocked}
             hasExternalWallet={isExternalArweave}
           />
 
           {/* Upload Steps Indicator */}
-          {hasArweaveAccount && (
+          {isUnlocked && (
             <Steps steps={uploadSteps} currentStep={currentStep} />
           )}
 
@@ -117,14 +119,14 @@ export default function UploadPage() {
           <UploadConfigurationCard
             file={selectedFiles.file}
             files={selectedFiles.files}
-            isUnlocked={hasArweaveAccount}
+            isUnlocked={isUnlocked}
             ownerAddress={ownerAddress}
             onChange={setUploadConfig}
           />
 
           <AccountSelector file={selectedFiles.file} />
 
-          {hasArweaveAccount && (
+          {isUnlocked && (
             <UploadExecutionCard
               file={selectedFiles.file}
               files={selectedFiles.files}

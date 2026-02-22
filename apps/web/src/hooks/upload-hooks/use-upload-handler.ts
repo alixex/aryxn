@@ -125,14 +125,60 @@ export function useUploadHandler() {
         } as UploadHandlerResult
       }
 
-      const activeArweave = wallet.active.arweave
+      let activeArweave = wallet.active.arweave
+
       if (!activeArweave) {
-        toast.error(t("upload.needAccountToUpload"))
-        return {
-          status: "FAILED",
-          success: 0,
-          failed: 1,
-        } as UploadHandlerResult
+        if (wallet.internal.isUnlocked) {
+          try {
+            setStage(
+              t("upload.autoCreateArPreparing", "Preparing your AR account..."),
+            )
+            await wallet.internal.createWallet("arweave", "Vault AR")
+            // refresh wallet state to get the new address immediately
+            await wallet.internal.refreshWallets()
+            const newArweave = wallet.internal.wallets.find(
+              (w: any) => w.chain === "arweave",
+            )
+            if (newArweave) {
+              activeArweave = {
+                ...newArweave,
+                isExternal: false,
+                chain: "arweave" as const,
+              } as any // Use as any to bypass complex ActiveAccount union types for now, since we know it's valid
+              toast.success(
+                t(
+                  "upload.autoCreateArSuccess",
+                  "AR account created and switched automatically: Vault AR",
+                  { alias: "Vault AR" },
+                ),
+              )
+            } else {
+              throw new Error("Generation successful but couldn't find wallet")
+            }
+          } catch (error) {
+            const errorMessage =
+              error instanceof Error ? error.message : String(error)
+            toast.error(
+              t(
+                "upload.autoCreateArFailed",
+                "Failed to create AR account: {{message}}",
+                { message: errorMessage },
+              ),
+            )
+            return {
+              status: "FAILED",
+              success: 0,
+              failed: 1,
+            } as UploadHandlerResult
+          }
+        } else {
+          toast.error(t("upload.needAccountToUpload"))
+          return {
+            status: "FAILED",
+            success: 0,
+            failed: 1,
+          } as UploadHandlerResult
+        }
       }
 
       if (!paymentAccount) {
@@ -225,13 +271,13 @@ export function useUploadHandler() {
         setStage(t("upload.uploading"))
         await uploadFile(
           file,
-          activeArweave.address,
-          activeArweave.isExternal
+          activeArweave!.address,
+          activeArweave!.isExternal
             ? (null as unknown as WalletKey)
             : wallet.internal.activeWallet!,
           {
             encryptionKey: encryptUpload ? new Uint8Array(32) : undefined,
-            useExternalWallet: activeArweave.isExternal,
+            useExternalWallet: activeArweave!.isExternal,
             enableCompression: compressUpload,
             onProgress: (p) => {
               setProgress(p.progress)
@@ -299,14 +345,60 @@ export function useUploadHandler() {
         } as UploadHandlerResult
       }
 
-      const activeArweave = wallet.active.arweave
+      let activeArweave = wallet.active.arweave
+
       if (!activeArweave) {
-        toast.error(t("upload.needAccountToUpload"))
-        return {
-          status: "FAILED",
-          success: 0,
-          failed: files.length,
-        } as UploadHandlerResult
+        if (wallet.internal.isUnlocked) {
+          try {
+            setStage(
+              t("upload.autoCreateArPreparing", "Preparing your AR account..."),
+            )
+            await wallet.internal.createWallet("arweave", "Vault AR")
+            // refresh wallet state to get the new address immediately
+            await wallet.internal.refreshWallets()
+            const newArweave = wallet.internal.wallets.find(
+              (w: any) => w.chain === "arweave",
+            )
+            if (newArweave) {
+              activeArweave = {
+                ...newArweave,
+                isExternal: false,
+                chain: "arweave" as const,
+              } as any
+              toast.success(
+                t(
+                  "upload.autoCreateArSuccess",
+                  "AR account created and switched automatically: Vault AR",
+                  { alias: "Vault AR" },
+                ),
+              )
+            } else {
+              throw new Error("Generation successful but couldn't find wallet")
+            }
+          } catch (error) {
+            const errorMessage =
+              error instanceof Error ? error.message : String(error)
+            toast.error(
+              t(
+                "upload.autoCreateArFailed",
+                "Failed to create AR account: {{message}}",
+                { message: errorMessage },
+              ),
+            )
+            return {
+              status: "FAILED",
+              success: 0,
+              failed: files.length,
+            } as UploadHandlerResult
+          }
+        } else {
+          toast.error(t("upload.needAccountToUpload"))
+          return {
+            status: "FAILED",
+            success: 0,
+            failed: files.length,
+          } as UploadHandlerResult
+        }
       }
 
       if (!paymentAccount) {
@@ -400,13 +492,13 @@ export function useUploadHandler() {
         setStage(t("upload.uploading"))
         const results = await uploadFiles(
           files,
-          activeArweave.address,
-          activeArweave.isExternal
+          activeArweave!.address,
+          activeArweave!.isExternal
             ? (null as unknown as WalletKey)
             : wallet.internal.activeWallet!,
           {
             encryptionKey: encryptUpload ? new Uint8Array(32) : undefined,
-            useExternalWallet: activeArweave.isExternal,
+            useExternalWallet: activeArweave!.isExternal,
             enableCompression: compressUpload,
             onProgress: (p) => {
               setProgress(p.progress)
@@ -424,11 +516,11 @@ export function useUploadHandler() {
           try {
             const { scheduleManifestUpdate } = await import("@/lib/file")
             scheduleManifestUpdate(
-              activeArweave.address,
-              activeArweave.isExternal
+              activeArweave!.address,
+              activeArweave!.isExternal
                 ? (null as unknown as WalletKey)
                 : wallet.internal.activeWallet!,
-              activeArweave.isExternal,
+              activeArweave!.isExternal,
             )
           } catch (error) {
             console.error(

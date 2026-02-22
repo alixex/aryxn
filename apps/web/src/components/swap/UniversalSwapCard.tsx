@@ -59,7 +59,6 @@ type DexSelectableAccount = {
 
 interface UniversalSwapCardProps {
   selectedAccount: DexSelectableAccount | null
-  onNavigateToHistory?: () => void
   onClose?: () => void
 }
 
