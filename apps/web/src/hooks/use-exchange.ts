@@ -3,6 +3,8 @@ import { useAccount, useChainId } from "wagmi"
 import { ExchangeSDK } from "@aryxn/exchange-chain"
 import type { ExchangeRequest, ExchangeRoute } from "@aryxn/exchange-chain"
 import { getSwapperAddress, TOKEN_MAPPING } from "@/lib/contracts/addresses"
+import { Chains, RPCs } from "@aryxn/chain-constants"
+import { getEthereumRpcUrl, getSolanaRpcUrl } from "@aryxn/query-chain"
 
 // Constants for Solana (should be move to a better config file later)
 const SOLANA_PROGRAM_ID = "G2qM2J683JFYibZZCTefyX2W8YT9TRp5npyqm9ddtgHv"
@@ -15,7 +17,23 @@ export function useExchange() {
     return new ExchangeSDK({
       ethereumContractAddress: getSwapperAddress(chainId),
       solanaProgramId: SOLANA_PROGRAM_ID,
-      tokenMappings: TOKEN_MAPPING as any,
+      tokenMappings: TOKEN_MAPPING,
+      supportedChains: [
+        Chains.ETHEREUM,
+        Chains.SOLANA,
+        Chains.BITCOIN,
+        Chains.ARWEAVE,
+        Chains.SUI,
+      ],
+      bridgedChains: [Chains.BITCOIN, Chains.ARWEAVE, Chains.SUI],
+      supportedTokens: ["USDT", "USDC", "AR", "BTC", "ETH", "SUI", "SOL"],
+      rpcUrls: {
+        [Chains.ETHEREUM]: getEthereumRpcUrl(),
+        [Chains.SOLANA]: getSolanaRpcUrl(),
+        [Chains.SUI]: RPCs.SUI_MAINNET,
+        [Chains.BITCOIN]: RPCs.BITCOIN_API,
+        [Chains.ARWEAVE]: RPCs.ARWEAVE_BASE,
+      },
     })
   }, [chainId])
 
