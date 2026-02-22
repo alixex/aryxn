@@ -58,17 +58,25 @@ Arweave 存储费采用多层支付体系。虽然 Arweave 原生使用 AR，但
 | 2 | **Irys Service** | 使用 **SUI** 为 Irys 充值。 |
 | 3 | **存储** | 将文件上传至 Arweave。 |
 
-### 2.4 跨链稳定币路径 (例如 Polygon 上的 USDC)
+### 2.4 L2 EVM 链上的稳定币路径 (例如 Base, Arbitrum, Optimism, Polygon)
+**[优化]** 这些网络现在通过本地 DEX 直接将 USDC/USDT 兑换为该链的 **原生 ETH** 进行 Irys 支付，无需跨链桥接至 Ethereum L1，极大地降低了成本和时间。
+
+| 步骤 | 动作 | 说明 |
+| :--- | :--- | :--- |
+| 1 | **Exchange SDK** | 在 **当前 L2 网络** 内将 **USDC/USDT** 兑换为 **原生 ETH**。 |
+| 2 | **Irys Service** | 使用本地 **ETH** 直接为 Irys 充值。 |
+| 3 | **存储** | 将文件上传至 Arweave。 |
+
+### 2.5 其他非原生链的跨链路径
+对于其他不支持本地兑换或原生充值的链，系统将自动发起跨链桥接。
 
 | 步骤 | 动作             | 说明                                                   |
 | :--- | :--------------- | :----------------------------------------------------- |
-| 1    | **Exchange SDK** | 将 **USDC (Polygon)** 跨链桥接至 **USDC (Ethereum)**。 |
-| 2    | **Irys Service** | 使用 **USDC (Ethereum)** 为 Irys 充值。                |
+| 1    | **Exchange SDK** | 将资产跨链桥接至 **ETH (Ethereum)** 或 **SOL (Solana)**。 |
+| 2    | **Irys Service** | 使用目标链资产为 Irys 充值。                             |
 | 3    | **存储**         | 将文件上传至 Arweave。                                 |
 
 ---
-
-## 3. 评估总结
 
 ## 3. 评估总结
 
@@ -78,9 +86,18 @@ Arweave 存储费采用多层支付体系。虽然 Arweave 原生使用 AR，但
 | **ETH**  | 已支持   | Irys 快速支付 (Ethereum + 核心 L2) | 无                               |
 | **SOL**  | 已支持   | Irys 快速支付                      | 无                               |
 | **SUI**  | 已支持   | Irys 快速支付                      | 无                               |
-| **USDT** | 已支持   | Irys 快速支付 (仅限 Ethereum L1)   | 在 SOL 等链上自动兑换为 SOL/USDC |
-| **USDC** | 已支持   | Irys 快速支付 (Ethereum/Solana)    | 在不支持的链上跨链至 ETH/SOL     |
+| **USDT** | 已支持   | Irys 快速支付 (L1) 或 **L2 本地兑换** | 在 L2 上自动兑换为本地 ETH；在 SOL 上换为 SOL/USDC |
+| **USDC** | 已支持   | Irys 快速支付 (L1/Solana) 或 **L2 本地兑换** | 在 L2 上自动兑换为本地 ETH；在不支持的链上跨链 |
 | **BTC**  | 自动回退 | **兑换为 ETH**                     | 通过 Exchange SDK 使用 Thorchain |
+
+---
+
+## 4. UI 视觉引导
+
+**[新增] 专业化链图标系统**
+为了确保用户在多链环境下不产生混淆，我们部署了中央图标库 `@aryxn/chain-constants`：
+- **清晰辨识**：每个网络（Ethereum, Base, Arbitrum, Optimism, Solana, Arweave）都配有官方高清矢量图标。
+- **路径预判**：在支付前，界面会明确显示 `DIRECT`（直连）、`SWAP`（本地兑换）或 `BRIDGE`（跨链桥接）的标志，并配以链图标，确保交易透明。
 
 > [!NOTE]
 > 对于以 **Arweave (AR)** 为兑换 _源_ 的场景（例如将 AR 换成 BTC），由于 LIFI 目前不支持 Arweave，该路径暂不可用。建议用户保留 AR 用于原生存储，或通过外部交易所进行 AR 到其他代币的转换。
