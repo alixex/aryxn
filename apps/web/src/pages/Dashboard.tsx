@@ -5,6 +5,8 @@ import { searchFiles, type FileIndex } from "@/lib/file"
 import { useEffect, useState } from "react"
 import { Chains } from "@aryxn/chain-constants"
 import { HistoryTable } from "@/components/history-table"
+import { TransactionHistory } from "@/components/swap/TransactionHistory"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Card,
   CardContent,
@@ -24,7 +26,7 @@ import {
   Clock,
   FileText,
 } from "lucide-react"
-import { Link } from "react-router-dom"
+import { Link, useSearchParams } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { useFileSync } from "@/hooks/upload-hooks"
 import { EmptyState } from "@/components/ui/empty-state"
@@ -55,6 +57,10 @@ export default function DashboardPage() {
   const wallet = useWallet()
   const walletManager = wallet.internal
   const externalWallets = wallet.external
+  const [searchParams] = useSearchParams()
+
+  const defaultTab =
+    searchParams.get("tab") === "activity" ? "activity" : "files"
   const [uploadHistory, setUploadHistory] = useState<UploadRecord[]>([])
   const [hasMore, setHasMore] = useState(false)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
@@ -261,85 +267,110 @@ export default function DashboardPage() {
         )}
 
         <div className="grid grid-cols-1 gap-6 sm:gap-8">
-          <Card className="glass-premium animate-fade-in-down border-none shadow-2xl transition-all duration-500">
-            <CardHeader className="glass-strong border-accent/30 bg-card/60 flex flex-col space-y-4 rounded-t-2xl border-b-2 p-6 shadow-lg sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-              <div className="space-y-1">
-                <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                  <History className="text-foreground h-5 w-5" />
-                  {t("history.title")}
-                </CardTitle>
-                <CardDescription className="text-xs sm:text-sm">
-                  {t("history.desc")}
-                </CardDescription>
-              </div>
-              <div className="flex flex-col gap-2 sm:flex-row">
-                {!walletManager.isUnlocked ? (
-                  <Link to="/account" className="w-full sm:w-auto">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="border-muted bg-card text-muted-foreground hover:bg-accent w-full sm:w-auto"
-                    >
-                      <Lock className="mr-2 h-3.5 w-3.5" />
-                      {t("common.accountLocked")}
-                    </Button>
-                  </Link>
-                ) : (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleSync}
-                    disabled={syncing}
-                    className="group w-full sm:w-auto"
-                  >
-                    <RefreshCw
-                      className={`mr-2 h-3.5 w-3.5 transition-transform duration-200 ${syncing ? "animate-spin" : "group-hover:rotate-180"}`}
-                    />
-                    {syncing
-                      ? t("history.syncing") + "…"
-                      : t("history.syncFromArweave")}
-                  </Button>
-                )}
-              </div>
-            </CardHeader>
-            <CardContent className="p-0 sm:p-6 sm:pt-0">
-              {uploadHistory.length === 0 ? (
-                <EmptyState
-                  icon={<FileText className="h-12 w-12" />}
-                  title={t("history.emptyTitle")}
-                  description={t("history.emptyDesc")}
-                  action={
-                    <Link to="/upload">
-                      <Button className="mt-2">
-                        <Upload className="mr-2 h-4 w-4" />
-                        {t("common.upload", "立即上传")}
+          <Tabs defaultValue={defaultTab} className="w-full">
+            <div className="mb-6 flex justify-start">
+              <TabsList className="bg-muted flex h-auto w-max flex-nowrap gap-1 rounded-lg p-1 sm:w-auto">
+                <TabsTrigger
+                  value="files"
+                  className="data-[state=active]:bg-background rounded-md px-4 py-2 text-xs font-semibold capitalize data-[state=active]:text-cyan-400 data-[state=active]:shadow-sm"
+                >
+                  {t("common.files", "Files")}
+                </TabsTrigger>
+                <TabsTrigger
+                  value="activity"
+                  className="data-[state=active]:bg-background rounded-md px-4 py-2 text-xs font-semibold capitalize data-[state=active]:text-cyan-400 data-[state=active]:shadow-sm"
+                >
+                  {t("common.activity", "Activity")}
+                </TabsTrigger>
+              </TabsList>
+            </div>
+
+            <TabsContent value="files" className="mt-0 outline-none">
+              <Card className="glass-premium animate-fade-in-down border-none shadow-2xl transition-all duration-500">
+                <CardHeader className="glass-strong border-accent/30 bg-card/60 flex flex-col space-y-4 rounded-t-2xl border-b-2 p-6 shadow-lg sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+                  <div className="space-y-1">
+                    <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                      <History className="text-foreground h-5 w-5" />
+                      {t("history.title")}
+                    </CardTitle>
+                    <CardDescription className="text-xs sm:text-sm">
+                      {t("history.desc")}
+                    </CardDescription>
+                  </div>
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    {!walletManager.isUnlocked ? (
+                      <Link to="/account" className="w-full sm:w-auto">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="border-muted bg-card text-muted-foreground hover:bg-accent w-full sm:w-auto"
+                        >
+                          <Lock className="mr-2 h-3.5 w-3.5" />
+                          {t("common.accountLocked")}
+                        </Button>
+                      </Link>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleSync}
+                        disabled={syncing}
+                        className="group w-full sm:w-auto"
+                      >
+                        <RefreshCw
+                          className={`mr-2 h-3.5 w-3.5 transition-transform duration-200 ${syncing ? "animate-spin" : "group-hover:rotate-180"}`}
+                        />
+                        {syncing
+                          ? t("history.syncing") + "…"
+                          : t("history.syncFromArweave")}
                       </Button>
-                    </Link>
-                  }
-                />
-              ) : (
-                <div className="mb-6 flex flex-col items-center gap-4 overflow-x-auto">
-                  <HistoryTable
-                    records={uploadHistory || []}
-                    masterKey={walletManager.masterKey}
-                    activeAddress={walletManager.activeAddress}
-                  />
-                  {hasMore && (
-                    <Button
-                      variant="outline"
-                      onClick={() => loadUploadHistory(false)}
-                      disabled={isLoadingMore}
-                      className="mt-2 w-full sm:w-auto"
-                    >
-                      {isLoadingMore
-                        ? "Loading..."
-                        : t("common.loadMore", "Load More")}
-                    </Button>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="p-0 sm:p-6 sm:pt-0">
+                  {uploadHistory.length === 0 ? (
+                    <EmptyState
+                      icon={<FileText className="h-12 w-12" />}
+                      title={t("history.emptyTitle")}
+                      description={t("history.emptyDesc")}
+                      action={
+                        <Link to="/upload">
+                          <Button className="mt-2">
+                            <Upload className="mr-2 h-4 w-4" />
+                            {t("common.upload", "立即上传")}
+                          </Button>
+                        </Link>
+                      }
+                    />
+                  ) : (
+                    <div className="mb-6 flex flex-col items-center gap-4 overflow-x-auto">
+                      <HistoryTable
+                        records={uploadHistory || []}
+                        masterKey={walletManager.masterKey}
+                        activeAddress={walletManager.activeAddress}
+                      />
+                      {hasMore && (
+                        <Button
+                          variant="outline"
+                          onClick={() => loadUploadHistory(false)}
+                          disabled={isLoadingMore}
+                          className="mt-2 w-full sm:w-auto"
+                        >
+                          {isLoadingMore
+                            ? "Loading..."
+                            : t("common.loadMore", "Load More")}
+                        </Button>
+                      )}
+                    </div>
                   )}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="activity" className="mt-0 outline-none">
+              <TransactionHistory />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </div>

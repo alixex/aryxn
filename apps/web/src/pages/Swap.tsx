@@ -9,7 +9,7 @@ import {
   History,
 } from "lucide-react"
 import { useAccount } from "wagmi"
-import { Link, useSearchParams } from "react-router-dom"
+import { Link, useSearchParams, useNavigate } from "react-router-dom"
 import { useTranslation } from "@/i18n/config"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
@@ -29,7 +29,6 @@ import { useUserAccountSetup } from "@/hooks/account-hooks/use-user-account-setu
 // Components
 import { UniversalSwapCard } from "@/components/swap/UniversalSwapCard"
 import { TransferCard } from "@/components/swap/TransferCard"
-import { TransactionHistory } from "@/components/swap/TransactionHistory"
 
 type DexSelectableAccount = {
   chain: string
@@ -60,6 +59,7 @@ function chainLabel(chain: string) {
 export default function SwapPage() {
   const { t } = useTranslation()
   const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
   const { isConnected, address: externalAddress } = useAccount()
   const wallet = useWallet()
   const activeEvm = wallet.active.evm
@@ -81,11 +81,7 @@ export default function SwapPage() {
     : undefined
 
   const defaultTab =
-    searchParams.get("tab") === "transfer"
-      ? "transfer"
-      : searchParams.get("tab") === "history"
-        ? "history"
-        : "swap"
+    searchParams.get("tab") === "transfer" ? "transfer" : "swap"
   const [activeTab, setActiveTab] = useState(defaultTab)
   const bridgeFromUpload = searchParams.get("source") === "upload"
   const bridgeToken = searchParams.get("token") || ""
@@ -331,29 +327,26 @@ export default function SwapPage() {
                         <Send className="h-4 w-4" />
                         {t("dex.transfer", "Send")}
                       </TabsTrigger>
-                      <TabsTrigger
-                        value="history"
-                        className="flex-1 gap-2 sm:w-32"
+                      <Button
+                        variant="ghost"
+                        className="data-[state=active]:bg-background text-muted-foreground hover:bg-background flex-1 gap-2 rounded-md px-4 py-2 text-sm font-semibold hover:text-cyan-400 sm:w-32"
+                        onClick={() => navigate("/?tab=activity")}
                       >
                         <History className="h-4 w-4" />
                         {t("history.title", "History")}
-                      </TabsTrigger>
+                      </Button>
                     </TabsList>
                   </div>
 
                   <TabsContent value="swap" className="mt-0">
                     <UniversalSwapCard
                       selectedAccount={selectedAccount}
-                      onNavigateToHistory={() => setActiveTab("history")}
+                      onNavigateToHistory={() => navigate("/?tab=activity")}
                     />
                   </TabsContent>
 
                   <TabsContent value="transfer" className="mt-0">
                     <TransferCard selectedAccount={selectedAccount} />
-                  </TabsContent>
-
-                  <TabsContent value="history" className="mt-0">
-                    <TransactionHistory />
                   </TabsContent>
                 </Tabs>
               </>
