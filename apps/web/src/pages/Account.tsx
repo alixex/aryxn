@@ -28,7 +28,7 @@ export default function AccountPage() {
   const { t } = useTranslation()
   const walletManager = useInternal()
   const wallet = useWallet()
-  const { mutate: disconnectEVM } = useDisconnect()
+  const { disconnect: disconnectEVM } = useDisconnect()
 
   // 使用外部钱包状态 (已聚合进 wallet.external)
   const externalWallets = wallet.external

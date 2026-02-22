@@ -2,13 +2,14 @@ import {
   Connection,
   PublicKey,
   SystemProgram,
-  AccountMeta,
   Transaction,
   TransactionInstruction,
 } from "@solana/web3.js"
-import { AnchorProvider, Program, Wallet, BN, Idl } from "@coral-xyz/anchor"
-import {
-  createJupiterApiClient,
+import type { AccountMeta } from "@solana/web3.js"
+import { AnchorProvider, Program, Wallet, BN } from "@coral-xyz/anchor"
+import type { Idl } from "@coral-xyz/anchor"
+import { createJupiterApiClient } from "@jup-ag/api"
+import type {
   QuoteResponse,
   Instruction as JupInstruction,
   AccountMeta as JupAccountMeta,

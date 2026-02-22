@@ -11,6 +11,7 @@ import { QueryClientProvider, QueryClient } from "@tanstack/react-query"
 import { type ReactNode, useEffect, useState, useMemo } from "react"
 import { useTranslation, isChineseLanguage } from "@/i18n/config"
 import { WalletProvider } from "@/providers/wallet-provider"
+import { AutoSyncProvider } from "@/providers/auto-sync-provider"
 import { ARWEAVE_APP_NAME } from "@/lib/config"
 import {
   getEthereumRpcUrl,
@@ -85,7 +86,9 @@ export function Providers({ children }: { children: ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <WagmiProvider config={wagmiConfig}>
         <RainbowKitProvider locale={locale}>
-          <WalletProvider>{children}</WalletProvider>
+          <WalletProvider>
+            <AutoSyncProvider>{children}</AutoSyncProvider>
+          </WalletProvider>
         </RainbowKitProvider>
       </WagmiProvider>
     </QueryClientProvider>

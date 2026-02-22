@@ -1,10 +1,15 @@
+import { Suspense, lazy } from "react"
 import { AppLayout } from "@/components/layout/AppLayout"
-import SettingsPage from "@/pages/Settings"
+import { HydrateFallback } from "@/root"
+
+const SettingsPage = lazy(() => import("@/pages/Settings"))
 
 export default function Settings() {
   return (
     <AppLayout>
-      <SettingsPage />
+      <Suspense fallback={<HydrateFallback />}>
+        <SettingsPage />
+      </Suspense>
     </AppLayout>
   )
 }

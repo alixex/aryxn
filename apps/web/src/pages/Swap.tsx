@@ -25,6 +25,7 @@ import type { WalletRecord } from "@/lib/utils"
 import { AccountStatusBadge } from "@/components/account/AccountStatusBadge"
 import { PageHeader } from "@/components/layout/PageHeader"
 import { AccountChains, Chains } from "@aryxn/chain-constants"
+import { useUserAccountSetup } from "@/hooks/account-hooks/use-user-account-setup"
 // Components
 import { UniversalSwapCard } from "@/components/swap/UniversalSwapCard"
 import { TransferCard } from "@/components/swap/TransferCard"
@@ -110,7 +111,8 @@ export default function SwapPage() {
       })),
     )
   }, [accountsByChain])
-  const needsAccountSetup = selectableAccounts.length === 0
+
+  const { needsAccountSetup } = useUserAccountSetup()
 
   const [selectedAccount, setSelectedAccount] =
     useState<DexSelectableAccount | null>(null)

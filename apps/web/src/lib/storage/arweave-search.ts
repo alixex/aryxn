@@ -54,7 +54,7 @@ function convertFileIndexToSearchResult(file: FileIndex): ArweaveSearchResult {
   }
 
   if (file.tags && file.tags.length > 0) {
-    file.tags.forEach((tag) => {
+    file.tags.forEach((tag: string) => {
       tags.push({ name: "Tag", value: tag })
     })
   }

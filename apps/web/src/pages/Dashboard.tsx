@@ -31,6 +31,7 @@ import { EmptyState } from "@/components/ui/empty-state"
 import { StatCard } from "@/components/ui/stat-card"
 import { AccountStatusBadge } from "@/components/account/AccountStatusBadge"
 import { PageHeader } from "@/components/layout/PageHeader"
+import { useUserAccountSetup } from "@/hooks/account-hooks/use-user-account-setup"
 
 // 将 FileIndex 转换为 UploadRecord 格式（用于兼容 HistoryTable）
 function fileIndexToUploadRecord(file: FileIndex): UploadRecord {
@@ -55,6 +56,11 @@ export default function DashboardPage() {
   const walletManager = wallet.internal
   const externalWallets = wallet.external
   const [uploadHistory, setUploadHistory] = useState<UploadRecord[]>([])
+  const [hasMore, setHasMore] = useState(false)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
+  const [offset, setOffset] = useState(0)
+  const PAGE_SIZE = 50
+
   const { syncing, syncFromArweave } = useFileSync()
 
   const collectArweaveAddresses = () => {
@@ -71,74 +77,72 @@ export default function DashboardPage() {
     return Array.from(new Set(candidates.filter(Boolean)))
   }
 
-  // 加载上传历史
-  const loadUploadHistory = async () => {
+  // 加载上传历史 (First page / refresh)
+  const loadUploadHistory = async (reset = false) => {
     const addresses = collectArweaveAddresses()
 
     if (addresses.length === 0) {
       setUploadHistory([])
+      setHasMore(false)
       return
     }
 
     try {
-      // 从 SQLite 加载所有地址的文件
+      const currentOffset = reset ? 0 : offset
+      if (reset) {
+        setOffset(0)
+        setIsLoadingMore(false)
+      } else {
+        setIsLoadingMore(true)
+      }
+
       const allFiles: FileIndex[] = []
 
       for (const address of addresses) {
         const sqliteFiles = await searchFiles(address, {
-          limit: 1000, // 加载足够多的记录
+          limit: PAGE_SIZE,
+          offset: currentOffset,
         })
         allFiles.push(...sqliteFiles)
       }
 
-      // 去重（基于 tx_id，因为同一个交易可能被多个地址查询到）
+      // 去重（基于 tx_id）
       const uniqueFiles = Array.from(
         new Map(allFiles.map((file) => [file.tx_id, file])).values(),
       )
 
-      const records = uniqueFiles
+      const newRecords = uniqueFiles
         .map(fileIndexToUploadRecord)
         .sort((a, b) => b.createdAt - a.createdAt)
 
-      setUploadHistory(records as UploadRecord[])
+      setHasMore(newRecords.length >= PAGE_SIZE)
+
+      if (reset) {
+        setUploadHistory(newRecords as UploadRecord[])
+      } else {
+        // 如果是加载更多，需要与现有的记录再次去重
+        setUploadHistory((prev) => {
+          const combined = [...prev, ...(newRecords as UploadRecord[])]
+          return Array.from(
+            new Map(combined.map((r) => [r.txId, r])).values(),
+          ).sort((a, b) => b.createdAt - a.createdAt)
+        })
+      }
+
+      if (!reset) {
+        setOffset((prev) => prev + PAGE_SIZE)
+      }
     } catch (error) {
       console.error("Failed to load upload history:", error)
-      setUploadHistory([])
+      if (reset) setUploadHistory([])
+    } finally {
+      setIsLoadingMore(false)
     }
   }
 
+  // 初始加载及账户改变时重置加载
   useEffect(() => {
-    loadUploadHistory()
-  }, [walletManager.wallets, externalWallets.arAddress])
-
-  // 在页面加载后，空闲时间自动同步文件
-  useEffect(() => {
-    const addresses = collectArweaveAddresses()
-
-    if (addresses.length === 0) {
-      return
-    }
-
-    // 使用 scheduleAutoSync 在浏览器空闲时间自动同步
-    const scheduleAutoSyncPromises = addresses.map(async (address) => {
-      try {
-        const { scheduleAutoSync } = await import("@/lib/file/file-sync-direct")
-        scheduleAutoSync(address, () => {
-          // 只要有文件处理完成（每批次），就刷新列表
-          // result.added/updated 大于 0 表示有变更
-          // 但为了用户体验，只要有回调（表示有进度），我们都尝试刷新一下
-          // 实际上 scheduleAutoSync 现在传递的是 onBatchComplete
-          loadUploadHistory()
-        })
-      } catch (error) {
-        console.warn(`Failed to schedule auto sync for ${address}:`, error)
-      }
-    })
-
-    // 等待所有调度完成（不阻塞）
-    Promise.all(scheduleAutoSyncPromises).catch((error) => {
-      console.warn("Failed to schedule auto sync:", error)
-    })
+    loadUploadHistory(true)
   }, [walletManager.wallets, externalWallets.arAddress])
 
   // 处理同步
@@ -146,7 +150,7 @@ export default function DashboardPage() {
     const success = await syncFromArweave()
     if (success) {
       // 同步成功后重新加载历史记录
-      await loadUploadHistory()
+      await loadUploadHistory(true)
     }
   }
 
@@ -175,9 +179,7 @@ export default function DashboardPage() {
     return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i]
   }
 
-  // 检查是否需要显示账户管理提示
-  const needsAccountSetup =
-    !walletManager.isUnlocked && !externalWallets.isArConnected
+  const { needsAccountSetup } = useUserAccountSetup()
 
   return (
     <div className="mesh-gradient relative min-h-screen">
@@ -316,12 +318,24 @@ export default function DashboardPage() {
                   }
                 />
               ) : (
-                <div className="overflow-x-auto">
+                <div className="mb-6 flex flex-col items-center gap-4 overflow-x-auto">
                   <HistoryTable
                     records={uploadHistory || []}
                     masterKey={walletManager.masterKey}
                     activeAddress={walletManager.activeAddress}
                   />
+                  {hasMore && (
+                    <Button
+                      variant="outline"
+                      onClick={() => loadUploadHistory(false)}
+                      disabled={isLoadingMore}
+                      className="mt-2 w-full sm:w-auto"
+                    >
+                      {isLoadingMore
+                        ? "Loading..."
+                        : t("common.loadMore", "Load More")}
+                    </Button>
+                  )}
                 </div>
               )}
             </CardContent>

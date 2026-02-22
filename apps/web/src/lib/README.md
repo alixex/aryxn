@@ -342,7 +342,7 @@ const data = db.getSync(query)
 await uploadToArweave(file, wallet)
 
 // 4. 全 any 类型
-const balance: any = await getBalance(address, chain)
+const balance = await getBalance(address, chain)
 
 // 5. 重复请求
 for (let i = 0; i < 100; i++) {

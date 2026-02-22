@@ -3,38 +3,44 @@ import { type DbRow, type SqlValue } from "@aryxn/storage"
 import { uploadToArweave } from "@/lib/storage"
 import type { WalletKey } from "@aryxn/wallet-core"
 
-// 类型定义
-export interface FileIndex {
-  id: string
-  tx_id: string
-  file_name: string
-  file_hash: string
-  file_size: number
-  mime_type: string
-  folder_id: string | null
-  description: string | null
-  owner_address: string
-  storage_type: string
-  encryption_algo: string
-  encryption_params: string
-  version: number
-  previous_tx_id: string | null
-  created_at: number
-  updated_at: number
-  tags?: string[]
-}
+import { z } from "zod"
 
-export interface Folder {
-  id: string
-  name: string
-  parent_id: string | null
-  owner_address: string
-  color: string | null
-  icon: string | null
-  description: string | null
-  created_at: number
-  updated_at: number
-}
+// 类型定义与验证 Schema
+export const FileIndexSchema = z.object({
+  id: z.string(),
+  tx_id: z.string(),
+  file_name: z.string(),
+  file_hash: z.string(),
+  file_size: z.number().or(z.string().transform(Number)),
+  mime_type: z.string(),
+  folder_id: z.string().nullable().optional(),
+  description: z.string().nullable().optional(),
+  owner_address: z.string(),
+  storage_type: z.string(),
+  encryption_algo: z.string(),
+  encryption_params: z.string(),
+  version: z.number().or(z.string().transform(Number)),
+  previous_tx_id: z.string().nullable().optional(),
+  created_at: z.number().or(z.string().transform(Number)),
+  updated_at: z.number().or(z.string().transform(Number)),
+  tags: z.array(z.string()).optional(),
+})
+
+export type FileIndex = z.infer<typeof FileIndexSchema>
+
+export const FolderSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  parent_id: z.string().nullable().optional(),
+  owner_address: z.string(),
+  color: z.string().nullable().optional(),
+  icon: z.string().nullable().optional(),
+  description: z.string().nullable().optional(),
+  created_at: z.number().or(z.string().transform(Number)),
+  updated_at: z.number().or(z.string().transform(Number)),
+})
+
+export type Folder = z.infer<typeof FolderSchema>
 
 export interface FolderTreeNode extends Folder {
   children: FolderTreeNode[]
@@ -389,11 +395,15 @@ export async function searchFiles(
 
   const results = await db.all(sql, params)
 
-  // 处理 tags 字段
-  return results.map((row: DbRow) => ({
-    ...row,
-    tags: typeof row.tags === "string" && row.tags ? row.tags.split(",") : [],
-  })) as FileIndex[]
+  // 处理 tags 字段并进行验证
+  return results.map((row: DbRow) => {
+    const rawTags =
+      typeof row.tags === "string" && row.tags ? row.tags.split(",") : []
+    return FileIndexSchema.parse({
+      ...row,
+      tags: rawTags,
+    })
+  })
 }
 
 /**
@@ -568,29 +578,13 @@ export async function getFolderTree(
   const rootFolders: FolderTreeNode[] = []
 
   folders.forEach((folderRow: DbRow) => {
-    const folder: Folder = {
-      id: String(folderRow.id),
-      name: String(folderRow.name),
-      parent_id: folderRow.parent_id ? String(folderRow.parent_id) : null,
-      owner_address: String(folderRow.owner_address),
-      color: folderRow.color ? String(folderRow.color) : null,
-      icon: folderRow.icon ? String(folderRow.icon) : null,
-      description: folderRow.description ? String(folderRow.description) : null,
-      created_at:
-        typeof folderRow.created_at === "number"
-          ? folderRow.created_at
-          : Number(folderRow.created_at),
-      updated_at:
-        typeof folderRow.updated_at === "number"
-          ? folderRow.updated_at
-          : Number(folderRow.updated_at),
-    }
+    const validFolder = FolderSchema.parse(folderRow)
     const node: FolderTreeNode = {
-      ...folder,
+      ...validFolder,
       children: [],
       fileCount: 0,
     }
-    folderMap.set(folder.id, node)
+    folderMap.set(validFolder.id, node)
   })
 
   folders.forEach((folderRow: DbRow) => {
@@ -645,8 +639,8 @@ export async function getFileById(fileId: string): Promise<FileIndex | null> {
     fileId,
   ])
 
-  return {
+  return FileIndexSchema.parse({
     ...file,
     tags: tags.map((t: DbRow) => String(t.tag || "")),
-  } as FileIndex
+  })
 }

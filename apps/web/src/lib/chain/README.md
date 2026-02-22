@@ -22,8 +22,8 @@ chain/
 ```typescript
 import { getBalance, type BalanceResult } from "@/lib/chain"
 
-const balance = await getBalance(address, "ethereum")
-// => { balance: "1.5", formatted: "1.5 ETH", chain: "ethereum" }
+const balance = await getBalance("ethereum", address)
+// => { balance: "1.5", formatted: "1.5 ETH", symbol: "ETH" }
 ```
 
 **支持的链：**
@@ -64,7 +64,7 @@ const formatted = formatSuiTokenAmount("1000000000", 9) // "1.0"
 ```typescript
 import { getBalance } from "@/lib/chain"
 
-const userBalance = await getBalance(userAddress, "ethereum")
+const userBalance = await getBalance("ethereum", userAddress)
 console.log(`用户有 ${userBalance.formatted}`)
 ```
 
@@ -81,12 +81,13 @@ const formatted = formatSolanaTokenAmount(amount, decimals)
 
 ## API 参考
 
-### `getBalance(address, chain)`
+### `getBalance(chain, address, options?)`
 
 - **参数:**
-  - `address`: 用户地址
   - `chain`: 链名称 ("ethereum" | "polygon" | "solana" | "arweave" | "bitcoin" | "sui")
-- **返回:** `BalanceResult`
+  - `address`: 用户地址
+  - `options`: 附加选项 `{ rpcUrl?, tokenAddress?, decimals?, forceRefresh? }`
+- **返回:** `Promise<BalanceResult>`
 
 ### `BalanceResult`
 
@@ -94,9 +95,9 @@ const formatted = formatSolanaTokenAmount(amount, decimals)
 interface BalanceResult {
   balance: string // 原始余额
   formatted: string // 格式化后的余额
-  chain: string // 链标识
-  decimals?: number // 代币精度
-  symbol?: string // 代币符号
+  symbol: string // 代币符号
+  timestamp?: number // 缓存时间戳
+  error?: string // 错误信息
 }
 ```
 

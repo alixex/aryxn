@@ -109,7 +109,7 @@ export function PaymentTokenSelector({
       const res = await getBalance(
         selectedAccount.chain,
         selectedAccount.address,
-        tokenAddress,
+        { tokenAddress },
       )
       setBalance(res.formatted)
 

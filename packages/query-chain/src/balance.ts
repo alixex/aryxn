@@ -13,12 +13,12 @@ export type { BalanceResult }
 export async function getBalance(
   chain: string,
   address: string,
-  tokenAddress?: string,
+  options?: { tokenAddress?: string; forceRefresh?: boolean },
 ): Promise<BalanceResult> {
   const rpcUrl = getRpcUrlForChain(chain)
 
   return await getCoreBalance(chain, address, {
     rpcUrl,
-    tokenAddress,
+    ...options,
   })
 }

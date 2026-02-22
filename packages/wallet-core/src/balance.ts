@@ -12,6 +12,17 @@ import {
 } from "./solana"
 import { getSuiBalance, createSuiClientWithUrl } from "./sui"
 
+// Simple TTL cache
+interface CacheEntry {
+  result: BalanceResult
+  timestamp: number
+}
+const balanceCache = new Map<string, CacheEntry>()
+const CACHE_TTL_MS = 10000 // 10 seconds
+
+// Deduplication map
+const pendingPromises = new Map<string, Promise<BalanceResult>>()
+
 /**
  * Get balance for any supported chain
  * @param chain - Chain identifier (ethereum, arweave, solana, sui, bitcoin)
@@ -19,6 +30,43 @@ import { getSuiBalance, createSuiClientWithUrl } from "./sui"
  * @param options - Configuration options (rpcUrl is required for most chains)
  */
 export async function getBalance(
+  chain: string,
+  address: string,
+  options: BalanceOptions = {},
+): Promise<BalanceResult> {
+  const cacheKey = `${chain}:${address}:${options.rpcUrl || ""}:${options.tokenAddress || ""}`
+
+  // 1. Check Cache
+  if (!options.forceRefresh) {
+    const cached = balanceCache.get(cacheKey)
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+      return cached.result
+    }
+  }
+
+  // 2. Check deduplication (is there already a request in flight?)
+  if (pendingPromises.has(cacheKey)) {
+    return pendingPromises.get(cacheKey)!
+  }
+
+  const promise = _getBalance(chain, address, options)
+    .then((result) => {
+      if (!result.error) {
+        balanceCache.set(cacheKey, { result, timestamp: Date.now() })
+      }
+      pendingPromises.delete(cacheKey)
+      return result
+    })
+    .catch((err) => {
+      pendingPromises.delete(cacheKey)
+      throw err
+    })
+
+  pendingPromises.set(cacheKey, promise)
+  return promise
+}
+
+async function _getBalance(
   chain: string,
   address: string,
   options: BalanceOptions = {},

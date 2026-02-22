@@ -27,8 +27,10 @@ function mapRowToIntent(row: PaymentIntentRow): PaymentIntent {
     arAddress: row.ar_address,
     fileMetadata: row.file_metadata ? JSON.parse(row.file_metadata) : undefined,
     status: row.status,
-    paymentType: row.payment_type as any,
-    targetBalanceType: row.target_balance_type as any,
+    paymentType: row.payment_type as any, // fallback to any if no explicit type
+    targetBalanceType:
+      (row.target_balance_type as import("./types").TargetBalanceType) ||
+      undefined,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }

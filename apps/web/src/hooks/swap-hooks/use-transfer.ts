@@ -17,8 +17,8 @@ export function useTransfer() {
   const wallet = useWallet()
   const walletManager = wallet.internal
   const activeEvm = wallet.active.evm
-  const { mutateAsync: sendTransaction } = useSendTransaction()
-  const { mutateAsync: writeContract } = useWriteContract()
+  const { sendTransactionAsync: sendTransaction } = useSendTransaction()
+  const { writeContractAsync: writeContract } = useWriteContract()
   const addTransaction = useBridgeHistory((state) => state.addTransaction)
 
   const [loading, setLoading] = useState(false)

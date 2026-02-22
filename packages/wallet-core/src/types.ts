@@ -80,4 +80,5 @@ export interface BalanceOptions {
   rpcUrl?: string
   tokenAddress?: string
   decimals?: number
+  forceRefresh?: boolean
 }
