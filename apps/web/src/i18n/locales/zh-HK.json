@@ -38,9 +38,8 @@
     "searchError": "搜尋出錯",
     "searchErrorHint": "提示：Arweave 搜尋只能查找最近的交易，如果找不到結果，請嘗試其他關鍵詞",
     "searchLimitHint": "提示：搜尋僅查找最近的交易（最多 5000 條），如果找不到結果，請嘗試其他關鍵詞",
-    "searchCapabilities": "搜尋功能說明",
-    "searchCapabilitiesDesc": "• 支援檔案名稱和描述的部分匹配搜尋\n• 預設只搜尋自己上傳的檔案\n• 輸入儲存 ID（43 字元）可搜尋任何檔案\n• 支援多詞搜尋（空格分隔）",
-    "error": "錯誤"
+    "bridgeRequired": "該代幣需要跨鏈橋，正在跳轉到跨鏈橋...",
+    "searchCapabilities": "搜尋功能說明"
   },
   "unlock": {
     "title": "開啟隱私金庫",
@@ -318,9 +317,21 @@
     "duplicateFilesMore": "等 {{count}} 個檔案",
     "fileFee": "檔案費用",
     "manifestFee": "清單檔案費用",
-    "execute": "執行上傳",
     "selectFiles": "選擇檔案",
-    "configuration": "配置設定"
+    "configuration": "配置設定",
+    "bridgeRedirect": "正在跳轉到跨鏈橋頁面...",
+    "preparing": "準備上傳中...",
+    "processingPayment": "正在處理交換支付...",
+    "recoveryDetected": "檢測到之前上傳的有待處理支付：{{file}}",
+    "waitingForConfirmation": "正在等待鏈上確認...",
+    "bridgeRequiredTitle": "需要跨鏈橋",
+    "bridgeRequiredDesc": "使用 {{token}} 支付需要先完成跨鏈橋交易。",
+    "bridgeTimeDesc": "區塊確認大約需要 5-10 分鐘。",
+    "confirmBridge": "前往跨鏈橋",
+    "resumeReady": "歷史上傳支付已確認：{{file}}，可繼續上傳。",
+    "resumeTitle": "發現待處理支付",
+    "resumeHint": "請重新選擇該檔案以完成上傳流程。",
+    "clearRecovery": "忽略"
   },
   "settings": {
     "title": "設定",

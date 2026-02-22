@@ -1,6 +1,5 @@
 import { useState } from "react"
 import { BridgeConfirmationDialog } from "./BridgeConfirmationDialog"
-import { toast } from "sonner"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Upload, Info, X } from "lucide-react"
 import { useTranslation } from "@/i18n/config"
@@ -8,12 +7,12 @@ import { UploadButton } from "./UploadButton"
 import { UploadProgress } from "./UploadProgress"
 import { useUploadHandler } from "@/hooks/upload-hooks"
 import type { UploadHandlerResult } from "@/hooks/upload-hooks"
+// lib/payment/types for RedirectAction
 import type {
   PaymentAccount,
   PaymentToken,
   UploadRedirectAction,
 } from "@/lib/payment"
-import { useNavigate } from "react-router-dom"
 
 interface UploadExecutionCardProps {
   file: File | null
@@ -38,14 +37,16 @@ export function UploadExecutionCard({
   canUpload,
   onUploadComplete,
 }: UploadExecutionCardProps) {
+  /* const { t } = useTranslation() */ // wait, t is used in the hook destructuring? No, t is used in the card too?
+  // Let me check if t is used in the card. Yes, many times.
   const { t } = useTranslation()
-  const navigate = useNavigate()
   const {
     uploading,
     paymentStage,
     progress,
     stage,
     recoveryMessage,
+    recoveryState,
     clearRecovery,
     handleUpload,
     handleBatchUpload,
@@ -56,22 +57,13 @@ export function UploadExecutionCard({
     useState<UploadRedirectAction>("bridge")
 
   const handleRedirectConfirm = () => {
-    const query = new URLSearchParams({
-      tab: redirectAction,
-      source: "upload",
-      token: paymentToken,
-      chain: paymentAccount?.chain || "",
-      action: redirectAction,
-    })
-    navigate(`/swap?${query.toString()}`)
-    toast.info(
-      redirectAction === "bridge"
-        ? t("upload.bridgeRedirect", "Redirecting to swap bridge...")
-        : t("upload.swapRedirect", "Redirecting to swap page..."),
-    )
+    // With silent payment, we no longer navigate away.
+    // We just trigger the upload which will wait internally.
+    setShowBridgeDialog(false)
+    handleUploadClick(true) // forceSilent
   }
 
-  const handleUploadClick = async () => {
+  const handleUploadClick = async (forceSilent = false) => {
     let singleResult: UploadHandlerResult = {
       status: "FAILED",
       success: 0,
@@ -90,6 +82,7 @@ export function UploadExecutionCard({
         compressUpload,
         paymentToken,
         paymentAccount,
+        forceSilent,
       )
 
       if (
@@ -109,6 +102,7 @@ export function UploadExecutionCard({
         compressUpload,
         paymentToken,
         paymentAccount,
+        forceSilent,
       )
 
       if (
@@ -155,9 +149,19 @@ export function UploadExecutionCard({
               <Info className="mt-0.5 h-4 w-4 shrink-0" />
               <div className="flex-1">
                 <p className="font-semibold">
-                  {t("upload.resumeTitle", "Pending Payment Found")}
+                  {recoveryState === "COMPLETED"
+                    ? t("upload.resumeReady", "Payment Ready")
+                    : t("upload.resumeTitle", "Pending Payment Found")}
                 </p>
                 <p className="opacity-80">{recoveryMessage}</p>
+                {recoveryState === "COMPLETED" && (
+                  <p className="mt-1 font-medium italic">
+                    {t(
+                      "upload.resumeHint",
+                      "Select your file again to complete the upload.",
+                    )}
+                  </p>
+                )}
               </div>
               <button
                 onClick={clearRecovery}

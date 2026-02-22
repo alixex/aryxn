@@ -43,7 +43,8 @@
     "balance": "Balance",
     "updatedAt": "Updated at",
     "usingAccount": "Using Account",
-    "error": "Error"
+    "error": "Error",
+    "bridgeRequired": "This token requires a bridge. Redirecting to bridge..."
   },
   "chain": {
     "arweave": "Arweave Wallet",
@@ -352,8 +353,19 @@
     "redirectWarningDesc": "After completing swap/bridge, you may need to re-upload the file.",
     "confirmSwap": "Proceed to Swap",
     "swapRedirect": "Redirecting to swap page...",
+    "bridgeRedirect": "Redirecting to swap bridge...",
     "processingPayment": "Processing swap payment...",
-    "preparing": "Preparing upload..."
+    "preparing": "Preparing upload...",
+    "recoveryDetected": "Detected a pending payment for a previous upload: {{file}}",
+    "waitingForConfirmation": "Waiting for on-chain confirmation...",
+    "bridgeRequiredTitle": "Cross-Chain Bridge Required",
+    "bridgeRequiredDesc": "To pay with {{token}}, a cross-chain bridge transaction is required.",
+    "bridgeTimeDesc": "~5-10 minutes for block confirmations.",
+    "confirmBridge": "Proceed to Bridge",
+    "resumeReady": "Payment confirmed for previous upload: {{file}}. Ready to upload.",
+    "resumeTitle": "Pending Payment Found",
+    "resumeHint": "Select your file again to complete the upload.",
+    "clearRecovery": "Dismiss"
   },
   "settings": {
     "title": "Settings",

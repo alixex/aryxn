@@ -43,7 +43,8 @@
     "balance": "余额",
     "updatedAt": "更新于",
     "usingAccount": "使用账户",
-    "error": "错误"
+    "error": "错误",
+    "bridgeRequired": "该代币需要跨链桥，正在跳转到跨链桥..."
   },
   "chain": {
     "arweave": "Arweave 钱包",
@@ -352,8 +353,19 @@
     "redirectWarningDesc": "完成 swap/bridge 后，可能需要返回上传页面重新提交。",
     "confirmSwap": "前往 Swap",
     "swapRedirect": "正在跳转到 Swap 页面...",
+    "bridgeRedirect": "正在跳转到跨链桥页面...",
     "processingPayment": "正在处理交换支付...",
-    "preparing": "准备上传中..."
+    "preparing": "准备上传中...",
+    "recoveryDetected": "检测到之前上传的有待处理支付：{{file}}",
+    "waitingForConfirmation": "正在等待链上确认...",
+    "bridgeRequiredTitle": "需要跨链桥",
+    "bridgeRequiredDesc": "使用 {{token}} 支付需要先完成跨链桥交易。",
+    "bridgeTimeDesc": "区块确认大约需要 5-10 分钟。",
+    "confirmBridge": "前往跨链桥",
+    "resumeReady": "历史上传支付已确认：{{file}}，可继续上传。",
+    "resumeTitle": "发现待处理支付",
+    "resumeHint": "请重新选择该文件以完成上传流程。",
+    "clearRecovery": "忽略"
   },
   "settings": {
     "title": "设置",
