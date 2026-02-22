@@ -13,6 +13,7 @@ type DexTokenOption = {
   label: string
   subtitle?: string
   badge?: string
+  icon?: string
 }
 
 type SwapTokenAmountInputProps = {
@@ -56,29 +57,37 @@ export function SwapTokenAmountInput({
       <Select value={tokenValue} onValueChange={onTokenChange}>
         <SelectTrigger
           className={cn(
-            "bg-secondary hover:bg-accent w-28 shrink-0 justify-center border-none px-3 py-2.5 font-bold shadow-none transition-colors",
+            "bg-secondary hover:bg-accent w-32 shrink-0 justify-center border-none px-3 py-2.5 font-bold shadow-none transition-colors",
             tokenTriggerClassName,
           )}
         >
           <SelectValue>
-            <span className="text-base">{tokenValue}</span>
+            <div className="flex items-center gap-1.5">
+              {tokenOptions.find((o) => o.value === tokenValue)?.icon && (
+                <span className="text-lg">
+                  {tokenOptions.find((o) => o.value === tokenValue)?.icon}
+                </span>
+              )}
+              <span className="text-base">{tokenValue}</span>
+            </div>
           </SelectValue>
         </SelectTrigger>
         <SelectContent>
           {tokenOptions.map((option) => (
             <SelectItem key={option.value} value={option.value}>
               <div className="flex items-center gap-2">
+                {option.icon && <span className="text-lg">{option.icon}</span>}
                 <span className="text-foreground font-bold">
                   {option.label}
                 </span>
                 {option.badge && (
-                  <span className="text-muted-foreground text-xs uppercase">
+                  <span className="text-muted-foreground bg-primary/10 ring-primary/20 rounded-md px-1.5 py-0.5 text-[10px] font-bold uppercase ring-1 ring-inset">
                     {option.badge}
                   </span>
                 )}
               </div>
               {option.subtitle && (
-                <div className="text-muted-foreground text-xs">
+                <div className="text-muted-foreground mt-0.5 text-[10px]">
                   {option.subtitle}
                 </div>
               )}

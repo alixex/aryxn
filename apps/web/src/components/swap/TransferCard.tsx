@@ -62,6 +62,7 @@ export function TransferCard({ selectedAccount }: TransferCardProps) {
     value: token.symbol,
     label: token.symbol,
     badge: String(token.chainId),
+    icon: token.icon,
   }))
 
   const handleRecipientChange = (value: string) => {

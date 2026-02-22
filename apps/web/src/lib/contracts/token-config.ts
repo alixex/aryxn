@@ -17,6 +17,7 @@ export interface TokenInfo {
   logoURI?: string
   coingeckoId?: string
   chainId: number
+  icon?: string
 }
 
 /**
@@ -31,6 +32,7 @@ export const SUPPORTED_TOKENS: TokenInfo[] = [
     decimals: 6,
     coingeckoId: "usd-coin",
     chainId: ChainIds.ETHEREUM,
+    icon: "🔷",
   },
   {
     symbol: "WETH",
@@ -39,6 +41,7 @@ export const SUPPORTED_TOKENS: TokenInfo[] = [
     decimals: 18,
     coingeckoId: "weth",
     chainId: ChainIds.ETHEREUM,
+    icon: "🔷",
   },
   {
     symbol: "WBTC",
@@ -47,8 +50,9 @@ export const SUPPORTED_TOKENS: TokenInfo[] = [
     decimals: 8,
     coingeckoId: "wrapped-bitcoin",
     chainId: ChainIds.ETHEREUM,
+    icon: "🔷",
   },
-  
+
   // Base
   {
     symbol: "USDC",
@@ -57,6 +61,7 @@ export const SUPPORTED_TOKENS: TokenInfo[] = [
     decimals: 6,
     coingeckoId: "usd-coin",
     chainId: ChainIds.BASE,
+    icon: "🔵",
   },
   {
     symbol: "WETH",
@@ -65,6 +70,7 @@ export const SUPPORTED_TOKENS: TokenInfo[] = [
     decimals: 18,
     coingeckoId: "weth",
     chainId: ChainIds.BASE,
+    icon: "🔵",
   },
   {
     symbol: "cbBTC",
@@ -73,6 +79,7 @@ export const SUPPORTED_TOKENS: TokenInfo[] = [
     decimals: 8,
     coingeckoId: "coinbase-wrapped-btc",
     chainId: ChainIds.BASE,
+    icon: "🔵",
   },
 
   // Arbitrum
@@ -83,6 +90,7 @@ export const SUPPORTED_TOKENS: TokenInfo[] = [
     decimals: 6,
     coingeckoId: "usd-coin",
     chainId: ChainIds.ARBITRUM,
+    icon: "🫐",
   },
   {
     symbol: "WETH",
@@ -91,6 +99,7 @@ export const SUPPORTED_TOKENS: TokenInfo[] = [
     decimals: 18,
     coingeckoId: "weth",
     chainId: ChainIds.ARBITRUM,
+    icon: "🫐",
   },
   {
     symbol: "WBTC",
@@ -99,6 +108,35 @@ export const SUPPORTED_TOKENS: TokenInfo[] = [
     decimals: 8,
     coingeckoId: "wrapped-bitcoin",
     chainId: ChainIds.ARBITRUM,
+    icon: "🫐",
+  },
+  // Optimism
+  {
+    symbol: "USDC",
+    name: "USD Coin",
+    address: TOKEN_MAPPING[ChainIds.OPTIMISM].USDC,
+    decimals: 6,
+    coingeckoId: "usd-coin",
+    chainId: ChainIds.OPTIMISM,
+    icon: "🔴",
+  },
+  {
+    symbol: "WETH",
+    name: "Wrapped Ether",
+    address: TOKEN_MAPPING[ChainIds.OPTIMISM].WETH,
+    decimals: 18,
+    coingeckoId: "weth",
+    chainId: ChainIds.OPTIMISM,
+    icon: "🔴",
+  },
+  {
+    symbol: "WBTC",
+    name: "Wrapped Bitcoin",
+    address: TOKEN_MAPPING[ChainIds.OPTIMISM].WBTC,
+    decimals: 8,
+    coingeckoId: "wrapped-bitcoin",
+    chainId: ChainIds.OPTIMISM,
+    icon: "🔴",
   },
 ]
 
@@ -116,10 +154,16 @@ export function getDexTokensByAccountChain(chain?: string): TokenInfo[] {
   // Map string chain names to ChainIds if possible
   const mapping: Record<string, number> = {
     ethereum: ChainIds.ETHEREUM,
+    eth: ChainIds.ETHEREUM,
     base: ChainIds.BASE,
     arbitrum: ChainIds.ARBITRUM,
+    arb: ChainIds.ARBITRUM,
+    optimism: ChainIds.OPTIMISM,
+    op: ChainIds.OPTIMISM,
+    polygon: ChainIds.POLYGON,
+    matic: ChainIds.POLYGON,
   }
-  
+
   const chainId = chain ? mapping[chain.toLowerCase()] : ChainIds.ETHEREUM
   return getTokensByChainId(chainId || ChainIds.ETHEREUM)
 }

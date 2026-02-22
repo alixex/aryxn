@@ -273,11 +273,15 @@ export class PaymentService {
       solanaProgramId: config.solanaProgramId,
     })
 
+    const toChainTarget =
+      sourceChain === Chains.SOLANA ? Chains.SOLANA : sourceChain
+    const toTokenTarget = sourceChain === Chains.SOLANA ? "SOL" : "ETH"
+
     const route = await router.getRoute({
       fromChain: sourceChain,
       fromToken: params.fromToken,
-      toChain: sourceChain === Chains.SOLANA ? Chains.SOLANA : Chains.ETHEREUM, // Default target
-      toToken: sourceChain === Chains.SOLANA ? "SOL" : "ETH", // Default target for Irys
+      toChain: toChainTarget, // Use local chain for swaps when possible, eliminating bridge costs
+      toToken: toTokenTarget, // Target native token for Irys (SOL on Solana, ETH on EVM L1/L2s)
       fromAmount: "0.1", // TODO: Use actual estimate
       recipient: params.paymentAccount.address,
     })

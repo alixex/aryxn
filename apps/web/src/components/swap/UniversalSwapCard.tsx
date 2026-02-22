@@ -386,29 +386,46 @@ export function UniversalSwapCard({ selectedAccount }: UniversalSwapCardProps) {
     value: string,
     onChange: (v: string) => void,
     label: string,
-  ) => (
-    <div className="bg-secondary/30 hover:bg-secondary/50 flex w-fit items-center gap-2 rounded-lg p-1 pr-3 transition-colors">
-      <span className="text-muted-foreground pl-2 text-xs font-semibold tracking-wider uppercase">
-        {label}
-      </span>
-      <Select value={value} onValueChange={onChange}>
-        <SelectTrigger className="h-7 border-none bg-transparent px-2 font-bold shadow-none focus:ring-0">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent className="glass-strong border-accent/20 max-h-[300px]">
-          {getAvailableOutputChains().map((chain) => (
-            <SelectItem
-              key={chain}
-              value={chain}
-              className="hover:bg-accent/20 cursor-pointer"
-            >
-              <span className="capitalize">{chain}</span>
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
-  )
+  ) => {
+    const activeChain = BRIDGE_CHAINS.find((c) => c.constant === value)
+
+    return (
+      <div className="bg-secondary/30 hover:bg-secondary/50 flex w-fit items-center gap-2 rounded-lg p-1 pr-3 transition-colors">
+        <span className="text-muted-foreground pl-2 text-xs font-semibold tracking-wider uppercase">
+          {label}
+        </span>
+        <Select value={value} onValueChange={onChange}>
+          <SelectTrigger className="h-7 border-none bg-transparent px-2 font-bold shadow-none focus:ring-0">
+            <SelectValue>
+              <div className="flex items-center gap-1.5">
+                {activeChain && (
+                  <span className="text-xs">{activeChain.icon}</span>
+                )}
+                <span className="capitalize">{value}</span>
+              </div>
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent className="glass-strong border-accent/20 max-h-[300px]">
+            {getAvailableOutputChains().map((chain) => {
+              const chainData = BRIDGE_CHAINS.find((c) => c.constant === chain)
+              return (
+                <SelectItem
+                  key={chain}
+                  value={chain}
+                  className="hover:bg-accent/20 cursor-pointer"
+                >
+                  <div className="flex items-center gap-2">
+                    {chainData && <span>{chainData.icon}</span>}
+                    <span className="capitalize">{chain}</span>
+                  </div>
+                </SelectItem>
+              )
+            })}
+          </SelectContent>
+        </Select>
+      </div>
+    )
+  }
 
   return (
     <Card className="glass-premium animate-fade-in-down mx-auto max-w-lg overflow-visible border-none shadow-2xl transition-all duration-500">
@@ -510,6 +527,8 @@ export function UniversalSwapCard({ selectedAccount }: UniversalSwapCardProps) {
             tokenOptions={fromChainTokens.map((t) => ({
               value: t.symbol,
               label: t.symbol,
+              icon: t.icon,
+              badge: String(t.chainId),
             }))}
             amountValue={inputAmount}
             onAmountChange={handleInputChange}
@@ -551,6 +570,8 @@ export function UniversalSwapCard({ selectedAccount }: UniversalSwapCardProps) {
             tokenOptions={toChainTokens.map((t) => ({
               value: t.symbol,
               label: t.symbol,
+              icon: t.icon,
+              badge: String(t.chainId),
             }))}
             amountValue={quotedAmount}
             amountReadOnly

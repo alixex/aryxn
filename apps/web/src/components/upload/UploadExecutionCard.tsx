@@ -1,13 +1,16 @@
 import { useState } from "react"
 import { BridgeConfirmationDialog } from "./BridgeConfirmationDialog"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Upload, Info, X } from "lucide-react"
+import { Upload, Info, X, Zap, ArrowRightLeft } from "lucide-react"
 import { useTranslation } from "@/i18n/config"
 import { UploadButton } from "./UploadButton"
 import { UploadProgress } from "./UploadProgress"
 import { useUploadHandler } from "@/hooks/upload-hooks"
 import type { UploadHandlerResult } from "@/hooks/upload-hooks"
-// lib/payment/types for RedirectAction
+import {
+  getIrysFundingToken,
+  resolveUploadRedirectAction,
+} from "@/lib/payment/upload-payment-config"
 import type {
   PaymentAccount,
   PaymentToken,
@@ -133,6 +136,7 @@ export function UploadExecutionCard({
         onConfirm={handleRedirectConfirm}
         token={paymentToken}
         action={redirectAction}
+        sourceChain={paymentAccount?.chain || "Ethereum"}
       />
       <Card className="glass-premium hover:shadow-primary/5 border-none shadow-2xl transition-all duration-500">
         <CardHeader className="glass-strong animate-fade-in-down border-accent/30 bg-card/60 rounded-t-2xl border-b-2 p-6 shadow-lg">
@@ -170,6 +174,74 @@ export function UploadExecutionCard({
               >
                 <X className="h-4 w-4" />
               </button>
+            </div>
+          )}
+
+          {!uploading && !paymentStage && canUpload && paymentAccount && (
+            <div className="animate-in fade-in slide-in-from-bottom-2 bg-secondary/30 border-border/40 space-y-2 rounded-xl border p-3 duration-500">
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground text-[10px] font-bold tracking-wider uppercase">
+                  {t("upload.estimatedPath", "Estimated Payment Path")}
+                </span>
+                {(() => {
+                  const irysToken = getIrysFundingToken(
+                    paymentAccount.chain,
+                    paymentToken,
+                  )
+                  if (irysToken) {
+                    return (
+                      <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[9px] font-bold text-emerald-500 ring-1 ring-emerald-500/20">
+                        <Zap className="h-2.5 w-2.5" />
+                        {t("upload.pathDirect", "DIRECT")}
+                      </span>
+                    )
+                  }
+                  const redirect = resolveUploadRedirectAction(
+                    paymentAccount.chain,
+                    paymentToken,
+                  )
+                  return (
+                    <span className="flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[9px] font-bold text-amber-500 ring-1 ring-amber-500/20">
+                      <ArrowRightLeft className="h-2.5 w-2.5" />
+                      {redirect === "swap"
+                        ? t("upload.pathSwap", "SWAP")
+                        : t("upload.pathBridge", "BRIDGE")}
+                    </span>
+                  )
+                })()}
+              </div>
+              <p className="text-foreground/80 text-[11px] leading-relaxed">
+                {(() => {
+                  const irysToken = getIrysFundingToken(
+                    paymentAccount.chain,
+                    paymentToken,
+                  )
+                  if (irysToken) {
+                    return t("upload.pathDirectDesc", {
+                      token: paymentToken,
+                      chain: paymentAccount.chain,
+                      defaultValue:
+                        "Native {{token}} on {{chain}} is supported directly. Instant payment.",
+                    })
+                  }
+                  const redirect = resolveUploadRedirectAction(
+                    paymentAccount.chain,
+                    paymentToken,
+                  )
+                  if (redirect === "swap") {
+                    return t("upload.pathSwapDesc", {
+                      token: paymentToken,
+                      defaultValue:
+                        "Will perform a fast local swap from {{token}} before payment.",
+                    })
+                  }
+                  return t("upload.pathBridgeDesc", {
+                    token: paymentToken,
+                    defaultValue:
+                      "Requires cross-chain bridge for {{token}} payment. Takes ~10m.",
+                  })
+                })()}
+              </p>
             </div>
           )}
 

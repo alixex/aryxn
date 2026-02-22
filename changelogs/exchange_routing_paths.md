@@ -10,17 +10,20 @@ Arweave 存储费采用多层支付体系。虽然 Arweave 原生使用 AR，但
 
 ## 1. 快速支付路径 (Irys 直接充值)
 
-这些资产由 Irys 网络直接支持，除非用户处于“错误”的链上，否则不需要中间兑换。
+这些资产由 Irys 网络直接支持。除非用户处于不支持的网络（如 Polygon），否则不需要跨链或中间兑换。我们原生对接了各大主流 L1 与以太坊 L2。
 
-| 源代币   | 源链     | 目标服务    | 路径说明                                |
-| :------- | :------- | :---------- | :-------------------------------------- |
-| **AR**   | Arweave  | 原生 AR     | 直接在 Arweave 区块链上交易。           |
-| **ETH**  | Ethereum | Irys (ETH)  | 使用 Ethereum L1 直接为 Irys 节点充值。 |
-| **SOL**  | Solana   | Irys (SOL)  | 使用 Solana 直接为 Irys 节点充值。      |
-| **SUI**  | Sui      | Irys (SUI)  | 使用 Sui 直接为 Irys 节点充值。         |
-| **USDC** | Ethereum | Irys (USDC) | 使用 Ethereum 上的 USDC 直接充值。      |
-| **USDC** | Solana   | Irys (USDC) | 使用 Solana 上的 USDC 直接充值。        |
-| **USDT** | Ethereum | Irys (USDT) | 使用 Ethereum 上的 USDT 直接充值。      |
+| 源代币   | 源链     | 目标服务        | 路径说明                                 |
+| :------- | :------- | :-------------- | :--------------------------------------- |
+| **AR**   | Arweave  | 原生 AR         | 直接在 Arweave 区块链上交易。            |
+| **ETH**  | Ethereum | Irys (ETH)      | 使用 Ethereum L1 直接为 Irys 节点充值。  |
+| **ETH**  | Base     | Irys (Base)     | 使用 Base L2 网络原生 ETH 直连充值。     |
+| **ETH**  | Arbitrum | Irys (Arbitrum) | 使用 Arbitrum L2 网络原生 ETH 直连充值。 |
+| **ETH**  | Optimism | Irys (Optimism) | 使用 Optimism L2 网络原生 ETH 直连充值。 |
+| **SOL**  | Solana   | Irys (SOL)      | 使用 Solana 直接为 Irys 节点充值。       |
+| **SUI**  | Sui      | Irys (SUI)      | 使用 Sui 直接为 Irys 节点充值。          |
+| **USDC** | Ethereum | Irys (USDC)     | 使用 Ethereum 上的 USDC 直接充值。       |
+| **USDC** | Solana   | Irys (USDC)     | 使用 Solana 上的 USDC 直接充值。         |
+| **USDT** | Ethereum | Irys (USDT)     | 使用 Ethereum 上的 USDT 直接充值。       |
 
 ---
 
@@ -67,15 +70,17 @@ Arweave 存储费采用多层支付体系。虽然 Arweave 原生使用 AR，但
 
 ## 3. 评估总结
 
-| 代币     | 状态     | 主要路由                    | 优化回退方案                     |
-| :------- | :------- | :-------------------------- | :------------------------------- |
-| **AR**   | 已支持   | 原生支付                    | 无                               |
-| **ETH**  | 已支持   | Irys 快速支付               | 无                               |
-| **SOL**  | 已支持   | Irys 快速支付               | 无                               |
-| **SUI**  | 已支持   | Irys 快速支付               | 无                               |
-| **USDT** | 已支持   | Irys 快速支付 (仅限 ETH 链) | 在 SOL 等链上自动兑换为 SOL/USDC |
-| **USDC** | 已支持   | Irys 快速支付 (ETH/SOL 链)  | 在其他链上跨链至 ETH/SOL         |
-| **BTC**  | 自动回退 | **兑换为 ETH**              | 通过 Exchange SDK 使用 Thorchain |
+## 3. 评估总结
+
+| 代币     | 状态     | 主要路由                           | 优化回退方案                     |
+| :------- | :------- | :--------------------------------- | :------------------------------- |
+| **AR**   | 已支持   | 原生支付                           | 无                               |
+| **ETH**  | 已支持   | Irys 快速支付 (Ethereum + 核心 L2) | 无                               |
+| **SOL**  | 已支持   | Irys 快速支付                      | 无                               |
+| **SUI**  | 已支持   | Irys 快速支付                      | 无                               |
+| **USDT** | 已支持   | Irys 快速支付 (仅限 Ethereum L1)   | 在 SOL 等链上自动兑换为 SOL/USDC |
+| **USDC** | 已支持   | Irys 快速支付 (Ethereum/Solana)    | 在不支持的链上跨链至 ETH/SOL     |
+| **BTC**  | 自动回退 | **兑换为 ETH**                     | 通过 Exchange SDK 使用 Thorchain |
 
 > [!NOTE]
 > 对于以 **Arweave (AR)** 为兑换 _源_ 的场景（例如将 AR 换成 BTC），由于 LIFI 目前不支持 Arweave，该路径暂不可用。建议用户保留 AR 用于原生存储，或通过外部交易所进行 AR 到其他代币的转换。
