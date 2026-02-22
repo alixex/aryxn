@@ -4,6 +4,10 @@ export interface ExchangeConfig {
   ethereumContractAddress: string
   solanaProgramId: string
   tokenMappings?: Record<string, Record<string, string>>
+  supportedChains?: string[]
+  bridgedChains?: string[] // Chains that ALWAYS require bridging (e.g. BITCOIN, ARWEAVE)
+  supportedTokens?: string[]
+  rpcUrls?: Record<string, string>
 }
 
 export interface ExchangeRequest {
