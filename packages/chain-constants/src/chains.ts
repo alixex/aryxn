@@ -50,6 +50,8 @@ export const ChainIds = {
   LINEA: 59144,
   SCROLL: 534352,
   SOLANA: 1151111081099710,
+  SUI: 9270000000000000,
+  BITCOIN: 20000000000001,
 } as const
 
 export const EvmChainIds = [
@@ -89,6 +91,9 @@ export const ChainNameToId = {
   scroll: ChainIds.SCROLL,
   solana: ChainIds.SOLANA,
   sol: ChainIds.SOLANA,
+  sui: ChainIds.SUI,
+  bitcoin: ChainIds.BITCOIN,
+  btc: ChainIds.BITCOIN,
 } as const
 
 export const ChainIdToName: Record<number, string> = {
@@ -105,6 +110,8 @@ export const ChainIdToName: Record<number, string> = {
   [ChainIds.LINEA]: "Linea",
   [ChainIds.SCROLL]: "Scroll",
   [ChainIds.SOLANA]: "Solana",
+  [ChainIds.SUI]: "Sui",
+  [ChainIds.BITCOIN]: "Bitcoin",
 }
 
 export const ExplorerTxBaseByChain = {

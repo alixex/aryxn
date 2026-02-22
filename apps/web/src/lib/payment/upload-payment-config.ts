@@ -49,8 +49,10 @@ export function getIrysFundingToken(
 ): string | null {
   if (token === "ETH" && chain === Chains.ETHEREUM) return Chains.ETHEREUM
   if (token === "SOL" && chain === Chains.SOLANA) return Chains.SOLANA
+  if (token === "SUI" && chain === Chains.SUI) return Chains.SUI
   if (token === "USDC" && chain === Chains.ETHEREUM) return "usdc-ethereum"
   if (token === "USDC" && chain === Chains.SOLANA) return "usdc-solana"
+  if (token === "USDT" && chain === Chains.ETHEREUM) return "usdt-ethereum"
   return null
 }
 
