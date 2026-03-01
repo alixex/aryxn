@@ -1,7 +1,7 @@
 # Aryxn
 
 <p align="center">
-  <img src="https://ranuts.github.io/aryxn/icon.jpg" alt="Aryxn Icon" width="200" />
+  <img src="https://alixex.github.io/aryxn/icon.jpg" alt="Aryxn Icon" width="200" />
 </p>
 
 [English](./README.md) | [中文]
@@ -13,7 +13,7 @@
 **Aryxn** 是一个以"用户主权"为核心的 Web3 应用，将**多链资产管理**、**去中心化交易所**、**跨链桥接**和**永久文件存储**融合为一个统一平台。  
 名字源自柏拉图的"回忆说（Aryxn）"，帮助你掌控数字资产，并永久守护那些不该丢失的重要数据——安全、私密、永恒。
 
-**🌐 在线地址**：https://ranuts.github.io/aryxn/
+**🌐 在线地址**：https://alixex.github.io/aryxn/
 
 ---
 
@@ -112,7 +112,7 @@
 
 ## **快速开始**
 
-1. **访问** https://ranuts.github.io/aryxn/
+1. **访问** https://alixex.github.io/aryxn/
 2. **创建** 主密码以加密你的数据（请务必记住它，这是访问加密数据的唯一方式）
 3. **设置账户**：
    - 通过私钥或助记词导入现有账户
