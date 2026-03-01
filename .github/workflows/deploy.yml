@@ -2,10 +2,12 @@
 name: Deploy to GitHub Pages
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Deployment reason'
+        required: false
+        default: 'Manual deployment'
 
 permissions:
   contents: read
@@ -40,12 +42,12 @@ jobs:
 
       - name: Verify build output
         run: |
-          if [ ! -d "apps/web/dist" ]; then
-            echo "Error: apps/web/dist directory not found"
+          if [ ! -d "apps/vault/dist" ]; then
+            echo "Error: apps/vault/dist directory not found"
             exit 1
           fi
-          if [ ! -f "apps/web/dist/index.html" ]; then
-            echo "Error: apps/web/dist/index.html not found"
+          if [ ! -f "apps/vault/dist/index.html" ]; then
+            echo "Error: apps/vault/dist/index.html not found"
             exit 1
           fi
           echo "Build output verified successfully"
@@ -53,7 +55,7 @@ jobs:
       - name: Copy index.html to 404.html for GitHub Pages SPA routing
         run: |
           # Copy to root for GitHub Pages fallback (SPA routing)
-          cp apps/web/dist/index.html apps/web/dist/404.html
+          cp apps/vault/dist/index.html apps/vault/dist/404.html
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -61,7 +63,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: "./apps/web/dist"
+          path: "./apps/vault/dist"
 
   deploy:
     environment:

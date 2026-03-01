@@ -99,7 +99,6 @@ export default function UploadPage() {
         <div className="grid gap-6">
           <UploadWarning
             isLocked={!hasArweaveAccount}
-            isUnlocked={isUnlocked}
             hasExternalWallet={isExternalArweave}
           />
 
