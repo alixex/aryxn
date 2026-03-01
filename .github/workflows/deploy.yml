@@ -19,8 +19,18 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  approval:
+    name: Deployment Approval
+    runs-on: ubuntu-latest
+    environment:
+      name: production-approval
+    steps:
+      - name: Wait for approval
+        run: echo "Deployment approved by ${{ github.actor }}"
+
   build:
     runs-on: ubuntu-latest
+    needs: approval
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
