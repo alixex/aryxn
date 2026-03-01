@@ -10,7 +10,7 @@ import { ChainIds } from "@aryxn/chain-constants"
  */
 export const MULTI_HOP_SWAPPER_MAPPING: Record<number, Address> = {
   [ChainIds.ETHEREUM]: "0x0000000000000000000000000000000000000000", // TODO: Mainnet
-  [ChainIds.BASE]: "0x0000000000000000000000000000000000000000",     // TODO: Base
+  [ChainIds.BASE]: "0x0000000000000000000000000000000000000000", // TODO: Base
   [ChainIds.ARBITRUM]: "0x0000000000000000000000000000000000000000", // TODO: Arbitrum
   [ChainIds.OPTIMISM]: "0x0000000000000000000000000000000000000000", // TODO: Optimism
 }
@@ -18,7 +18,8 @@ export const MULTI_HOP_SWAPPER_MAPPING: Record<number, Address> = {
 /**
  * Default swapper address for backward compatibility
  */
-export const MULTI_HOP_SWAPPER_ADDRESS = MULTI_HOP_SWAPPER_MAPPING[ChainIds.ETHEREUM]
+export const MULTI_HOP_SWAPPER_ADDRESS =
+  MULTI_HOP_SWAPPER_MAPPING[ChainIds.ETHEREUM]
 
 /**
  * Common token addresses by Chain ID
@@ -53,12 +54,18 @@ export const TOKEN_MAPPING: Record<number, Record<string, Address>> = {
  * Help retrieve appropriate contract address
  */
 export function getSwapperAddress(chainId: number): Address {
-  return MULTI_HOP_SWAPPER_MAPPING[chainId] || MULTI_HOP_SWAPPER_MAPPING[ChainIds.ETHEREUM]
+  return (
+    MULTI_HOP_SWAPPER_MAPPING[chainId] ||
+    MULTI_HOP_SWAPPER_MAPPING[ChainIds.ETHEREUM]
+  )
 }
 
 /**
  * Get token address by symbol and chainId
  */
-export function getTokenBySymbol(symbol: string, chainId: number): Address | undefined {
+export function getTokenBySymbol(
+  symbol: string,
+  chainId: number,
+): Address | undefined {
   return TOKEN_MAPPING[chainId]?.[symbol.toUpperCase()]
 }

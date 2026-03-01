@@ -199,22 +199,28 @@ export function parseTokenAmount(input: string, decimals: number): bigint {
 /**
  * Get token info by address and chainId
  */
-export function getTokenByAddress(address: Address, chainId: number): TokenInfo | undefined {
+export function getTokenByAddress(
+  address: Address,
+  chainId: number,
+): TokenInfo | undefined {
   return SUPPORTED_TOKENS.find(
-    (token) => 
-      token.address.toLowerCase() === address.toLowerCase() && 
-      token.chainId === chainId
+    (token) =>
+      token.address.toLowerCase() === address.toLowerCase() &&
+      token.chainId === chainId,
   )
 }
 
 /**
  * Get token info by symbol and chainId
  */
-export function getTokenBySymbol(symbol: string, chainId: number): TokenInfo | undefined {
+export function getTokenBySymbol(
+  symbol: string,
+  chainId: number,
+): TokenInfo | undefined {
   return SUPPORTED_TOKENS.find(
     (token) =>
       token.symbol.toUpperCase() === symbol.toUpperCase() &&
-      token.chainId === chainId
+      token.chainId === chainId,
   )
 }
 

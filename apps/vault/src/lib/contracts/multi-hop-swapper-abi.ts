@@ -24,7 +24,11 @@ export const MULTI_HOP_SWAPPER_ABI = [
           { name: "minAmountOut", type: "uint256", internalType: "uint256" },
           { name: "recipient", type: "address", internalType: "address" },
           { name: "deadline", type: "uint256", internalType: "uint256" },
-          { name: "protection", type: "uint8", internalType: "enum DataTypes.ProtectionLevel" },
+          {
+            name: "protection",
+            type: "uint8",
+            internalType: "enum DataTypes.ProtectionLevel",
+          },
         ],
       },
     ],
