@@ -130,44 +130,44 @@
 
 ---
 
-## **技术栈**
-
-- **前端**：React + Vite + TypeScript + Tailwind CSS
-- **状态管理**：Zustand 配合本地持久化
-- **多链 SDK**：自研 wallet-core 集成 Ethereum、Solana、Sui、Bitcoin、Arweave
-- **DEX 集成**：多跳兑换路由和智能路径查找
-- **桥接服务**：Li.Fi API 提供最优跨链路由
-- **存储**：Arweave 永久文件存储 + 本地 SQLite 快速索引
-- **加密**：本地使用 AES-256-GCM 加密，端到端加密文件上传
-
-## **Monorepo 架构**
-
-```
-aryxn/
-├── apps/
-│   └── web/              # 主 Web 应用
-├── packages/
-│   ├── wallet-core/      # 多链钱包管理
-│   ├── arweave/          # Arweave 存储集成
-│   ├── swap-ethereum/    # Ethereum DEX 集成
-│   ├── swap-solana/      # Solana DEX 集成
-│   ├── swap-multichain/  # 多跳兑换编排
-│   ├── cross-chain/      # 跨链桥接逻辑
-│   ├── exchange-chain/   # 交易路由引擎
-│   ├── query-chain/      # 多链数据查询
-│   ├── chain-constants/  # 链配置和常量
-│   ├── crypto/           # 加密工具集
-│   └── storage/          # 本地存储和 SQLite
-```
-
 ## **开源**
 
 Aryxn 采用 **AGPL-3.0** 协议开源。  
 详见 [LICENSE](./LICENSE)。
 
-**欢迎贡献！**  
-访问我们的 [GitHub 仓库](https://github.com/ranuts/aryxn) 参与贡献。
-
 ---
 
 **Aryxn — 为长期记忆而生。**
+- **Encryption**: AES-256-GCM for local encryption, end-to-end encrypted file uploads
+
+## **Monorepo Architecture**
+
+```
+aryxn/
+├── apps/
+│   └── web/              # Main Web application
+├── packages/
+│   ├── wallet-core/      # Multi-chain wallet management
+│   ├── arweave/          # Arweave storage integration
+│   ├── swap-ethereum/    # Ethereum DEX integration
+│   ├── swap-solana/      # Solana DEX integration
+│   ├── swap-multichain/  # Multi-hop swap orchestration
+│   ├── cross-chain/      # Cross-chain bridge logic
+│   ├── exchange-chain/   # Exchange routing engine
+│   ├── query-chain/      # Multi-chain data querying
+│   ├── chain-constants/  # Chain configuration & constants
+│   ├── crypto/           # Cryptographic utilities
+│   └── storage/          # Local storage & SQLite
+```
+
+## **Open Source**
+
+Aryxn is open source and licensed under **AGPL-3.0**.  
+See [LICENSE](./LICENSE) for details.
+
+**Contributions Welcome!**  
+Check out our [GitHub repository](https://github.com/ranuts/aryxn) to contribute.
+
+---
+
+**Aryxn — Built for long-term memory.**
