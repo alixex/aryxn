@@ -10,7 +10,7 @@ const PROXY_EVM = "/api/rpc"
 const PROXY_SOLANA = "/api/solana-rpc"
 
 export default defineConfig({
-  base: "/aryxn/",
+  base: "/aryxn/", // GitHub Pages path: alixex.github.io/aryxn/
   plugins: [
     tailwindcss(),
     wasm(),
