@@ -2,6 +2,20 @@
 name: Deploy to GitHub Pages
 
 on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+      - "LICENSE"
+      - ".gitignore"
+      - "docs/**"
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+      - "LICENSE"
+      - ".gitignore"
+      - "docs/**"
   workflow_dispatch:
     inputs:
       reason:
@@ -15,31 +29,31 @@ permissions:
   id-token: write
 
 concurrency:
-  group: "pages"
+  group: "pages-${{ github.ref }}"
   cancel-in-progress: true
 
 jobs:
-  approval:
-    name: Deployment Approval
-    runs-on: ubuntu-latest
-    environment:
-      name: production-approval
-    steps:
-      - name: Wait for approval
-        run: echo "Deployment approved by ${{ github.actor }}"
-
   build:
+    name: Build & Upload
     runs-on: ubuntu-latest
-    needs: approval
     timeout-minutes: 20
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Restore cached build
+        id: cache-build
+        uses: actions/cache/restore@v4
+        with:
+          path: apps/vault/dist
+          key: build-${{ github.sha }}
+
       - name: Setup PNPM environment
+        if: steps.cache-build.outputs.cache-hit != 'true'
         uses: ./.github/actions/setup-pnpm
 
       - name: Build applications
+        if: steps.cache-build.outputs.cache-hit != 'true'
         run: |
           echo "Building vault (main app)..."
           pnpm --filter=@aryxn/vault build
@@ -47,6 +61,14 @@ jobs:
           # Add more apps when needed:
           # echo "Building admin app..."
           # pnpm --filter=@aryxn/admin build
+
+      - name: Build status
+        run: |
+          if [ "${{ steps.cache-build.outputs.cache-hit }}" == "true" ]; then
+            echo "✅ Using cached build from CI workflow"
+          else
+            echo "🔨 Built from source"
+          fi
 
       - name: Prepare deployment directory
         run: |
@@ -67,14 +89,19 @@ jobs:
           ls -la deploy/
 
       - name: Setup Pages
+        if: github.event_name != 'pull_request'
         uses: actions/configure-pages@v5
 
       - name: Upload artifact
+        if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
         with:
           path: "./deploy"
 
   deploy:
+    name: Deploy to GitHub Pages
+    # 只在 push 到 main 或手动触发时部署，PR 不部署
+    if: github.event_name != 'pull_request'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
