@@ -30,9 +30,11 @@
     "test:all": "pnpm test:web && pnpm test:ethereum && pnpm test:solana",
     "deploy:ethereum": "pnpm --filter=@aryxn/contracts-ethereum deploy",
     "deploy:solana": "pnpm --filter=@aryxn/contracts-solana deploy",
-    "lint": "pnpm --filter='./apps/*' lint && pnpm --filter='./packages/*' lint",
-    "type-check": "pnpm --filter='./apps/*' type-check && pnpm --filter='./packages/*' type-check",
+    "lint": "pnpm -r --workspace-concurrency=0 --filter='./apps/*' --filter='./packages/*' lint",
+    "type-check": "pnpm -r --workspace-concurrency=0 --filter='./apps/*' --filter='./packages/*' type-check",
     "format": "prettier --write '**/*.{ts,tsx,js,jsx,json,md,css,html}'",
+    "format:check": "prettier --check '**/*.{ts,tsx,js,jsx,json,md,css,html}'",
+    "ci": "pnpm lint && pnpm type-check && pnpm build",
     "preview": "pnpm --filter=@aryxn/vault preview"
   },
   "devDependencies": {
