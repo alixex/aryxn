@@ -5,7 +5,7 @@
   },
   "files": [],
   "references": [
-    { "path": "./apps/web" },
+    { "path": "./apps/vault" },
     { "path": "./packages/chain-constants" },
     { "path": "./packages/wallet-core" },
     { "path": "./packages/crypto" },

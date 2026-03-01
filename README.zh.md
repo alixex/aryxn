@@ -145,7 +145,7 @@
 ```
 aryxn/
 ├── apps/
-│   └── web/              # 主 Web 应用
+│   └── vault/            # 主 Web 应用
 ├── packages/
 │   ├── wallet-core/      # 多链钱包管理
 │   ├── arweave/          # Arweave 存储集成

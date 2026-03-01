@@ -145,7 +145,7 @@ Create permanent backups of critical files that will outlast any single company 
 ```
 aryxn/
 ├── apps/
-│   └── web/              # Main Web application
+│   └── vault/            # Main Web application
 ├── packages/
 │   ├── wallet-core/      # Multi-chain wallet management
 │   ├── arweave/          # Arweave storage integration

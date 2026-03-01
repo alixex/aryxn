@@ -43,7 +43,7 @@ jobs:
         run: pnpm run lint
 
       - name: Check formatting
-        run: pnpm --filter=@aryxn/web exec prettier --check src components.json index.html public
+        run: pnpm --filter=@aryxn/vault exec prettier --check src components.json index.html public
 
   type-check:
     name: Type Check
@@ -89,12 +89,12 @@ jobs:
 
       - name: Verify build output
         run: |
-          if [ ! -d "apps/web/dist" ]; then
-            echo "Error: apps/web/dist directory not found"
+          if [ ! -d "apps/vault/dist" ]; then
+            echo "Error: apps/vault/dist directory not found"
             exit 1
           fi
-          if [ ! -f "apps/web/dist/index.html" ]; then
-            echo "Error: apps/web/dist/index.html not found"
+          if [ ! -f "apps/vault/dist/index.html" ]; then
+            echo "Error: apps/vault/dist/index.html not found"
             exit 1
           fi
           echo "Build output verified successfully"

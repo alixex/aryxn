@@ -1,4 +1,4 @@
-# Changelog - apps/web
+# Changelog - apps/vault
 
 ## [1.1.0] - 2026-02-21
 

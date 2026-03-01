@@ -144,13 +144,13 @@ packages:
   "license": "AGPL-3.0-or-later",
   "packageManager": "pnpm@10.28.1",
   "scripts": {
-    "dev": "pnpm --filter=@aryxn/web dev",
-    "build": "pnpm --filter=@aryxn/web build",
+    "dev": "pnpm --filter=@aryxn/vault dev",
+    "build": "pnpm --filter=@aryxn/vault build",
     "build:contracts": "pnpm --filter='@aryxn/contracts-*' build",
     "build:sdk": "pnpm --filter='@aryxn/sdk-*' build",
     "build:all": "pnpm build:contracts && pnpm build:sdk && pnpm build",
 
-    "test:web": "pnpm --filter=@aryxn/web test",
+    "test:web": "pnpm --filter=@aryxn/vault test",
     "test:ethereum": "pnpm --filter=@aryxn/contracts-ethereum test",
     "test:solana": "pnpm --filter=@aryxn/contracts-solana test",
     "test:all": "pnpm test:web && pnpm test:ethereum && pnpm test:solana",
@@ -293,7 +293,7 @@ packages:
 
 ```json
 {
-  "name": "@aryxn/web",
+  "name": "@aryxn/vault",
   "version": "1.0.0",
   "private": true,
   "description": "Aryxn web application",
@@ -477,7 +477,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: pnpm/action-setup@v2
-      - run: pnpm --filter=@aryxn/web test
+      - run: pnpm --filter=@aryxn/vault test
 ```
 
 ### 3. 版本管理

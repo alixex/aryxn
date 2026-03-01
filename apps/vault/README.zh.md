@@ -138,6 +138,7 @@ Aryxn 采用 **AGPL-3.0** 协议开源。
 ---
 
 **Aryxn — 为长期记忆而生。**
+
 - **Encryption**: AES-256-GCM for local encryption, end-to-end encrypted file uploads
 
 ## **Monorepo Architecture**

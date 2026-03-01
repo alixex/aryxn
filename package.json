@@ -19,12 +19,12 @@
   },
   "packageManager": "pnpm@10.29.3",
   "scripts": {
-    "dev": "pnpm --filter=@aryxn/web dev",
-    "build": "pnpm --filter=@aryxn/web build",
+    "dev": "pnpm --filter=@aryxn/vault dev",
+    "build": "pnpm --filter=@aryxn/vault build",
     "build:contracts": "pnpm --filter='@aryxn/contracts-*' build",
     "build:sdk": "pnpm --filter='@aryxn/sdk-*' build",
     "build:all": "pnpm build:contracts && pnpm build:sdk && pnpm build",
-    "test:web": "pnpm --filter=@aryxn/web test",
+    "test:web": "pnpm --filter=@aryxn/vault test",
     "test:ethereum": "pnpm --filter=@aryxn/contracts-ethereum test",
     "test:solana": "pnpm --filter=@aryxn/contracts-solana test",
     "test:all": "pnpm test:web && pnpm test:ethereum && pnpm test:solana",
@@ -33,7 +33,7 @@
     "lint": "pnpm --filter='./apps/*' lint && pnpm --filter='./packages/*' lint",
     "type-check": "pnpm --filter='./apps/*' type-check && pnpm --filter='./packages/*' type-check",
     "format": "prettier --write '**/*.{ts,tsx,js,jsx,json,md,css,html}'",
-    "preview": "pnpm --filter=@aryxn/web preview"
+    "preview": "pnpm --filter=@aryxn/vault preview"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.18",

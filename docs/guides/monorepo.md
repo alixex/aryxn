@@ -57,7 +57,7 @@ pnpm test:solana
 ```
 aryxn/
 ├── apps/
-│   └── web/                          # 前端应用 (@aryxn/web)
+│   └── vault/                        # 前端应用 (@aryxn/vault)
 │       ├── src/
 │       ├── public/
 │       └── package.json
