@@ -74,12 +74,12 @@ export async function getTransactionMetadata(txId: string) {
 export async function fetchDataFromGateways(
   txId: string,
   expectedDataSize: number,
+  storageType: "arweave" | "irys" = "arweave",
 ): Promise<Uint8Array | null> {
-  const gateways = [
-    "https://arweave.net",
-    "https://ar-io.net",
-    "https://arweave.live",
-  ]
+  const gateways =
+    storageType === "irys"
+      ? ["https://gateway.irys.xyz"]
+      : ["https://arweave.net", "https://ar-io.net", "https://arweave.live"]
 
   for (const gateway of gateways) {
     try {
@@ -173,12 +173,13 @@ export async function fetchDataWithSDK(
 export async function downloadTransactionData(
   txId: string,
   expectedDataSize: number = 0,
+  storageType: "arweave" | "irys" = "arweave",
 ): Promise<Uint8Array> {
   // 方法 1: 优先尝试直接通过网关获取
-  let data = await fetchDataFromGateways(txId, expectedDataSize)
+  let data = await fetchDataFromGateways(txId, expectedDataSize, storageType)
 
-  // 方法 2: 如果直接 fetch 失败，尝试使用 SDK 的 getData 方法
-  if (!data) {
+  // 方法 2: 如果直接 fetch 失败，尝试使用 SDK 的 getData 方法 (Only fallback to SDK for Arweave data, SDK breaks on Irys)
+  if (!data && storageType === "arweave") {
     data = await fetchDataWithSDK(txId, expectedDataSize)
   }
 
@@ -186,7 +187,11 @@ export async function downloadTransactionData(
     throw new Error(
       `Failed to fetch complete data from all gateways. Expected size: ${expectedDataSize} bytes. ` +
         `This might be because the transaction data hasn't been fully seeded to the network yet. ` +
-        `Please try again later or check the transaction status at https://arweave.net/${txId}`,
+        `Please try again later or check the transaction status at ${
+          storageType === "irys"
+            ? `https://gateway.irys.xyz/${txId}`
+            : `https://arweave.net/${txId}`
+        }`,
     )
   }
 

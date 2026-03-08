@@ -64,3 +64,36 @@ export const SuiIcon = ({ className }: { className?: string }) => (
     <path d="M12 24c6.627 0 12-5.373 12-12S18.627 0 12 0 0 5.373 0 12s5.373 12 12 12zm0-22c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2zm1 14h-2v-4h2v4zm0-6h-2V7h2v3z" />
   </svg>
 )
+
+export const PolygonIcon = ({ className }: { className?: string }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M16.7 6.35l-4.3-2.5c-.25-.15-.55-.15-.8 0l-4.3 2.5c-.25.15-.4.4-.4.7v5c0 .3.15.55.4.7l4.3 2.5c.25.15.55.15.8 0l4.3-2.5c.25-.15.4-.4.4-.7v-5c0-.3-.15-.55-.4-.7zm-1.1 5.3l-3.3 1.9-3.3-1.9v-3.8l3.3-1.9 3.3 1.9v3.8z" />
+  </svg>
+)
+
+export const BscIcon = ({ className }: { className?: string }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M16.624 13.9202l2.711 2.71172-4.335 4.33516L12.289 18.2554l1.623-1.62461 2.712-2.71059zm.002-3.84039l2.711-2.71172-4.335-4.33516L12.289 5.74461l1.623 1.62461 2.712 2.71059zm-9.252 3.84039L4.663 16.63192 9 20.96708l2.711-2.71172-1.623-1.62461-2.712-2.7102ZM7.374 10.0798L4.663 7.36808 9 3.03292l2.711 2.71172-1.623 1.62461-2.714 2.71072zM12 8.9202l3.078 3.07812L12 15.07632 8.922 12 12 8.9202z" />
+  </svg>
+)
+
+export const AvalancheIcon = ({ className }: { className?: string }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M12 2L2.5 18H8.5L12 11.5L15.5 18H21.5L12 2ZM12 8.5L14.5 13H9.5L12 8.5Z" />
+  </svg>
+)

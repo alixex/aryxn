@@ -102,6 +102,7 @@ export async function uploadFile(
     onProgress?: (progress: { stage: string; progress: number }) => void // 进度回调
     useIrys?: boolean
     irysToken?: string
+    storageTier?: "Permanent" | "Term"
   } = {},
 ): Promise<{ txId: string; fileId: string }> {
   // 1. 上传文件到 Arweave（传递账户地址用于标签）
@@ -116,8 +117,15 @@ export async function uploadFile(
     options.onProgress, // 传递进度回调
     options.useIrys,
     options.irysToken,
+    options.storageTier,
   )
-  const { txId, hash: fileHash, finalSize, encryptionParams } = uploadResult
+  const {
+    txId,
+    hash: fileHash,
+    finalSize,
+    storageType,
+    encryptionParams,
+  } = uploadResult
 
   // 2. 检查是否已存在（基于最终上传数据的 hash）
   const existing = await db.get(
@@ -157,7 +165,7 @@ export async function uploadFile(
       options.folderId || null,
       options.description || null,
       ownerAddress,
-      "arweave",
+      storageType, // Dynamically use "irys" or "arweave"
       options.encryptionKey ? "XChaCha20-Poly1305" : "none",
       encryptionParams || "{}",
       version,
@@ -238,6 +246,7 @@ export async function uploadFiles(
     onProgress?: (progress: { stage: string; progress: number }) => void
     useIrys?: boolean
     irysToken?: string
+    storageTier?: "Permanent" | "Term"
   } = {},
 ): Promise<
   Array<{ success: boolean; txId?: string; fileId?: string; error?: string }>
@@ -271,7 +280,13 @@ export async function uploadFiles(
   if (results.some((r) => r.success)) {
     try {
       const { scheduleManifestUpdate } = await import("./file-sync")
-      scheduleManifestUpdate(ownerAddress, key, options.useExternalWallet)
+      scheduleManifestUpdate(
+        ownerAddress,
+        key,
+        options.useExternalWallet,
+        options.useIrys,
+        options.irysToken,
+      )
     } catch (error) {
       console.warn("Failed to schedule manifest update after batch:", error)
     }

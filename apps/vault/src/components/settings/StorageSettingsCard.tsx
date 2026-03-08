@@ -9,9 +9,8 @@ import {
 } from "@/components/ui/card"
 import { useTranslation } from "@/i18n/config"
 import StorageQuota from "./storage/StorageQuota"
-import ServiceWorkerInfo from "./storage/ServiceWorkerInfo"
-import CacheStorageInfo from "./storage/CacheStorageInfo"
 import OpfsFilesList from "./storage/OpfsFilesList"
+import DangerZone from "./DangerZone"
 
 import { db } from "@/lib/database"
 
@@ -21,10 +20,18 @@ export default function StorageSettingsCard({
   storageInfo,
   isLoading,
   onRefresh,
+  onConfirmClear,
+  isClearing,
+  openDangerDialog,
+  setOpenDangerDialog,
 }: {
   storageInfo: StorageInfo | null
   isLoading: boolean
   onRefresh: () => void
+  onConfirmClear: () => void
+  isClearing: boolean
+  openDangerDialog: boolean
+  setOpenDangerDialog: (v: boolean) => void
 }) {
   const { t } = useTranslation()
 
@@ -107,115 +114,14 @@ export default function StorageSettingsCard({
                 </div>
               )}
 
-              <ServiceWorkerInfo info={storageInfo.serviceWorkerInfo} />
-              <CacheStorageInfo
-                info={storageInfo.cacheStorageInfo}
-                formatBytes={formatBytes}
-              />
               <OpfsFilesList
                 filesWithSize={storageInfo.opfsFilesWithSize}
                 files={storageInfo.opfsFiles}
+                formatBytes={formatBytes}
               />
-
-              {/* Storage notes and warnings */}
-              <div className="bg-card border-border text-muted-foreground rounded-md border p-3 text-sm">
-                <div className="space-y-2">
-                  <div>
-                    <span className="font-semibold">
-                      {t("settings.storageNoteTitle", "About Storage Usage:")}
-                    </span>
-                    <ul className="mt-1 list-disc space-y-1 pl-5">
-                      <li>
-                        {t(
-                          "settings.storageNote1",
-                          "The 'Storage Usage' shows the total storage used by this origin (including IndexedDB, Cache Storage, etc.), not just OPFS files.",
-                        )}
-                      </li>
-                      <li>
-                        {t(
-                          "settings.storageNote2",
-                          "The actual OPFS file sizes are shown above. An empty database file should be only a few KB.",
-                        )}
-                      </li>
-                      <li>
-                        {t(
-                          "settings.storageNote3",
-                          "Browser storage quota updates may be delayed. If usage doesn't decrease immediately after clearing, wait a few minutes.",
-                        )}
-                      </li>
-                    </ul>
-                  </div>
-
-                  {storageInfo.opfsTotalSize > 0 &&
-                    storageInfo.usageDetails?.fileSystem &&
-                    storageInfo.opfsTotalSize <
-                      storageInfo.usageDetails.fileSystem / 100 && (
-                      <div className="bg-card border-muted text-muted-foreground rounded border p-3 text-xs">
-                        <div className="mb-1 font-semibold">
-                          {t(
-                            "settings.storageWarningTitle",
-                            "⚠️ Large fileSystem Storage Detected",
-                          )}
-                        </div>
-                        <div className="space-y-2">
-                          <div>
-                            {t(
-                              "settings.storageWarning1",
-                              "The fileSystem storage ({{fileSystem}}) is much larger than actual OPFS files ({{opfs}}).",
-                              {
-                                fileSystem: formatBytes(
-                                  storageInfo.usageDetails.fileSystem,
-                                ),
-                                opfs: formatBytes(storageInfo.opfsTotalSize),
-                              },
-                            )}
-                          </div>
-                          <div>
-                            {t(
-                              "settings.storageWarning2",
-                              "This likely includes browser-cached files from previous file downloads (e.g., when syncing files from Arweave to calculate hashes).",
-                            )}
-                          </div>
-                          <div className="font-semibold">
-                            {t(
-                              "settings.storageWarning3",
-                              "To free up this space:",
-                            )}
-                          </div>
-                          <ul className="list-disc space-y-1 pl-5">
-                            <li>
-                              <strong>
-                                {t(
-                                  "settings.storageWarning4",
-                                  "Clear browser cache:",
-                                )}
-                              </strong>{" "}
-                              {t(
-                                "settings.storageWarning4Detail",
-                                "Press Ctrl+Shift+Delete (Windows/Linux) or Cmd+Shift+Delete (Mac), then select 'Cached images and files' and click 'Clear data'",
-                              )}
-                            </li>
-                            <li>
-                              {t(
-                                "settings.storageWarning5",
-                                "Or wait for browser to automatically clean up old cache (may take hours or days)",
-                              )}
-                            </li>
-                          </ul>
-                          <div className="border-border text-foreground mt-2 border-t pt-2 font-semibold">
-                            {t(
-                              "settings.storageWarning6",
-                              "Note: This cache is managed by the browser and cannot be cleared by the application. It does not affect application functionality.",
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                </div>
-              </div>
             </div>
           ) : (
-            <div className="text-muted-foreground text-center text-sm">
+            <div className="text-muted-foreground py-4 text-center text-sm">
               {isLoading
                 ? t("settings.loadingStorage", "Loading storage information...")
                 : t(
@@ -224,6 +130,13 @@ export default function StorageSettingsCard({
                   )}
             </div>
           )}
+
+          <DangerZone
+            onConfirmClear={onConfirmClear}
+            isClearing={isClearing}
+            open={openDangerDialog}
+            setOpen={setOpenDangerDialog}
+          />
         </div>
       </CardContent>
     </Card>

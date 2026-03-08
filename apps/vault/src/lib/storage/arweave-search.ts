@@ -16,12 +16,12 @@ import {
 } from "@/lib/file"
 import { ARWEAVE_APP_NAME } from "@/lib/config"
 
-// 扩展基础搜索选项，添加本地搜索特定选项
 export interface SearchOptions extends BaseSearchOptions {
   ownerAddress?: string // 用于本地搜索的账户地址
   preferLocal?: boolean // 是否优先本地搜索（默认 true）
   cache?: boolean // Ignored in query-chain for now
   cacheTtl?: number // Ignored in query-chain for now
+  networkFilter?: "all" | "irys" | "arweave" // Network search isolation
 }
 
 const arweaveAdapter = new ArweaveAdapter()
@@ -142,6 +142,7 @@ export async function searchArweaveTransactions(
     sort = "HEIGHT_DESC",
     ownerAddress,
     preferLocal = true,
+    networkFilter = "all",
   } = options
 
   if (!query.trim()) {
@@ -246,6 +247,7 @@ export async function searchArweaveTransactions(
         query: queryTrimmed,
         limit: Math.max(limit * 2, 50), // 获取足够的结果以便去重和合并
         sort,
+        networkFilter,
       })
 
       // 过滤掉已经有的结果，避免重复
@@ -284,8 +286,14 @@ export async function searchAppTransactions(
   appName: string,
   query: string,
   limit: number = 50,
+  networkFilter: "all" | "irys" | "arweave" = "all",
 ) {
-  return arweaveAdapter.searchAppTransactions(appName, query, limit)
+  return arweaveAdapter.searchAppTransactions(
+    appName,
+    query,
+    limit,
+    networkFilter,
+  )
 }
 
 // 导出清单搜索函数以供其他模块使用

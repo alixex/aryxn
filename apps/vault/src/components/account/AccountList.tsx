@@ -21,7 +21,6 @@ interface AccountListProps {
   onSelect: (account: Account) => void
   onCopyAddress: (address: string) => void
   onShowSensitive?: (account: Account, type: "key" | "mnemonic") => void
-  onDisconnect?: (account: Account) => void
   onDelete?: (account: Account) => void
   // New props for lifting state
   balances: Record<string, BalanceResult | null>
@@ -42,7 +41,6 @@ export function AccountList({
   onSelect,
   onCopyAddress,
   onShowSensitive,
-  onDisconnect,
   onDelete,
   balances,
   loadingBalances,
@@ -83,9 +81,6 @@ export function AccountList({
             onSelect={() => onSelect(account)}
             onCopyAddress={onCopyAddress}
             onShowSensitive={onShowSensitive}
-            onDisconnect={
-              onDisconnect ? () => onDisconnect(account) : undefined
-            }
             onDelete={onDelete ? () => onDelete(account) : undefined}
             balance={balances[key]}
             loading={loadingBalances[key]}

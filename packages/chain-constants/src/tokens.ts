@@ -9,6 +9,10 @@ export const PaymentTokenSymbols = [
   "BTC",
   "USDC",
   "USDT",
+  "MATIC",
+  "AVAX",
+  "BNB",
+  "IRYS",
 ] as const
 
 export type PaymentTokenSymbol = (typeof PaymentTokenSymbols)[number]
@@ -72,6 +76,30 @@ export const PaymentTokenMetadata: Record<
     symbol: "USDT",
     coingeckoId: "tether",
   },
+  MATIC: {
+    chain: Chains.POLYGON,
+    decimals: 18,
+    symbol: "MATIC",
+    coingeckoId: "matic-network",
+  },
+  AVAX: {
+    chain: Chains.AVALANCHE,
+    decimals: 18,
+    symbol: "AVAX",
+    coingeckoId: "avalanche-2",
+  },
+  BNB: {
+    chain: Chains.BSC,
+    decimals: 18,
+    symbol: "BNB",
+    coingeckoId: "binancecoin",
+  },
+  IRYS: {
+    chain: Chains.IRYS,
+    decimals: 18, // Irys uses 18 decimals like ETH
+    symbol: "IRYS",
+    coingeckoId: "irys", // placeholder
+  },
 }
 
 export const UploadPaymentSupportedChains = [
@@ -79,6 +107,13 @@ export const UploadPaymentSupportedChains = [
   Chains.ETHEREUM,
   Chains.SUI,
   Chains.ARWEAVE,
+  Chains.POLYGON,
+  Chains.ARBITRUM,
+  Chains.OPTIMISM,
+  Chains.BASE,
+  Chains.BSC,
+  Chains.AVALANCHE,
+  Chains.IRYS,
 ] as const
 
 export const UploadSelectablePaymentTokens = [
@@ -89,6 +124,10 @@ export const UploadSelectablePaymentTokens = [
   "SUI",
   "AR",
   "V2EX",
+  "MATIC",
+  "AVAX",
+  "BNB",
+  "IRYS",
 ] as const satisfies readonly PaymentTokenSymbol[]
 
 export const UploadSelectableTokensByAccountChain: Readonly<
@@ -98,6 +137,13 @@ export const UploadSelectableTokensByAccountChain: Readonly<
   [Chains.ETHEREUM]: ["ETH", "USDC", "USDT"],
   [Chains.SOLANA]: ["SOL", "USDC", "USDT", "V2EX"],
   [Chains.SUI]: ["SUI", "USDC", "USDT"],
+  [Chains.POLYGON]: ["MATIC", "USDC", "USDT"],
+  [Chains.BSC]: ["BNB", "USDC", "USDT"],
+  [Chains.AVALANCHE]: ["AVAX", "USDC", "USDT"],
+  [Chains.ARBITRUM]: ["ETH", "USDC", "USDT"],
+  [Chains.OPTIMISM]: ["ETH", "USDC", "USDT"],
+  [Chains.BASE]: ["ETH", "USDC", "USDT"],
+  [Chains.IRYS]: ["IRYS"],
 } as const
 
 export const UploadTokenNativeChainBySymbol: Partial<
@@ -110,6 +156,10 @@ export const UploadTokenNativeChainBySymbol: Partial<
   SOL: Chains.SOLANA,
   SUI: Chains.SUI,
   V2EX: Chains.SOLANA,
+  MATIC: Chains.POLYGON,
+  AVAX: Chains.AVALANCHE,
+  BNB: Chains.BSC,
+  IRYS: Chains.IRYS,
 }
 
 export const DexTokenSymbolsByAccountChain: Readonly<
@@ -119,4 +169,5 @@ export const DexTokenSymbolsByAccountChain: Readonly<
   [Chains.SOLANA]: ["SOL", "USDC", "USDT", "V2EX"],
   [Chains.SUI]: ["SUI", "USDC", "USDT"],
   [Chains.ARWEAVE]: ["AR"],
+  [Chains.IRYS]: ["IRYS"],
 } as const

@@ -7,12 +7,13 @@ import { useWallet } from "@/hooks/account-hooks"
 export function useUserAccountSetup() {
   const wallet = useWallet()
   const walletManager = wallet.internal
-  const externalWallets = wallet.external
 
-  const needsAccountSetup =
-    !walletManager.isUnlocked && !externalWallets.isArConnected
+  // User needs setup if they haven't unlocked their internal vault
+  // and have no wallets at all.
+  // Simplified: if they are locked, they need setup (unlock).
+  const needsAccountSetup = !walletManager.isUnlocked
 
-  const hasAnyAccount = !needsAccountSetup
+  const hasAnyAccount = walletManager.wallets.length > 0
 
   return {
     needsAccountSetup,

@@ -15,6 +15,7 @@ import {
 export async function detectChainAndAddress(
   input: WalletKey | string,
   arweaveInstance: Arweave = defaultArweave,
+  hintChain?: string,
 ): Promise<{
   chain: WalletRecord["chain"]
   address: string
@@ -32,25 +33,32 @@ export async function detectChainAndAddress(
 
   const str = String(input).trim()
 
+  // Mnemonic detection
   if (validateMnemonic(str)) {
     const wallet = ethers.Wallet.fromPhrase(str)
     return {
-      chain: Chains.ETHEREUM,
+      chain: (hintChain as any) || Chains.ETHEREUM,
       address: wallet.address,
       key: wallet.privateKey,
       mnemonic: str,
     }
   }
 
+  // EVM Private Key detection
   if (/^(0x)?[0-9a-fA-F]{64}$/.test(str)) {
     const wallet = new ethers.Wallet(str.startsWith("0x") ? str : "0x" + str)
-    return { chain: Chains.ETHEREUM, address: wallet.address, key: str }
+    return {
+      chain: (hintChain as any) || Chains.ETHEREUM,
+      address: wallet.address,
+      key: str,
+    }
   }
 
+  // Solana Keypair detection
   if (/^[1-9A-HJ-NP-Za-km-z]{87,88}$/.test(str)) {
     try {
       const decoded = fromBase58(str)
-      const keypair = solana.Keypair.fromSecretKey(decoded)
+      const keypair = solana.Keypair.fromSeed(decoded.slice(0, 32))
       return {
         chain: Chains.SOLANA,
         address: keypair.publicKey.toBase58(),
@@ -61,6 +69,7 @@ export async function detectChainAndAddress(
     }
   }
 
+  // Sui Private Key detection
   if (str.startsWith("suiprivkey")) {
     try {
       const keypair = Ed25519Keypair.fromSecretKey(str)
@@ -90,13 +99,17 @@ export async function detectChainAndAddress(
       const address = await arweaveInstance.wallets.jwkToAddress(parsed)
       return { chain: Chains.ARWEAVE, address, key: str }
     }
-    if (Array.isArray(parsed) && parsed.length === 64) {
-      const keyBytes = new Uint8Array(parsed)
-      const keypair = solana.Keypair.fromSecretKey(keyBytes)
+    if (
+      Array.isArray(parsed) &&
+      (parsed.length === 64 || parsed.length === 32)
+    ) {
+      const keypair = solana.Keypair.fromSeed(
+        new Uint8Array(parsed.slice(0, 32)),
+      )
       return {
         chain: Chains.SOLANA,
         address: keypair.publicKey.toBase58(),
-        key: toBase58(keyBytes),
+        key: toBase58(new Uint8Array(parsed)),
       }
     }
   } catch {

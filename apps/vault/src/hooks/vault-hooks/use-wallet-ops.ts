@@ -64,11 +64,13 @@ export function useWalletOps() {
       alias: string,
       masterKey: Uint8Array,
       vaultId: string,
+      chainHint?: string,
     ) => {
       try {
         const { chain, address, key, mnemonic } = await detectChainAndAddress(
           input,
           arweave,
+          chainHint,
         )
         const storageData: DecryptedData = { key, mnemonic }
         const { ciphertext, nonce } = await encryptData(
@@ -103,8 +105,8 @@ export function useWalletOps() {
   )
 
   return {
-    detectChainAndAddress: (input: WalletKey | string) =>
-      detectChainAndAddress(input, arweave),
+    detectChainAndAddress: (input: WalletKey | string, chainHint?: string) =>
+      detectChainAndAddress(input, arweave, chainHint),
     createWalletLogic,
     addWalletLogic,
   }

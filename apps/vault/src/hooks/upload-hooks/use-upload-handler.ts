@@ -7,14 +7,12 @@ import type { PaymentToken } from "@/lib/payment"
 import { paymentService } from "@/lib/payment"
 import type { PaymentAccount } from "@/lib/payment"
 import { getIrysFundingToken } from "@/lib/payment"
-import type { WalletKey } from "@/lib/utils"
-import { useConnectorClient } from "wagmi"
-import { clientToSigner } from "@aryxn/wallet-core"
 import { PaymentRepository } from "@/lib/payment/payment-repository"
 import type { PaymentIntent } from "@/lib/payment/types"
+import { Chains } from "@aryxn/chain-constants"
 
 export interface UploadHandlerResult {
-  status: "SUCCESS" | "SWAP_REQUIRED" | "BRIDGE_REQUIRED" | "FAILED"
+  status: "SUCCESS" | "FAILED"
   success: number
   failed: number
 }
@@ -26,26 +24,12 @@ function resolveWalletKeyForPayment(
   if (!paymentAccount.isExternal) {
     return wallet.internal.activeWallet
   }
-
-  if (paymentAccount.chain === "solana") {
-    return (window as any).solana || null
-  }
-
-  if (paymentAccount.chain === "sui") {
-    return (window as any).suiWallet || null
-  }
-
-  if (paymentAccount.chain === "arweave") {
-    return (window as any).arweaveWallet || null
-  }
-
   return null
 }
 
 export function useUploadHandler() {
   const { t } = useTranslation()
   const wallet = useWallet()
-  const { data: client } = useConnectorClient()
 
   const [uploading, setUploading] = useState(false)
   const [progress, setProgress] = useState(0)
@@ -116,6 +100,7 @@ export function useUploadHandler() {
       paymentToken: PaymentToken = "AR",
       paymentAccount: PaymentAccount | null,
       forceSilent = false,
+      storageTier: "Permanent" | "Term" = "Permanent",
     ) => {
       if (!file) {
         return {
@@ -125,7 +110,11 @@ export function useUploadHandler() {
         } as UploadHandlerResult
       }
 
-      let activeArweave = wallet.active.arweave
+      let activeArweave = wallet.internal.wallets.find(
+        (w) =>
+          w.address === wallet.internal.activeAddress &&
+          w.chain === Chains.ARWEAVE,
+      )
 
       if (!activeArweave) {
         if (wallet.internal.isUnlocked) {
@@ -137,14 +126,10 @@ export function useUploadHandler() {
             // refresh wallet state to get the new address immediately
             await wallet.internal.refreshWallets()
             const newArweave = wallet.internal.wallets.find(
-              (w: any) => w.chain === "arweave",
+              (w: any) => w.chain === Chains.ARWEAVE,
             )
             if (newArweave) {
-              activeArweave = {
-                ...newArweave,
-                isExternal: false,
-                chain: "arweave" as const,
-              } as any // Use as any to bypass complex ActiveAccount union types for now, since we know it's valid
+              activeArweave = newArweave
               toast.success(
                 t(
                   "upload.autoCreateArSuccess",
@@ -201,11 +186,6 @@ export function useUploadHandler() {
         setPaymentStage(true)
         setStage(t("upload.processingPayment"))
 
-        let signer = undefined
-        if (client) {
-          signer = clientToSigner(client)
-        }
-
         const walletKey = resolveWalletKeyForPayment(paymentAccount, wallet)
 
         let paymentResult = await paymentService.executePayment({
@@ -213,7 +193,7 @@ export function useUploadHandler() {
           amountInAR: 0,
           paymentAccount,
           walletKey,
-          signer: signer,
+          signer: undefined,
           silent: forceSilent || paymentToken === "AR", // AR never needs confirmation
           fileMetadata: {
             name: file.name,
@@ -225,20 +205,6 @@ export function useUploadHandler() {
             setStage(p.message || p.stage)
           },
         })
-
-        if (
-          paymentResult === "REQUIRE_SWAP" ||
-          paymentResult === "REQUIRE_BRIDGE"
-        ) {
-          return {
-            status:
-              paymentResult === "REQUIRE_SWAP"
-                ? "SWAP_REQUIRED"
-                : "BRIDGE_REQUIRED",
-            success: 0,
-            failed: 0,
-          } as UploadHandlerResult
-        }
 
         // Handle Silent Waiting
         if (paymentResult === "SILENT_STILL_PENDING") {
@@ -272,12 +238,10 @@ export function useUploadHandler() {
         await uploadFile(
           file,
           activeArweave!.address,
-          activeArweave!.isExternal
-            ? (null as unknown as WalletKey)
-            : wallet.internal.activeWallet!,
+          wallet.internal.activeWallet!,
           {
             encryptionKey: encryptUpload ? new Uint8Array(32) : undefined,
-            useExternalWallet: activeArweave!.isExternal,
+            useExternalWallet: false,
             enableCompression: compressUpload,
             onProgress: (p) => {
               setProgress(p.progress)
@@ -285,6 +249,7 @@ export function useUploadHandler() {
             },
             useIrys: useIrys,
             irysToken: irysTokenName,
+            storageTier,
           },
         )
 
@@ -325,7 +290,7 @@ export function useUploadHandler() {
         setPaymentStage(false)
       }
     },
-    [wallet, t, client, activeIntent, waitForPayment],
+    [wallet, t, activeIntent, waitForPayment],
   )
 
   const handleBatchUpload = useCallback(
@@ -336,6 +301,7 @@ export function useUploadHandler() {
       paymentToken: PaymentToken = "AR",
       paymentAccount: PaymentAccount | null,
       forceSilent = false,
+      storageTier: "Permanent" | "Term" = "Permanent",
     ) => {
       if (files.length === 0) {
         return {
@@ -345,7 +311,11 @@ export function useUploadHandler() {
         } as UploadHandlerResult
       }
 
-      let activeArweave = wallet.active.arweave
+      let activeArweave = wallet.internal.wallets.find(
+        (w) =>
+          w.address === wallet.internal.activeAddress &&
+          w.chain === Chains.ARWEAVE,
+      )
 
       if (!activeArweave) {
         if (wallet.internal.isUnlocked) {
@@ -357,14 +327,10 @@ export function useUploadHandler() {
             // refresh wallet state to get the new address immediately
             await wallet.internal.refreshWallets()
             const newArweave = wallet.internal.wallets.find(
-              (w: any) => w.chain === "arweave",
+              (w: any) => w.chain === Chains.ARWEAVE,
             )
             if (newArweave) {
-              activeArweave = {
-                ...newArweave,
-                isExternal: false,
-                chain: "arweave" as const,
-              } as any
+              activeArweave = newArweave
               toast.success(
                 t(
                   "upload.autoCreateArSuccess",
@@ -424,11 +390,6 @@ export function useUploadHandler() {
         setPaymentStage(true)
         setStage(t("upload.processingPayment"))
 
-        let signer = undefined
-        if (client) {
-          signer = clientToSigner(client)
-        }
-
         const walletKey = resolveWalletKeyForPayment(paymentAccount, wallet)
 
         let paymentResult = await paymentService.executePayment({
@@ -436,7 +397,7 @@ export function useUploadHandler() {
           amountInAR: 0,
           paymentAccount,
           walletKey,
-          signer: signer,
+          signer: undefined,
           silent: forceSilent || paymentToken === "AR",
           fileMetadata: {
             name: files[0].name, // Use first file as metadata ref
@@ -447,20 +408,6 @@ export function useUploadHandler() {
             setStage(p.message || p.stage)
           },
         })
-
-        if (
-          paymentResult === "REQUIRE_SWAP" ||
-          paymentResult === "REQUIRE_BRIDGE"
-        ) {
-          return {
-            status:
-              paymentResult === "REQUIRE_SWAP"
-                ? "SWAP_REQUIRED"
-                : "BRIDGE_REQUIRED",
-            success: 0,
-            failed: 0,
-          } as UploadHandlerResult
-        }
 
         // Handle Silent Waiting for Batch
         if (paymentResult === "SILENT_STILL_PENDING") {
@@ -493,12 +440,10 @@ export function useUploadHandler() {
         const results = await uploadFiles(
           files,
           activeArweave!.address,
-          activeArweave!.isExternal
-            ? (null as unknown as WalletKey)
-            : wallet.internal.activeWallet!,
+          wallet.internal.activeWallet!,
           {
             encryptionKey: encryptUpload ? new Uint8Array(32) : undefined,
-            useExternalWallet: activeArweave!.isExternal,
+            useExternalWallet: false,
             enableCompression: compressUpload,
             onProgress: (p) => {
               setProgress(p.progress)
@@ -506,6 +451,7 @@ export function useUploadHandler() {
             },
             useIrys: useIrys,
             irysToken: irysTokenName,
+            storageTier,
           },
         )
 
@@ -517,10 +463,8 @@ export function useUploadHandler() {
             const { scheduleManifestUpdate } = await import("@/lib/file")
             scheduleManifestUpdate(
               activeArweave!.address,
-              activeArweave!.isExternal
-                ? (null as unknown as WalletKey)
-                : wallet.internal.activeWallet!,
-              activeArweave!.isExternal,
+              wallet.internal.activeWallet!,
+              false,
             )
           } catch (error) {
             console.error(
@@ -581,7 +525,7 @@ export function useUploadHandler() {
         setPaymentStage(false)
       }
     },
-    [wallet, t, client, activeIntent, waitForPayment],
+    [wallet, t, activeIntent, waitForPayment],
   )
 
   const clearRecovery = useCallback(async () => {

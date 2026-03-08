@@ -61,6 +61,7 @@ export interface SearchOptions {
   limit?: number
   sort?: "HEIGHT_DESC" | "HEIGHT_ASC"
   appName?: string
+  networkFilter?: "all" | "irys" | "arweave"
 }
 
 export interface ISearchAdapter {

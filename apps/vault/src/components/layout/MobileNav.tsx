@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom"
 import { type LucideIcon } from "lucide-react"
-import { useWallet } from "@/providers/wallet-provider"
+import { useWallet } from "@/hooks/account-hooks"
 
 interface NavItem {
   path: string

@@ -7,6 +7,10 @@ export type PaymentToken =
   | "BTC"
   | "USDC"
   | "USDT"
+  | "MATIC"
+  | "AVAX"
+  | "BNB"
+  | "IRYS"
 
 export interface PaymentAccount {
   chain: string

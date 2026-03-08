@@ -65,7 +65,7 @@ export function SensitiveInfoDialog({
 
     try {
       exportWallet({
-        chain: account.chain || "unknown",
+        chain: (account.chain as any) || "unknown",
         alias: account.alias,
         address: account.address,
         type,

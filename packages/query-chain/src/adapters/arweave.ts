@@ -34,7 +34,8 @@ interface ArweaveResponse {
 }
 
 export class ArweaveAdapter implements IHistoryAdapter, ISearchAdapter {
-  private endpoint = RPCs.ARWEAVE_GATEWAY
+  private arweaveEndpoint = RPCs.ARWEAVE_GATEWAY
+  private irysEndpoint = `${RPCs.IRYS_NODE}/graphql`
 
   async fetchRecords(
     address: string,
@@ -62,7 +63,7 @@ export class ArweaveAdapter implements IHistoryAdapter, ISearchAdapter {
     `
 
     try {
-      const response = await fetch(this.endpoint, {
+      const response = await fetch(this.arweaveEndpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query }),
@@ -131,7 +132,7 @@ export class ArweaveAdapter implements IHistoryAdapter, ISearchAdapter {
     const isTxId = /^[A-Za-z0-9_-]{43}$/.test(queryTrimmed)
 
     try {
-      // Strategy 1: Direct Transaction ID lookup
+      // Strategy 1: Direct Transaction ID lookup (Check Arweave, then Irys if not found)
       if (isTxId) {
         try {
           const txQuery = {
@@ -148,13 +149,35 @@ export class ArweaveAdapter implements IHistoryAdapter, ISearchAdapter {
             `,
             variables: { id: queryTrimmed },
           }
-          const response = await this.postStore(txQuery)
-          if (response.data?.transaction) {
-            console.log(
-              "[ArweaveAdapter] Found transaction by ID:",
-              response.data.transaction.id,
-            )
-            return [this.mapToSearchResult(response.data.transaction)]
+          let txFound = false
+          // Try Arweave first
+          try {
+            const response = await this.postStore(this.arweaveEndpoint, txQuery)
+            if (response.data?.transaction) {
+              console.log(
+                "[ArweaveAdapter] Found transaction on Arweave:",
+                response.data.transaction.id,
+              )
+              return [this.mapToSearchResult(response.data.transaction)]
+            }
+          } catch (e) {
+            /* ignore */
+          }
+
+          // Try Irys if not found
+          if (!txFound) {
+            try {
+              const response = await this.postStore(this.irysEndpoint, txQuery)
+              if (response.data?.transaction) {
+                console.log(
+                  "[ArweaveAdapter] Found transaction on IrysL1:",
+                  response.data.transaction.id,
+                )
+                return [this.mapToSearchResult(response.data.transaction)]
+              }
+            } catch (e) {
+              /* ignore */
+            }
           }
         } catch (e) {
           console.warn("[ArweaveAdapter] Direct transaction query failed:", e)
@@ -167,6 +190,7 @@ export class ArweaveAdapter implements IHistoryAdapter, ISearchAdapter {
           appName,
           queryTrimmed,
           Math.max(limit * 2, 100),
+          options.networkFilter || "all",
         )
         if (appResults.length > 0) {
           console.log(
@@ -178,10 +202,10 @@ export class ArweaveAdapter implements IHistoryAdapter, ISearchAdapter {
         console.warn("[ArweaveAdapter] Search in app failed:", e)
       }
 
-      // Strategy 3: Deep search (Fetch recent & filter in memory)
+      // Strategy 3: Deep search (Fetch recent & filter in memory across BOTH networks)
       const fetchLimit = Math.min(10000, limit * 500) // Deep fetch
       console.log(
-        `[ArweaveAdapter] Performing deep search with limit: ${fetchLimit}`,
+        `[ArweaveAdapter] Performing deep search with limit: ${fetchLimit} on Arweave and Irys L1`,
       )
 
       const graphqlQuery = {
@@ -200,15 +224,32 @@ export class ArweaveAdapter implements IHistoryAdapter, ISearchAdapter {
             }
           }
         `,
-        variables: { limit: fetchLimit, sort },
+        variables: { limit: fetchLimit / 2, sort }, // Split limit between networks
       }
 
-      const response = await this.postStore(graphqlQuery)
-      const edges = response.data?.transactions?.edges || []
-      const transactions = edges.map((e: any) => e.node)
+      // Federated Fetching
+      const { networkFilter = "all" } = options
+      const [arweaveResponse, irysResponse] = await Promise.all([
+        networkFilter === "irys"
+          ? Promise.resolve({ data: { transactions: { edges: [] } } })
+          : this.postStore(this.arweaveEndpoint, graphqlQuery).catch(() => ({
+              data: { transactions: { edges: [] } },
+            })),
+        networkFilter === "arweave"
+          ? Promise.resolve({ data: { transactions: { edges: [] } } })
+          : this.postStore(this.irysEndpoint, graphqlQuery).catch(() => ({
+              data: { transactions: { edges: [] } },
+            })),
+      ])
+
+      const arweaveEdges = arweaveResponse.data?.transactions?.edges || []
+      const irysEdges = irysResponse.data?.transactions?.edges || []
+      const allEdges = [...arweaveEdges, ...irysEdges]
+
+      const transactions = allEdges.map((e: any) => e.node)
 
       console.log(
-        `[ArweaveAdapter] Fetched ${transactions.length} recent transactions for filtering`,
+        `[ArweaveAdapter] Fetched ${transactions.length} recent transactions for filtering (${arweaveEdges.length} AR, ${irysEdges.length} IRYS)`,
       )
 
       const queryLower = queryTrimmed.toLowerCase()
@@ -238,6 +279,7 @@ export class ArweaveAdapter implements IHistoryAdapter, ISearchAdapter {
     appName: string,
     query: string,
     limit: number,
+    networkFilter: "all" | "irys" | "arweave" = "all",
   ): Promise<SearchResult[]> {
     const graphqlQuery = {
       query: `
@@ -264,12 +306,29 @@ export class ArweaveAdapter implements IHistoryAdapter, ISearchAdapter {
       variables: { appName, limit },
     }
 
-    const response = await this.postStore(graphqlQuery)
-    const edges = response.data?.transactions?.edges || []
+    // Federated Fetching
+    const [arweaveResponse, irysResponse] = await Promise.all([
+      networkFilter === "irys"
+        ? Promise.resolve({ data: { transactions: { edges: [] } } })
+        : this.postStore(this.arweaveEndpoint, graphqlQuery).catch(() => ({
+            data: { transactions: { edges: [] } },
+          })),
+      networkFilter === "arweave"
+        ? Promise.resolve({ data: { transactions: { edges: [] } } })
+        : this.postStore(this.irysEndpoint, graphqlQuery).catch(() => ({
+            data: { transactions: { edges: [] } },
+          })),
+    ])
+
+    const arweaveEdges = arweaveResponse.data?.transactions?.edges || []
+    const irysEdges = irysResponse.data?.transactions?.edges || []
+
+    // Merge, map to search result, sort by timestamp
+    const allEdges = [...arweaveEdges, ...irysEdges]
 
     const queryLower = query.toLowerCase()
 
-    return edges
+    const results = allEdges
       .map((e: any) => e.node)
       .map((tx: any) => this.mapToSearchResult(tx))
       .filter((tx: SearchResult) => {
@@ -277,6 +336,9 @@ export class ArweaveAdapter implements IHistoryAdapter, ISearchAdapter {
         const tagValues = tx.tags.map((t) => t.value.toLowerCase()).join(" ")
         return tagValues.includes(queryLower)
       })
+
+    // Sort combined results by timestamp descending
+    return results.sort((a, b) => b.block.timestamp - a.block.timestamp)
   }
 
   private mapToSearchResult(node: any): SearchResult {
@@ -296,14 +358,16 @@ export class ArweaveAdapter implements IHistoryAdapter, ISearchAdapter {
     }
   }
 
-  private async postStore(body: any): Promise<any> {
-    const response = await fetch(this.endpoint, {
+  private async postStore(endpoint: string, body: any): Promise<any> {
+    const response = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     })
     if (!response.ok)
-      throw new Error(`Arweave API error: ${response.statusText}`)
+      throw new Error(
+        `GraphQL API error at ${endpoint}: ${response.statusText}`,
+      )
     return await response.json()
   }
 }

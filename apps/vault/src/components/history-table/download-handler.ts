@@ -31,7 +31,11 @@ export async function handleFileDownload(
   )
 
   // 下载数据
-  const data = await downloadTransactionData(record.txId, expectedDataSize)
+  const data = await downloadTransactionData(
+    record.txId,
+    expectedDataSize,
+    record.storageType,
+  )
 
   // 解码 transaction tags
   const decodedTags = decodeTransactionTags(transaction?.tags)

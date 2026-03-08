@@ -7,22 +7,14 @@ import { Chains } from "@aryxn/chain-constants"
 export function useFileSync() {
   const wallet = useWallet()
   const walletManager = wallet.internal
-  const externalWallets = wallet.external
   const [syncing, setSyncing] = useState(false)
   const [uploadingManifest] = useState(false)
 
   const collectArweaveAddresses = useCallback(() => {
-    const internalArweaveAddresses = walletManager.wallets
+    return walletManager.wallets
       .filter((walletRecord) => walletRecord.chain === Chains.ARWEAVE)
       .map((walletRecord) => walletRecord.address)
-
-    const candidates = [...internalArweaveAddresses]
-    if (externalWallets.arAddress) {
-      candidates.push(externalWallets.arAddress)
-    }
-
-    return Array.from(new Set(candidates.filter(Boolean)))
-  }, [walletManager.wallets, externalWallets.arAddress])
+  }, [walletManager.wallets])
 
   /**
    * 从 Arweave 同步 file 索引到本地
@@ -31,7 +23,7 @@ export function useFileSync() {
     const addresses = collectArweaveAddresses()
 
     if (addresses.length === 0) {
-      toast.error("请先选择账户或连接外部钱包")
+      toast.error("请先选择账户")
       return false
     }
 

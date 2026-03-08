@@ -1,9 +1,8 @@
 import { useState } from "react"
 import { AccountChains } from "@aryxn/chain-constants"
 import { useTranslation } from "@/i18n/config"
-import { useInternal, useWallet, useAccounts } from "@/hooks/account-hooks"
+import { useWallet, useAccounts } from "@/hooks/account-hooks"
 import { toast } from "sonner"
-import { useDisconnect } from "wagmi"
 
 import type { WalletRecord } from "@/lib/utils"
 
@@ -26,12 +25,8 @@ import { AccountListTab } from "@/components/account/AccountListTab"
 
 export default function AccountPage() {
   const { t } = useTranslation()
-  const walletManager = useInternal()
   const wallet = useWallet()
-  const { disconnect: disconnectEVM } = useDisconnect()
-
-  // 使用外部钱包状态 (已聚合进 wallet.external)
-  const externalWallets = wallet.external
+  const walletManager = wallet.internal
 
   // 敏感信息对话框
   const [showSensitiveDialog, setShowSensitiveDialog] = useState(false)
@@ -45,7 +40,6 @@ export default function AccountPage() {
   const [createChain, setCreateChain] = useState<string>("")
 
   const {
-    getExternalAccounts,
     balances,
     loadingBalances,
     showBalances,
@@ -189,11 +183,8 @@ export default function AccountPage() {
                           chain={chain}
                           wallet={wallet}
                           walletManager={walletManager}
-                          externalWallets={externalWallets}
-                          getExternalAccounts={getExternalAccounts}
                           onShowSensitive={handleShowSensitive}
                           onCopyAddress={copyAddress}
-                          onDisconnectEVM={disconnectEVM}
                           t={t}
                           balances={balances}
                           loadingBalances={loadingBalances}

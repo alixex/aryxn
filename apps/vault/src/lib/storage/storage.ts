@@ -30,12 +30,14 @@ export const uploadToArweave = async (
   onProgress?: (progress: { stage: string; progress: number }) => void,
   useIrys?: boolean,
   irysToken?: string,
+  storageTier?: "Permanent" | "Term",
 ) => {
   const reader = new FileReader()
   return new Promise<{
     txId: string
     hash: string
     finalSize: number
+    storageType: "arweave" | "irys"
     encryptionParams?: string
   }>((resolve, reject) => {
     reader.onload = async () => {
@@ -46,6 +48,12 @@ export const uploadToArweave = async (
         const tags = [{ name: "App-Name", value: ARWEAVE_APP_NAME }]
 
         if (useIrys) {
+          // Add Irys network tag
+          tags.push({ name: "Storage-Network", value: "Irys" })
+          if (storageTier) {
+            tags.push({ name: "Storage-Tier", value: storageTier })
+          }
+
           const irys = await irysService.getIrysInstance({
             token: irysToken || "ethereum",
             wallet: key, // In browser, 'key' might be the provider or wallet
@@ -56,8 +64,15 @@ export const uploadToArweave = async (
             txId,
             hash: txId, // Irys ID as hash for now
             finalSize: fileData.length,
+            storageType: "irys",
           })
           return
+        }
+
+        // Add Arweave network tag
+        const arTags = {
+          "App-Name": ARWEAVE_APP_NAME,
+          "Storage-Network": "Arweave",
         }
 
         // Native Arweave fallback
@@ -70,11 +85,11 @@ export const uploadToArweave = async (
           useExternalWallet,
           enableCompression,
           ownerAddress,
-          { "App-Name": ARWEAVE_APP_NAME },
+          arTags,
           onProgress,
         )
 
-        resolve(result)
+        resolve({ ...result, storageType: "arweave" })
       } catch (error) {
         reject(error)
       }

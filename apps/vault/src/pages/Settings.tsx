@@ -5,7 +5,6 @@ import { clearAllApplicationData } from "@aryxn/storage"
 import { toast } from "sonner"
 import LanguageSettings from "@/components/settings/LanguageSettings"
 import StorageSettingsCard from "@/components/settings/StorageSettingsCard"
-import DangerZone from "@/components/settings/DangerZone"
 
 // 格式化字节数为可读格式
 function formatBytes(bytes: number | null): string {
@@ -204,13 +203,10 @@ export default function SettingsPage() {
           storageInfo={storageInfo}
           isLoading={isLoadingStorage}
           onRefresh={loadStorageInfo}
-        />
-
-        <DangerZone
           onConfirmClear={handleClearAllData}
           isClearing={isClearing}
-          open={showConfirmDialog}
-          setOpen={setShowConfirmDialog}
+          openDangerDialog={showConfirmDialog}
+          setOpenDangerDialog={setShowConfirmDialog}
         />
       </div>
     </div>

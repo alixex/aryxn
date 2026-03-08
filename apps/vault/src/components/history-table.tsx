@@ -176,7 +176,11 @@ export function HistoryTable({
                       {/* 存储 ID */}
                       <td className="w-[15%] truncate px-4 py-4 sm:px-6">
                         <a
-                          href={`https://arweave.net/${r.txId}`}
+                          href={
+                            r.storageType === "irys"
+                              ? `https://gateway.irys.xyz/${r.txId}`
+                              : `https://arweave.net/${r.txId}`
+                          }
                           target="_blank"
                           rel="noreferrer"
                           className="group/tx text-foreground block truncate font-mono text-xs hover:text-cyan-400 hover:underline"
@@ -191,11 +195,17 @@ export function HistoryTable({
                       {/* 协议 */}
                       <td
                         className="w-[10%] truncate px-4 py-4 sm:px-6"
-                        title="Arweave"
+                        title={r.storageType === "irys" ? "Irys L1" : "Arweave"}
                       >
-                        <span className="inline-flex items-center rounded-full bg-orange-50 px-2 py-0.5 text-[10px] font-bold text-orange-700 uppercase ring-1 ring-orange-200 ring-inset">
-                          Arweave
-                        </span>
+                        {r.storageType === "irys" ? (
+                          <span className="inline-flex items-center rounded-full bg-purple-50 px-2 py-0.5 text-[10px] font-bold text-purple-700 uppercase ring-1 ring-purple-200 ring-inset">
+                            Irys L1
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center rounded-full bg-orange-50 px-2 py-0.5 text-[10px] font-bold text-orange-700 uppercase ring-1 ring-orange-200 ring-inset">
+                            Arweave
+                          </span>
+                        )}
                       </td>
                       {/* 安全性 */}
                       <td className="w-[10%] truncate px-4 py-4 sm:px-6">
@@ -227,7 +237,11 @@ export function HistoryTable({
                             className="text-muted-foreground hover:bg-accent hover:text-foreground h-8 w-8 transition-all duration-200 hover:scale-110 active:scale-95 sm:h-9 sm:w-9"
                           >
                             <a
-                              href={`https://arweave.net/${r.txId}`}
+                              href={
+                                r.storageType === "irys"
+                                  ? `https://gateway.irys.xyz/${r.txId}`
+                                  : `https://arweave.net/${r.txId}`
+                              }
                               target="_blank"
                               rel="noreferrer"
                             >

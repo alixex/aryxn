@@ -1,77 +1,136 @@
-import { useState, useMemo } from "react"
+import { useState, useEffect } from "react"
 import { useTranslation } from "@/i18n/config"
 import { UploadWarning } from "@/components/upload/UploadWarning"
-import { FileSelectionCard } from "@/components/upload/FileSelectionCard"
-import type { FileSelection } from "@/components/upload/FileSelectionCard"
-import { UploadConfigurationCard } from "@/components/upload/UploadConfigurationCard"
-import type { UploadConfiguration } from "@/components/upload/UploadConfigurationCard"
-import { AccountSelector } from "@/components/upload/AccountSelector"
-import { UploadExecutionCard } from "@/components/upload/UploadExecutionCard"
+import { FileUploadSection } from "@/components/upload/FileUploadSection"
+import { UploadOptions } from "@/components/upload/UploadOptions"
+import { PaymentTokenSelector } from "@/components/upload/PaymentTokenSelector"
+import { UploadButton } from "@/components/upload/UploadButton"
+import { UploadProgress } from "@/components/upload/UploadProgress"
 import { useWallet } from "@/hooks/account-hooks"
-import { ArweaveFeeInfo } from "@/components/upload/ArweaveFeeInfo"
-import { SecurityNotice } from "@/components/upload/SecurityNotice"
-import { Steps } from "@/components/ui/steps"
+import { useUploadHandler } from "@/hooks/upload-hooks"
+import { Chains } from "@aryxn/chain-constants"
+import { getIrysFundingToken } from "@/lib/payment/upload-payment-config"
+import { ChainIcon } from "@/components/common/ChainIcon"
+import type { PaymentAccount, PaymentToken } from "@/lib/payment"
 import { FilePreview } from "@/components/ui/file-preview"
+import { Card, CardContent } from "@/components/ui/card"
+import { Info, X } from "lucide-react"
+import { shouldCompressFile } from "@/lib/utils"
 
 export default function UploadPage() {
   const { t } = useTranslation()
   const wallet = useWallet()
-  const activeAccount = wallet.active
+  const walletManager = wallet.internal
+  const {
+    uploading,
+    paymentStage,
+    progress,
+    stage,
+    recoveryMessage,
+    recoveryState,
+    clearRecovery,
+    handleUpload,
+    handleBatchUpload,
+  } = useUploadHandler()
 
-  // For upload, we specifically need Arweave account
-  const ownerAddress = activeAccount.arweave?.address
-  const hasArweaveAccount = Boolean(activeAccount.arweave)
-  const isExternalArweave = activeAccount.arweave?.isExternal ?? false
-
-  // Minimal state - only coordination between cards
-  const [selectedFiles, setSelectedFiles] = useState<FileSelection>({
-    file: null,
-    files: [],
-    multipleMode: false,
-  })
-
-  const [uploadConfig, setUploadConfig] = useState<UploadConfiguration>({
-    encryptUpload: false,
-    compressUpload: false,
-    paymentToken: "AR",
-    paymentAccount: null,
-  })
-
-  // Check if user can upload (unlocked allows reaching the final step where AR is auto-generated)
-  const isUnlocked = wallet.internal.isUnlocked
-  const canUpload = Boolean(
-    (selectedFiles.file || selectedFiles.files.length > 0) &&
-    isUnlocked &&
-    uploadConfig.paymentAccount,
+  // For upload, we specifically check for Arweave account existence
+  const activeArweave = walletManager.wallets.find(
+    (w) =>
+      w.address === walletManager.activeAddress && w.chain === Chains.ARWEAVE,
   )
-  const isDisabled = !isUnlocked
+  const hasArweaveAccount = Boolean(activeArweave)
+  const isUnlocked = walletManager.isUnlocked
 
-  // Calculate current step
-  const currentStep = useMemo(() => {
-    if (!selectedFiles.file && selectedFiles.files.length === 0) return 0
-    if (!uploadConfig.encryptUpload && !uploadConfig.compressUpload) return 1
-    if (!canUpload) return 2
-    return 3
-  }, [selectedFiles, uploadConfig, canUpload])
+  // Form State
+  const [file, setFile] = useState<File | null>(null)
+  const [files, setFiles] = useState<File[]>([])
+  const [encryptUpload, setEncryptUpload] = useState(false)
+  const [compressUpload, setCompressUpload] = useState(false)
+  const [paymentToken, setPaymentToken] = useState<PaymentToken>("AR")
+  const [paymentAccount, setPaymentAccount] = useState<PaymentAccount | null>(
+    null,
+  )
+  const [storageTier, setStorageTier] = useState<"Permanent" | "Term">(
+    "Permanent",
+  )
 
-  // Define upload steps
-  const uploadSteps = [
-    { title: t("upload.step1", "选择文件") },
-    { title: t("upload.step2", "配置选项") },
-    { title: t("upload.step3", "确认账户") },
-    { title: t("upload.step4", "开始上传") },
-  ]
+  const multipleMode = files.length > 0
+  const hasSelection = Boolean(file || multipleMode)
 
-  // Reset file selection after successful upload
-  const handleUploadComplete = () => {
-    setSelectedFiles({ file: null, files: [], multipleMode: false })
+  // Auto-set compression when files change
+  useEffect(() => {
+    if (file) {
+      setCompressUpload(shouldCompressFile(file.size, file.name, file.type))
+    } else if (multipleMode) {
+      setCompressUpload(
+        shouldCompressFile(files[0].size, files[0].name, files[0].type),
+      )
+    }
+  }, [file, files, multipleMode])
+
+  useEffect(() => {
+    if (paymentToken === "AR" && storageTier === "Term") {
+      setStorageTier("Permanent")
+    }
+  }, [paymentToken, storageTier])
+
+  const canUpload = Boolean(hasSelection && isUnlocked && paymentAccount)
+
+  const handleUploadClick = async () => {
+    let result = { status: "FAILED", success: 0, failed: 1 }
+
+    if (multipleMode) {
+      result = await handleBatchUpload(
+        files,
+        encryptUpload,
+        compressUpload,
+        paymentToken,
+        paymentAccount,
+        false,
+        storageTier,
+      )
+    } else if (file) {
+      result = await handleUpload(
+        file,
+        encryptUpload,
+        compressUpload,
+        paymentToken,
+        paymentAccount,
+        false,
+      )
+    }
+
+    if (result.status === "SUCCESS") {
+      setFile(null)
+      setFiles([])
+    }
+  }
+
+  const handleFileSelect = (selectedFile: File | null) => {
+    if (selectedFile) {
+      setFile(selectedFile)
+      setFiles([])
+    } else {
+      setFile(null)
+    }
+  }
+
+  const handleFilesSelect = (selectedFiles: File[]) => {
+    if (selectedFiles.length > 0) {
+      setFiles(selectedFiles)
+      setFile(selectedFiles[0]) // Keep first file for preview/metadata focus
+    } else {
+      setFiles([])
+      setFile(null)
+    }
   }
 
   return (
-    <div className="mesh-gradient relative min-h-screen">
+    <div className="mesh-gradient relative min-h-screen pb-20">
       <div className="animate-in fade-in slide-in-from-bottom-4 mx-auto max-w-6xl space-y-6 px-3 py-6 duration-1000 sm:space-y-8 sm:px-4 sm:py-8">
-        <div className="flex flex-col gap-3">
-          <h2 className="flex items-center gap-3 text-3xl font-extrabold tracking-tighter sm:text-4xl lg:text-5xl">
+        {/* Header Area */}
+        <div className="flex flex-col gap-3 text-center sm:text-left">
+          <h2 className="flex items-center justify-center gap-3 text-3xl font-extrabold tracking-tighter sm:justify-start sm:text-4xl lg:text-5xl">
             <div className="bg-gradient-primary glow-purple rounded-xl p-2 text-white shadow-xl ring-1 ring-white/20 sm:rounded-2xl sm:p-2.5">
               <svg
                 className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8"
@@ -91,58 +150,164 @@ export default function UploadPage() {
               {t("common.upload")}
             </span>
           </h2>
-          <p className="text-subtitle-muted max-w-lg text-base leading-relaxed font-medium">
+          <p className="text-subtitle-muted mx-auto max-w-lg text-base leading-relaxed font-medium sm:mx-0">
             {t("upload.arweaveDesc")}
           </p>
         </div>
 
-        <div className="grid gap-6">
-          <UploadWarning
-            isLocked={!hasArweaveAccount}
-            hasExternalWallet={isExternalArweave}
-          />
+        <UploadWarning
+          isLocked={!hasArweaveAccount || !isUnlocked}
+          hasExternalWallet={false}
+        />
 
-          {/* Upload Steps Indicator */}
-          {isUnlocked && (
-            <Steps steps={uploadSteps} currentStep={currentStep} />
-          )}
+        {/* Unified Upload Interface */}
+        <Card className="glass-premium hover:shadow-primary/5 overflow-hidden border-none shadow-2xl transition-all duration-500">
+          <CardContent className="p-0">
+            {/* 1. Massive Dropzone Hero Area */}
+            <div
+              className={`transition-all duration-500 ${hasSelection ? "border-border/50 bg-secondary/10 border-b p-6 pb-2" : "p-8 sm:p-12"}`}
+            >
+              <FileUploadSection
+                file={file}
+                files={files}
+                onFileSelect={handleFileSelect}
+                onFilesSelect={handleFilesSelect}
+                disabled={!isUnlocked}
+                multiple={true}
+              />
+            </div>
 
-          <FileSelectionCard
-            disabled={isDisabled}
-            onChange={setSelectedFiles}
-          />
+            {/* 2. Seamlessly Expanded Settings Area (Visible only when file selected) */}
+            {hasSelection && (
+              <div className="animate-in fade-in slide-in-from-top-4 bg-card/60 flex flex-col gap-6 p-6 sm:p-8">
+                <div className="grid gap-8 lg:grid-cols-12">
+                  {/* Left Column: Preview & Options */}
+                  <div className="flex flex-col gap-6 lg:col-span-5">
+                    {file && <FilePreview file={file} />}
 
-          {/* File Preview */}
-          {selectedFiles.file && <FilePreview file={selectedFiles.file} />}
+                    <div className="border-border/50 bg-background/50 rounded-xl border p-4 shadow-inner">
+                      <UploadOptions
+                        encryptUpload={encryptUpload}
+                        compressUpload={compressUpload}
+                        storageTier={storageTier}
+                        disableTermStorage={paymentToken === "AR"}
+                        file={file}
+                        files={files}
+                        isUnlocked={isUnlocked}
+                        onEncryptChange={setEncryptUpload}
+                        onCompressChange={setCompressUpload}
+                        onStorageTierChange={setStorageTier}
+                      />
+                    </div>
+                  </div>
 
-          <UploadConfigurationCard
-            file={selectedFiles.file}
-            files={selectedFiles.files}
-            isUnlocked={isUnlocked}
-            ownerAddress={ownerAddress}
-            onChange={setUploadConfig}
-          />
+                  {/* Right Column: Payment & Execution */}
+                  <div className="flex flex-col gap-6 lg:col-span-7">
+                    <div className="border-border/50 bg-background/50 rounded-xl border p-5 shadow-inner">
+                      <PaymentTokenSelector
+                        selectedToken={paymentToken}
+                        selectedAccount={paymentAccount}
+                        onSelectToken={setPaymentToken}
+                        onSelectAccount={setPaymentAccount}
+                      />
 
-          <AccountSelector file={selectedFiles.file} />
+                      {!uploading &&
+                        !paymentStage &&
+                        canUpload &&
+                        paymentAccount && (
+                          <div className="animate-in fade-in slide-in-from-bottom-2 bg-secondary/30 border-border/40 mt-4 rounded-lg border p-3">
+                            <div className="flex items-center justify-between">
+                              <span className="text-muted-foreground text-[10px] font-bold tracking-wider uppercase">
+                                {t(
+                                  "upload.estimatedPath",
+                                  "Estimated Payment Path",
+                                )}
+                              </span>
+                              {(() => {
+                                const irysToken = getIrysFundingToken(
+                                  paymentAccount.chain,
+                                  paymentToken,
+                                )
+                                if (irysToken) {
+                                  return (
+                                    <span className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[9px] font-bold text-emerald-500 ring-1 ring-emerald-500/20">
+                                      <ChainIcon
+                                        chain={paymentAccount.chain}
+                                        size="xs"
+                                      />
+                                      {t("upload.pathDirect", "DIRECT")}
+                                    </span>
+                                  )
+                                }
+                                return (
+                                  <span className="flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2 py-0.5 text-[9px] font-bold text-amber-500 ring-1 ring-amber-500/20">
+                                    <ChainIcon
+                                      chain={paymentAccount.chain}
+                                      size="xs"
+                                    />
+                                    {t("upload.payViaIrys", "PAY VIA IRYS")}
+                                  </span>
+                                )
+                              })()}
+                            </div>
+                          </div>
+                        )}
+                    </div>
 
-          {isUnlocked && (
-            <UploadExecutionCard
-              file={selectedFiles.file}
-              files={selectedFiles.files}
-              multipleMode={selectedFiles.multipleMode}
-              encryptUpload={uploadConfig.encryptUpload}
-              compressUpload={uploadConfig.compressUpload}
-              paymentToken={uploadConfig.paymentToken}
-              paymentAccount={uploadConfig.paymentAccount}
-              canUpload={canUpload}
-              onUploadComplete={handleUploadComplete}
-            />
-          )}
+                    {/* Execution Area */}
+                    <div className="mt-auto flex flex-col gap-4">
+                      {recoveryMessage && (
+                        <div className="bg-primary/10 text-primary ring-primary/20 flex items-start gap-2 rounded-lg p-3 text-xs ring-1">
+                          <Info className="mt-0.5 h-4 w-4 shrink-0" />
+                          <div className="flex-1">
+                            <p className="font-semibold">
+                              {recoveryState === "COMPLETED"
+                                ? t("upload.resumeReady", "Payment Ready")
+                                : t(
+                                    "upload.resumeTitle",
+                                    "Pending Payment Found",
+                                  )}
+                            </p>
+                            <p className="opacity-80">{recoveryMessage}</p>
+                          </div>
+                          <button
+                            onClick={clearRecovery}
+                            className="hover:bg-primary/20 rounded-full p-1 transition-colors"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
+                      )}
 
-          <ArweaveFeeInfo />
+                      <UploadButton
+                        uploading={uploading}
+                        file={file}
+                        canUpload={canUpload}
+                        encryptUpload={encryptUpload}
+                        onClick={handleUploadClick}
+                      />
 
-          <SecurityNotice />
-        </div>
+                      {(uploading || paymentStage) && (
+                        <UploadProgress
+                          progress={{
+                            stage:
+                              stage ||
+                              (paymentStage
+                                ? t("upload.processingPayment")
+                                : ""),
+                            progress: progress,
+                          }}
+                        />
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Global Info Footers Removed */}
       </div>
     </div>
   )

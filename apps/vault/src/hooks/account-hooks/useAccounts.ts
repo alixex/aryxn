@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from "react"
-import { AccountChains } from "@aryxn/chain-constants"
+import { useState, useRef, useEffect } from "react"
 import { type BalanceResult } from "@/lib/chain"
 import { useWallet } from "./use-wallet"
 
@@ -27,13 +26,10 @@ export function useAccounts() {
   const fetchedBalancesRef = useRef<Set<string>>(new Set())
 
   // Generate a stable signature for accounts to prevent infinite loops
-  // caused by unstable object references from useWallet
   const accountsByChain = wallet.getAccountsByChain()
   const allAccounts = Object.values(accountsByChain).flat()
   const accountsSignature = JSON.stringify(
-    allAccounts.map(
-      (a) => `${a.chain}-${a.address}-${a.isExternal ? "ext" : "int"}`,
-    ),
+    allAccounts.map((a) => `${a.chain}-${a.address}`),
   )
 
   useEffect(() => {
@@ -41,7 +37,7 @@ export function useAccounts() {
 
     const fetchAll = async () => {
       for (const account of allAccounts) {
-        const key = `${account.isExternal ? "external-" : ""}${account.chain}-${account.address}`
+        const key = `${account.chain}-${account.address}`
         if (fetchedBalancesRef.current.has(key)) continue
         fetchedBalancesRef.current.add(key)
 
@@ -77,14 +73,8 @@ export function useAccounts() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountsSignature])
 
-  const refreshBalance = async (
-    chain: string,
-    address: string,
-    isExternal = false,
-  ) => {
-    const key = isExternal
-      ? `external-${chain}-${address}`
-      : `${chain}-${address}`
+  const refreshBalance = async (chain: string, address: string) => {
+    const key = `${chain}-${address}`
     fetchedBalancesRef.current.delete(key)
 
     setLoadingBalances((prev) => ({ ...prev, [key]: true }))
@@ -113,17 +103,6 @@ export function useAccounts() {
     setShowBalances((prev) => ({ ...prev, [key]: show }))
   }
 
-  const getExternalAccounts = useCallback(
-    (chain?: string) => {
-      if (chain) return wallet.getExternalAccounts(chain)
-      let out: any[] = []
-      for (const c of AccountChains)
-        out = out.concat(wallet.getExternalAccounts(c))
-      return out
-    },
-    [wallet],
-  )
-
   return {
     /** 账户余额缓存 */
     balances,
@@ -135,8 +114,6 @@ export function useAccounts() {
     refreshBalance,
     /** 切换余额显示状态 */
     toggleShowBalance,
-    /** 获取外部账户 */
-    getExternalAccounts,
   }
 }
 

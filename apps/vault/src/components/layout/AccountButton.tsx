@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom"
-import { ConnectButton } from "@rainbow-me/rainbowkit"
 import { UserCircle, CreditCard, Settings, User } from "lucide-react"
 import { useTranslation } from "@/i18n/config"
 import { useWallet } from "@/hooks/account-hooks"
@@ -11,6 +10,7 @@ import {
   BitcoinIcon,
   SuiIcon,
 } from "@/components/icons"
+import { Chains } from "@aryxn/chain-constants"
 
 /**
  * 根据链类型获取对应的图标组件
@@ -34,33 +34,22 @@ function getChainIcon(chain?: string) {
 
 export function AccountButton() {
   const wallet = useWallet()
-  const active = wallet.active
+  const walletManager = wallet.internal
 
-  const hasAnyAccount = active.hasAny
+  const hasAnyAccount = walletManager.wallets.length > 0
 
   return (
     <div className="flex items-center gap-2">
-      <ConnectButton.Custom>
-        {({ account, chain, mounted }) => {
-          const ready = mounted
-          const connected = ready && !!account && !!chain
-
-          const anyConnected = hasAnyAccount || connected
-
-          return (
-            <Link
-              to="/account"
-              className={`flex h-9 items-center gap-2 rounded-full border px-3 shadow-sm transition-all active:scale-95 sm:h-8 ${
-                anyConnected
-                  ? "border-border bg-card hover:bg-accent"
-                  : "border-border bg-muted/50 text-muted-foreground hover:border-foreground/20 hover:text-foreground border-dashed"
-              }`}
-            >
-              <AccountButtonContent wallet={wallet} />
-            </Link>
-          )
-        }}
-      </ConnectButton.Custom>
+      <Link
+        to="/account"
+        className={`flex h-9 items-center gap-2 rounded-full border px-3 shadow-sm transition-all active:scale-95 sm:h-8 ${
+          hasAnyAccount
+            ? "border-border bg-card hover:bg-accent"
+            : "border-border bg-muted/50 text-muted-foreground hover:border-foreground/20 hover:text-foreground border-dashed"
+        }`}
+      >
+        <AccountButtonContent wallet={wallet} />
+      </Link>
       <Link
         to="/account"
         className="border-border bg-card text-muted-foreground hover:bg-accent hover:text-accent-foreground flex h-9 w-9 items-center justify-center rounded-full border shadow-sm transition-all active:scale-95 sm:hidden"
@@ -78,10 +67,9 @@ interface AccountButtonContentProps {
 function AccountButtonContent({ wallet }: AccountButtonContentProps) {
   const { t } = useTranslation()
   const walletManager = wallet.internal
-  const active = wallet.active
 
-  // 未解锁状态且没有任何连接
-  if (!walletManager.isUnlocked && !active.hasAny) {
+  // 未解锁状态或没有任何账户
+  if (!walletManager.isUnlocked || walletManager.wallets.length === 0) {
     return (
       <>
         <UserCircle className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
@@ -92,9 +80,15 @@ function AccountButtonContent({ wallet }: AccountButtonContentProps) {
     )
   }
 
-  // 如果有任何活跃账户，尝试显示最优的一个（顺序：EVM > Arweave > Solana > Sui）
+  // 尝试显示活跃账户，如果没有，显示第一个 Arweave 账户，再如果没有，显示第一个任何账户
+  const activeAccount = walletManager.wallets.find(
+    (w) => w.address === walletManager.activeAddress,
+  )
+  const fallbackArweave = walletManager.wallets.find(
+    (w) => w.chain === Chains.ARWEAVE,
+  )
   const prioritizeAccount =
-    active.evm || active.arweave || active.solana || active.sui
+    activeAccount || fallbackArweave || walletManager.wallets[0]
 
   if (prioritizeAccount) {
     return (

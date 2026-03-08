@@ -13,12 +13,28 @@ export interface ArweaveJWK {
 
 export type WalletKey = ArweaveJWK | string
 
+export type ChainName =
+  | "ethereum"
+  | "arweave"
+  | "solana"
+  | "sui"
+  | "bitcoin"
+  | "polygon"
+  | "bsc"
+  | "avalanche"
+  | "arbitrum"
+  | "optimism"
+  | "base"
+  | "linea"
+  | "scroll"
+  | "other"
+
 export interface WalletRecord {
   id?: number
   address: string
   encryptedKey: string
   alias: string
-  chain: "ethereum" | "arweave" | "solana" | "sui" | "bitcoin" | "other"
+  chain: ChainName
   vaultId: string
   createdAt: number
 }
@@ -35,7 +51,7 @@ export interface UploadRecord {
   fileHash: string
   fileSize?: number
   mimeType?: string
-  storageType: "arweave"
+  storageType: "arweave" | "irys"
   ownerAddress: string
   encryptionAlgo: string
   encryptionParams: string
@@ -49,21 +65,20 @@ export interface DecryptedData {
 
 export interface ActiveAccount {
   address: string
-  chain: "arweave" | "solana" | "sui" | "ethereum"
+  chain:
+    | "arweave"
+    | "solana"
+    | "sui"
+    | "ethereum"
+    | "polygon"
+    | "bsc"
+    | "avalanche"
   isExternal: boolean
 }
 
 // Re-export common blockchain types from various SDKs
-// This allows apps to import types from @aryxn/wallet-core
-// instead of directly from individual blockchain SDKs
-
-// Re-export viem types
 export type { Address, Hash, Abi } from "viem"
-
-// Re-export Solana types
 export type { PublicKey } from "@solana/web3.js"
-
-// Re-export Sui types
 import { SuiClient } from "@mysten/sui/client"
 export type { SuiClient }
 

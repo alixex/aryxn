@@ -25,6 +25,9 @@ export function ArweaveSearch() {
   const wallet = useWallet()
   const activeAddress = wallet.internal.activeAddress
   const [query, setQuery] = useState("")
+  const [networkFilter, setNetworkFilter] = useState<
+    "all" | "irys" | "arweave"
+  >("all")
   const [isSearching, setIsSearching] = useState(false)
   const [results, setResults] = useState<ArweaveSearchResult[]>([])
   const [showResults, setShowResults] = useState(false)
@@ -86,6 +89,7 @@ export function ArweaveSearch() {
         limit: 20,
         ownerAddress: activeAddress || undefined,
         preferLocal: true, // 优先本地搜索
+        networkFilter,
       })
       setResults(searchResults)
     } catch (error) {
@@ -94,7 +98,7 @@ export function ArweaveSearch() {
     } finally {
       setIsSearching(false)
     }
-  }, [query, activeAddress])
+  }, [query, activeAddress, networkFilter])
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -154,6 +158,21 @@ export function ArweaveSearch() {
   return (
     <div ref={searchRef} className="relative w-full lg:max-w-md lg:flex-1">
       <div className="flex items-center gap-2">
+        <select
+          value={networkFilter}
+          onChange={(e) =>
+            setNetworkFilter(e.target.value as "all" | "irys" | "arweave")
+          }
+          className="border-border bg-card text-foreground focus-visible:border-ring focus-visible:ring-ring/20 h-9 shrink-0 appearance-none rounded-md border pr-8 pl-2.5 text-xs font-semibold focus:ring-1 focus:outline-none sm:h-10 sm:text-sm"
+          style={{ backgroundPosition: "right 0.5rem center" }}
+        >
+          <option value="all">{t("search.allNetworks", "All Networks")}</option>
+          <option value="irys">{t("search.irysOnly", "Irys L1 Fast")}</option>
+          <option value="arweave">
+            {t("search.arweaveOnly", "Arweave L1")}
+          </option>
+        </select>
+
         <div className="relative flex-1">
           <Input
             ref={inputRef}
@@ -240,12 +259,20 @@ export function ArweaveSearch() {
                   result.tags,
                   "Encryption-Algo",
                 )
+                const storageNetwork = getTagValue(
+                  result.tags,
+                  "Storage-Network",
+                )
                 const isEncrypted = encryptionAlgo && encryptionAlgo !== "none"
+                const isIrys = storageNetwork?.toLowerCase() === "irys"
+                const gatewayUrl = isIrys
+                  ? `https://gateway.irys.xyz/${result.id}`
+                  : `https://arweave.net/${result.id}`
 
                 return (
                   <a
                     key={result.id}
-                    href={`https://arweave.net/${result.id}`}
+                    href={gatewayUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="hover:bg-accent active:bg-muted block p-3 transition-colors sm:p-4"
@@ -274,8 +301,17 @@ export function ArweaveSearch() {
                           </div>
                         )}
                         <div className="text-muted-foreground mt-2 flex flex-wrap items-center gap-1.5 text-xs sm:gap-2">
+                          <span
+                            className={`rounded px-1.5 py-0.5 text-xs font-semibold sm:px-2 ${
+                              isIrys
+                                ? "bg-purple-100/50 text-purple-700 ring-1 ring-purple-500/30"
+                                : "bg-orange-100/50 text-orange-700 ring-1 ring-orange-500/30"
+                            }`}
+                          >
+                            {isIrys ? "Irys L1" : "Arweave"}
+                          </span>
                           {appName && (
-                            <span className="bg-secondary rounded px-1.5 py-0.5 text-xs sm:px-2">
+                            <span className="bg-secondary text-secondary-foreground rounded px-1.5 py-0.5 text-xs sm:px-2">
                               {appName}
                             </span>
                           )}

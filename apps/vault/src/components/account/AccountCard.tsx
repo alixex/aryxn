@@ -1,27 +1,19 @@
-import {
-  Copy,
-  Key,
-  FileText,
-  Unlink,
-  ExternalLink,
-  UserCheck,
-  Trash2,
-} from "lucide-react"
-import { TokenBalanceChains, Chains } from "@aryxn/chain-constants"
+import { Copy, Key, FileText, Trash2 } from "lucide-react"
+import { TokenBalanceChains } from "@aryxn/chain-constants"
 import { Button } from "@/components/ui/button"
-import { ConnectButton } from "@rainbow-me/rainbowkit"
 import { BalanceDisplay } from "./BalanceDisplay"
 import { TokenBalances } from "./TokenBalances"
 import { useTranslation } from "@/i18n/config"
-import { toast } from "sonner"
 import {
   ArweaveIcon,
   EthereumIcon,
   SolanaIcon,
   SuiIcon,
   BitcoinIcon,
+  PolygonIcon,
+  BscIcon,
+  AvalancheIcon,
 } from "@/components/icons"
-import { useWallet } from "@/hooks/account-hooks"
 
 interface Account {
   id?: string | number
@@ -42,7 +34,6 @@ interface AccountCardProps {
   onSelect: () => void
   onCopyAddress: (address: string) => void
   onShowSensitive?: (account: Account, type: "key" | "mnemonic") => void
-  onDisconnect?: () => void
   onDelete?: () => void
   // New props for lifting state
   balance?: BalanceResult | null
@@ -66,6 +57,15 @@ const getChainIcon = (chain?: string) => {
       return <SuiIcon className="h-6 w-6" />
     case "arweave":
       return <ArweaveIcon className="h-6 w-6" />
+    case "polygon":
+    case "matic":
+      return <PolygonIcon className="h-6 w-6" />
+    case "bsc":
+    case "binance":
+      return <BscIcon className="h-6 w-6" />
+    case "avalanche":
+    case "avax":
+      return <AvalancheIcon className="h-6 w-6" />
     default:
       return null
   }
@@ -77,7 +77,6 @@ export function AccountCard({
   onSelect,
   onCopyAddress,
   onShowSensitive,
-  onDisconnect,
   onDelete,
   balance,
   loading,
@@ -86,38 +85,6 @@ export function AccountCard({
   onRefreshBalance,
 }: AccountCardProps) {
   const { t } = useTranslation()
-  const wallet = useWallet()
-  const external = wallet.external
-  const isPaymentConnected = external?.isPaymentConnected
-  const connector = external?.connector
-  const paymentAddress = external?.paymentAddress
-
-  const displayAlias = (() => {
-    if (account.alias) return account.alias
-    if (account.isExternal) {
-      const addr = account.address || ""
-      switch (account.chain) {
-        case "ethereum": {
-          const isCurrent =
-            paymentAddress &&
-            addr.toLowerCase() === paymentAddress.toLowerCase()
-          if (isCurrent) return t("identities.evmWalletCurrent")
-          return t("identities.evmWalletAddress", {
-            address: `${addr.slice(0, 6)}...${addr.slice(-4)}`,
-          })
-        }
-        case "arweave":
-          return t("identities.arconnectWallet")
-        case "solana":
-          return t("identities.phantomWallet")
-        case "sui":
-          return t("identities.suiWallet")
-        default:
-          return t("identities.externalAccount")
-      }
-    }
-    return account.alias || account.address
-  })()
 
   return (
     <div
@@ -154,17 +121,12 @@ export function AccountCard({
             <div className="min-w-0 flex-1 space-y-1.5">
               <div className="flex flex-wrap items-center gap-2">
                 <h3 className="text-foreground truncate text-sm font-bold sm:text-base">
-                  {displayAlias}
+                  {account.alias || account.address}
                 </h3>
                 <div className="flex gap-1.5">
                   {isActive && (
                     <span className="bg-primary text-primary-foreground shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase">
                       {t("identities.currentAccount")}
-                    </span>
-                  )}
-                  {account.isExternal && !isActive && (
-                    <span className="bg-secondary text-foreground shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold">
-                      {t("identities.externalConnected")}
                     </span>
                   )}
                 </div>
@@ -221,138 +183,40 @@ export function AccountCard({
             className="flex items-center gap-1 self-end sm:self-start"
             onClick={(e) => e.stopPropagation()}
           >
-            {account.isExternal ? (
+            {onShowSensitive && (
               <>
-                {account.chain === Chains.ETHEREUM && isPaymentConnected ? (
-                  <ConnectButton.Custom>
-                    {({ openAccountModal }) => (
-                      <>
-                        {!isActive && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={async (e) => {
-                              e.stopPropagation()
-                              try {
-                                if (
-                                  connector &&
-                                  "provider" in connector &&
-                                  connector.provider
-                                ) {
-                                  const provider = connector.provider as {
-                                    request?: (args: {
-                                      method: string
-                                    }) => Promise<unknown>
-                                  }
-                                  try {
-                                    if (provider.request) {
-                                      await provider.request({
-                                        method: "eth_requestAccounts",
-                                      })
-                                    }
-                                    toast.info(
-                                      t("identities.switchAccountInWallet", {
-                                        address: `${account.address.slice(0, 6)}...${account.address.slice(-4)}`,
-                                      }),
-                                      { duration: 4000 },
-                                    )
-                                    return
-                                  } catch (reqError) {
-                                    console.debug(
-                                      "Account request failed:",
-                                      reqError,
-                                    )
-                                  }
-                                }
-                                openAccountModal()
-                                toast.info(
-                                  t("identities.switchAccountInModal"),
-                                  {
-                                    duration: 3000,
-                                  },
-                                )
-                              } catch (error) {
-                                console.error(
-                                  "Failed to switch account:",
-                                  error,
-                                )
-                                openAccountModal()
-                                toast.error(t("identities.switchAccountFailed"))
-                              }
-                            }}
-                            className="text-foreground hover:bg-accent h-8 px-3 text-xs font-semibold hover:text-cyan-400"
-                            title={t("identities.switchAccount")}
-                          >
-                            <UserCheck className="mr-1.5 h-3.5 w-3.5" />
-                            {t("identities.switchAccount")}
-                          </Button>
-                        )}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            openAccountModal()
-                          }}
-                          className="text-muted-foreground hover:bg-accent h-8 w-8 p-0 hover:text-cyan-400"
-                          title={t("identities.manageAccount")}
-                        >
-                          <ExternalLink className="h-4 w-4" />
-                        </Button>
-                      </>
-                    )}
-                  </ConnectButton.Custom>
-                ) : null}
-                {onDisconnect && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onShowSensitive(account, "key")}
+                  className="text-muted-foreground hover:bg-accent h-8 w-8 p-0 hover:text-cyan-400"
+                  title={t("identities.viewSensitive")}
+                >
+                  <Key className="h-4 w-4" />
+                </Button>
+                {account.chain !== "arweave" && (
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={onDisconnect}
-                    className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive h-8 w-8 p-0"
-                    title={t("identities.disconnect")}
+                    onClick={() => onShowSensitive(account, "mnemonic")}
+                    className="text-muted-foreground hover:bg-accent h-8 w-8 p-0 hover:text-cyan-400"
+                    title={t("identities.mnemonic")}
                   >
-                    <Unlink className="h-4 w-4" />
+                    <FileText className="h-4 w-4" />
                   </Button>
                 )}
               </>
-            ) : (
-              <>
-                {onShowSensitive && (
-                  <>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onShowSensitive(account, "key")}
-                      className="text-muted-foreground hover:bg-accent h-8 w-8 p-0 hover:text-cyan-400"
-                      title={t("identities.viewSensitive")}
-                    >
-                      <Key className="h-4 w-4" />
-                    </Button>
-                    {account.chain !== "arweave" && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => onShowSensitive(account, "mnemonic")}
-                        className="text-muted-foreground hover:bg-accent h-8 w-8 p-0 hover:text-cyan-400"
-                        title={t("identities.mnemonic")}
-                      >
-                        <FileText className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </>
-                )}
-                {onDelete && !account.isExternal && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={onDelete}
-                    className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive h-8 w-8 p-0"
-                    title={t("identities.deleteAccountConfirm")}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                )}
-              </>
+            )}
+            {onDelete && !account.isExternal && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onDelete}
+                className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive h-8 w-8 p-0"
+                title={t("identities.deleteAccountConfirm")}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
             )}
           </div>
         </div>

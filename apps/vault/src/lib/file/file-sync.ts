@@ -3,7 +3,6 @@
  * 用于在不同设备间同步文件记录
  */
 
-import { arweave } from "@/lib/storage"
 import { db } from "@/lib/database"
 import { RPCs } from "@aryxn/chain-constants"
 import { searchFiles } from "./file-manager"
@@ -13,6 +12,7 @@ import {
   INCREMENTAL_MANIFEST_VERSION,
 } from "@/lib/config"
 import type { WalletKey, ArweaveJWK } from "@aryxn/wallet-core"
+import { uploadToArweave } from "@/lib/storage"
 
 /**
  * requestIdleCallback 的 polyfill（如果不支持则使用 setTimeout）
@@ -293,6 +293,8 @@ export async function uploadIncrementalManifest(
   ownerAddress: string,
   key: WalletKey,
   useExternalWallet?: boolean,
+  useIrys?: boolean,
+  irysToken?: string,
 ): Promise<string> {
   // 获取最新的清单交易 ID
   const previousManifestTxId = await getLatestManifestTxId(ownerAddress)
@@ -373,6 +375,8 @@ export async function uploadIncrementalManifest(
     ownerAddress,
     addedFiles.length, // 只包含新增文件数量
     useExternalWallet,
+    useIrys,
+    irysToken,
     previousManifestTxId || undefined, // 传递上一个清单的交易 ID（可能为 undefined）
   )
 
@@ -503,74 +507,31 @@ async function uploadManifestFile(
   file: File,
   key: WalletKey,
   ownerAddress: string,
-  fileCount: number,
+  _fileCount: number, // Intentionally unused down the chain to silence TS but keep signature intact
   useExternalWallet?: boolean,
-  previousManifestTxId?: string,
+  useIrys?: boolean,
+  irysToken?: string,
+  _previousManifestTxId?: string, // Intentionally unused mostly to silence TS
 ): Promise<string> {
-  const reader = new FileReader()
-  return new Promise((resolve, reject) => {
-    reader.onload = async () => {
-      try {
-        const data = new Uint8Array(reader.result as ArrayBuffer)
+  try {
+    // 强制把 File 的类型调整正确，兼容 uploadToArweave API 的入参
+    const uploadResult = await uploadToArweave(
+      file as any,
+      key as ArweaveJWK,
+      undefined, // encryptionKey
+      useExternalWallet,
+      false, // enableCompression (manifests are small enough)
+      ownerAddress,
+      undefined, // onProgress
+      useIrys,
+      irysToken,
+    )
 
-        // 如果使用外部钱包，需要先获取地址，然后创建临时 key 用于创建交易
-        let transactionKey: ArweaveJWK | string | "use_wallet" =
-          key || "use_wallet"
-
-        if (useExternalWallet && window.arweaveWallet) {
-          await window.arweaveWallet.getActiveAddress()
-          // 创建一个临时 key 用于创建交易（不会用于签名）
-          const tempKey = await arweave.wallets.generate()
-          transactionKey = tempKey as unknown as ArweaveJWK
-        } else if (!key) {
-          throw new Error("Key is required when not using external wallet")
-        }
-
-        const transaction = await arweave.createTransaction(
-          { data },
-          typeof transactionKey === "string" && transactionKey !== "use_wallet"
-            ? (JSON.parse(transactionKey) as ArweaveJWK)
-            : transactionKey,
-        )
-
-        // 添加特殊标签用于识别清单文件
-        transaction.addTag("Content-Type", "application/json")
-        transaction.addTag("App-Name", MANIFEST_APP_NAME)
-        transaction.addTag("Owner-Address", ownerAddress)
-        transaction.addTag("Manifest-Version", MANIFEST_VERSION)
-        transaction.addTag("File-Count", fileCount.toString())
-
-        // 如果提供了上一个清单的交易 ID，添加到标签中
-        if (previousManifestTxId) {
-          transaction.addTag("Previous-Manifest-TxId", previousManifestTxId)
-        }
-
-        // 如果使用外部钱包（ArConnect），使用钱包签名
-        if (useExternalWallet && window.arweaveWallet) {
-          await window.arweaveWallet.sign(transaction)
-        } else {
-          if (!key) {
-            throw new Error("Key is required when not using external wallet")
-          }
-          const signKey =
-            typeof key === "string" ? (JSON.parse(key) as ArweaveJWK) : key
-          await arweave.transactions.sign(transaction, signKey)
-        }
-
-        const response = await arweave.transactions.post(transaction)
-
-        if (response.status === 200) {
-          resolve(transaction.id)
-        } else {
-          reject(new Error(`Manifest upload failed: ${response.status}`))
-        }
-      } catch (error) {
-        reject(error)
-      }
-    }
-    reader.onerror = reject
-    reader.readAsArrayBuffer(file)
-  })
+    return uploadResult.txId
+  } catch (error) {
+    console.error("Failed to upload manifest file via uploadToArweave:", error)
+    throw error
+  }
 }
 
 /**
@@ -850,6 +811,8 @@ export async function updateManifestAfterUpload(
   ownerAddress: string,
   key: WalletKey,
   useExternalWallet?: boolean,
+  useIrys?: boolean,
+  irysToken?: string,
 ): Promise<string | null> {
   try {
     console.log(
@@ -860,6 +823,8 @@ export async function updateManifestAfterUpload(
       ownerAddress,
       key,
       useExternalWallet,
+      useIrys,
+      irysToken,
     )
     console.log(
       `[updateManifestAfterUpload] Manifest updated successfully: ${txId}`,
@@ -879,6 +844,8 @@ export function scheduleManifestUpdate(
   ownerAddress: string,
   key: WalletKey,
   useExternalWallet?: boolean,
+  useIrys?: boolean,
+  irysToken?: string,
 ): void {
   // 使用 requestIdleCallback 在空闲时间执行清单更新
   requestIdleCallbackPolyfill(
@@ -886,7 +853,13 @@ export function scheduleManifestUpdate(
       // 检查是否有足够的空闲时间
       if (deadline.timeRemaining() > 0 || deadline.didTimeout) {
         try {
-          await updateManifestAfterUpload(ownerAddress, key, useExternalWallet)
+          await updateManifestAfterUpload(
+            ownerAddress,
+            key,
+            useExternalWallet,
+            useIrys,
+            irysToken,
+          )
         } catch (error) {
           console.error(
             "[scheduleManifestUpdate] Failed to update manifest:",
@@ -895,7 +868,13 @@ export function scheduleManifestUpdate(
         }
       } else {
         // 如果当前没有空闲时间，重新调度
-        scheduleManifestUpdate(ownerAddress, key, useExternalWallet)
+        scheduleManifestUpdate(
+          ownerAddress,
+          key,
+          useExternalWallet,
+          useIrys,
+          irysToken,
+        )
       }
     },
     { timeout: 5000 }, // 最多等待 5 秒

@@ -21,7 +21,9 @@ export const UPLOAD_PAYMENT_CONFIG: UploadPaymentConfig = {
     UploadSelectableTokensByAccountChain as Partial<
       Record<string, PaymentToken[]>
     >,
-  tokenNativeChains: UploadTokenNativeChainBySymbol,
+  tokenNativeChains: UploadTokenNativeChainBySymbol as Partial<
+    Record<PaymentToken, string>
+  >,
 }
 
 export function getUploadPaymentSupportedChains(): string[] {
@@ -47,20 +49,41 @@ export function getIrysFundingToken(
   chain: string,
   token: PaymentToken,
 ): string | null {
+  const c = chain.toLowerCase()
+  const t = token.toUpperCase()
+
   // Native L1 tokens
-  if (token === "ETH" && chain === Chains.ETHEREUM) return Chains.ETHEREUM
-  if (token === "SOL" && chain === Chains.SOLANA) return Chains.SOLANA
-  if (token === "SUI" && chain === Chains.SUI) return Chains.SUI
+  if (t === "ETH" && c === Chains.ETHEREUM) return Chains.ETHEREUM
+  if (t === "SOL" && c === Chains.SOLANA) return Chains.SOLANA
+  if (t === "SUI" && c === Chains.SUI) return Chains.SUI
+  if (t === "MATIC" && c === Chains.POLYGON) return "matic"
+  if (t === "BNB" && c === Chains.BSC) return "bnb"
+  if (t === "AVAX" && c === Chains.AVALANCHE) return "avalanche"
 
   // Native L2 tokens supported directly by Irys
-  if (token === "ETH" && chain === Chains.ARBITRUM) return "arbitrum"
-  if (token === "ETH" && chain === Chains.OPTIMISM) return "optimism"
-  if (token === "ETH" && chain === Chains.BASE) return "base-eth"
+  if (t === "ETH") {
+    if (c === Chains.ARBITRUM) return "arbitrum"
+    if (c === Chains.OPTIMISM) return "optimism"
+    if (c === Chains.BASE) return "base-eth"
+    if (c === "linea") return "linea-eth"
+    if (c === "scroll") return "scroll-eth"
+  }
 
   // Stablecoins natively supported by Irys
-  if (token === "USDC" && chain === Chains.ETHEREUM) return "usdc-ethereum"
-  if (token === "USDC" && chain === Chains.SOLANA) return "usdc-solana"
-  if (token === "USDT" && chain === Chains.ETHEREUM) return "usdt-ethereum"
+  if (t === "USDC") {
+    if (c === Chains.ETHEREUM) return "usdc-ethereum"
+    if (c === Chains.SOLANA) return "usdc-solana"
+    if (c === Chains.POLYGON) return "usdc-polygon"
+  }
+
+  if (t === "USDT") {
+    if (c === Chains.ETHEREUM) return "usdt-ethereum"
+  }
+
+  if (t === "IRYS" && c === Chains.IRYS) {
+    return "irys" // Let's verify this is the right alias
+  }
+
   return null
 }
 
@@ -74,12 +97,18 @@ export function resolveUploadRedirectAction(
     return "swap"
   }
 
-  // If the chain is an L2 EVM, we can swap USDC/USDT directly to the local ETH for Irys without bridging!
-  if (
-    [Chains.ARBITRUM, Chains.BASE, Chains.OPTIMISM, Chains.POLYGON].includes(
-      chain as any,
-    )
-  ) {
+  // If the chain is an L2 EVM, we can swap USDC/USDT directly to the local native token for Irys without bridging!
+  const evmL2s = [
+    Chains.ARBITRUM,
+    Chains.BASE,
+    Chains.OPTIMISM,
+    Chains.POLYGON,
+    "bsc",
+    "avalanche",
+    "linea",
+    "scroll",
+  ]
+  if (evmL2s.includes(chain as any)) {
     return "swap"
   }
 

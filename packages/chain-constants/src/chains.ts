@@ -8,6 +8,11 @@ export const Chains = {
   ARBITRUM: "arbitrum",
   OPTIMISM: "optimism",
   POLYGON: "polygon",
+  BSC: "bsc",
+  AVALANCHE: "avalanche",
+  LINEA: "linea",
+  SCROLL: "scroll",
+  IRYS: "irys",
 } as const
 
 export type ChainType = (typeof Chains)[keyof typeof Chains]
@@ -22,6 +27,9 @@ export const AppSyncChains = [
 
 export const AccountChains = [
   Chains.ETHEREUM,
+  Chains.POLYGON,
+  Chains.BSC,
+  Chains.AVALANCHE,
   Chains.BITCOIN,
   Chains.SOLANA,
   Chains.SUI,
@@ -30,6 +38,9 @@ export const AccountChains = [
 
 export const TokenBalanceChains = [
   Chains.ETHEREUM,
+  Chains.POLYGON,
+  Chains.BSC,
+  Chains.AVALANCHE,
   Chains.SOLANA,
   Chains.SUI,
 ] as const
@@ -52,6 +63,7 @@ export const ChainIds = {
   SOLANA: 1151111081099710,
   SUI: 9270000000000000,
   BITCOIN: 20000000000001,
+  IRYS: 999999999901,
 } as const
 
 export const EvmChainIds = [
@@ -94,6 +106,7 @@ export const ChainNameToId = {
   sui: ChainIds.SUI,
   bitcoin: ChainIds.BITCOIN,
   btc: ChainIds.BITCOIN,
+  irys: ChainIds.IRYS,
 } as const
 
 export const ChainIdToName: Record<number, string> = {
@@ -112,6 +125,7 @@ export const ChainIdToName: Record<number, string> = {
   [ChainIds.SOLANA]: "Solana",
   [ChainIds.SUI]: "Sui",
   [ChainIds.BITCOIN]: "Bitcoin",
+  [ChainIds.IRYS]: "Irys L1",
 }
 
 export const ExplorerTxBaseByChain = {
@@ -125,6 +139,7 @@ export const ExplorerTxBaseByChain = {
   ar: "https://arweave.net/tx/",
   base: "https://basescan.org/tx/",
   sui: "https://suiscan.xyz/mainnet/tx/",
+  irys: "https://explorer.irys.xyz/tx/",
 } as const
 
 export function isKnownExplorerChain(chain?: string): boolean {

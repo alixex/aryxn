@@ -6,7 +6,6 @@ import {
   UserCircle,
   Search,
   Settings,
-  Zap,
 } from "lucide-react"
 import { useTranslation } from "@/i18n/config"
 import { LanguageSwitcher } from "@/components/language-switcher"
@@ -25,7 +24,6 @@ export function Navbar() {
 
   const navItems = [
     { path: "/", label: t("common.upload"), icon: Upload },
-    { path: "/swap", label: t("common.dex"), icon: Zap },
     { path: "/dashboard", label: t("common.dashboard"), icon: LayoutDashboard },
     {
       path: "/settings",

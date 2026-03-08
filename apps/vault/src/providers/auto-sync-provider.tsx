@@ -9,20 +9,12 @@ import { Chains } from "@aryxn/chain-constants"
 export function AutoSyncProvider({ children }: { children: React.ReactNode }) {
   const wallet = useWallet()
   const walletManager = wallet.internal
-  const externalWallets = wallet.external
 
   useEffect(() => {
     // Determine target Arweave addresses
-    const internalArweaveAddresses = walletManager.wallets
+    const addresses = walletManager.wallets
       .filter((w) => w.chain === Chains.ARWEAVE)
       .map((w) => w.address)
-
-    const candidates = [...internalArweaveAddresses]
-    if (externalWallets.arAddress) {
-      candidates.push(externalWallets.arAddress)
-    }
-
-    const addresses = Array.from(new Set(candidates.filter(Boolean)))
 
     if (addresses.length === 0) {
       return
@@ -49,7 +41,7 @@ export function AutoSyncProvider({ children }: { children: React.ReactNode }) {
     Promise.all(schedulePromises).catch((error) => {
       console.warn("[AutoSync] Failed to schedule background auto sync:", error)
     })
-  }, [walletManager.wallets, externalWallets.arAddress])
+  }, [walletManager.wallets])
 
   return <>{children}</>
 }
