@@ -19,7 +19,7 @@ if (typeof window !== "undefined") {
   window.Buffer = window.Buffer || Buffer
 }
 
-// 初始化数据库
+// Initialize database
 initDatabaseWithSchema()
   .then(() => {
     const rootElement = document.getElementById("root")
