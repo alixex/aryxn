@@ -73,10 +73,6 @@ async function downloadRawData(
     const gatewayController = new AbortController()
     const abortFromParent = () => gatewayController.abort()
     signal?.addEventListener("abort", abortFromParent, { once: true })
-    const timeoutId = setTimeout(
-      () => gatewayController.abort(),
-      GATEWAY_TIMEOUT_MS,
-    )
 
     try {
       const response = await fetch(`${gateway}/${txId}`, {
@@ -120,7 +116,6 @@ async function downloadRawData(
     } catch (error) {
       lastError = error
     } finally {
-      clearTimeout(timeoutId)
       signal?.removeEventListener("abort", abortFromParent)
     }
   }

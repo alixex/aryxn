@@ -166,7 +166,6 @@ async function downloadEncryptedData(
 
   for (const gateway of gateways) {
     const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), GATEWAY_TIMEOUT_MS)
 
     try {
       const response = await fetch(`${gateway}/${txId}`, {
@@ -215,7 +214,7 @@ async function downloadEncryptedData(
     } catch (error) {
       lastError = error
     } finally {
-      clearTimeout(timeoutId)
+      // No timeout abort logic
     }
   }
 
