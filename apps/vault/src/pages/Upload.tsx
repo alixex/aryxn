@@ -385,7 +385,10 @@ export default function UploadPage() {
                               </span>
                               {estimatingFee ? (
                                 <span className="text-muted-foreground">
-                                  {t("upload.calculatingFee", "Calculating fee...")}
+                                  {t(
+                                    "upload.calculatingFee",
+                                    "Calculating fee...",
+                                  )}
                                 </span>
                               ) : estimatedFee ? (
                                 <span className="text-foreground font-semibold">

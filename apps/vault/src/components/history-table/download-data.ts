@@ -5,7 +5,10 @@ import {
   upsertCachedResource,
   upsertCachedResourceFromStream,
 } from "@/lib/file"
-import { getDownloadGateways, getPrimaryGatewayUrl } from "@/lib/storage/gateways"
+import {
+  getDownloadGateways,
+  getPrimaryGatewayUrl,
+} from "@/lib/storage/gateways"
 
 /**
  * 抑制 SDK 分块下载相关的错误和警告

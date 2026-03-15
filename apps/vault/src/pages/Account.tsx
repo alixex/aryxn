@@ -54,7 +54,11 @@ export default function AccountPage() {
 
   useEffect(() => {
     const syncVerificationSession = async () => {
-      if (!walletManager.isUnlocked || !walletManager.masterKey || !walletManager.vaultId) {
+      if (
+        !walletManager.isUnlocked ||
+        !walletManager.masterKey ||
+        !walletManager.vaultId
+      ) {
         setPasswordSessionVerified(false)
         return
       }
@@ -206,7 +210,7 @@ export default function AccountPage() {
                           <TabsTrigger
                             key={chain}
                             value={chain}
-                            className="data-[state=active]:bg-card data-[state=active]:text-primary rounded-xl px-4 py-2.5 text-xs font-semibold capitalize transition-all duration-200 data-[state=active]:shadow-[0_12px_28px_-18px_hsl(220_35%_2%/0.72)] cursor-pointer"
+                            className="data-[state=active]:bg-card data-[state=active]:text-primary cursor-pointer rounded-xl px-4 py-2.5 text-xs font-semibold capitalize transition-all duration-200 data-[state=active]:shadow-[0_12px_28px_-18px_hsl(220_35%_2%/0.72)]"
                           >
                             {chain}
                           </TabsTrigger>

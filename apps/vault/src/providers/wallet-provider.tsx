@@ -80,7 +80,9 @@ interface WalletContextType {
       wallet: WalletRecord,
       passwordConfirm: string,
     ) => Promise<DecryptedData>
-    getDecryptedInfoWithMasterKey: (wallet: WalletRecord) => Promise<DecryptedData>
+    getDecryptedInfoWithMasterKey: (
+      wallet: WalletRecord,
+    ) => Promise<DecryptedData>
   }
 
   // Helpers to retrieve accounts by chain

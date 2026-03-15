@@ -166,7 +166,9 @@ export function useVault() {
       } catch (e) {
         console.error("Decryption by master key failed:", e)
         throw new Error(
-          e instanceof Error ? e.message : "Decryption failed with active session",
+          e instanceof Error
+            ? e.message
+            : "Decryption failed with active session",
         )
       }
     },

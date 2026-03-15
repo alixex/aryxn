@@ -39,7 +39,10 @@ function readSessionPayload(): PasswordVerificationSession | null {
   }
 }
 
-async function createProof(masterKey: Uint8Array, vaultId: string): Promise<string> {
+async function createProof(
+  masterKey: Uint8Array,
+  vaultId: string,
+): Promise<string> {
   const encoded = new TextEncoder().encode(
     `${toBase64(masterKey)}:${vaultId}:${SESSION_PROOF_MARKER}`,
   )

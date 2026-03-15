@@ -47,7 +47,9 @@ export function HistoryTable({
   const cancelActiveTask = useDownloadTaskStore((s) => s.cancelActiveTask)
 
   const isAnotherTaskRunning =
-    !!activeTask && isTaskActive(activeTask.status) && activeTask.txId !== downloading
+    !!activeTask &&
+    isTaskActive(activeTask.status) &&
+    activeTask.txId !== downloading
   const isAnyTaskRunning = !!activeTask && isTaskActive(activeTask.status)
 
   const handleDownload = async (
@@ -199,10 +201,9 @@ export function HistoryTable({
       )
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error)
-      toast.error(
-        t("history.copyResourceLinkFailed", "Failed to copy link"),
-        { description: message },
-      )
+      toast.error(t("history.copyResourceLinkFailed", "Failed to copy link"), {
+        description: message,
+      })
     }
   }
 
@@ -271,333 +272,336 @@ export function HistoryTable({
                   key={r.txId}
                   className="group transition-colors duration-150 hover:bg-[hsl(var(--accent)/0.55)]"
                 >
-                      {/* 文件名 */}
-                      <td
-                        className="text-foreground w-[24%] truncate px-4 py-3.5 font-semibold sm:px-6"
-                        title={r.fileName}
+                  {/* 文件名 */}
+                  <td
+                    className="text-foreground w-[24%] truncate px-4 py-3.5 font-semibold sm:px-6"
+                    title={r.fileName}
+                  >
+                    <span className="block truncate">{r.fileName}</span>
+                  </td>
+                  {/* 文件类型 */}
+                  <td
+                    className="text-muted-foreground w-[9%] truncate px-4 py-3.5 sm:px-6"
+                    title={r.mimeType || "-"}
+                  >
+                    <span className="block truncate text-xs font-medium">
+                      {getFileTypeDisplay(r.mimeType)}
+                    </span>
+                  </td>
+                  {/* 文件大小 */}
+                  <td
+                    className="text-muted-foreground w-[8%] truncate px-4 py-3.5 sm:px-6"
+                    title={r.fileSize ? formatFileSize(r.fileSize) : "-"}
+                  >
+                    <span className="block truncate text-xs font-medium">
+                      {formatFileSize(r.fileSize)}
+                    </span>
+                  </td>
+                  {/* 时间 */}
+                  <td
+                    className="text-muted-foreground w-[12%] truncate px-4 py-3.5 sm:px-6"
+                    title={formatDateTime(r.createdAt)}
+                  >
+                    <span className="block truncate text-xs font-medium">
+                      {formatDateTime(r.createdAt)}
+                    </span>
+                  </td>
+                  {/* 存储 ID */}
+                  <td className="w-[13%] truncate px-4 py-3.5 sm:px-6">
+                    <div>
+                      <a
+                        href={getResourceUrl(r)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="group/tx text-primary hover:text-primary/85 block truncate font-mono text-xs font-semibold hover:underline"
+                        title={r.txId}
                       >
-                        <span className="block truncate">{r.fileName}</span>
-                      </td>
-                      {/* 文件类型 */}
-                      <td
-                        className="text-muted-foreground w-[9%] truncate px-4 py-3.5 sm:px-6"
-                        title={r.mimeType || "-"}
-                      >
-                        <span className="block truncate text-xs font-medium">
-                          {getFileTypeDisplay(r.mimeType)}
+                        <span className="inline-block truncate">
+                          {r.txId.slice(0, 8)}...{r.txId.slice(-6)}
                         </span>
-                      </td>
-                      {/* 文件大小 */}
-                      <td
-                        className="text-muted-foreground w-[8%] truncate px-4 py-3.5 sm:px-6"
-                        title={r.fileSize ? formatFileSize(r.fileSize) : "-"}
+                        <Link2 className="ml-1 inline h-3 w-3 opacity-0 transition-opacity group-hover/tx:opacity-100" />
+                      </a>
+                    </div>
+                  </td>
+                  {/* 协议 */}
+                  <td
+                    className="w-[8%] truncate px-4 py-3.5 sm:px-6"
+                    title={r.storageType === "irys" ? "Irys L1" : "Arweave"}
+                  >
+                    {r.storageType === "irys" ? (
+                      <span className="bg-muted text-foreground ring-border inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ring-1 ring-inset">
+                        Irys L1
+                      </span>
+                    ) : (
+                      <span className="bg-muted text-foreground ring-border inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ring-1 ring-inset">
+                        Arweave
+                      </span>
+                    )}
+                  </td>
+                  {/* 安全性 */}
+                  <td className="w-[8%] truncate px-4 py-3.5 sm:px-6">
+                    {r.encryptionAlgo !== "none" ? (
+                      <div
+                        className="text-foreground flex items-center gap-1.5"
+                        title={t("history.encrypted")}
                       >
-                        <span className="block truncate text-xs font-medium">
-                          {formatFileSize(r.fileSize)}
+                        <Shield className="h-3.5 w-3.5 shrink-0" />
+                        <span className="truncate text-[10px] font-semibold uppercase">
+                          {t("history.encrypted")}
                         </span>
-                      </td>
-                      {/* 时间 */}
-                      <td
-                        className="text-muted-foreground w-[12%] truncate px-4 py-3.5 sm:px-6"
-                        title={formatDateTime(r.createdAt)}
+                      </div>
+                    ) : (
+                      <span
+                        className="text-muted-foreground block truncate text-[10px] font-bold uppercase"
+                        title={t("history.public")}
                       >
-                        <span className="block truncate text-xs font-medium">
-                          {formatDateTime(r.createdAt)}
-                        </span>
-                      </td>
-                      {/* 存储 ID */}
-                      <td className="w-[13%] truncate px-4 py-3.5 sm:px-6">
-                        <div>
-                          <a
-                            href={getResourceUrl(r)}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="group/tx text-primary hover:text-primary/85 block truncate font-mono text-xs font-semibold hover:underline"
-                            title={r.txId}
-                          >
-                            <span className="inline-block truncate">
-                              {r.txId.slice(0, 8)}...{r.txId.slice(-6)}
-                            </span>
-                            <Link2 className="ml-1 inline h-3 w-3 opacity-0 transition-opacity group-hover/tx:opacity-100" />
-                          </a>
-                        </div>
-                      </td>
-                      {/* 协议 */}
-                      <td
-                        className="w-[8%] truncate px-4 py-3.5 sm:px-6"
-                        title={r.storageType === "irys" ? "Irys L1" : "Arweave"}
+                        {t("history.public")}
+                      </span>
+                    )}
+                  </td>
+                  <td className="w-[18%] px-4 py-3.5 text-right sm:px-6">
+                    <div className="flex items-center justify-end gap-1 sm:gap-2">
+                      <Popover
+                        open={openMenuTxId === r.txId}
+                        onOpenChange={(open) => {
+                          if (isAnyTaskRunning) {
+                            return
+                          }
+                          setOpenMenuTxId(open ? r.txId : null)
+                        }}
                       >
-                        {r.storageType === "irys" ? (
-                          <span className="bg-muted text-foreground ring-border inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ring-1 ring-inset">
-                            Irys L1
-                          </span>
-                        ) : (
-                          <span className="bg-muted text-foreground ring-border inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ring-1 ring-inset">
-                            Arweave
-                          </span>
-                        )}
-                      </td>
-                      {/* 安全性 */}
-                      <td className="w-[8%] truncate px-4 py-3.5 sm:px-6">
-                        {r.encryptionAlgo !== "none" ? (
-                          <div
-                            className="text-foreground flex items-center gap-1.5"
-                            title={t("history.encrypted")}
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            disabled={isAnyTaskRunning}
+                            className="text-muted-foreground hover:bg-accent hover:text-foreground h-8 w-8 transition-colors duration-150 sm:h-9 sm:w-9"
+                            title={
+                              isAnyTaskRunning
+                                ? t(
+                                    "history.menuDisabledWhileDownloading",
+                                    "More actions are temporarily disabled while downloading",
+                                  )
+                                : t("common.more", "More")
+                            }
                           >
-                            <Shield className="h-3.5 w-3.5 shrink-0" />
-                            <span className="truncate text-[10px] font-semibold uppercase">
-                              {t("history.encrypted")}
-                            </span>
-                          </div>
-                        ) : (
-                          <span
-                            className="text-muted-foreground block truncate text-[10px] font-bold uppercase"
-                            title={t("history.public")}
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent
+                          align="end"
+                          sideOffset={8}
+                          className="border-border bg-card w-52 p-1"
+                        >
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            disabled={isAnyTaskRunning}
+                            asChild
+                            className="w-full justify-start"
                           >
-                            {t("history.public")}
-                          </span>
-                        )}
-                      </td>
-                      <td className="w-[18%] px-4 py-3.5 text-right sm:px-6">
-                        <div className="flex items-center justify-end gap-1 sm:gap-2">
-                          <Popover
-                            open={openMenuTxId === r.txId}
-                            onOpenChange={(open) => {
-                              if (isAnyTaskRunning) {
-                                return
-                              }
-                              setOpenMenuTxId(open ? r.txId : null)
+                            <a
+                              href={getResourceUrl(r)}
+                              target="_blank"
+                              rel="noreferrer"
+                              onClick={() => setOpenMenuTxId(null)}
+                            >
+                              <Link2 className="mr-2 h-4 w-4" />
+                              {t("history.viewPreview", "Open preview")}
+                            </a>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            disabled={isAnyTaskRunning}
+                            className="w-full justify-start"
+                            onClick={() => {
+                              setOpenMenuTxId(null)
+                              void handleCopyResourceUrl(
+                                r,
+                                r.encryptionAlgo !== "none" && !!masterKey,
+                              )
                             }}
                           >
-                            <PopoverTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                disabled={isAnyTaskRunning}
-                                className="text-muted-foreground hover:bg-accent hover:text-foreground h-8 w-8 transition-colors duration-150 sm:h-9 sm:w-9"
-                                title={
-                                  isAnyTaskRunning
-                                    ? t(
-                                        "history.menuDisabledWhileDownloading",
-                                        "More actions are temporarily disabled while downloading",
-                                      )
-                                    : t("common.more", "More")
-                                }
-                              >
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent
-                              align="end"
-                              sideOffset={8}
-                              className="border-border bg-card w-52 p-1"
+                            <Copy className="mr-2 h-4 w-4" />
+                            {t(
+                              "history.copyUniqueResourceLink",
+                              "Copy preview link",
+                            )}
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            disabled={isAnyTaskRunning}
+                            className="w-full justify-start"
+                            onClick={() => {
+                              setOpenMenuTxId(null)
+                              void handleCopyDownloadUrl(
+                                r,
+                                r.encryptionAlgo !== "none" && !!masterKey,
+                              )
+                            }}
+                          >
+                            <Download className="mr-2 h-4 w-4" />
+                            {t(
+                              "history.copyDownloadLink",
+                              "Copy download link",
+                            )}
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            disabled={isAnyTaskRunning}
+                            asChild
+                            className="w-full justify-start"
+                          >
+                            <a
+                              href={getGatewayUrl(r)}
+                              target="_blank"
+                              rel="noreferrer"
+                              onClick={() => setOpenMenuTxId(null)}
                             >
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                disabled={isAnyTaskRunning}
-                                asChild
-                                className="w-full justify-start"
-                              >
-                                <a
-                                  href={getResourceUrl(r)}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  onClick={() => setOpenMenuTxId(null)}
-                                >
-                                  <Link2 className="mr-2 h-4 w-4" />
-                                  {t("history.viewPreview", "Open preview")}
-                                </a>
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                disabled={isAnyTaskRunning}
-                                className="w-full justify-start"
-                                onClick={() => {
-                                  setOpenMenuTxId(null)
-                                  void handleCopyResourceUrl(
-                                    r,
-                                    r.encryptionAlgo !== "none" && !!masterKey,
-                                  )
-                                }}
-                              >
-                                <Copy className="mr-2 h-4 w-4" />
-                                {t("history.copyUniqueResourceLink", "Copy preview link")}
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                disabled={isAnyTaskRunning}
-                                className="w-full justify-start"
-                                onClick={() => {
-                                  setOpenMenuTxId(null)
-                                  void handleCopyDownloadUrl(
-                                    r,
-                                    r.encryptionAlgo !== "none" && !!masterKey,
-                                  )
-                                }}
-                              >
-                                <Download className="mr-2 h-4 w-4" />
-                                {t("history.copyDownloadLink", "Copy download link")}
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                disabled={isAnyTaskRunning}
-                                asChild
-                                className="w-full justify-start"
-                              >
-                                <a
-                                  href={getGatewayUrl(r)}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  onClick={() => setOpenMenuTxId(null)}
-                                >
-                                  <ExternalLink className="mr-2 h-4 w-4" />
-                                  {t("history.openOriginalGateway", "Open gateway")}
-                                </a>
-                              </Button>
-                            </PopoverContent>
-                          </Popover>
-                          {r.encryptionAlgo !== "none" && !masterKey ? (
-                            // 加密文件但未解锁：显示两个按钮 - 下载加密版本和解密下载（禁用）
-                            <>
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                onClick={() => handleDownload(r, false)}
-                                disabled={!!downloading}
-                                className="h-8 w-8 transition-colors duration-150 sm:h-9 sm:w-9"
-                                title={t(
-                                  "history.downloadEncryptedTooltip",
-                                  "Download encrypted file",
-                                )}
-                              >
-                                {downloading === r.txId ? (
-                                  <Loader2 className="text-foreground h-4 w-4 animate-spin" />
-                                ) : (
-                                  <Download className="h-4 w-4" />
-                                )}
-                              </Button>
-                              {downloading === r.txId ? (
-                                <Button
-                                  variant="outline"
-                                  size="icon"
-                                  onClick={cancelActiveDownload}
-                                  className="h-8 w-8 sm:h-9 sm:w-9"
-                                  title={t(
-                                    "history.cancelDownload",
-                                    "Cancel download",
-                                  )}
-                                >
-                                  <X className="h-4 w-4" />
-                                </Button>
-                              ) : null}
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                disabled={true}
-                                onClick={() => {
-                                  toast.info(
-                                    t(
-                                      "history.unlockToDecrypt",
-                                      "Please unlock your account to download decrypted files. Go to Account page to unlock.",
+                              <ExternalLink className="mr-2 h-4 w-4" />
+                              {t("history.openOriginalGateway", "Open gateway")}
+                            </a>
+                          </Button>
+                        </PopoverContent>
+                      </Popover>
+                      {r.encryptionAlgo !== "none" && !masterKey ? (
+                        // 加密文件但未解锁：显示两个按钮 - 下载加密版本和解密下载（禁用）
+                        <>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => handleDownload(r, false)}
+                            disabled={!!downloading}
+                            className="h-8 w-8 transition-colors duration-150 sm:h-9 sm:w-9"
+                            title={t(
+                              "history.downloadEncryptedTooltip",
+                              "Download encrypted file",
+                            )}
+                          >
+                            {downloading === r.txId ? (
+                              <Loader2 className="text-foreground h-4 w-4 animate-spin" />
+                            ) : (
+                              <Download className="h-4 w-4" />
+                            )}
+                          </Button>
+                          {downloading === r.txId ? (
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={cancelActiveDownload}
+                              className="h-8 w-8 sm:h-9 sm:w-9"
+                              title={t(
+                                "history.cancelDownload",
+                                "Cancel download",
+                              )}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          ) : null}
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            disabled={true}
+                            onClick={() => {
+                              toast.info(
+                                t(
+                                  "history.unlockToDecrypt",
+                                  "Please unlock your account to download decrypted files. Go to Account page to unlock.",
+                                ),
+                                {
+                                  action: {
+                                    label: t(
+                                      "common.goToAccount",
+                                      "Go to Account",
                                     ),
-                                    {
-                                      action: {
-                                        label: t(
-                                          "common.goToAccount",
-                                          "Go to Account",
-                                        ),
-                                        onClick: () => {
-                                          window.location.href = "/account"
-                                        },
-                                      },
-                                      duration: 5000,
+                                    onClick: () => {
+                                      window.location.href = "/account"
                                     },
+                                  },
+                                  duration: 5000,
+                                },
+                              )
+                            }}
+                            className="h-8 w-8 cursor-pointer opacity-50 hover:opacity-75 sm:h-9 sm:w-9"
+                            title={t(
+                              "history.decryptDownloadTooltip",
+                              "Unlock account to download decrypted file",
+                            )}
+                          >
+                            <Shield className="text-muted-foreground/30 h-4 w-4" />
+                          </Button>
+                        </>
+                      ) : (
+                        // 非加密文件或已解锁：显示单个下载按钮（自动解密）
+                        <>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => handleDownload(r, true)}
+                            disabled={!!downloading}
+                            className={`h-8 w-8 transition-colors duration-150 sm:h-9 sm:w-9 ${
+                              downloading === r.txId
+                                ? "border-ring bg-accent"
+                                : ""
+                            }`}
+                            title={
+                              r.encryptionAlgo !== "none"
+                                ? t(
+                                    "history.downloadDecryptedTooltip",
+                                    "Download decrypted file",
                                   )
-                                }}
-                                className="h-8 w-8 cursor-pointer opacity-50 hover:opacity-75 sm:h-9 sm:w-9"
-                                title={t(
-                                  "history.decryptDownloadTooltip",
-                                  "Unlock account to download decrypted file",
-                                )}
-                              >
-                                <Shield className="text-muted-foreground/30 h-4 w-4" />
-                              </Button>
-                            </>
-                          ) : (
-                            // 非加密文件或已解锁：显示单个下载按钮（自动解密）
-                            <>
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                onClick={() => handleDownload(r, true)}
-                                disabled={!!downloading}
-                                className={`h-8 w-8 transition-colors duration-150 sm:h-9 sm:w-9 ${
-                                  downloading === r.txId
-                                    ? "border-ring bg-accent"
-                                    : ""
-                                }`}
-                                title={
-                                  r.encryptionAlgo !== "none"
-                                    ? t(
-                                        "history.downloadDecryptedTooltip",
-                                        "Download decrypted file",
-                                      )
-                                    : t(
-                                        "history.downloadTooltip",
-                                        "Download file",
-                                      )
-                                }
-                              >
-                                {downloading === r.txId ? (
-                                  <Loader2 className="text-foreground h-4 w-4 animate-spin" />
-                                ) : (
-                                  <Download className="h-4 w-4" />
-                                )}
-                              </Button>
-                              {downloading === r.txId ? (
-                                <Button
-                                  variant="outline"
-                                  size="icon"
-                                  onClick={cancelActiveDownload}
-                                  className="h-8 w-8 sm:h-9 sm:w-9"
-                                  title={t(
-                                    "history.cancelDownload",
-                                    "Cancel download",
-                                  )}
-                                >
-                                  <X className="h-4 w-4" />
-                                </Button>
-                              ) : null}
-                            </>
-                          )}
+                                : t("history.downloadTooltip", "Download file")
+                            }
+                          >
+                            {downloading === r.txId ? (
+                              <Loader2 className="text-foreground h-4 w-4 animate-spin" />
+                            ) : (
+                              <Download className="h-4 w-4" />
+                            )}
+                          </Button>
+                          {downloading === r.txId ? (
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={cancelActiveDownload}
+                              className="h-8 w-8 sm:h-9 sm:w-9"
+                              title={t(
+                                "history.cancelDownload",
+                                "Cancel download",
+                              )}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          ) : null}
+                        </>
+                      )}
+                    </div>
+                    {downloading === r.txId && activeTask ? (
+                      <div className="mt-2 space-y-1">
+                        <div className="bg-border/70 h-1.5 w-full overflow-hidden rounded-full">
+                          <div
+                            className="bg-primary h-full rounded-full transition-[width] duration-150"
+                            style={{
+                              width: `${
+                                getProgressPercent({
+                                  loaded: activeTask.loaded,
+                                  total: activeTask.total,
+                                }) ?? 100
+                              }%`,
+                            }}
+                          />
                         </div>
-                        {downloading === r.txId && activeTask ? (
-                          <div className="mt-2 space-y-1">
-                            <div className="bg-border/70 h-1.5 w-full overflow-hidden rounded-full">
-                              <div
-                                className="bg-primary h-full rounded-full transition-[width] duration-150"
-                                style={{
-                                  width: `${
-                                    getProgressPercent({
-                                      loaded: activeTask.loaded,
-                                      total: activeTask.total,
-                                    }) ?? 100
-                                  }%`,
-                                }}
-                              />
-                            </div>
-                            <p className="text-muted-foreground text-[10px]">
-                              {activeTask.total && activeTask.total > 0
-                                ? `${getProgressPercent({ loaded: activeTask.loaded, total: activeTask.total })?.toFixed(1)}% (${activeTask.loaded.toLocaleString()}/${activeTask.total.toLocaleString()} bytes)`
-                                : `${activeTask.loaded.toLocaleString()} bytes`}
-                            </p>
-                          </div>
-                        ) : null}
-                      </td>
+                        <p className="text-muted-foreground text-[10px]">
+                          {activeTask.total && activeTask.total > 0
+                            ? `${getProgressPercent({ loaded: activeTask.loaded, total: activeTask.total })?.toFixed(1)}% (${activeTask.loaded.toLocaleString()}/${activeTask.total.toLocaleString()} bytes)`
+                            : `${activeTask.loaded.toLocaleString()} bytes`}
+                        </p>
+                      </div>
+                    ) : null}
+                  </td>
                 </tr>
               )
             })}

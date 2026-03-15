@@ -406,14 +406,14 @@ export function ConfigImportExport() {
                       )}
                     </div>
                   </div>
-                  <div className="group flex items-center space-x-3 rounded-2xl border border-[hsl(var(--border)/0.85)] bg-[hsl(var(--background)/0.5)] p-4 transition-colors hover:bg-[hsl(var(--accent)/0.45)] cursor-pointer">
+                  <div className="group flex cursor-pointer items-center space-x-3 rounded-2xl border border-[hsl(var(--border)/0.85)] bg-[hsl(var(--background)/0.5)] p-4 transition-colors hover:bg-[hsl(var(--accent)/0.45)]">
                     <div className="relative flex h-5 w-5 items-center justify-center">
                       <input
                         type="checkbox"
                         id="include-uploads-export"
                         checked={includeUploads}
                         onChange={(e) => setIncludeUploads(e.target.checked)}
-                        className="peer checked:border-primary checked:bg-primary h-5 w-5 appearance-none rounded border-2 border-[hsl(var(--border)/0.85)] transition-all cursor-pointer"
+                        className="peer checked:border-primary checked:bg-primary h-5 w-5 cursor-pointer appearance-none rounded border-2 border-[hsl(var(--border)/0.85)] transition-all"
                       />
                       <div className="pointer-events-none absolute text-white opacity-0 transition-opacity peer-checked:opacity-100">
                         <svg
@@ -433,7 +433,7 @@ export function ConfigImportExport() {
                     </div>
                     <label
                       htmlFor="include-uploads-export"
-                      className="text-foreground/90 flex-1 text-sm font-semibold select-none cursor-pointer"
+                      className="text-foreground/90 flex-1 cursor-pointer text-sm font-semibold select-none"
                     >
                       {t("identities.includeUploads")}
                     </label>
@@ -517,7 +517,7 @@ export function ConfigImportExport() {
                 <div className="space-y-6 p-6">
                   {!selectedConfig ? (
                     <div className="space-y-6">
-                      <div className="group flex items-center space-x-3 rounded-2xl border border-[hsl(var(--border)/0.85)] bg-[hsl(var(--background)/0.5)] p-4 transition-colors hover:bg-[hsl(var(--accent)/0.4)] cursor-pointer">
+                      <div className="group flex cursor-pointer items-center space-x-3 rounded-2xl border border-[hsl(var(--border)/0.85)] bg-[hsl(var(--background)/0.5)] p-4 transition-colors hover:bg-[hsl(var(--accent)/0.4)]">
                         <div className="relative flex h-5 w-5 items-center justify-center">
                           <input
                             type="checkbox"
@@ -526,7 +526,7 @@ export function ConfigImportExport() {
                             onChange={(e) =>
                               setIncludeUploads(e.target.checked)
                             }
-                            className="peer checked:border-primary checked:bg-primary h-5 w-5 appearance-none rounded border-2 border-[hsl(var(--border)/0.85)] transition-all cursor-pointer"
+                            className="peer checked:border-primary checked:bg-primary h-5 w-5 cursor-pointer appearance-none rounded border-2 border-[hsl(var(--border)/0.85)] transition-all"
                           />
                           <div className="pointer-events-none absolute text-white opacity-0 transition-opacity peer-checked:opacity-100">
                             <svg
@@ -546,7 +546,7 @@ export function ConfigImportExport() {
                         </div>
                         <label
                           htmlFor="include-uploads-import"
-                          className="text-foreground/90 flex-1 text-sm font-semibold select-none cursor-pointer"
+                          className="text-foreground/90 flex-1 cursor-pointer text-sm font-semibold select-none"
                         >
                           {t("identities.includeUploads")}
                         </label>
@@ -620,7 +620,7 @@ export function ConfigImportExport() {
                             onClick={() =>
                               setShowImportPassword(!showImportPassword)
                             }
-                            className="text-muted-foreground hover:text-primary absolute top-1/2 right-3 -translate-y-1/2 rounded-full p-2 transition-colors cursor-pointer"
+                            className="text-muted-foreground hover:text-primary absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer rounded-full p-2 transition-colors"
                           >
                             {showImportPassword ? (
                               <EyeOff className="h-4 w-4" />
@@ -734,7 +734,7 @@ export function ConfigImportExport() {
                                 onClick={() =>
                                   setShowImportErrors((value) => !value)
                                 }
-                                className="text-destructive inline-flex items-center gap-1 text-xs font-semibold cursor-pointer"
+                                className="text-destructive inline-flex cursor-pointer items-center gap-1 text-xs font-semibold"
                               >
                                 {showImportErrors ? (
                                   <ChevronUp className="h-3.5 w-3.5" />

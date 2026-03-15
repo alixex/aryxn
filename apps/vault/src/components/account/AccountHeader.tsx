@@ -45,7 +45,7 @@ export default function AccountHeader({ t, isUnlocked, onLogout }: Props) {
             variant="outline"
             size="sm"
             onClick={onLogout}
-            className="border-destructive/25 text-destructive hover:border-destructive/50 hover:bg-destructive/10 bg-[hsl(var(--background)/0.55)] transition-all duration-200 cursor-pointer lg:self-start"
+            className="border-destructive/25 text-destructive hover:border-destructive/50 hover:bg-destructive/10 cursor-pointer bg-[hsl(var(--background)/0.55)] transition-all duration-200 lg:self-start"
           >
             <LogOut className="mr-2 h-4 w-4" /> {t("identities.logout")}
           </Button>

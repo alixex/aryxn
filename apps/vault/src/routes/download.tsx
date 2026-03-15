@@ -2,10 +2,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useParams, useSearchParams } from "react-router-dom"
 import { getFileByOwnerAndTxId, syncFileByTxIdFromArweave } from "@/lib/file"
 import type { FileIndex } from "@/lib/file"
-import {
-  getCachedResource,
-  upsertCachedResource,
-} from "@/lib/file"
+import { getCachedResource, upsertCachedResource } from "@/lib/file"
 import { deriveKey } from "@aryxn/crypto"
 import type { UploadRecord } from "@/lib/utils"
 import { useWallet } from "@/hooks/account-hooks"
@@ -149,8 +146,7 @@ function ProgressBar({
   loaded: number
   total: number | null
 }) {
-  const pct =
-    total && total > 0 ? Math.min(100, (loaded / total) * 100) : null
+  const pct = total && total > 0 ? Math.min(100, (loaded / total) * 100) : null
 
   return (
     <div className="space-y-1.5">
@@ -311,7 +307,10 @@ export default function DownloadPage() {
       currentStage = "downloading"
       setStatusMsg("Checking local cache…")
 
-      const localCached = await getCachedResource(file.owner_address, file.tx_id)
+      const localCached = await getCachedResource(
+        file.owner_address,
+        file.tx_id,
+      )
       let rawData: Uint8Array | null =
         isEncrypted && localCached?.isEncrypted === true
           ? localCached.payload
@@ -473,7 +472,8 @@ export default function DownloadPage() {
   // ── Auto-download public files ─────────────────────────────────────────────
 
   useEffect(() => {
-    if (state.status !== "found" || state.file.encryption_algo !== "none") return
+    if (state.status !== "found" || state.file.encryption_algo !== "none")
+      return
     if (stage !== "idle") return
     void runDownload(state.file)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -608,7 +608,10 @@ export default function DownloadPage() {
               <Download className="text-foreground h-5 w-5" />
             </div>
             <CardTitle className="text-xl">Downloading</CardTitle>
-            <CardDescription className="mt-1 truncate" title={fileInfo?.name ?? ""}>
+            <CardDescription
+              className="mt-1 truncate"
+              title={fileInfo?.name ?? ""}
+            >
               {fileInfo?.name}
             </CardDescription>
           </CardHeader>
@@ -693,7 +696,9 @@ export default function DownloadPage() {
                     type="button"
                     onClick={() => setShowPassword((p) => !p)}
                     className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 transition-colors"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
                     disabled={isWorking}
                   >
                     {showPassword ? (
@@ -704,7 +709,11 @@ export default function DownloadPage() {
                   </button>
                 </div>
 
-                <Button type="submit" className="h-11 w-full" disabled={isWorking}>
+                <Button
+                  type="submit"
+                  className="h-11 w-full"
+                  disabled={isWorking}
+                >
                   {isWorking ? (
                     <>
                       <Download className="mr-2 h-4 w-4 animate-pulse" />
@@ -733,9 +742,7 @@ export default function DownloadPage() {
                   <p className="text-muted-foreground text-xs">{statusMsg}</p>
                 ) : null}
 
-                {error ? (
-                  <p className="text-xs text-red-600">{error}</p>
-                ) : null}
+                {error ? <p className="text-xs text-red-600">{error}</p> : null}
               </form>
             )}
           </CardContent>

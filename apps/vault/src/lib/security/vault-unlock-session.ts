@@ -55,7 +55,10 @@ export function saveVaultUnlockSession(
     expiresAt: now + ttlMs,
   }
 
-  window.sessionStorage.setItem(UNLOCK_SESSION_STORAGE_KEY, JSON.stringify(payload))
+  window.sessionStorage.setItem(
+    UNLOCK_SESSION_STORAGE_KEY,
+    JSON.stringify(payload),
+  )
 }
 
 export function loadVaultUnlockSession(): {

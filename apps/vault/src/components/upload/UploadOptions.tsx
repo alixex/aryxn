@@ -113,7 +113,6 @@ export function UploadOptions({
           </p>
         </div>
       </div>
-
     </div>
   )
 }

@@ -22,13 +22,10 @@ const AUTH_VERSION = 1
 async function getBindingKey(txId: string): Promise<CryptoKey> {
   const data = new TextEncoder().encode(`aryxn:share:v1:${txId}`)
   const hash = await crypto.subtle.digest("SHA-256", data)
-  return crypto.subtle.importKey(
-    "raw",
-    hash,
-    { name: "AES-GCM" },
-    false,
-    ["encrypt", "decrypt"],
-  )
+  return crypto.subtle.importKey("raw", hash, { name: "AES-GCM" }, false, [
+    "encrypt",
+    "decrypt",
+  ])
 }
 
 function toBase64Url(bytes: Uint8Array): string {
@@ -39,7 +36,8 @@ function toBase64Url(bytes: Uint8Array): string {
 }
 
 function fromBase64Url(token: string): Uint8Array {
-  const pad = token.length % 4 === 0 ? token : token + "====".slice(token.length % 4)
+  const pad =
+    token.length % 4 === 0 ? token : token + "====".slice(token.length % 4)
   const b64 = pad.replace(/-/g, "+").replace(/_/g, "/")
   return Uint8Array.from(atob(b64), (c) => c.charCodeAt(0))
 }
@@ -104,7 +102,9 @@ export async function decodeAuthParam(
       ciphertext,
     )
   } catch {
-    throw new Error("Auth token decryption failed — token may be invalid or tampered")
+    throw new Error(
+      "Auth token decryption failed — token may be invalid or tampered",
+    )
   }
 
   return new Uint8Array(keyBuffer)

@@ -32,7 +32,10 @@ type DownloadTaskStore = {
   }) => DownloadTask
   updateProgress: (loaded: number, total?: number | null) => void
   setStatus: (status: DownloadTaskStatus, message?: string) => void
-  finishTask: (status: "completed" | "failed" | "cancelled", message?: string) => void
+  finishTask: (
+    status: "completed" | "failed" | "cancelled",
+    message?: string,
+  ) => void
   cancelActiveTask: () => void
   clearTask: () => void
 }
@@ -141,8 +144,6 @@ export const useDownloadTaskStore = create<DownloadTaskStore>((set, get) => ({
 
 export function isTaskActive(status: DownloadTaskStatus): boolean {
   return (
-    status === "starting" ||
-    status === "downloading" ||
-    status === "processing"
+    status === "starting" || status === "downloading" || status === "processing"
   )
 }

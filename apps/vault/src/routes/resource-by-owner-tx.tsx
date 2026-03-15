@@ -429,7 +429,10 @@ export default function ResourceByOwnerTx() {
     }
   }, [state])
 
-  const handleDecryptAndOpen = async (file: FileIndex, precomputedKey?: Uint8Array) => {
+  const handleDecryptAndOpen = async (
+    file: FileIndex,
+    precomputedKey?: Uint8Array,
+  ) => {
     // If a key was provided (e.g. from auth param), skip password entry
     if (!precomputedKey) {
       if (!password.trim()) {
@@ -438,7 +441,9 @@ export default function ResourceByOwnerTx() {
       }
 
       if (!wallet.internal.systemSalt) {
-        setDecryptError("Vault is still initializing. Please retry in a moment.")
+        setDecryptError(
+          "Vault is still initializing. Please retry in a moment.",
+        )
         return
       }
     }
@@ -454,7 +459,7 @@ export default function ResourceByOwnerTx() {
 
     try {
       const salt = wallet.internal.systemSalt
-      const key = precomputedKey ?? await deriveKey(password, salt!)
+      const key = precomputedKey ?? (await deriveKey(password, salt!))
 
       // Stage 1: password verification gate (skip when key is precomputed from auth).
       if (!precomputedKey && wallet.internal.vaultId) {
@@ -770,7 +775,8 @@ export default function ResourceByOwnerTx() {
                           className="bg-primary h-full transition-all duration-200"
                           style={{
                             width:
-                              downloadProgress.total && downloadProgress.total > 0
+                              downloadProgress.total &&
+                              downloadProgress.total > 0
                                 ? `${Math.min(100, (downloadProgress.loaded / downloadProgress.total) * 100)}%`
                                 : "35%",
                           }}
@@ -792,91 +798,92 @@ export default function ResourceByOwnerTx() {
               </CardContent>
             )}
             {!autoAuthPending && (
-            <CardContent className="pb-6">
-              <form
-                className="space-y-3"
-                onSubmit={(event) => {
-                  event.preventDefault()
-                  void handleDecryptAndOpen(state.file)
-                }}
-              >
-                <div className="relative">
-                  <Input
-                    type={showPassword ? "text" : "password"}
-                    autoFocus
-                    value={password}
-                    onChange={(event) => setPassword(event.target.value)}
-                    placeholder="Password"
-                    className="h-11 pr-11"
-                    disabled={decrypting}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((prev) => !prev)}
-                    className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 transition-colors"
-                    aria-label={
-                      showPassword ? "Hide password" : "Show password"
-                    }
+              <CardContent className="pb-6">
+                <form
+                  className="space-y-3"
+                  onSubmit={(event) => {
+                    event.preventDefault()
+                    void handleDecryptAndOpen(state.file)
+                  }}
+                >
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      autoFocus
+                      value={password}
+                      onChange={(event) => setPassword(event.target.value)}
+                      placeholder="Password"
+                      className="h-11 pr-11"
+                      disabled={decrypting}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 transition-colors"
+                      aria-label={
+                        showPassword ? "Hide password" : "Show password"
+                      }
+                      disabled={decrypting}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    className="h-11 w-full"
                     disabled={decrypting}
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </button>
-                </div>
+                    {decrypting ? "Decrypting..." : "View Resource"}
+                  </Button>
 
-                <Button
-                  type="submit"
-                  className="h-11 w-full"
-                  disabled={decrypting}
-                >
-                  {decrypting ? "Decrypting..." : "View Resource"}
-                </Button>
-
-                {decryptStatus ? (
-                  <p className="text-muted-foreground text-xs">
-                    {decryptStatus}
-                  </p>
-                ) : null}
-                {decrypting ? (
-                  <p className="text-muted-foreground text-xs">
-                    Stage: {decryptStage}
-                  </p>
-                ) : null}
-                {decryptStage === "downloading" ? (
-                  <div className="space-y-2">
-                    <div className="bg-muted h-2 w-full overflow-hidden rounded-full">
-                      <div
-                        className="bg-primary h-full transition-all duration-200"
-                        style={{
-                          width:
-                            downloadProgress.total && downloadProgress.total > 0
-                              ? `${Math.min(100, (downloadProgress.loaded / downloadProgress.total) * 100)}%`
-                              : "35%",
-                        }}
-                      />
-                    </div>
+                  {decryptStatus ? (
                     <p className="text-muted-foreground text-xs">
-                      {downloadProgress.total && downloadProgress.total > 0
-                        ? `${((downloadProgress.loaded / downloadProgress.total) * 100).toFixed(1)}% (${downloadProgress.loaded.toLocaleString()}/${downloadProgress.total.toLocaleString()} bytes)`
-                        : `${downloadProgress.loaded.toLocaleString()} bytes downloaded`}
+                      {decryptStatus}
                     </p>
-                  </div>
-                ) : null}
-                {decryptError ? (
-                  <div className="space-y-1">
-                    {errorCategory ? (
-                      <p className="text-xs text-red-700">
-                        Category: {errorCategory}
+                  ) : null}
+                  {decrypting ? (
+                    <p className="text-muted-foreground text-xs">
+                      Stage: {decryptStage}
+                    </p>
+                  ) : null}
+                  {decryptStage === "downloading" ? (
+                    <div className="space-y-2">
+                      <div className="bg-muted h-2 w-full overflow-hidden rounded-full">
+                        <div
+                          className="bg-primary h-full transition-all duration-200"
+                          style={{
+                            width:
+                              downloadProgress.total &&
+                              downloadProgress.total > 0
+                                ? `${Math.min(100, (downloadProgress.loaded / downloadProgress.total) * 100)}%`
+                                : "35%",
+                          }}
+                        />
+                      </div>
+                      <p className="text-muted-foreground text-xs">
+                        {downloadProgress.total && downloadProgress.total > 0
+                          ? `${((downloadProgress.loaded / downloadProgress.total) * 100).toFixed(1)}% (${downloadProgress.loaded.toLocaleString()}/${downloadProgress.total.toLocaleString()} bytes)`
+                          : `${downloadProgress.loaded.toLocaleString()} bytes downloaded`}
                       </p>
-                    ) : null}
-                    <p className="text-xs text-red-600">{decryptError}</p>
-                  </div>
-                ) : null}
-              </form>
-            </CardContent>
+                    </div>
+                  ) : null}
+                  {decryptError ? (
+                    <div className="space-y-1">
+                      {errorCategory ? (
+                        <p className="text-xs text-red-700">
+                          Category: {errorCategory}
+                        </p>
+                      ) : null}
+                      <p className="text-xs text-red-600">{decryptError}</p>
+                    </div>
+                  ) : null}
+                </form>
+              </CardContent>
             )}
           </Card>
         </div>
