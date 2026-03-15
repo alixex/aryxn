@@ -43,15 +43,20 @@ export async function queryArweaveGraphQL<T = any>(
 
         const result = await response.json()
         if (result.errors?.length) {
-          throw new Error(`GraphQL Errors from ${gateway}: ${result.errors[0].message}`)
+          throw new Error(
+            `GraphQL Errors from ${gateway}: ${result.errors[0].message}`,
+          )
         }
 
         return result.data as T
       } catch (err: any) {
         clearTimeout(id)
         lastError = err
-        console.warn(`GraphQL query to ${gateway} failed (attempt ${retry + 1}):`, err.message)
-        
+        console.warn(
+          `GraphQL query to ${gateway} failed (attempt ${retry + 1}):`,
+          err.message,
+        )
+
         // If it's a network error or timeout, we might want to try the next gateway immediately
         // but if it's a malformed query error, retrying won't help.
         // For simplicity, we just continue the loop.

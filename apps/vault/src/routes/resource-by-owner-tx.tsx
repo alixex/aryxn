@@ -386,7 +386,11 @@ export default function ResourceByOwnerTx() {
       try {
         setDecrypting(true)
         setDecryptStage("downloading")
-        setDownloadProgress({ loaded: 0, total: Number(state.file.file_size || 0), status: "downloading" })
+        setDownloadProgress({
+          loaded: 0,
+          total: Number(state.file.file_size || 0),
+          status: "downloading",
+        })
 
         const cachedFile = await getCachedResourceFile(
           state.file.owner_address,
@@ -398,7 +402,11 @@ export default function ResourceByOwnerTx() {
         let payload: Uint8Array
         if (cachedFile) {
           payload = new Uint8Array(await cachedFile.arrayBuffer())
-          setDownloadProgress({ loaded: Number(state.file.file_size || 0), total: Number(state.file.file_size || 0), status: "cached" })
+          setDownloadProgress({
+            loaded: Number(state.file.file_size || 0),
+            total: Number(state.file.file_size || 0),
+            status: "cached",
+          })
         } else {
           // TODO: 检查断点续传逻辑，若有未完成任务可设置 status: "resuming"
           const downloaded = await downloadEncryptedData(
@@ -409,7 +417,7 @@ export default function ResourceByOwnerTx() {
               if (!cancelled) {
                 setDownloadProgress({ loaded, total, status: "downloading" })
               }
-            }
+            },
           )
 
           if (cancelled) return
@@ -784,7 +792,11 @@ export default function ResourceByOwnerTx() {
                   />
                 </div>
                 <p className="text-muted-foreground text-[10px]">
-                  {((downloadProgress.loaded / downloadProgress.total) * 100).toFixed(0)}% downloaded
+                  {(
+                    (downloadProgress.loaded / downloadProgress.total) *
+                    100
+                  ).toFixed(0)}
+                  % downloaded
                 </p>
               </div>
             )}
@@ -824,10 +836,12 @@ export default function ResourceByOwnerTx() {
                           }}
                         />
                       </div>
-                      <div className="text-xs text-muted-foreground mt-1">
-                        {downloadProgress.status === "cached" && "已缓存，直接读取"}
+                      <div className="text-muted-foreground mt-1 text-xs">
+                        {downloadProgress.status === "cached" &&
+                          "已缓存，直接读取"}
                         {downloadProgress.status === "downloading" && "下载中…"}
-                        {downloadProgress.status === "resuming" && "断点续传中…"}
+                        {downloadProgress.status === "resuming" &&
+                          "断点续传中…"}
                       </div>
                       <p className="text-muted-foreground text-center text-xs">
                         {downloadProgress.total && downloadProgress.total > 0
