@@ -1,11 +1,62 @@
+// OPFS 分片缓存读写
+async function getOpfsChunkDirHandle(
+  txId: string,
+  ownerAddress: string,
+  create: boolean,
+): Promise<FileSystemDirectoryHandle> {
+  const opfsRoot = await (navigator.storage as any).getDirectory()
+  const cacheDir = await opfsRoot.getDirectoryHandle("chunked-cache", {
+    create,
+  })
+  const taskDir = await cacheDir.getDirectoryHandle(
+    `${encodeURIComponent(ownerAddress)}_${encodeURIComponent(txId)}`,
+    { create },
+  )
+  return taskDir
+}
+
+export async function writeChunkToCache(
+  txId: string,
+  ownerAddress: string,
+  chunkIndex: number,
+  chunkData: Uint8Array,
+) {
+  const taskDir = await getOpfsChunkDirHandle(txId, ownerAddress, true)
+  const fileHandle = await taskDir.getFileHandle(`chunk_${chunkIndex}.bin`, {
+    create: true,
+  })
+  const writable = await fileHandle.createWritable()
+  await writable.write(chunkData as any)
+  await writable.close()
+}
+
+export async function readChunkFromCache(
+  txId: string,
+  ownerAddress: string,
+  chunkIndex: number,
+): Promise<Uint8Array | null> {
+  try {
+    const taskDir = await getOpfsChunkDirHandle(txId, ownerAddress, false)
+    const fileHandle = await taskDir.getFileHandle(`chunk_${chunkIndex}.bin`, {
+      create: false,
+    })
+    const file = await fileHandle.getFile()
+    return new Uint8Array(await file.arrayBuffer())
+  } catch {
+    return null
+  }
+}
 import type { ChunkedResourceProgress } from "./resource-cache"
-import { upsertChunkedResourceProgress, getIncompleteChunkedResourceProgress } from "./resource-cache"
+import {
+  upsertChunkedResourceProgress,
+  getIncompleteChunkedResourceProgress,
+} from "./resource-cache"
 
 export interface ChunkTaskOptions {
   txId: string
   ownerAddress: string
   totalChunks: number
-  gateways: string[]
+  gateways: readonly string[]
   onChunkUpload?: (chunkIndex: number) => Promise<void>
   onChunkDownload?: (chunkIndex: number) => Promise<void>
   onProgress?: (completed: number, total: number) => void
@@ -14,8 +65,8 @@ export interface ChunkTaskOptions {
 
 export class ChunkedTaskManager {
   progress: ChunkedResourceProgress
-  gateways: string[]
-  constructor(progress: ChunkedResourceProgress, gateways: string[]) {
+  gateways: readonly string[]
+  constructor(progress: ChunkedResourceProgress, gateways: readonly string[]) {
     this.progress = progress
     this.gateways = gateways
   }
@@ -54,7 +105,9 @@ export class ChunkedTaskManager {
   }
 }
 
-export async function createChunkedTaskManager(options: ChunkTaskOptions): Promise<ChunkedTaskManager> {
+export async function createChunkedTaskManager(
+  options: ChunkTaskOptions,
+): Promise<ChunkedTaskManager> {
   const progress: ChunkedResourceProgress = {
     txId: options.txId,
     ownerAddress: options.ownerAddress,

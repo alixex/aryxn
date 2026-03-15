@@ -56,4 +56,5 @@ export {
   getCachedResourceFile,
   upsertCachedResource,
   upsertCachedResourceFromStream,
+  downloadResourceChunked,
 } from "./resource-cache"

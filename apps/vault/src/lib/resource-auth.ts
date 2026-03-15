@@ -50,11 +50,17 @@ function writeStore(store: AuthCapabilityStore): void {
   storage.setItem(AUTH_STORAGE_KEY, JSON.stringify(store))
 }
 
-function cleanupExpiredCapabilities(store: AuthCapabilityStore): AuthCapabilityStore {
+function cleanupExpiredCapabilities(
+  store: AuthCapabilityStore,
+): AuthCapabilityStore {
   const now = Date.now()
   const next: AuthCapabilityStore = {}
   for (const [tokenId, record] of Object.entries(store)) {
-    if (record && typeof record.expiresAt === "number" && record.expiresAt > now) {
+    if (
+      record &&
+      typeof record.expiresAt === "number" &&
+      record.expiresAt > now
+    ) {
       next[tokenId] = record
     }
   }

@@ -4,6 +4,7 @@ import {
   getCachedResourceFile,
   upsertCachedResource,
   upsertCachedResourceFromStream,
+  downloadResourceChunked,
 } from "@/lib/file"
 import {
   getDownloadGateways,
@@ -239,7 +240,7 @@ async function cacheFromGatewayStream(
           storageType,
           isEncrypted: options.isEncrypted === true,
           stream: response.body,
-          onProgress: (loaded) => {
+          onProgress: (loaded: number) => {
             options.onProgress?.(
               loaded,
               expectedDataSize > 0 ? expectedDataSize : null,
@@ -329,7 +330,7 @@ async function cacheFileFromGatewayStream(
         storageType,
         isEncrypted: options.isEncrypted === true,
         stream: response.body,
-        onProgress: (loaded) => {
+        onProgress: (loaded: number) => {
           options.onProgress?.(
             loaded,
             expectedDataSize > 0 ? expectedDataSize : null,
@@ -461,7 +462,30 @@ export async function downloadTransactionData(
     }
   }
 
-  // Method 1: Prefer direct gateway fetch.
+  // Method 1: Use chunked download for large files (> 5MB) or resume if incomplete.
+  if (expectedDataSize > 5 * 1024 * 1024) {
+    try {
+      const gateways = getDownloadGateways(storageType) as string[]
+      const data = await downloadResourceChunked(
+        txId,
+        options?.ownerAddress || "global",
+        expectedDataSize,
+        {
+          gateways,
+          onProgress: options?.onProgress,
+          signal: options?.signal,
+        },
+      )
+      if (data) return data
+    } catch (chunkError) {
+      console.warn(
+        "Chunked download failed, falling back to direct fetch",
+        chunkError,
+      )
+    }
+  }
+
+  // Method 2: Prefer direct gateway fetch.
   let data = await fetchDataFromGateways(
     txId,
     expectedDataSize,

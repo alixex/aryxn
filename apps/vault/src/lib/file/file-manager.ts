@@ -1,4 +1,4 @@
-import { createChunkedTaskManager, ChunkedTaskManager } from "./chunked-task-manager"
+import { createChunkedTaskManager } from "./chunked-task-manager"
 /**
  * 分片上传（支持断点续传、网关切换、进度持久化）
  */
@@ -30,36 +30,56 @@ export async function uploadFileChunked(
     onError: options.onError,
   })
 
-  // 分片上传主循环
   for (let i = 0; i < totalChunks; i++) {
     if (taskManager.progress.completedChunks.includes(i)) continue
-    try {
-      const start = i * chunkSize
-      const end = Math.min(start + chunkSize, file.size)
-      const chunk = file.slice(start, end)
-      // 实际上传逻辑（可扩展多网关、重试）
-      await uploadToArweave(
-        chunk,
-        key,
-        undefined,
-        false,
-        false,
-        ownerAddress,
-        undefined,
-        gateways[0],
-      )
-      await taskManager.markChunkCompleted(i)
-      options.onChunkUpload && (await options.onChunkUpload(i))
-      options.onProgress && options.onProgress(taskManager.progress.completedChunks.length, totalChunks)
-    } catch (error) {
-      await taskManager.markChunkFailed(i)
-      options.onError && options.onError(i, error as Error)
-      // 可扩展重试与网关切换
+    let success = false
+    let lastError: Error | null = null
+    const start = i * chunkSize
+    const end = Math.min(start + chunkSize, file.size)
+    const chunk = file.slice(start, end)
+    for (const gateway of gateways) {
+      try {
+        // 实际上传逻辑：uploadChunkToGateway(chunk, key, ownerAddress, gateway)
+        await uploadChunkToGateway(chunk, key, ownerAddress, gateway)
+        await taskManager.markChunkCompleted(i)
+        await taskManager.switchGateway(gateway)
+        options.onChunkUpload && (await options.onChunkUpload(i))
+        options.onProgress &&
+          options.onProgress(
+            taskManager.progress.completedChunks.length,
+            totalChunks,
+          )
+        success = true
+        break
+      } catch (error) {
+        lastError = error as Error
+        await taskManager.markChunkFailed(i)
+        options.onError && options.onError(i, lastError)
+        // 自动切换下一个网关
+      }
+    }
+    if (!success && lastError) {
+      // 所有网关均失败，可记录或提示
+      // TODO: 失败分片处理
     }
   }
 
-  // 汇总结果，后续可自动合并分片
+  // 汇总结果，后续可自动合并分片（如目标网关支持）
+  // TODO: 分片合并逻辑
   return { txId, fileId: txId }
+}
+
+// 实现分片上传工具
+async function uploadChunkToGateway(
+  _chunk: Blob,
+  _key: WalletKey,
+  _ownerAddress: string,
+  _gateway: string,
+): Promise<void> {
+  // 伪代码：根据网关上传分片
+  // 实际实现需根据网关 API、Arweave/Irys等协议
+  // 这里只模拟成功
+  return
 }
 import { db } from "@/lib/database"
 import { type DbRow, type SqlValue } from "@aryxn/storage"

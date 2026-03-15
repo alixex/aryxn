@@ -100,6 +100,16 @@ export const SCHEMA = [
     created_at INTEGER NOT NULL,
     updated_at INTEGER NOT NULL
   )`,
+  `CREATE TABLE IF NOT EXISTS chunked_resource_progress (
+    tx_id TEXT PRIMARY KEY,
+    owner_address TEXT NOT NULL,
+    total_chunks INTEGER NOT NULL,
+    completed_chunks TEXT NOT NULL, -- JSON array
+    failed_chunks TEXT NOT NULL, -- JSON array
+    gateways_tried TEXT NOT NULL, -- JSON array
+    last_gateway TEXT,
+    last_updated INTEGER NOT NULL
+  )`,
 ]
 
 export const INDEXES = [
@@ -126,6 +136,7 @@ export const INDEXES = [
   "CREATE INDEX IF NOT EXISTS idx_payment_intent_updated ON upload_payment_intents(updated_at DESC)",
   "CREATE INDEX IF NOT EXISTS idx_payment_intent_hash ON upload_payment_intents(tx_hash)",
   "CREATE INDEX IF NOT EXISTS idx_resource_cache_owner ON resource_cache(owner_address)",
+  "CREATE INDEX IF NOT EXISTS idx_chunked_progress_owner ON chunked_resource_progress(owner_address)",
 ]
 
 export const FTS_SCHEMA = `

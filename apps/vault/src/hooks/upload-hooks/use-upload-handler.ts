@@ -149,12 +149,12 @@ export function useUploadHandler() {
 
         const jitterMs = Math.floor(Math.random() * 400)
         await new Promise((resolve) =>
-          setTimeout(resolve, Math.min(PAYMENT_POLL_MAX_MS, delayMs) + jitterMs),
+          setTimeout(
+            resolve,
+            Math.min(PAYMENT_POLL_MAX_MS, delayMs) + jitterMs,
+          ),
         )
-        delayMs = Math.min(
-          PAYMENT_POLL_MAX_MS,
-          Math.floor(delayMs * 1.6),
-        )
+        delayMs = Math.min(PAYMENT_POLL_MAX_MS, Math.floor(delayMs * 1.6))
       }
 
       return false
