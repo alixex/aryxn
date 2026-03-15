@@ -107,7 +107,7 @@ export function ConfigImportExport() {
       return
     }
 
-    // 验证密码
+    // Verify password.
     const isValid = await verifyPassword(exportPassword)
     if (!isValid) {
       setPasswordError(t("unlock.incorrect"))
@@ -150,7 +150,7 @@ export function ConfigImportExport() {
       const errorMessage =
         error instanceof Error ? error.message : String(error)
       toast.error(t("identities.importFailed", { message: errorMessage }))
-      // 重置文件输入
+      // Reset file input.
       if (fileInputRef.current) {
         fileInputRef.current.value = ""
       }
@@ -185,7 +185,7 @@ export function ConfigImportExport() {
         importPassword,
         walletManager.masterKey,
         {
-          overwriteExisting: false, // 默认不覆盖，避免意外丢失数据
+          overwriteExisting: false, // Do not overwrite by default to avoid accidental data loss.
           importUploads: includeUploads,
         },
       )
@@ -199,22 +199,22 @@ export function ConfigImportExport() {
             metadata: result.importedMetadata,
           }),
         )
-        // 刷新钱包列表，无需重新加载页面
+        // Refresh wallet list without reloading the page.
         await walletManager.refreshWallets()
 
-        // 自动同步文件记录（如果有 Arweave 账户）
-        // 注意：需要在刷新钱包后获取最新的钱包列表
+        // Auto-sync file records when Arweave accounts exist.
+        // Note: fetch the latest wallet list after refresh.
         setTimeout(async () => {
           try {
             const { syncFilesFromArweaveDirect } =
               await import("@/lib/file/file-sync-direct")
-            // 获取最新的钱包列表
+            // Get the latest wallet list.
             const currentWallets = walletManager.wallets.filter(
               (w) => w.chain === Chains.ARWEAVE,
             )
             if (currentWallets.length > 0) {
               let syncedCount = 0
-              // 尝试同步每个 Arweave 账户的文件记录（直接通过标签查询）
+              // Try syncing each Arweave account's records via direct tag query.
               for (const wallet of currentWallets) {
                 try {
                   const result = await syncFilesFromArweaveDirect(
@@ -231,19 +231,19 @@ export function ConfigImportExport() {
                 }
               }
               if (syncedCount > 0) {
-                toast.info("文件记录已自动同步")
+                toast.info("File records synced automatically")
               }
             }
           } catch (error) {
             console.warn("Failed to sync files:", error)
-            // 同步失败不影响导入流程
+            // Sync failure should not block import flow.
           }
-        }, 500) // 延迟 500ms 确保钱包列表已更新
+        }, 500) // Delay 500ms to ensure wallet list is updated.
 
-        // 清空状态
+        // Clear state.
         setSelectedConfig(null)
         setImportPassword("")
-        // 重置文件输入
+        // Reset file input.
         if (fileInputRef.current) {
           fileInputRef.current.value = ""
         }
@@ -260,7 +260,7 @@ export function ConfigImportExport() {
       const errorMessage =
         error instanceof Error ? error.message : String(error)
       setImportPasswordError(
-        errorMessage.includes("密码") || errorMessage.includes("password")
+        errorMessage.toLowerCase().includes("password")
           ? t("identities.importPasswordIncorrect")
           : errorMessage,
       )
@@ -302,7 +302,7 @@ export function ConfigImportExport() {
               onOpenChange={(open) => {
                 setIsExportDialogOpen(open)
                 if (!open) {
-                  // 关闭对话框时清空密码和错误信息
+                  // Clear password and errors when dialog closes.
                   setExportPassword("")
                   setPasswordError("")
                 }
@@ -478,7 +478,7 @@ export function ConfigImportExport() {
               onOpenChange={(open) => {
                 setIsImportDialogOpen(open)
                 if (!open) {
-                  // 关闭对话框时清空状态
+                  // Clear state when dialog closes.
                   setSelectedConfig(null)
                   setImportPassword("")
                   setImportPasswordError("")
