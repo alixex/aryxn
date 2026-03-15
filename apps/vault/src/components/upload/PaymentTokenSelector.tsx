@@ -147,7 +147,7 @@ export function PaymentTokenSelector({
       <div className="flex items-center gap-2">
         <Coins className="text-muted-foreground h-4 w-4" />
         <span className="text-foreground text-sm font-semibold">
-          {t("upload.paymentMethod") || "支付方式"}
+          {t("upload.paymentMethod") || "Payment Method"}
         </span>
       </div>
 

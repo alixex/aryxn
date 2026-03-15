@@ -62,7 +62,7 @@ export default function App() {
 
   useEffect(() => {
     const initialize = async () => {
-      // 仅在客户端初始化 SQLite 数据库
+      // Initialize SQLite database only on the client.
       if (typeof window !== "undefined") {
         const { initializeDatabase } = await import("./lib/database/sqlite-db")
         await initializeDatabase()
@@ -73,8 +73,8 @@ export default function App() {
     initialize()
   }, [])
 
-  // 在数据库初始化完成前，显示 loading 而不是返回 null
-  // 这样可以避免页面闪烁（先显示 HTML 中的 loading，然后清空，再显示 React 的 loading）
+  // Show loading until database initialization is done instead of returning null.
+  // This avoids flicker (HTML loading -> clear -> React loading).
   if (!mounted) {
     return (
       <div className="bg-background bg-gradient-radial flex min-h-screen items-center justify-center">

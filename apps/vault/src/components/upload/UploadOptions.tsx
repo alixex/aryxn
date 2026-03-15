@@ -30,7 +30,7 @@ export function UploadOptions({
     return Boolean(target.closest('[role="checkbox"],input,button,label'))
   }
 
-  // 检查是否有文件适合压缩（单个文件或多文件模式）
+  // Check whether any selected file is suitable for compression (single/multi-file mode).
   const displayFiles = files.length > 0 ? files : file ? [file] : []
   const hasCompressibleFile = displayFiles.some((f) => shouldCompressFile(f))
   const canCompress = displayFiles.length > 0
