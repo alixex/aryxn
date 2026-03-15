@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Download, Eye, EyeOff, Lock } from "lucide-react"
+import { Download, Eye, EyeOff, Loader2, Lock } from "lucide-react"
 
 // ─── Inline preview ───────────────────────────────────────────────────────────
 
@@ -384,6 +384,10 @@ export default function ResourceByOwnerTx() {
 
     const openPlainResource = async () => {
       try {
+        setDecrypting(true)
+        setDecryptStage("downloading")
+        setDownloadProgress({ loaded: 0, total: Number(state.file.file_size || 0) })
+
         const cachedFile = await getCachedResourceFile(
           state.file.owner_address,
           state.file.tx_id,
@@ -399,6 +403,11 @@ export default function ResourceByOwnerTx() {
             state.file.tx_id,
             state.file.storage_type,
             Number(state.file.file_size || 0),
+            (loaded, total) => {
+              if (!cancelled) {
+                setDownloadProgress({ loaded, total })
+              }
+            }
           )
 
           if (cancelled) return
@@ -426,6 +435,10 @@ export default function ResourceByOwnerTx() {
         const target = `${RPCs.ARWEAVE_BASE}/${state.file.tx_id}`
         if (typeof window !== "undefined" && window.location.href !== target) {
           window.location.replace(target)
+        }
+      } finally {
+        if (!cancelled) {
+          setDecrypting(false)
         }
       }
     }
@@ -749,8 +762,31 @@ export default function ResourceByOwnerTx() {
   if (state.status === "found") {
     if (state.file.encryption_algo === "none") {
       return (
-        <main className="mesh-gradient relative flex min-h-screen items-center justify-center p-4">
-          <p className="text-muted-foreground text-sm">Loading preview...</p>
+        <main className="mesh-gradient relative flex min-h-screen flex-col items-center justify-center p-4">
+          <div className="bg-card/90 w-full max-w-sm space-y-4 rounded-2xl border p-8 text-center shadow-xl">
+            <Loader2 className="text-primary mx-auto h-8 w-8 animate-spin" />
+            <div className="space-y-1">
+              <p className="text-sm font-medium">Preparing preview...</p>
+              <p className="text-muted-foreground text-xs">
+                {state.file.file_name}
+              </p>
+            </div>
+            {downloadProgress.total && downloadProgress.total > 0 && (
+              <div className="space-y-2">
+                <div className="bg-muted h-1.5 w-full overflow-hidden rounded-full">
+                  <div
+                    className="bg-primary h-full transition-all duration-300"
+                    style={{
+                      width: `${Math.min(100, (downloadProgress.loaded / downloadProgress.total) * 100)}%`,
+                    }}
+                  />
+                </div>
+                <p className="text-muted-foreground text-[10px]">
+                  {((downloadProgress.loaded / downloadProgress.total) * 100).toFixed(0)}% downloaded
+                </p>
+              </div>
+            )}
+          </div>
         </main>
       )
     }

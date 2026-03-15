@@ -10,6 +10,8 @@ import { calculateFileHash } from "./file-manager"
 import { ARWEAVE_APP_NAME } from "@/lib/config"
 import type { FileIndex } from "./file-manager"
 import { getFileByOwnerAndTxId } from "./file-manager"
+import { queryArweaveGraphQL } from "./arweave-graphql"
+import { getCachedResource } from "./resource-cache"
 
 interface ArweaveTransaction {
   id: string
@@ -29,17 +31,6 @@ interface ArweaveTransaction {
   }
 }
 
-interface GraphQLQuery {
-  query: string
-  variables: {
-    owner: string[]
-    appName: string
-    ownerAddress: string
-    limit: number
-    after?: string | null
-  }
-}
-
 interface GraphQLResponse {
   data?: {
     transactions?: {
@@ -51,20 +42,6 @@ interface GraphQLResponse {
         node: ArweaveTransaction
       }>
     }
-  }
-  errors?: Array<{
-    message: string
-  }>
-}
-
-interface SingleTxGraphQLQuery {
-  query: string
-  variables: {
-    ids: string[]
-    owner: string[]
-    appName: string
-    ownerAddress: string
-    limit: number
   }
 }
 
@@ -166,7 +143,7 @@ export async function queryFileTransactions(
           }
         `
 
-      const query: GraphQLQuery = {
+      const result = await queryArweaveGraphQL<GraphQLResponse["data"]>({
         query: queryString,
         variables: {
           owner: [ownerAddress],
@@ -175,33 +152,10 @@ export async function queryFileTransactions(
           limit: pageSize,
           ...(cursor && { after: cursor }),
         },
-      }
-
-      const response: Response = await fetch(RPCs.ARWEAVE_GATEWAY, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(query),
       })
 
-      if (!response.ok) {
-        const errorText = await response.text()
-        console.error("GraphQL query failed:", response.status, errorText)
-        throw new Error(
-          `GraphQL query failed: ${response.status} - ${errorText}`,
-        )
-      }
-
-      const result: GraphQLResponse = await response.json()
-
-      if (result.errors) {
-        console.error("GraphQL errors:", result.errors)
-        throw new Error(`GraphQL query failed: ${result.errors[0]?.message}`)
-      }
-
-      const edges = result.data?.transactions?.edges || []
-      const pageInfo = result.data?.transactions?.pageInfo
+      const edges = result?.transactions?.edges || []
+      const pageInfo = result?.transactions?.pageInfo
 
       // 添加当前页的交易
       const pageTransactions = edges.map(
@@ -357,7 +311,10 @@ async function processTransaction(
     let fileHash: string
     if (needsHashCalculation) {
       try {
-        fileHash = await calculateFileHashFromArweave(fileInfo.tx_id ?? "")
+        fileHash = await calculateFileHashFromArweave(
+          fileInfo.tx_id ?? "",
+          ownerAddress,
+        )
       } catch (error) {
         console.error(
           `Failed to calculate hash for tx ${fileInfo.tx_id}:`,
@@ -662,8 +619,19 @@ export async function syncFilesFromArweaveDirect(
  */
 export async function calculateFileHashFromArweave(
   txId: string,
+  ownerAddress?: string,
 ): Promise<string> {
   try {
+    // 1) 优先检查本地缓存，如果已经存在则直接计算 hash，避免网络下载
+    if (ownerAddress) {
+      const cached = await getCachedResource(ownerAddress, txId)
+      if (cached) {
+        const file = new File([cached.payload as any], "temp")
+        return await calculateFileHash(file)
+      }
+    }
+
+    // 2) 如果本地没有缓存，则从 Arweave 下载
     // 使用 no-store 缓存策略，避免浏览器缓存文件到磁盘
     // 因为我们只需要计算 hash，不需要保存文件
     const response = await fetch(`${RPCs.ARWEAVE_BASE}/${txId}`, {
@@ -695,7 +663,7 @@ export async function syncFileByTxIdFromArweave(
   ownerAddress: string,
   txId: string,
 ): Promise<FileIndex | null> {
-  const query: SingleTxGraphQLQuery = {
+  const result = await queryArweaveGraphQL<GraphQLResponse["data"]>({
     query: `
       query GetFileByTxId($ids: [ID!]!, $owner: [String!]!, $appName: String!, $ownerAddress: String!, $limit: Int!) {
         transactions(
@@ -736,27 +704,9 @@ export async function syncFileByTxIdFromArweave(
       ownerAddress,
       limit: 1,
     },
-  }
-
-  const response = await fetch(RPCs.ARWEAVE_GATEWAY, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(query),
   })
 
-  if (!response.ok) {
-    const errorText = await response.text()
-    throw new Error(`GraphQL query failed: ${response.status} - ${errorText}`)
-  }
-
-  const result: GraphQLResponse = await response.json()
-  if (result.errors?.length) {
-    throw new Error(`GraphQL query failed: ${result.errors[0]?.message}`)
-  }
-
-  const tx = result.data?.transactions?.edges?.[0]?.node
+  const tx = result?.transactions?.edges?.[0]?.node
   if (!tx) {
     return null
   }
