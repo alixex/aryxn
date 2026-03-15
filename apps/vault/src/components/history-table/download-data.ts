@@ -1,6 +1,7 @@
 import { arweave } from "@/lib/storage"
 import {
   getCachedResource,
+  getCachedResourceFile,
   upsertCachedResource,
   upsertCachedResourceFromStream,
 } from "@/lib/file"
@@ -213,6 +214,65 @@ async function cacheFromGatewayStream(
   return null
 }
 
+async function cacheFileFromGatewayStream(
+  txId: string,
+  expectedDataSize: number,
+  storageType: "arweave" | "irys",
+  options: {
+    ownerAddress: string
+    isEncrypted?: boolean
+    mimeType?: string
+  },
+): Promise<File | null> {
+  const gateways =
+    storageType === "irys"
+      ? ["https://gateway.irys.xyz"]
+      : ["https://arweave.net", "https://ar-io.net", "https://arweave.live"]
+
+  for (const gateway of gateways) {
+    try {
+      const response = await fetch(`${gateway}/${txId}`, {
+        headers: {
+          Accept: "application/octet-stream",
+        },
+      })
+
+      if (!response.ok || !response.body) {
+        continue
+      }
+
+      const streamedSize = await upsertCachedResourceFromStream({
+        ownerAddress: options.ownerAddress,
+        txId,
+        mimeType: options.mimeType || null,
+        storageType,
+        isEncrypted: options.isEncrypted === true,
+        stream: response.body,
+      })
+
+      if (expectedDataSize > 0 && streamedSize !== expectedDataSize) {
+        console.warn("Streamed cache size mismatch; trying next gateway", {
+          txId,
+          expectedDataSize,
+          streamedSize,
+          gateway,
+        })
+        continue
+      }
+
+      const cachedFile = await getCachedResourceFile(options.ownerAddress, txId)
+      if (cachedFile) {
+        return cachedFile
+      }
+    } catch (error) {
+      console.warn(`Failed to stream file cache from ${gateway}:`, error)
+      continue
+    }
+  }
+
+  return null
+}
+
 /**
  * 使用 SDK 的 getData 方法下载数据（回退方案）
  */
@@ -360,4 +420,50 @@ export async function downloadTransactionData(
   }
 
   return data
+}
+
+export async function downloadTransactionFile(
+  txId: string,
+  expectedDataSize: number = 0,
+  storageType: "arweave" | "irys" = "arweave",
+  options?: {
+    ownerAddress?: string
+    isEncrypted?: boolean
+    mimeType?: string
+    fileName?: string
+  },
+): Promise<File> {
+  if (options?.ownerAddress) {
+    const cachedFile = await getCachedResourceFile(options.ownerAddress, txId)
+    if (
+      cachedFile &&
+      (expectedDataSize === 0 || cachedFile.size === expectedDataSize)
+    ) {
+      return cachedFile
+    }
+
+    const streamedFile = await cacheFileFromGatewayStream(
+      txId,
+      expectedDataSize,
+      storageType,
+      {
+        ownerAddress: options.ownerAddress,
+        isEncrypted: options.isEncrypted,
+        mimeType: options.mimeType,
+      },
+    )
+    if (streamedFile) {
+      return streamedFile
+    }
+  }
+
+  const data = await downloadTransactionData(txId, expectedDataSize, storageType, {
+    ownerAddress: options?.ownerAddress,
+    isEncrypted: options?.isEncrypted,
+    mimeType: options?.mimeType,
+  })
+
+  return new File([data as BlobPart], options?.fileName || txId, {
+    type: options?.mimeType || "application/octet-stream",
+  })
 }

@@ -4,6 +4,7 @@ import type { TFunction } from "i18next"
 import {
   getTransactionMetadata,
   downloadTransactionData,
+  downloadTransactionFile,
 } from "./download-data"
 import {
   decodeTransactionTags,
@@ -28,18 +29,6 @@ export async function handleFileDownload(
   // 获取 transaction 元数据
   const { transaction, expectedDataSize } = await getTransactionMetadata(
     record.txId,
-  )
-
-  // 下载数据
-  const data = await downloadTransactionData(
-    record.txId,
-    expectedDataSize,
-    record.storageType,
-    {
-      ownerAddress: record.ownerAddress,
-      isEncrypted: record.encryptionAlgo !== "none",
-      mimeType: record.mimeType,
-    },
   )
 
   // 解码 transaction tags
@@ -71,6 +60,49 @@ export async function handleFileDownload(
     dbValue: record.encryptionParams,
     encryptionAlgo: record.encryptionAlgo,
   })
+
+  // For unencrypted and non-compressed files, download from cached File path directly.
+  if (
+    decrypt &&
+    record.encryptionAlgo === "none" &&
+    !compressionEnabled
+  ) {
+    const file = await downloadTransactionFile(
+      record.txId,
+      expectedDataSize,
+      record.storageType,
+      {
+        ownerAddress: record.ownerAddress,
+        isEncrypted: false,
+        mimeType: record.mimeType,
+        fileName: record.fileName,
+      },
+    )
+
+    const url = URL.createObjectURL(file)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = record.fileName
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+
+    toast.success(t("history.successDownload"))
+    return
+  }
+
+  // 下载数据
+  const data = await downloadTransactionData(
+    record.txId,
+    expectedDataSize,
+    record.storageType,
+    {
+      ownerAddress: record.ownerAddress,
+      isEncrypted: record.encryptionAlgo !== "none",
+      mimeType: record.mimeType,
+    },
+  )
 
   // 如果下载加密文件但不解密，打包成 JSON
   if (record.encryptionAlgo !== "none" && !decrypt) {

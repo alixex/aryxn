@@ -2,6 +2,7 @@ import { db } from "@/lib/database"
 
 const OPFS_RESOURCE_CACHE_DIR = "resource-cache"
 const OPFS_CHUNK_SIZE = 1024 * 1024
+const RESOURCE_CACHE_MAX_BYTES = 2 * 1024 * 1024 * 1024
 
 export interface CachedResource {
   txId: string
@@ -31,6 +32,70 @@ async function getOpfsFileHandle(
     create,
   })
   return cacheDir.getFileHandle(opfsKey, { create })
+}
+
+async function removeOpfsPayload(opfsKey: string): Promise<void> {
+  const opfsRoot = await navigator.storage.getDirectory()
+  const cacheDir = await opfsRoot.getDirectoryHandle(OPFS_RESOURCE_CACHE_DIR, {
+    create: true,
+  })
+  try {
+    await cacheDir.removeEntry(opfsKey)
+  } catch (error) {
+    // Ignore missing-file errors to keep cache cleanup idempotent.
+    if (!(error instanceof DOMException && error.name === "NotFoundError")) {
+      throw error
+    }
+  }
+}
+
+async function touchCacheRecord(ownerAddress: string, txId: string) {
+  await db.run(
+    "UPDATE resource_cache SET updated_at = ? WHERE owner_address = ? AND tx_id = ?",
+    [Date.now(), ownerAddress, txId],
+  )
+}
+
+async function pruneResourceCache(maxBytes = RESOURCE_CACHE_MAX_BYTES) {
+  const rows = await db.all(
+    "SELECT tx_id, owner_address, opfs_key, content_size FROM resource_cache ORDER BY updated_at DESC",
+  )
+
+  let totalBytes = rows.reduce(
+    (sum, row) => sum + Number(row.content_size || 0),
+    0,
+  )
+
+  if (totalBytes <= maxBytes) {
+    return
+  }
+
+  for (let i = rows.length - 1; i >= 0 && totalBytes > maxBytes; i -= 1) {
+    const row = rows[i]
+    const txId = String(row.tx_id || "")
+    const ownerAddress = String(row.owner_address || "")
+    const opfsKey = typeof row.opfs_key === "string" ? row.opfs_key : ""
+    const size = Number(row.content_size || 0)
+
+    if (!txId || !ownerAddress) {
+      continue
+    }
+
+    if (opfsKey && hasOpfsSupport()) {
+      try {
+        await removeOpfsPayload(opfsKey)
+      } catch (error) {
+        console.warn("Failed to delete OPFS cache payload during prune:", error)
+      }
+    }
+
+    await db.run(
+      "DELETE FROM resource_cache WHERE owner_address = ? AND tx_id = ?",
+      [ownerAddress, txId],
+    )
+
+    totalBytes -= size
+  }
 }
 
 async function writeOpfsPayload(opfsKey: string, payload: Uint8Array) {
@@ -104,6 +169,8 @@ export async function getCachedResource(
     return null
   }
 
+  await touchCacheRecord(ownerAddress, txId)
+
   return {
     txId: String(row.tx_id),
     ownerAddress: String(row.owner_address),
@@ -132,6 +199,8 @@ export async function getCachedResourceFile(
   if (!row || typeof row.opfs_key !== "string" || !row.opfs_key) {
     return null
   }
+
+  await touchCacheRecord(ownerAddress, txId)
 
   return readOpfsFile(String(row.opfs_key))
 }
@@ -181,6 +250,8 @@ export async function upsertCachedResource(input: {
       now,
     ],
   )
+
+  await pruneResourceCache()
 }
 
 export async function upsertCachedResourceFromStream(input: {
@@ -228,6 +299,8 @@ export async function upsertCachedResourceFromStream(input: {
       now,
     ],
   )
+
+  await pruneResourceCache()
 
   return contentSize
 }
