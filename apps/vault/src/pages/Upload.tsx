@@ -128,7 +128,7 @@ export default function UploadPage() {
 
   return (
     <div className="mesh-gradient relative min-h-screen pb-20">
-      <div className="animate-in fade-in slide-in-from-bottom-4 mx-auto max-w-6xl space-y-5 px-2.5 py-5 duration-1000 sm:space-y-8 sm:px-4 sm:py-8">
+      <div className="animate-in fade-in slide-in-from-bottom-2 mx-auto max-w-6xl space-y-5 px-2.5 py-5 duration-700 sm:space-y-8 sm:px-4 sm:py-8">
         {/* Header Area */}
         <PageHeader
           title={t("common.upload")}
@@ -157,11 +157,11 @@ export default function UploadPage() {
         />
 
         {/* Unified Upload Interface */}
-        <Card className="glass-premium hover:shadow-primary/5 overflow-hidden border-none shadow-2xl transition-all duration-500">
+        <Card className="glass-premium hover:shadow-primary/5 overflow-hidden border-none shadow-[0_18px_36px_-30px_hsl(var(--primary)/0.3)] transition-all duration-300">
           <CardContent className="p-0">
             {/* 1. Massive Dropzone Hero Area */}
             <div
-              className={`transition-all duration-500 ${hasSelection ? "border-border/50 bg-secondary/10 border-b p-4 pb-2 sm:p-6 sm:pb-2" : "p-5 sm:p-12"}`}
+              className={`transition-all duration-300 ${hasSelection ? "border-border/50 bg-[hsl(var(--secondary)/0.06)] border-b p-4 pb-2 sm:p-6 sm:pb-2" : "p-5 sm:p-12"}`}
             >
               <FileUploadSection
                 file={file}
@@ -181,7 +181,7 @@ export default function UploadPage() {
                   <div className="flex flex-col gap-6 lg:col-span-5">
                     {file && <FilePreview file={file} />}
 
-                    <div className="border-border/50 bg-background/50 rounded-xl border p-4 shadow-inner">
+                    <div className="border-border/50 bg-[hsl(var(--background)/0.58)] rounded-xl border p-4">
                       <UploadOptions
                         encryptUpload={encryptUpload}
                         compressUpload={compressUpload}
@@ -199,7 +199,7 @@ export default function UploadPage() {
 
                   {/* Right Column: Payment & Execution */}
                   <div className="flex flex-col gap-6 lg:col-span-7">
-                    <div className="border-border/50 bg-background/50 rounded-xl border p-4 shadow-inner sm:p-5">
+                    <div className="border-border/50 bg-[hsl(var(--background)/0.58)] rounded-xl border p-4 sm:p-5">
                       <PaymentTokenSelector
                         selectedToken={paymentToken}
                         selectedAccount={paymentAccount}
@@ -228,7 +228,7 @@ export default function UploadPage() {
                                 if (irysToken) {
                                   return (
                                     <span
-                                      className={`${baseBadgeClass} bg-[hsl(var(--secondary)/0.14)] text-[hsl(var(--secondary))] ring-[hsl(var(--secondary)/0.25)]`}
+                                      className={`${baseBadgeClass} bg-primary/10 text-primary ring-primary/20`}
                                     >
                                       <ChainIcon
                                         chain={paymentAccount.chain}
@@ -241,7 +241,7 @@ export default function UploadPage() {
 
                                 return (
                                   <span
-                                    className={`${baseBadgeClass} bg-[hsl(var(--accent)/0.2)] text-[hsl(var(--foreground))] ring-[hsl(var(--accent)/0.35)]`}
+                                    className={`${baseBadgeClass} bg-muted/75 text-foreground ring-border/80`}
                                   >
                                     <ChainIcon
                                       chain={paymentAccount.chain}
@@ -268,7 +268,7 @@ export default function UploadPage() {
                     {/* Execution Area */}
                     <div className="mt-auto flex flex-col gap-4">
                       {recoveryMessage && (
-                        <div className="bg-primary/10 text-primary ring-primary/20 rounded-lg p-3 text-xs ring-1">
+                        <div className="bg-[hsl(var(--primary)/0.08)] text-primary ring-[hsl(var(--primary)/0.15)] rounded-lg p-3 text-xs ring-1">
                           <div className="flex items-start justify-between gap-2">
                             <div className="flex min-w-0 items-start gap-2">
                               <Info className="mt-0.5 h-4 w-4 shrink-0" />
@@ -282,7 +282,7 @@ export default function UploadPage() {
                                           "Pending Payment Found",
                                         )}
                                   </p>
-                                  <span className="rounded-full bg-[hsl(var(--primary)/0.18)] px-2 py-0.5 text-[10px] font-semibold uppercase ring-1 ring-[hsl(var(--primary)/0.25)]">
+                                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase ring-1 ring-[hsl(var(--primary)/0.18)]">
                                     {recoveryState === "COMPLETED"
                                       ? t("common.ready", "Ready")
                                       : t("common.pending", "Pending")}

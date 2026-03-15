@@ -97,14 +97,14 @@
 
     /* Animation timing */
     --duration-instant: 100ms;
-    --duration-fast: 150ms;
-    --duration-normal: 250ms;
-    --duration-slow: 350ms;
+    --duration-fast: 140ms;
+    --duration-normal: 220ms;
+    --duration-slow: 300ms;
     --duration-slower: 500ms;
 
     /* Easing functions */
     --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
-    --ease-out: cubic-bezier(0, 0, 0.2, 1);
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
     --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
     --ease-sharp: cubic-bezier(0.4, 0, 0.6, 1);
   }
@@ -248,22 +248,22 @@
     background-image:
       radial-gradient(
         at 0% 0%,
-        hsl(var(--primary) / 0.11) 0px,
+        hsl(var(--primary) / 0.07) 0px,
         transparent 50%
       ),
       radial-gradient(
         at 100% 0%,
-        hsl(var(--secondary) / 0.14) 0px,
+        hsl(var(--secondary) / 0.08) 0px,
         transparent 50%
       ),
       radial-gradient(
         at 100% 100%,
-        hsl(var(--accent) / 0.11) 0px,
+        hsl(var(--accent-foreground) / 0.05) 0px,
         transparent 50%
       ),
       radial-gradient(
         at 0% 100%,
-        hsl(var(--secondary) / 0.11) 0px,
+        hsl(var(--secondary) / 0.07) 0px,
         transparent 50%
       );
   }
@@ -361,7 +361,7 @@
   @keyframes fadeInUp {
     from {
       opacity: 0;
-      transform: translateY(20px);
+      transform: translateY(12px);
     }
 
     to {
@@ -373,7 +373,7 @@
   @keyframes fadeInDown {
     from {
       opacity: 0;
-      transform: translateY(-20px);
+      transform: translateY(-12px);
     }
 
     to {
@@ -395,7 +395,7 @@
   @keyframes slideInRight {
     from {
       opacity: 0;
-      transform: translateX(-20px);
+      transform: translateX(-12px);
     }
 
     to {
@@ -511,11 +511,11 @@
     background: linear-gradient(
       90deg,
       transparent 0%,
-      hsl(0 0% 50% / 0.1) 50%,
+      hsl(var(--foreground) / 0.08) 50%,
       transparent 100%
     );
     background-size: 200% 100%;
-    animation: shimmer 2s ease-in-out infinite;
+    animation: shimmer 2.8s var(--ease-out) infinite;
   }
 
   .animate-float {

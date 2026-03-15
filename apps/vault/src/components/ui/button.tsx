@@ -10,18 +10,18 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-gradient-primary text-primary-foreground shadow-[0_10px_24px_-14px_hsl(var(--primary)/0.7)] hover:shadow-[0_16px_28px_-14px_hsl(var(--primary)/0.7)] hover:scale-[1.02] active:scale-[0.98]",
+          "bg-gradient-primary text-primary-foreground shadow-[0_10px_24px_-18px_hsl(var(--primary)/0.55)] hover:-translate-y-0.5 hover:shadow-[0_14px_26px_-16px_hsl(var(--primary)/0.45)] active:translate-y-0",
         destructive:
-          "bg-destructive text-destructive-foreground shadow-lg hover:shadow-xl active:scale-[0.98]",
+          "bg-destructive text-destructive-foreground shadow-[0_10px_20px_-16px_hsl(var(--destructive)/0.55)] hover:-translate-y-0.5 hover:shadow-[0_14px_24px_-16px_hsl(var(--destructive)/0.5)] active:translate-y-0",
         outline:
-          "border-2 border-primary/45 bg-[hsl(var(--card)/0.7)] text-primary hover:bg-primary/10 hover:border-primary active:scale-[0.98]",
+          "border-2 border-primary/35 bg-[hsl(var(--card)/0.78)] text-primary hover:bg-primary/10 hover:border-primary/60",
         secondary:
-          "bg-secondary/90 text-secondary-foreground hover:bg-secondary active:scale-[0.98] transition-colors",
+          "bg-secondary/88 text-secondary-foreground hover:bg-secondary transition-colors",
         ghost:
-          "text-foreground hover:bg-accent/40 active:scale-[0.95] transition-colors",
+          "text-foreground hover:bg-accent/45 transition-colors",
         link: "text-primary underline-offset-4 hover:underline hover:text-primary/80 transition-colors",
         gradient:
-          "bg-gradient-secondary text-secondary-foreground shadow-lg hover:shadow-xl active:scale-[0.98]",
+          "bg-gradient-secondary text-secondary-foreground shadow-[0_10px_24px_-16px_hsl(var(--secondary)/0.5)] hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-18px_hsl(var(--secondary)/0.42)] active:translate-y-0",
       },
       size: {
         default: "h-10 px-4 py-2",

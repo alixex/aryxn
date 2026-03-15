@@ -39,10 +39,10 @@ export function UploadOptions({
   return (
     <div className="space-y-3">
       <div
-        className={`group flex items-start gap-4 rounded-xl border p-4 shadow-[inset_0_1px_0_hsl(0_0%_100%/0.45)] transition-all ${
+        className={`group flex items-start gap-4 rounded-xl border p-4 transition-all duration-200 ${
           encryptUpload
-            ? "border-ring bg-card/85"
-            : "border-border bg-[hsl(var(--background)/0.72)] hover:border-ring"
+            ? "border-primary/45 bg-[hsl(var(--card)/0.88)]"
+            : "border-[hsl(var(--border)/0.85)] bg-[hsl(var(--background)/0.76)] hover:border-primary/35"
         }`}
       >
         <div className="mt-0.5">
@@ -71,10 +71,10 @@ export function UploadOptions({
       </div>
 
       <div
-        className={`group flex items-start gap-4 rounded-xl border p-4 shadow-[inset_0_1px_0_hsl(0_0%_100%/0.45)] transition-all ${
+        className={`group flex items-start gap-4 rounded-xl border p-4 transition-all duration-200 ${
           compressUpload && hasCompressibleFile
-            ? "border-ring bg-card/85"
-            : "border-border bg-[hsl(var(--background)/0.72)] hover:border-ring"
+            ? "border-primary/45 bg-[hsl(var(--card)/0.88)]"
+            : "border-[hsl(var(--border)/0.85)] bg-[hsl(var(--background)/0.76)] hover:border-primary/35"
         }`}
       >
         <div className="mt-0.5">
@@ -94,7 +94,7 @@ export function UploadOptions({
             {t("upload.enableCompression")}
             <Zap className="text-foreground h-4 w-4" />
             {hasCompressibleFile && (
-              <span className="ml-1 rounded-full bg-[hsl(var(--secondary)/0.16)] px-2 py-0.5 text-xs font-semibold text-[hsl(var(--secondary))] ring-1 ring-[hsl(var(--secondary)/0.25)]">
+              <span className="ml-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary ring-1 ring-primary/20">
                 {t("upload.compressionRecommended")}
               </span>
             )}
@@ -109,10 +109,10 @@ export function UploadOptions({
 
       {/* Storage Tier Options */}
       <div
-        className={`group flex items-start gap-4 rounded-xl border p-4 shadow-[inset_0_1px_0_hsl(0_0%_100%/0.45)] transition-all ${
+        className={`group flex items-start gap-4 rounded-xl border p-4 transition-all duration-200 ${
           storageTier === "Term"
-            ? "border-ring bg-card/85"
-            : "border-border bg-[hsl(var(--background)/0.72)] hover:border-ring"
+            ? "border-primary/45 bg-[hsl(var(--card)/0.88)]"
+            : "border-[hsl(var(--border)/0.85)] bg-[hsl(var(--background)/0.76)] hover:border-primary/35"
         }`}
       >
         <div className="mt-0.5">
@@ -132,7 +132,7 @@ export function UploadOptions({
             className="text-foreground flex cursor-pointer items-center gap-2 text-sm font-semibold"
           >
             {t("upload.enableTermStorage", "Use Term Storage")}
-            <span className="ml-1 rounded-full bg-[hsl(var(--accent)/0.2)] px-2 py-0.5 text-[10px] font-bold text-[hsl(var(--foreground))] uppercase ring-1 ring-[hsl(var(--accent)/0.35)]">
+            <span className="text-muted-foreground ml-1 rounded-full bg-muted/70 px-2 py-0.5 text-[10px] font-bold uppercase ring-1 ring-border/70">
               {t("common.cheaper", "Cheaper")}
             </span>
           </Label>
