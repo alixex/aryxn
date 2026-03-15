@@ -83,12 +83,14 @@ export async function fetchDataFromGateways(
   expectedDataSize: number,
   storageType: "arweave" | "irys" = "arweave",
   onProgress?: (loaded: number, total: number | null) => void,
+  signal?: AbortSignal,
 ): Promise<Uint8Array | null> {
   const gateways = getDownloadGateways(storageType)
 
   for (const gateway of gateways) {
     try {
       const response = await fetch(`${gateway}/${txId}`, {
+        signal,
         headers: {
           Accept: "application/octet-stream",
         },
@@ -184,6 +186,7 @@ async function cacheFromGatewayStream(
     isEncrypted?: boolean
     mimeType?: string
     onProgress?: (loaded: number, total: number | null) => void
+    signal?: AbortSignal
   },
 ): Promise<Uint8Array | null> {
   const gateways = getDownloadGateways(storageType)
@@ -191,6 +194,7 @@ async function cacheFromGatewayStream(
   for (const gateway of gateways) {
     try {
       const response = await fetch(`${gateway}/${txId}`, {
+        signal: options.signal,
         headers: {
           Accept: "application/octet-stream",
         },
@@ -273,6 +277,7 @@ async function cacheFileFromGatewayStream(
     isEncrypted?: boolean
     mimeType?: string
     onProgress?: (loaded: number, total: number | null) => void
+    signal?: AbortSignal
   },
 ): Promise<File | null> {
   const gateways = getDownloadGateways(storageType)
@@ -280,6 +285,7 @@ async function cacheFileFromGatewayStream(
   for (const gateway of gateways) {
     try {
       const response = await fetch(`${gateway}/${txId}`, {
+        signal: options.signal,
         headers: {
           Accept: "application/octet-stream",
         },
@@ -386,6 +392,7 @@ export async function downloadTransactionData(
     isEncrypted?: boolean
     mimeType?: string
     onProgress?: (loaded: number, total: number | null) => void
+    signal?: AbortSignal
   },
 ): Promise<Uint8Array> {
   if (options?.ownerAddress) {
@@ -418,6 +425,7 @@ export async function downloadTransactionData(
         isEncrypted: options.isEncrypted,
         mimeType: options.mimeType,
         onProgress: options.onProgress,
+        signal: options.signal,
       },
     )
 
@@ -432,6 +440,7 @@ export async function downloadTransactionData(
     expectedDataSize,
     storageType,
     options?.onProgress,
+    options?.signal,
   )
 
   // 方法 2: 如果直接 fetch 失败，尝试使用 SDK 的 getData 方法 (Only fallback to SDK for Arweave data, SDK breaks on Irys)
@@ -493,6 +502,7 @@ export async function downloadTransactionFile(
     mimeType?: string
     fileName?: string
     onProgress?: (loaded: number, total: number | null) => void
+    signal?: AbortSignal
   },
 ): Promise<File> {
   if (options?.ownerAddress) {
@@ -517,6 +527,7 @@ export async function downloadTransactionFile(
         isEncrypted: options.isEncrypted,
         mimeType: options.mimeType,
         onProgress: options.onProgress,
+        signal: options.signal,
       },
     )
     if (streamedFile) {
@@ -533,6 +544,7 @@ export async function downloadTransactionFile(
       isEncrypted: options?.isEncrypted,
       mimeType: options?.mimeType,
       onProgress: options?.onProgress,
+      signal: options?.signal,
     },
   )
 

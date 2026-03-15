@@ -7,8 +7,9 @@ import {
   Link2,
   Loader2,
   Shield,
+  X,
 } from "lucide-react"
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { toast } from "sonner"
 import { useTranslation } from "@/i18n/config"
 import {
@@ -34,11 +35,22 @@ export function HistoryTable({
     loaded: number
     total: number | null
   } | null>(null)
+  const activeDownloadController = useRef<AbortController | null>(null)
 
   const handleDownload = async (
     record: UploadRecord,
     decrypt: boolean = true,
   ) => {
+    if (downloading && downloading !== record.txId) {
+      toast.info(
+        t(
+          "history.singleDownloadActive",
+          "A download is already in progress. Please wait or cancel it first.",
+        ),
+      )
+      return
+    }
+
     if (record.ownerAddress !== activeAddress) {
       toast.error(t("history.errorOwner"))
       return
@@ -50,6 +62,9 @@ export function HistoryTable({
       return
     }
 
+    const controller = new AbortController()
+    activeDownloadController.current = controller
+
     setDownloading(record.txId)
     setDownloadProgress({ txId: record.txId, loaded: 0, total: null })
     try {
@@ -57,9 +72,20 @@ export function HistoryTable({
         onProgress: (loaded, total) => {
           setDownloadProgress({ txId: record.txId, loaded, total })
         },
+        signal: controller.signal,
       })
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : String(e)
+
+      if (
+        (e instanceof DOMException && e.name === "AbortError") ||
+        errorMessage.toLowerCase().includes("abort")
+      ) {
+        toast.info(
+          t("history.downloadCancelled", "Download was cancelled."),
+        )
+        return
+      }
 
       // 检查是否是分块下载相关的错误
       if (
@@ -84,9 +110,19 @@ export function HistoryTable({
         toast.error(t("history.failedDownload", { message: errorMessage }))
       }
     } finally {
+      if (activeDownloadController.current === controller) {
+        activeDownloadController.current = null
+      }
       setDownloading(null)
       setDownloadProgress(null)
     }
+  }
+
+  const cancelActiveDownload = () => {
+    if (!activeDownloadController.current) {
+      return
+    }
+    activeDownloadController.current.abort()
   }
 
   const getProgressPercent = (progress: {
@@ -334,6 +370,20 @@ export function HistoryTable({
                                   <Download className="h-4 w-4" />
                                 )}
                               </Button>
+                              {downloading === r.txId ? (
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  onClick={cancelActiveDownload}
+                                  className="h-8 w-8 sm:h-9 sm:w-9"
+                                  title={t(
+                                    "history.cancelDownload",
+                                    "Cancel download",
+                                  )}
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              ) : null}
                               <Button
                                 variant="outline"
                                 size="icon"
@@ -369,34 +419,50 @@ export function HistoryTable({
                             </>
                           ) : (
                             // 非加密文件或已解锁：显示单个下载按钮（自动解密）
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              onClick={() => handleDownload(r, true)}
-                              disabled={!!downloading}
-                              className={`h-8 w-8 transition-colors duration-150 sm:h-9 sm:w-9 ${
-                                downloading === r.txId
-                                  ? "border-ring bg-accent"
-                                  : ""
-                              }`}
-                              title={
-                                r.encryptionAlgo !== "none"
-                                  ? t(
-                                      "history.downloadDecryptedTooltip",
-                                      "Download decrypted file",
-                                    )
-                                  : t(
-                                      "history.downloadTooltip",
-                                      "Download file",
-                                    )
-                              }
-                            >
+                            <>
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() => handleDownload(r, true)}
+                                disabled={!!downloading}
+                                className={`h-8 w-8 transition-colors duration-150 sm:h-9 sm:w-9 ${
+                                  downloading === r.txId
+                                    ? "border-ring bg-accent"
+                                    : ""
+                                }`}
+                                title={
+                                  r.encryptionAlgo !== "none"
+                                    ? t(
+                                        "history.downloadDecryptedTooltip",
+                                        "Download decrypted file",
+                                      )
+                                    : t(
+                                        "history.downloadTooltip",
+                                        "Download file",
+                                      )
+                                }
+                              >
+                                {downloading === r.txId ? (
+                                  <Loader2 className="text-foreground h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Download className="h-4 w-4" />
+                                )}
+                              </Button>
                               {downloading === r.txId ? (
-                                <Loader2 className="text-foreground h-4 w-4 animate-spin" />
-                              ) : (
-                                <Download className="h-4 w-4" />
-                              )}
-                            </Button>
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  onClick={cancelActiveDownload}
+                                  className="h-8 w-8 sm:h-9 sm:w-9"
+                                  title={t(
+                                    "history.cancelDownload",
+                                    "Cancel download",
+                                  )}
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              ) : null}
+                            </>
                           )}
                         </div>
                         {downloading === r.txId &&

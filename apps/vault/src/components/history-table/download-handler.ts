@@ -27,6 +27,7 @@ export async function handleFileDownload(
   t: TFunction<"translation", undefined>,
   options?: {
     onProgress?: (loaded: number, total: number | null) => void
+    signal?: AbortSignal
   },
 ): Promise<void> {
   // 获取 transaction 元数据
@@ -76,6 +77,7 @@ export async function handleFileDownload(
         mimeType: record.mimeType,
         fileName: record.fileName,
         onProgress: options?.onProgress,
+        signal: options?.signal,
       },
     )
 
@@ -102,6 +104,7 @@ export async function handleFileDownload(
       isEncrypted: record.encryptionAlgo !== "none",
       mimeType: record.mimeType,
       onProgress: options?.onProgress,
+      signal: options?.signal,
     },
   )
 
