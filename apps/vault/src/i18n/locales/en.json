@@ -251,6 +251,8 @@
     "failedDownload": "Download failed: {{message}}",
     "failedDownloadChunk": "Download failed: {{message}}",
     "chunkErrorHint": "The file data may not be fully seeded to the Arweave network yet. This usually happens with large files or recently uploaded transactions. Please try again in a few minutes or check the transaction status.",
+    "originalGateway": "Gateway",
+    "openOriginalGateway": "Open original gateway",
     "needAccountSetup": "Account Setup Required",
     "accountSetupHint": "Set up a master password or connect an external wallet to view and manage your file records.",
     "syncing": "Syncing...",

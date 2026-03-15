@@ -235,6 +235,8 @@
     "failedDownload": "下載失敗：{{message}}",
     "failedDownloadChunk": "下載失敗：{{message}}",
     "chunkErrorHint": "檔案資料可能尚未完全同步到 Arweave 網路。這通常發生在大型檔案或最近上傳的交易中。請稍後再試或查看交易狀態。",
+    "originalGateway": "原始網關",
+    "openOriginalGateway": "打開原始網關",
     "needAccountSetup": "請先設置帳戶",
     "accountSetupHint": "設置主密碼或連接外部錢包後，即可查看和管理您的檔案記錄。",
     "syncing": "同步中...",

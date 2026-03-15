@@ -12,7 +12,6 @@ import { useState, useRef } from "react"
 import { toast } from "sonner"
 import { useTranslation } from "@/i18n/config"
 import { useVirtualizer, type VirtualItem } from "@tanstack/react-virtual"
-import { Link } from "react-router-dom"
 import {
   formatFileSize,
   formatDateTime,
@@ -98,6 +97,12 @@ export function HistoryTable({
   const getResourceUrl = (record: UploadRecord): string => {
     const basePath = import.meta.env.BASE_URL.replace(/\/$/, "")
     return `${window.location.origin}${basePath}${getResourcePath(record)}`
+  }
+
+  const getGatewayUrl = (record: UploadRecord): string => {
+    return record.storageType === "irys"
+      ? `https://gateway.irys.xyz/${record.txId}`
+      : `https://arweave.net/${record.txId}`
   }
 
   const handleCopyResourceUrl = async (record: UploadRecord) => {
@@ -211,22 +216,30 @@ export function HistoryTable({
                       </td>
                       {/* 存储 ID */}
                       <td className="w-[15%] truncate px-4 py-3.5 sm:px-6">
-                        <a
-                          href={
-                            r.storageType === "irys"
-                              ? `https://gateway.irys.xyz/${r.txId}`
-                              : `https://arweave.net/${r.txId}`
-                          }
-                          target="_blank"
-                          rel="noreferrer"
-                          className="group/tx text-foreground hover:text-primary block truncate font-mono text-xs hover:underline"
-                          title={r.txId}
-                        >
-                          <span className="inline-block truncate">
-                            {r.txId.slice(0, 8)}...{r.txId.slice(-6)}
-                          </span>
-                          <ExternalLink className="ml-1 inline h-3 w-3 opacity-0 transition-opacity group-hover/tx:opacity-100" />
-                        </a>
+                        <div className="space-y-1">
+                          <a
+                            href={getResourceUrl(r)}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="group/tx text-primary hover:text-primary/85 block truncate font-mono text-xs font-semibold hover:underline"
+                            title={r.txId}
+                          >
+                            <span className="inline-block truncate">
+                              {r.txId.slice(0, 8)}...{r.txId.slice(-6)}
+                            </span>
+                            <Link2 className="ml-1 inline h-3 w-3 opacity-0 transition-opacity group-hover/tx:opacity-100" />
+                          </a>
+                          <a
+                            href={getGatewayUrl(r)}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-[10px] hover:underline"
+                            title={t("history.openOriginalGateway", "Open original gateway")}
+                          >
+                            <ExternalLink className="h-3 w-3" />
+                            {t("history.originalGateway", "Gateway")}
+                          </a>
+                        </div>
                       </td>
                       {/* 协议 */}
                       <td
@@ -276,9 +289,13 @@ export function HistoryTable({
                               "Open unique resource route",
                             )}
                           >
-                            <Link to={getResourcePath(r)}>
+                            <a
+                              href={getResourceUrl(r)}
+                              target="_blank"
+                              rel="noreferrer"
+                            >
                               <Link2 className="h-4 w-4" />
-                            </Link>
+                            </a>
                           </Button>
                           <Button
                             variant="ghost"
@@ -301,11 +318,7 @@ export function HistoryTable({
                             className="text-muted-foreground hover:bg-accent hover:text-foreground h-8 w-8 transition-colors duration-150 sm:h-9 sm:w-9"
                           >
                             <a
-                              href={
-                                r.storageType === "irys"
-                                  ? `https://gateway.irys.xyz/${r.txId}`
-                                  : `https://arweave.net/${r.txId}`
-                              }
+                              href={getGatewayUrl(r)}
                               target="_blank"
                               rel="noreferrer"
                             >
