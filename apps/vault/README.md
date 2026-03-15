@@ -13,9 +13,8 @@
 **Aryxn Vault** is a user-sovereignty-first Web3 app that combines:
 
 - Multi-chain account management
-- Decentralized token swaps (DEX)
-- Cross-chain bridge routing
 - Permanent file storage on Arweave
+- Search and history tooling
 
 It is designed for people who want one interface for assets, transactions, and long-term data preservation, while keeping sensitive keys and encrypted content local.
 
@@ -32,34 +31,26 @@ Live app: https://alixex.github.io/aryxn/
 - Track balances and account state in one place
 - Keep sensitive data locally encrypted under your master password
 
-### DEX Swap
-
-- Smart routing for same-chain token swaps
-- Multi-hop optimization across liquidity paths
-- Real-time price impact and slippage awareness
-- Fast quote-to-execution workflow
-
-### Cross-Chain Bridge
-
-- Move assets across chains (e.g. ETH -> SOL, BTC -> AR)
-- Stablecoin-assisted routes for robust bridging
-- Status tracking for long-running bridge transactions
-- Batch-friendly transaction handling
-
 ### Permanent File Storage
 
 - Upload files to Arweave for permanent, immutable storage
 - Choose public or encrypted-private upload mode
 - End-to-end encryption before upload (local-only key material)
 - Organize with metadata and search by multiple dimensions
-- Cost-aware upload flow with fee estimation and payment routing
+- Cost-aware upload flow with fee estimation and route guidance
 
 ### Unified Dashboard
 
-- View uploads, swaps, bridges, and transfers in one place
+- View upload activity and file records in one place
 - Inspect operation history and status details
 - Monitor storage usage and upload activity
 - Sync on-chain data into local SQLite cache for responsive UX
+
+### Search & Retrieval
+
+- Search by file name, metadata, and transaction ID
+- Desktop and mobile optimized search flows
+- Open/download resources with gateway fallback
 
 ---
 
@@ -74,10 +65,10 @@ Live app: https://alixex.github.io/aryxn/
 
 ## Typical Use Cases
 
-- Multi-chain portfolio operations from one interface
-- Cross-chain execution with route and status visibility
+- Multi-chain account operations from one interface
 - Personal encrypted archive with permanent availability
 - Creator proof-of-origin and timestamped publication
+- Data-first Web3 workflow with upload + retrieval
 - Long-term backup of critical digital files
 
 ---
@@ -87,9 +78,9 @@ Live app: https://alixex.github.io/aryxn/
 1. Open https://alixex.github.io/aryxn/
 2. Create your master password (store it safely)
 3. Add or connect accounts
-4. Swap / bridge / transfer as needed
+4. Manage accounts and set the active identity
 5. Upload files in public or encrypted mode
-6. Track everything from the dashboard
+6. Search, retrieve, and track records from the dashboard
 
 ---
 
