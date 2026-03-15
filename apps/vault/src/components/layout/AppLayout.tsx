@@ -8,9 +8,9 @@ export function AppLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="bg-background text-foreground bg-gradient-radial relative min-h-screen overflow-x-clip pb-[5.35rem] transition-colors duration-300 md:pb-0">
-      <div className="pointer-events-none absolute inset-0 opacity-55">
-        <div className="absolute -top-24 -left-28 h-72 w-72 rounded-full bg-[hsl(var(--primary)/0.1)] blur-3xl" />
-        <div className="absolute top-12 right-0 h-80 w-80 rounded-full bg-[hsl(var(--secondary)/0.1)] blur-3xl" />
+      <div className="pointer-events-none absolute inset-0 opacity-45">
+        <div className="absolute -top-24 -left-28 h-72 w-72 rounded-full bg-[hsl(var(--primary)/0.06)] blur-3xl" />
+        <div className="absolute top-12 right-0 h-80 w-80 rounded-full bg-[hsl(var(--secondary)/0.08)] blur-3xl" />
       </div>
       <Navbar />
       <main className="relative z-10 container mx-auto max-w-6xl px-3 py-5 sm:px-4 sm:py-8 lg:px-8">
