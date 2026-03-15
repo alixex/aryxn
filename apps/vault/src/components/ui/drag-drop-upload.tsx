@@ -32,7 +32,7 @@ export function DragDropUpload({
 
   const handleFile = (file: File) => {
     if (disabled) return
-    // 检查是否与已选择的文件重复
+    // Check whether the file duplicates the currently selected file
     if (selectedFile) {
       if (
         selectedFile.name === file.name &&
@@ -50,7 +50,7 @@ export function DragDropUpload({
     onFileSelect(file)
   }
 
-  // 检查文件是否重复（通过文件名、大小和最后修改时间）
+  // Check file duplication using name, size, and lastModified
   const isFileDuplicate = (file: File, existingFiles: File[]): boolean => {
     return existingFiles.some(
       (existing) =>
@@ -63,7 +63,7 @@ export function DragDropUpload({
   const handleFiles = (files: File[]) => {
     if (disabled || files.length === 0) return
     if (onFilesSelect) {
-      // 增量添加：将新文件追加到现有列表
+      // Incremental add: append new files to the existing list
       const duplicateFiles: File[] = []
       const newFiles = files.filter((f) => {
         if (isFileDuplicate(f, selectedFiles)) {
@@ -73,7 +73,7 @@ export function DragDropUpload({
         return true
       })
 
-      // 显示重复文件提示
+      // Show duplicate file hints
       if (duplicateFiles.length > 0) {
         if (duplicateFiles.length === 1) {
           toast.warning(t("upload.duplicateFile"), {
@@ -107,7 +107,7 @@ export function DragDropUpload({
         onFilesSelect([...selectedFiles, ...newFiles])
       }
     } else if (files.length > 0) {
-      // 如果没有提供 onFilesSelect，只选择第一个文件（向后兼容）
+      // If onFilesSelect is not provided, select only the first file (backward compatible)
       onFileSelect(files[0])
     }
   }
@@ -147,7 +147,7 @@ export function DragDropUpload({
     const files = Array.from(e.dataTransfer.files)
     if (files.length > 0) {
       if (multiple) {
-        // 拖拽时也是增量添加
+        // Drag-and-drop also uses incremental add behavior
         handleFiles(files)
       } else {
         handleFile(files[0])
@@ -176,13 +176,13 @@ export function DragDropUpload({
 
   const handleRemove = (e: React.MouseEvent, fileToRemove?: File) => {
     e.stopPropagation()
-    // 注意：不清空 input.value，保持文件选择器状态，支持继续添加文件
+    // Keep input.value to preserve picker state and allow continued appending
     if (multiple && onFilesSelect && fileToRemove) {
       const newFiles = selectedFiles.filter((f) => f !== fileToRemove)
       onFilesSelect(newFiles)
       if (newFiles.length === 0) {
         onFileSelect(null)
-        // 只有当所有文件都删除时才清空 input
+        // Clear input only when all files are removed
         if (fileInputRef.current) {
           fileInputRef.current.value = ""
         }
@@ -192,7 +192,7 @@ export function DragDropUpload({
       if (onFilesSelect) {
         onFilesSelect([])
       }
-      // 清空 input
+      // Clear input
       if (fileInputRef.current) {
         fileInputRef.current.value = ""
       }
@@ -238,9 +238,9 @@ export function DragDropUpload({
             <div
               className={
                 displayFiles.length === 1
-                  ? // 单个文件：居中显示，最大宽度限制
+                  ? // Single file: center it with max width constraint
                     "flex justify-center"
-                  : // 多个文件：网格布局
+                  : // Multiple files: grid layout
                     "grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"
               }
             >
@@ -249,8 +249,8 @@ export function DragDropUpload({
                   key={`${file.name}-${index}`}
                   className={`group animate-scale-in border-border bg-card hover:border-ring relative rounded-xl border-2 p-4 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-md ${
                     displayFiles.length === 1
-                      ? "w-full max-w-md" // 单个文件时限制最大宽度，居中显示
-                      : "w-full" // 多个文件时使用网格，宽度自动
+                      ? "w-full max-w-md" // Single file: constrained width and centered
+                      : "w-full" // Multiple files: auto width in grid
                   }`}
                 >
                   <div className="flex flex-col gap-3">
