@@ -2,7 +2,7 @@
 
 Shared chain constants and utilities for Aryxn multi-chain applications. Provides single-source-of-truth for chain identifiers, chain IDs, explorer URLs, and chain-related metadata.
 
-[中文文档](./README.zh-CN.md)
+ [中文文档](./README.zh.md)
 
 ## Features
 
@@ -283,7 +283,7 @@ packages/chain-constants/
 │   └── chains.ts        # All constants and utilities
 ├── package.json
 ├── README.md
-├── README.zh-CN.md
+├── README.zh.md
 └── tsconfig.json
 ```
 

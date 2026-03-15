@@ -283,7 +283,7 @@ packages/chain-constants/
 │   └── chains.ts        # 所有常量和工具函数
 ├── package.json
 ├── README.md
-├── README.zh-CN.md
+├── README.zh.md
 └── tsconfig.json
 ```
 
