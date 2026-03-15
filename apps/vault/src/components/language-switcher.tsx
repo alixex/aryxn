@@ -6,8 +6,16 @@ import { cn } from "@/lib/utils"
 
 const languages = [
   { code: SUPPORTED_LANGUAGES.EN, label: "English", display: "EN" },
-  { code: SUPPORTED_LANGUAGES.ZH, label: "简体中文", display: "中文" },
-  { code: SUPPORTED_LANGUAGES.ZH_HK, label: "繁體中文", display: "繁中" },
+  {
+    code: SUPPORTED_LANGUAGES.ZH,
+    label: "Chinese (Simplified)",
+    display: "ZH",
+  },
+  {
+    code: SUPPORTED_LANGUAGES.ZH_HK,
+    label: "Chinese (Traditional)",
+    display: "ZH-HK",
+  },
 ] as const
 
 export function LanguageSwitcher() {

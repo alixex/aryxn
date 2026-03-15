@@ -65,7 +65,7 @@ export function ArweaveSearch() {
   const searchRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  // 点击外部关闭搜索结果
+  // Close search results when clicking outside.
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -121,7 +121,7 @@ export function ArweaveSearch() {
         query: searchIntent.query,
         limit: 20,
         ownerAddress: activeAddress || undefined,
-        preferLocal: true, // 优先本地搜索
+        preferLocal: true, // Prefer local search first.
         networkFilter: searchIntent.networkFilter,
       })
 
@@ -262,7 +262,7 @@ export function ArweaveSearch() {
         </Dialog>
       </div>
 
-      {/* 搜索结果下拉框 */}
+      {/* Search results dropdown */}
       {showResults && (
         <Card className="border-border bg-card absolute top-full right-0 left-0 z-50 mt-2 max-h-[60vh] w-full overflow-y-auto border shadow-xl sm:max-h-96">
           {isSearching ? (

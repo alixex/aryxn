@@ -66,7 +66,7 @@ export function MobileSearchDialog({
   const [searchError, setSearchError] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  // 打开对话框时聚焦输入框
+  // Focus input when dialog opens.
   useEffect(() => {
     if (open) {
       setTimeout(() => {
@@ -98,7 +98,7 @@ export function MobileSearchDialog({
         query: searchIntent.query,
         limit: 20,
         ownerAddress: activeAddress || undefined,
-        preferLocal: true, // 优先本地搜索
+        preferLocal: true, // Prefer local search first.
         networkFilter: searchIntent.networkFilter,
       })
 
@@ -177,14 +177,14 @@ export function MobileSearchDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="top-[5vh] flex max-h-[90vh] translate-y-0 flex-col gap-0 rounded-3xl border-0 p-0 shadow-2xl sm:top-[50%] sm:max-w-lg sm:translate-y-[-50%] sm:rounded-3xl [&>button]:hidden">
-        {/* 隐藏的标题，用于屏幕阅读器可访问性 */}
+        {/* Hidden title for screen-reader accessibility */}
         <DialogTitle className="sr-only">
           {t("common.searchArweave")}
         </DialogTitle>
 
-        {/* 搜索框区域 - 固定在顶部 */}
+        {/* Search section - sticky at top */}
         <div className="border-border bg-card/95 sticky top-0 z-10 rounded-t-3xl border-b px-4 py-4 shadow-sm backdrop-blur-xl sm:px-6 sm:py-5 lg:px-8 lg:py-5">
-          {/* 标题栏：关闭按钮 - 仅移动端显示 */}
+          {/* Header with close button - mobile only */}
           <div className="mb-3 flex items-center justify-between lg:hidden">
             <h2 className="text-foreground text-lg font-semibold">
               {t("common.searchTitle")}
@@ -198,7 +198,7 @@ export function MobileSearchDialog({
             </button>
           </div>
 
-          {/* 搜索框容器 */}
+          {/* Search input container */}
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
               <Input
@@ -210,7 +210,7 @@ export function MobileSearchDialog({
                 onKeyDown={handleKeyDown}
                 className="border-border bg-card focus-visible:border-ring focus-visible:bg-card focus-visible:ring-ring/20 h-12 w-full rounded-xl border-2 pr-20 text-base shadow-sm transition-all focus-visible:ring-1 sm:h-14 sm:rounded-2xl sm:pr-24 md:pr-28 lg:pr-24"
               />
-              {/* 清除按钮 */}
+              {/* Clear button */}
               {query && (
                 <button
                   onClick={handleClear}
@@ -220,7 +220,7 @@ export function MobileSearchDialog({
                   <X className="h-4 w-4" />
                 </button>
               )}
-              {/* 搜索按钮 */}
+              {/* Search button */}
               <button
                 onClick={handleSearch}
                 disabled={isSearching || !query.trim()}
@@ -239,7 +239,7 @@ export function MobileSearchDialog({
                 )}
               </button>
             </div>
-            {/* 搜索功能说明 */}
+            {/* Search capabilities help */}
             <Dialog>
               <DialogTrigger asChild>
                 <button
@@ -262,7 +262,7 @@ export function MobileSearchDialog({
             </Dialog>
           </div>
 
-          {/* 桌面端关闭按钮 - lg 及以上显示 */}
+          {/* Desktop close button - visible on lg+ */}
           <button
             onClick={() => onOpenChange(false)}
             className="border-border bg-card/80 text-foreground hover:bg-card hover:text-foreground active:bg-muted z-20 hidden rounded-full border p-2 shadow-md backdrop-blur-sm transition-all hover:shadow-lg lg:absolute lg:top-5 lg:right-8 lg:block"
@@ -272,7 +272,7 @@ export function MobileSearchDialog({
           </button>
         </div>
 
-        {/* 搜索结果区域 */}
+        {/* Search results section */}
         <div className="bg-background flex-1 overflow-y-auto rounded-b-3xl">
           {isSearching ? (
             <div className="flex flex-col items-center justify-center px-4 py-20 sm:px-6 lg:px-8">

@@ -13,7 +13,7 @@ import {
 import { Chains } from "@aryxn/chain-constants"
 
 /**
- * 根据链类型获取对应的图标组件
+ * Get chain icon component by chain type.
  */
 function getChainIcon(chain?: string) {
   switch (chain?.toLowerCase()) {
@@ -68,7 +68,7 @@ function AccountButtonContent({ wallet }: AccountButtonContentProps) {
   const { t } = useTranslation()
   const walletManager = wallet.internal
 
-  // 未解锁状态或没有任何账户
+  // Locked state or no accounts available.
   if (!walletManager.isUnlocked || walletManager.wallets.length === 0) {
     return (
       <>
@@ -80,7 +80,7 @@ function AccountButtonContent({ wallet }: AccountButtonContentProps) {
     )
   }
 
-  // 尝试显示活跃账户，如果没有，显示第一个 Arweave 账户，再如果没有，显示第一个任何账户
+  // Prefer active account, then first Arweave account, then first available account.
   const activeAccount = walletManager.wallets.find(
     (w) => w.address === walletManager.activeAddress,
   )
@@ -103,7 +103,7 @@ function AccountButtonContent({ wallet }: AccountButtonContentProps) {
     )
   }
 
-  // 默认状态
+  // Default state.
   return (
     <>
       <CreditCard className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
