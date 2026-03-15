@@ -5,6 +5,7 @@ import { clearAllApplicationData } from "@aryxn/storage"
 import { toast } from "sonner"
 import LanguageSettings from "@/components/settings/LanguageSettings"
 import StorageSettingsCard from "@/components/settings/StorageSettingsCard"
+import { PageHeader } from "@/components/layout/PageHeader"
 
 // 格式化字节数为可读格式
 function formatBytes(bytes: number | null): string {
@@ -166,8 +167,13 @@ export default function SettingsPage() {
     <div className="mesh-gradient relative min-h-screen">
       <div className="animate-in fade-in slide-in-from-bottom-4 mx-auto max-w-6xl space-y-6 px-3 py-6 duration-1000 sm:space-y-8 sm:px-4 sm:py-8">
         <div className="flex flex-col gap-3">
-          <h2 className="flex items-center gap-3 text-3xl font-extrabold tracking-tighter sm:text-4xl lg:text-5xl">
-            <div className="bg-gradient-primary glow-purple rounded-xl p-2 text-white shadow-xl ring-1 ring-white/20 sm:rounded-2xl sm:p-2.5">
+          <PageHeader
+            title={t("settings.title", "Settings")}
+            description={t(
+              "settings.description",
+              "Manage your application settings",
+            )}
+            icon={
               <svg
                 className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8"
                 fill="none"
@@ -187,14 +193,9 @@ export default function SettingsPage() {
                   d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
                 />
               </svg>
-            </div>
-            <span className="bg-gradient-secondary gradient-text leading-tight">
-              {t("settings.title", "Settings")}
-            </span>
-          </h2>
-          <p className="text-subtitle-muted max-w-lg text-base leading-relaxed font-medium">
-            {t("settings.description", "Manage your application settings")}
-          </p>
+            }
+            iconContainerClassName="bg-gradient-secondary"
+          />
         </div>
 
         <LanguageSettings />

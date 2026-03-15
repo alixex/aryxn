@@ -16,6 +16,7 @@ import { FilePreview } from "@/components/ui/file-preview"
 import { Card, CardContent } from "@/components/ui/card"
 import { Info, X } from "lucide-react"
 import { shouldCompressFile } from "@/lib/utils"
+import { PageHeader } from "@/components/layout/PageHeader"
 
 export default function UploadPage() {
   const { t } = useTranslation()
@@ -129,31 +130,26 @@ export default function UploadPage() {
     <div className="mesh-gradient relative min-h-screen pb-20">
       <div className="animate-in fade-in slide-in-from-bottom-4 mx-auto max-w-6xl space-y-6 px-3 py-6 duration-1000 sm:space-y-8 sm:px-4 sm:py-8">
         {/* Header Area */}
-        <div className="flex flex-col gap-3 text-center sm:text-left">
-          <h2 className="flex items-center justify-center gap-3 text-3xl font-extrabold tracking-tighter sm:justify-start sm:text-4xl lg:text-5xl">
-            <div className="bg-gradient-primary glow-purple rounded-xl p-2 text-white shadow-xl ring-1 ring-white/20 sm:rounded-2xl sm:p-2.5">
-              <svg
-                className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                />
-              </svg>
-            </div>
-            <span className="bg-gradient-primary gradient-text leading-tight">
-              {t("common.upload")}
-            </span>
-          </h2>
-          <p className="text-subtitle-muted mx-auto max-w-lg text-base leading-relaxed font-medium sm:mx-0">
-            {t("upload.arweaveDesc")}
-          </p>
-        </div>
+        <PageHeader
+          title={t("common.upload")}
+          description={t("upload.arweaveDesc")}
+          icon={
+            <svg
+              className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+              />
+            </svg>
+          }
+          iconContainerClassName="bg-gradient-primary"
+        />
 
         <UploadWarning
           isLocked={!hasArweaveAccount || !isUnlocked}
