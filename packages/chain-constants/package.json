@@ -9,5 +9,5 @@
     "format": "oxlint --fix",
     "type-check": "tsc -b --noEmit"
   },
-  "license": "AGPL-3.0-or-later"
+  "license": "MIT"
 }

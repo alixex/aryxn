@@ -1,6 +1,5 @@
 {
   "name": "@alixex/vault",
-  "private": true,
   "version": "1.0.0",
   "type": "module",
   "description": "A user-sovereignty-first vault for accounts and permanent files. Manage multi-chain accounts and store files permanently on Arweave blockchain with end-to-end encryption.",
