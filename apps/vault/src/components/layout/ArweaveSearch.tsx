@@ -20,14 +20,45 @@ import {
 import i18n from "@/i18n/config"
 import { useWallet } from "@/hooks/account-hooks"
 
+function parseSearchIntent(input: string): {
+  query: string
+  networkFilter: "all" | "irys" | "arweave"
+} {
+  const raw = input.trim()
+  const lower = raw.toLowerCase()
+
+  // Allow explicit prefixes while keeping UI frictionless.
+  if (lower.startsWith("irys:")) {
+    return {
+      query: raw.slice(raw.indexOf(":") + 1).trim(),
+      networkFilter: "irys",
+    }
+  }
+
+  if (lower.startsWith("ar:") || lower.startsWith("arweave:")) {
+    return {
+      query: raw.slice(raw.indexOf(":") + 1).trim(),
+      networkFilter: "arweave",
+    }
+  }
+
+  // URL-based intent inference.
+  if (lower.includes("gateway.irys.xyz") || lower.includes(" irys")) {
+    return { query: raw, networkFilter: "irys" }
+  }
+
+  if (lower.includes("arweave.net") || lower.includes(" arweave")) {
+    return { query: raw, networkFilter: "arweave" }
+  }
+
+  return { query: raw, networkFilter: "all" }
+}
+
 export function ArweaveSearch() {
   const { t } = useTranslation()
   const wallet = useWallet()
   const activeAddress = wallet.internal.activeAddress
   const [query, setQuery] = useState("")
-  const [networkFilter, setNetworkFilter] = useState<
-    "all" | "irys" | "arweave"
-  >("all")
   const [isSearching, setIsSearching] = useState(false)
   const [results, setResults] = useState<ArweaveSearchResult[]>([])
   const [showResults, setShowResults] = useState(false)
@@ -74,7 +105,9 @@ export function ArweaveSearch() {
   }, [])
 
   const handleSearch = useCallback(async () => {
-    if (!query.trim()) {
+    const searchIntent = parseSearchIntent(query)
+
+    if (!searchIntent.query) {
       setResults([])
       setShowResults(false)
       return
@@ -84,13 +117,25 @@ export function ArweaveSearch() {
     setShowResults(true)
 
     try {
-      const searchResults = await searchArweaveTransactions({
-        query: query.trim(),
+      let searchResults = await searchArweaveTransactions({
+        query: searchIntent.query,
         limit: 20,
         ownerAddress: activeAddress || undefined,
         preferLocal: true, // 优先本地搜索
-        networkFilter,
+        networkFilter: searchIntent.networkFilter,
       })
+
+      // Seamless fallback: if smart filter misses, retry across all networks.
+      if (searchResults.length === 0 && searchIntent.networkFilter !== "all") {
+        searchResults = await searchArweaveTransactions({
+          query: searchIntent.query,
+          limit: 20,
+          ownerAddress: activeAddress || undefined,
+          preferLocal: true,
+          networkFilter: "all",
+        })
+      }
+
       setResults(searchResults)
     } catch (error) {
       console.error("Search failed:", error)
@@ -98,7 +143,7 @@ export function ArweaveSearch() {
     } finally {
       setIsSearching(false)
     }
-  }, [query, activeAddress, networkFilter])
+  }, [query, activeAddress])
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -158,21 +203,6 @@ export function ArweaveSearch() {
   return (
     <div ref={searchRef} className="relative w-full lg:max-w-md lg:flex-1">
       <div className="flex items-center gap-2">
-        <select
-          value={networkFilter}
-          onChange={(e) =>
-            setNetworkFilter(e.target.value as "all" | "irys" | "arweave")
-          }
-          className="border-border bg-card text-foreground focus-visible:border-ring focus-visible:ring-ring/20 h-9 shrink-0 appearance-none rounded-md border pr-8 pl-2.5 text-xs font-semibold focus:ring-1 focus:outline-none sm:h-10 sm:text-sm"
-          style={{ backgroundPosition: "right 0.5rem center" }}
-        >
-          <option value="all">{t("search.allNetworks", "All Networks")}</option>
-          <option value="irys">{t("search.irysOnly", "Irys L1 Fast")}</option>
-          <option value="arweave">
-            {t("search.arweaveOnly", "Arweave L1")}
-          </option>
-        </select>
-
         <div className="relative flex-1">
           <Input
             ref={inputRef}
