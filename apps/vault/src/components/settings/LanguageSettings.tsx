@@ -13,10 +13,10 @@ export default function LanguageSettings() {
   const { t } = useTranslation()
 
   return (
-    <Card className="glass-premium hover:shadow-primary/5 border-none shadow-2xl transition-all duration-500">
-      <CardHeader className="glass-strong animate-fade-in-down border-accent/30 bg-card/60 rounded-t-2xl border-b-2 p-6 shadow-lg">
-        <CardTitle className="text-foreground flex items-center gap-3 text-base font-bold">
-          <div className="rounded-lg bg-[hsl(var(--secondary)/0.2)] p-2 text-[hsl(var(--secondary))]">
+    <Card className="border-border/90 bg-card/84 border shadow-[0_16px_30px_-20px_hsl(220_35%_2%/0.72)] transition-all duration-200">
+      <CardHeader className="animate-fade-in-down border-border/85 bg-card/92 rounded-t-2xl border-b p-5 sm:p-6">
+        <CardTitle className="text-foreground flex items-center gap-3 text-base font-semibold">
+          <div className="bg-muted text-foreground rounded-lg p-2">
             <Globe className="h-5 w-5" />
           </div>
           {t("settings.languageSettings", "Language Settings")}

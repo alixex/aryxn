@@ -19,7 +19,7 @@ export default function OpfsFilesList({
           {t("settings.opfsFiles", "OPFS Files")}
         </div>
         {filesWithSize.length > 0 && (
-          <span className="bg-secondary/50 text-muted-foreground rounded-md px-2 py-0.5 text-xs font-semibold">
+          <span className="bg-muted text-muted-foreground ring-border rounded-md px-2 py-0.5 text-xs font-semibold ring-1">
             {t("settings.totalSize", "Total")}:{" "}
             {formatBytes(filesWithSize.reduce((acc, f) => acc + f.size, 0))}
           </span>
@@ -35,15 +35,15 @@ export default function OpfsFilesList({
             filesWithSize.map((file) => (
               <div
                 key={file.path}
-                className="bg-card/50 border-border/40 text-muted-foreground flex items-center justify-between rounded-lg border px-3 py-2 shadow-sm"
+                className="bg-card/60 border-border/60 text-muted-foreground flex items-center justify-between rounded-lg border px-3 py-2"
               >
                 <div className="flex items-center gap-2">
-                  <Database className="h-4 w-4 text-cyan-500/70" />
+                  <Database className="h-4 w-4 text-foreground/70" />
                   <span className="font-mono text-xs font-medium">
                     {file.name}
                   </span>
                 </div>
-                <span className="bg-background/80 text-foreground/80 rounded-full px-2 py-0.5 text-xs font-bold ring-1 ring-black/5">
+                <span className="bg-muted/70 text-foreground/80 ring-border/70 rounded-full px-2 py-0.5 text-xs font-semibold ring-1">
                   {formatBytes(file.size)}
                 </span>
               </div>
