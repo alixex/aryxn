@@ -264,7 +264,11 @@ if (chain === "ethereum") {
 ### ✅ 推荐：导入特定常量
 
 ```typescript
-import { Chains, AccountChains, getExplorerTxUrl } from "@alixex/chain-constants"
+import {
+  Chains,
+  AccountChains,
+  getExplorerTxUrl,
+} from "@alixex/chain-constants"
 ```
 
 ### ❌ 不推荐：重复定义链数组

@@ -264,7 +264,11 @@ if (chain === "ethereum") {
 ### ✅ DO: Import specific constants
 
 ```typescript
-import { Chains, AccountChains, getExplorerTxUrl } from "@alixex/chain-constants"
+import {
+  Chains,
+  AccountChains,
+  getExplorerTxUrl,
+} from "@alixex/chain-constants"
 ```
 
 ### ❌ DON'T: Duplicate chain arrays
