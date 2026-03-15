@@ -49,6 +49,33 @@ async function writeOpfsPayload(opfsKey: string, payload: Uint8Array) {
   }
 }
 
+async function writeOpfsStreamPayload(
+  opfsKey: string,
+  stream: ReadableStream<Uint8Array>,
+): Promise<number> {
+  const fileHandle = await getOpfsFileHandle(opfsKey, true)
+  const writable = await fileHandle.createWritable()
+  const reader = stream.getReader()
+  let total = 0
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      if (!value || value.length === 0) continue
+
+      const safeChunk = new Uint8Array(value.length)
+      safeChunk.set(value)
+      await writable.write(safeChunk)
+      total += safeChunk.length
+    }
+  } finally {
+    await writable.close()
+  }
+
+  return total
+}
+
 async function readOpfsPayload(opfsKey: string): Promise<Uint8Array> {
   const fileHandle = await getOpfsFileHandle(opfsKey, false)
   const file = await fileHandle.getFile()
@@ -154,4 +181,53 @@ export async function upsertCachedResource(input: {
       now,
     ],
   )
+}
+
+export async function upsertCachedResourceFromStream(input: {
+  ownerAddress: string
+  txId: string
+  mimeType?: string | null
+  storageType?: string | null
+  isEncrypted: boolean
+  stream: ReadableStream<Uint8Array>
+}): Promise<number> {
+  if (!hasOpfsSupport()) {
+    throw new Error("OPFS is not supported in this environment")
+  }
+
+  const now = Date.now()
+  const opfsKey = `${encodeURIComponent(input.txId)}.bin`
+  const contentSize = await writeOpfsStreamPayload(opfsKey, input.stream)
+
+  await db.run(
+    `INSERT INTO resource_cache (
+      tx_id, owner_address, mime_type, storage_type, is_encrypted,
+      cache_backend, opfs_key, payload_base64, content_size, created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(tx_id) DO UPDATE SET
+      owner_address = excluded.owner_address,
+      mime_type = excluded.mime_type,
+      storage_type = excluded.storage_type,
+      is_encrypted = excluded.is_encrypted,
+      cache_backend = excluded.cache_backend,
+      opfs_key = excluded.opfs_key,
+      payload_base64 = excluded.payload_base64,
+      content_size = excluded.content_size,
+      updated_at = excluded.updated_at`,
+    [
+      input.txId,
+      input.ownerAddress,
+      input.mimeType || null,
+      input.storageType || null,
+      input.isEncrypted ? 1 : 0,
+      "opfs",
+      opfsKey,
+      "",
+      contentSize,
+      now,
+      now,
+    ],
+  )
+
+  return contentSize
 }

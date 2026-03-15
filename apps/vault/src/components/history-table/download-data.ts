@@ -1,5 +1,9 @@
 import { arweave } from "@/lib/storage"
-import { getCachedResource, upsertCachedResource } from "@/lib/file"
+import {
+  getCachedResource,
+  upsertCachedResource,
+  upsertCachedResourceFromStream,
+} from "@/lib/file"
 
 /**
  * 抑制 SDK 分块下载相关的错误和警告
@@ -121,6 +125,94 @@ export async function fetchDataFromGateways(
   return null
 }
 
+async function cacheFromGatewayStream(
+  txId: string,
+  expectedDataSize: number,
+  storageType: "arweave" | "irys",
+  options: {
+    ownerAddress: string
+    isEncrypted?: boolean
+    mimeType?: string
+  },
+): Promise<Uint8Array | null> {
+  const gateways =
+    storageType === "irys"
+      ? ["https://gateway.irys.xyz"]
+      : ["https://arweave.net", "https://ar-io.net", "https://arweave.live"]
+
+  for (const gateway of gateways) {
+    try {
+      const response = await fetch(`${gateway}/${txId}`, {
+        headers: {
+          Accept: "application/octet-stream",
+        },
+      })
+
+      if (!response.ok) {
+        continue
+      }
+
+      if (response.body) {
+        const streamedSize = await upsertCachedResourceFromStream({
+          ownerAddress: options.ownerAddress,
+          txId,
+          mimeType: options.mimeType || null,
+          storageType,
+          isEncrypted: options.isEncrypted === true,
+          stream: response.body,
+        })
+
+        if (expectedDataSize > 0 && streamedSize !== expectedDataSize) {
+          console.warn("Streamed cache size mismatch; trying next gateway", {
+            txId,
+            expectedDataSize,
+            streamedSize,
+            gateway,
+          })
+          continue
+        }
+
+        const cached = await getCachedResource(options.ownerAddress, txId)
+        if (cached) {
+          return cached.payload
+        }
+      }
+
+      const fallbackBuffer = await response.arrayBuffer()
+      const fallbackData = new Uint8Array(fallbackBuffer)
+
+      if (
+        expectedDataSize > 0 &&
+        fallbackData.length !== expectedDataSize
+      ) {
+        console.warn("Fallback download size mismatch; trying next gateway", {
+          txId,
+          expectedDataSize,
+          fetchedLength: fallbackData.length,
+          gateway,
+        })
+        continue
+      }
+
+      await upsertCachedResource({
+        ownerAddress: options.ownerAddress,
+        txId,
+        mimeType: options.mimeType || null,
+        storageType,
+        isEncrypted: options.isEncrypted === true,
+        payload: fallbackData,
+      })
+
+      return fallbackData
+    } catch (error) {
+      console.warn(`Failed to stream cache from ${gateway}:`, error)
+      continue
+    }
+  }
+
+  return null
+}
+
 /**
  * 使用 SDK 的 getData 方法下载数据（回退方案）
  */
@@ -196,6 +288,21 @@ export async function downloadTransactionData(
         expectedDataSize,
         cachedSize: cached.payload.length,
       })
+    }
+
+    const streamed = await cacheFromGatewayStream(
+      txId,
+      expectedDataSize,
+      storageType,
+      {
+        ownerAddress: options.ownerAddress,
+        isEncrypted: options.isEncrypted,
+        mimeType: options.mimeType,
+      },
+    )
+
+    if (streamed) {
+      return streamed
     }
   }
 
