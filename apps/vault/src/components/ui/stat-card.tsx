@@ -25,17 +25,16 @@ export function StatCard({
       className={cn(
         "glass-premium group relative overflow-hidden transition-all duration-500",
         "hover:border-primary/40 hover:-translate-y-1.5 hover:shadow-2xl",
-        "after:absolute after:inset-0 after:z-10 after:translate-x-[-150%] after:bg-gradient-to-r after:from-transparent after:via-white/10 after:to-transparent after:transition-transform after:duration-[800ms] hover:after:translate-x-[150%]",
+        "after:absolute after:inset-0 after:z-10 after:translate-x-[-150%] after:bg-gradient-to-r after:from-transparent after:via-[hsl(var(--accent)/0.18)] after:to-transparent after:transition-transform after:duration-[900ms] hover:after:translate-x-[150%]",
         className,
       )}
     >
       <CardContent className="relative flex items-center gap-4 p-6">
-        {/* Icon with refined styling */}
         <div
           className={cn(
-            "bg-gradient-primary glow-purple",
+            "bg-gradient-primary",
             "flex-shrink-0 rounded-xl p-3.5 text-white shadow-lg transition-all duration-500",
-            "group-hover:scale-110 group-hover:shadow-[0_0_30px_rgba(157,78,221,0.6)]",
+            "group-hover:scale-110 group-hover:shadow-[0_16px_28px_-14px_hsl(var(--primary)/0.8)]",
           )}
         >
           <div className="transition-transform duration-500 group-hover:rotate-12">
@@ -43,7 +42,6 @@ export function StatCard({
           </div>
         </div>
 
-        {/* Content with smoother typography */}
         <div className="min-w-0 flex-1">
           <p className="text-muted-foreground group-hover:text-foreground text-xs font-bold tracking-widest uppercase transition-colors duration-300">
             {label}
@@ -55,14 +53,14 @@ export function StatCard({
             <p
               className={cn(
                 "mt-1.5 text-xs font-bold transition-all duration-500",
-                trendUp ? "text-emerald-400" : "text-rose-400",
+                trendUp ? "text-[hsl(165_65%_35%)]" : "text-[hsl(6_60%_46%)]",
                 "flex items-center gap-1 group-hover:translate-x-1",
               )}
             >
               <span
                 className={cn(
                   "h-1 w-1 rounded-full",
-                  trendUp ? "bg-emerald-400" : "bg-rose-400",
+                  trendUp ? "bg-[hsl(165_65%_35%)]" : "bg-[hsl(6_60%_46%)]",
                 )}
               />
               {trend}

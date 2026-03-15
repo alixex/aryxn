@@ -10,18 +10,18 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-gradient-primary text-primary-foreground shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] glow-purple",
+          "bg-gradient-primary text-primary-foreground shadow-[0_10px_24px_-14px_hsl(var(--primary)/0.7)] hover:shadow-[0_16px_28px_-14px_hsl(var(--primary)/0.7)] hover:scale-[1.02] active:scale-[0.98]",
         destructive:
-          "bg-destructive text-destructive-foreground shadow-lg hover:shadow-xl active:scale-[0.98] glow-red",
+          "bg-destructive text-destructive-foreground shadow-lg hover:shadow-xl active:scale-[0.98]",
         outline:
-          "border-2 border-primary/50 bg-transparent hover:bg-primary/10 hover:border-primary text-primary active:scale-[0.98] backdrop-blur-sm",
+          "border-2 border-primary/45 bg-[hsl(var(--card)/0.7)] text-primary hover:bg-primary/10 hover:border-primary active:scale-[0.98]",
         secondary:
-          "bg-secondary/80 text-secondary-foreground hover:bg-secondary/100 active:scale-[0.98] transition-colors",
+          "bg-secondary/90 text-secondary-foreground hover:bg-secondary active:scale-[0.98] transition-colors",
         ghost:
-          "hover:bg-accent/50 text-foreground active:scale-[0.95] transition-colors",
+          "text-foreground hover:bg-accent/40 active:scale-[0.95] transition-colors",
         link: "text-primary underline-offset-4 hover:underline hover:text-primary/80 transition-colors",
         gradient:
-          "bg-gradient-secondary text-primary-foreground shadow-lg hover:shadow-xl active:scale-[0.98] glow-gold",
+          "bg-gradient-secondary text-secondary-foreground shadow-lg hover:shadow-xl active:scale-[0.98]",
       },
       size: {
         default: "h-10 px-4 py-2",

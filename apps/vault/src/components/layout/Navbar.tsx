@@ -40,7 +40,7 @@ export function Navbar() {
 
   return (
     <>
-      <header className="border-border/30 bg-background/60 glass-strong sticky top-0 z-40 border-b shadow-lg backdrop-blur-xl transition-shadow duration-300">
+      <header className="glass-strong border-border/70 sticky top-0 z-40 border-b shadow-[0_10px_28px_-20px_hsl(var(--primary)/0.45)] backdrop-blur-xl transition-shadow duration-300">
         <div className="container mx-auto flex h-16 max-w-6xl items-center justify-between gap-2 px-4 sm:gap-4 lg:px-8">
           {/* 左侧：Logo + 搜索框 */}
           <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-4">
@@ -57,7 +57,7 @@ export function Navbar() {
             <Button
               variant="ghost"
               size="icon"
-              className="hover:bg-primary/20 hover:text-cyan-400 lg:hidden"
+              className="hover:bg-primary/15 hover:text-primary lg:hidden"
               onClick={() => setMobileSearchOpen(true)}
               aria-label="Search"
             >
@@ -83,7 +83,7 @@ export function Navbar() {
               variant="ghost"
               size="icon"
               asChild
-              className="hover:bg-primary/20 hidden hover:text-cyan-400 md:flex"
+              className="hover:bg-primary/15 hover:text-primary hidden md:flex"
               aria-label={t("common.settings", "Settings")}
             >
               <Link to="/settings">

@@ -15,9 +15,9 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
         "text-card-foreground rounded-xl border transition-all duration-300",
         variant === "glass" && "glass-strong",
         variant === "default" &&
-          "border-border/50 bg-card/40 hover:border-primary/30 shadow-lg backdrop-blur-sm",
+          "border-border/70 bg-card/70 hover:border-primary/35 shadow-[0_12px_30px_-24px_hsl(var(--primary)/0.6)] backdrop-blur-sm",
         interactive &&
-          "hover:border-primary/50 hover:bg-card/60 group cursor-pointer hover:-translate-y-1 hover:shadow-xl",
+          "group hover:border-primary/50 hover:bg-card/85 cursor-pointer hover:-translate-y-1 hover:shadow-xl",
         className,
       )}
       {...props}
