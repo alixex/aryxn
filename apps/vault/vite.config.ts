@@ -11,9 +11,7 @@ const PROXY_SOLANA = "/api/solana-rpc"
 
 const rawBasePath = (process.env.VITE_BASE_PATH || "/").trim()
 const normalizedBasePath =
-  rawBasePath === "/"
-    ? "/"
-    : `/${rawBasePath.replace(/^\/+|\/+$/g, "")}/`
+  rawBasePath === "/" ? "/" : `/${rawBasePath.replace(/^\/+|\/+$/g, "")}/`
 
 export default defineConfig({
   // Use "/" for custom domain/User Pages, "/repo-name/" for Project Pages.
