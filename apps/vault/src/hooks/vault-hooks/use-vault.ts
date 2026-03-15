@@ -10,6 +10,11 @@ import {
   fromBytes,
 } from "@aryxn/crypto"
 import { db } from "@/lib/database"
+import {
+  clearVaultUnlockSession,
+  loadVaultUnlockSession,
+  saveVaultUnlockSession,
+} from "@/lib/security/vault-unlock-session"
 import type { WalletRecord } from "@aryxn/wallet-core"
 
 export const VAULT_SALT_LEGACY = new Uint8Array([
@@ -64,6 +69,17 @@ export function useVault() {
     initSalt()
   }, [])
 
+  // Restore vault unlock state inside current browser session.
+  useEffect(() => {
+    const restored = loadVaultUnlockSession()
+    if (!restored) {
+      return
+    }
+
+    setMasterKey(restored.masterKey)
+    setVaultId(restored.vaultId)
+  }, [])
+
   const getVaultId = async (key: Uint8Array) => {
     const keyBuffer = new Uint8Array(key).buffer
     const hashBuffer = await crypto.subtle.digest("SHA-256", keyBuffer)
@@ -81,6 +97,7 @@ export function useVault() {
         const vid = await getVaultId(key)
         setMasterKey(key)
         setVaultId(vid)
+        saveVaultUnlockSession(key, vid)
         toast.success(t("unlock.success"))
         return true
       } catch (error) {
@@ -95,6 +112,7 @@ export function useVault() {
   const clearVault = useCallback(() => {
     setMasterKey(null)
     setVaultId(null)
+    clearVaultUnlockSession()
   }, [])
 
   const getDecryptedInfo = useCallback(
