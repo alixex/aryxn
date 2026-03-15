@@ -10,6 +10,7 @@ import { useVault } from "@/hooks/vault-hooks"
 import { useWalletStorage } from "@/hooks/vault-hooks"
 import { useWalletOps } from "@/hooks/vault-hooks"
 import { AccountChains, Chains } from "@aryxn/chain-constants"
+import { clearPasswordVerificationSession } from "@/lib/security/password-verification-session"
 import type {
   WalletRecord,
   WalletKey,
@@ -79,6 +80,7 @@ interface WalletContextType {
       wallet: WalletRecord,
       passwordConfirm: string,
     ) => Promise<DecryptedData>
+    getDecryptedInfoWithMasterKey: (wallet: WalletRecord) => Promise<DecryptedData>
   }
 
   // Helpers to retrieve accounts by chain
@@ -110,6 +112,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     await storage.clearPersistence()
+    clearPasswordVerificationSession()
     vault.clearVault()
   }, [storage, vault])
 
@@ -269,6 +272,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       clearActiveWallet,
       refreshWallets,
       getDecryptedInfo: vault.getDecryptedInfo,
+      getDecryptedInfoWithMasterKey: vault.getDecryptedInfoWithMasterKey,
     }),
     [
       storage.wallets,
@@ -287,6 +291,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       clearActiveWallet,
       refreshWallets,
       vault.getDecryptedInfo,
+      vault.getDecryptedInfoWithMasterKey,
     ],
   )
 

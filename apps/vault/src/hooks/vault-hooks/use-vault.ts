@@ -127,6 +127,34 @@ export function useVault() {
     [vaultId, systemSalt],
   )
 
+  const getDecryptedInfoWithMasterKey = useCallback(
+    async (wallet: WalletRecord) => {
+      if (!masterKey) {
+        throw new Error("Vault is locked")
+      }
+
+      if (vaultId && wallet.vaultId !== vaultId) {
+        throw new Error("Wallet does not belong to current vault")
+      }
+
+      try {
+        const { ciphertext, nonce } = JSON.parse(wallet.encryptedKey)
+        const decrypted = await decryptData(
+          fromBase64(ciphertext),
+          fromBase64(nonce),
+          masterKey,
+        )
+        return JSON.parse(fromBytes(decrypted))
+      } catch (e) {
+        console.error("Decryption by master key failed:", e)
+        throw new Error(
+          e instanceof Error ? e.message : "Decryption failed with active session",
+        )
+      }
+    },
+    [masterKey, vaultId],
+  )
+
   return {
     masterKey,
     vaultId,
@@ -134,6 +162,7 @@ export function useVault() {
     unlock,
     clearVault,
     getDecryptedInfo,
+    getDecryptedInfoWithMasterKey,
     isUnlocked: !!masterKey,
   }
 }

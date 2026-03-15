@@ -19,6 +19,7 @@ interface SensitiveInfoDialogProps {
   onOpenChange: (open: boolean) => void
   account: WalletRecord | null
   type: "key" | "mnemonic"
+  passwordOptional?: boolean
   onVerify: (password: string) => Promise<{
     key: string
     mnemonic?: string
@@ -30,6 +31,7 @@ export function SensitiveInfoDialog({
   onOpenChange,
   account,
   type,
+  passwordOptional = false,
   onVerify,
 }: SensitiveInfoDialogProps) {
   const { t } = useTranslation()
@@ -131,7 +133,7 @@ export function SensitiveInfoDialog({
               </div>
               <Button
                 onClick={handleVerify}
-                disabled={!confirmPassword || loading}
+                disabled={loading || (!passwordOptional && !confirmPassword)}
                 className="w-full"
               >
                 {loading ? t("common.loading") : t("identities.verify")}

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { AccountChains } from "@aryxn/chain-constants"
 import { useTranslation } from "@/i18n/config"
 import { useWallet, useAccounts } from "@/hooks/account-hooks"
@@ -22,6 +22,10 @@ import { CreateAccountDialog } from "@/components/account/CreateAccountDialog"
 import AccountHeader from "@/components/account/AccountHeader"
 import AccountSidebar from "@/components/account/AccountSidebar"
 import { AccountListTab } from "@/components/account/AccountListTab"
+import {
+  hasValidPasswordVerificationSession,
+  markPasswordVerificationSession,
+} from "@/lib/security/password-verification-session"
 
 export default function AccountPage() {
   const { t } = useTranslation()
@@ -38,6 +42,7 @@ export default function AccountPage() {
   // 创建账户对话框
   const [showCreateDialog, setShowCreateDialog] = useState(false)
   const [createChain, setCreateChain] = useState<string>("")
+  const [passwordSessionVerified, setPasswordSessionVerified] = useState(false)
 
   const {
     balances,
@@ -46,6 +51,23 @@ export default function AccountPage() {
     refreshBalance,
     toggleShowBalance,
   } = useAccounts()
+
+  useEffect(() => {
+    const syncVerificationSession = async () => {
+      if (!walletManager.isUnlocked || !walletManager.masterKey || !walletManager.vaultId) {
+        setPasswordSessionVerified(false)
+        return
+      }
+
+      const valid = await hasValidPasswordVerificationSession(
+        walletManager.masterKey,
+        walletManager.vaultId,
+      )
+      setPasswordSessionVerified(valid)
+    }
+
+    void syncVerificationSession()
+  }, [walletManager.isUnlocked, walletManager.masterKey, walletManager.vaultId])
 
   // 处理函数
   const handleUnlock = async (password: string) => {
@@ -121,11 +143,24 @@ export default function AccountPage() {
     if (!sensitiveAccount) {
       return null
     }
+
     try {
-      const info = await walletManager.getDecryptedInfo(
-        sensitiveAccount,
-        password,
-      )
+      const info = passwordSessionVerified
+        ? await walletManager.getDecryptedInfoWithMasterKey(sensitiveAccount)
+        : await walletManager.getDecryptedInfo(sensitiveAccount, password)
+
+      if (
+        !passwordSessionVerified &&
+        walletManager.masterKey &&
+        walletManager.vaultId
+      ) {
+        await markPasswordVerificationSession(
+          walletManager.masterKey,
+          walletManager.vaultId,
+        )
+        setPasswordSessionVerified(true)
+      }
+
       return info
     } catch {
       toast.error(t("unlock.incorrect"))
@@ -219,6 +254,7 @@ export default function AccountPage() {
           account={sensitiveAccount}
           type={viewType}
           onVerify={verifyAndShow}
+          passwordOptional={passwordSessionVerified}
         />
 
         <CreateAccountDialog
