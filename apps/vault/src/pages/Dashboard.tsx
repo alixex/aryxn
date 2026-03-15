@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useCallback, useRef } from "react"
 import { useWallet } from "@/hooks/account-hooks"
 import { useTranslation } from "@/i18n/config"
 import type { UploadRecord, WalletRecord } from "@/lib/utils"
@@ -61,9 +61,11 @@ export default function DashboardPage() {
   const [hasMore, setHasMore] = useState(false)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [offset, setOffset] = useState(0)
+  const loadMoreSentinelRef = useRef<HTMLDivElement | null>(null)
   const PAGE_SIZE = 50
 
   const { syncing, syncFromArweave } = useFileSync()
+  const { needsAccountSetup } = useUserAccountSetup()
 
   const collectArweaveAddresses = useCallback(() => {
     const addresses = new Set<string>()
@@ -147,6 +149,35 @@ export default function DashboardPage() {
     loadUploadHistory(true)
   }, [walletManager.wallets, loadUploadHistory])
 
+  // Single-page scrolling: auto-load next page when the sentinel enters viewport.
+  useEffect(() => {
+    if (!hasMore || isLoadingMore || needsAccountSetup) {
+      return
+    }
+
+    const sentinel = loadMoreSentinelRef.current
+    if (!sentinel) {
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries
+        if (entry?.isIntersecting && !isLoadingMore) {
+          void loadUploadHistory(false)
+        }
+      },
+      {
+        root: null,
+        rootMargin: "240px 0px 320px 0px",
+        threshold: 0.01,
+      },
+    )
+
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [hasMore, isLoadingMore, needsAccountSetup, loadUploadHistory])
+
   // 处理同步
   const handleSync = async () => {
     const success = await syncFromArweave()
@@ -171,8 +202,6 @@ export default function DashboardPage() {
         },
       )
     : t("common.none")
-
-  const { needsAccountSetup } = useUserAccountSetup()
 
   return (
     <div className="mesh-gradient relative min-h-screen">
@@ -325,16 +354,17 @@ export default function DashboardPage() {
                       activeAddress={walletManager.activeAddress}
                     />
                     {hasMore && (
-                      <Button
-                        variant="outline"
-                        onClick={() => loadUploadHistory(false)}
-                        disabled={isLoadingMore}
-                        className="mt-2 w-full sm:w-auto"
+                      <div
+                        ref={loadMoreSentinelRef}
+                        className="text-muted-foreground mt-2 w-full text-center text-sm"
                       >
                         {isLoadingMore
-                          ? "Loading..."
-                          : t("common.loadMore", "Load More")}
-                      </Button>
+                          ? t("history.loadingMore", "Loading more records...")
+                          : t(
+                              "history.scrollToLoadMore",
+                              "Scroll down to load more records",
+                            )}
+                      </div>
                     )}
                   </div>
                 )}
