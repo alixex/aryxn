@@ -256,7 +256,10 @@
     "needAccountSetup": "Account Setup Required",
     "accountSetupHint": "Set up a master password or connect an external wallet to view and manage your file records.",
     "syncing": "Syncing...",
-    "syncFromArweave": "Sync from Arweave"
+    "syncFromArweave": "Sync from Arweave",
+    "totalFiles": "Total Files",
+    "totalStorage": "Total Storage",
+    "lastUpload": "Last Upload"
   },
   "upload": {
     "arweaveTitle": "Decentralized Permanent Storage",

@@ -240,7 +240,10 @@
     "needAccountSetup": "請先設置帳戶",
     "accountSetupHint": "設置主密碼或連接外部錢包後，即可查看和管理您的檔案記錄。",
     "syncing": "同步中...",
-    "syncFromArweave": "從 Arweave 同步"
+    "syncFromArweave": "從 Arweave 同步",
+    "totalFiles": "總檔案數",
+    "totalStorage": "總儲存空間",
+    "lastUpload": "最近上傳"
   },
   "upload": {
     "arweaveTitle": "去中心化永久儲存",

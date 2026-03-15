@@ -256,7 +256,10 @@
     "needAccountSetup": "请先设置账户",
     "accountSetupHint": "设置主密码或连接外部钱包后，即可查看和管理您的文件记录。",
     "syncing": "同步中...",
-    "syncFromArweave": "从 Arweave 同步"
+    "syncFromArweave": "从 Arweave 同步",
+    "totalFiles": "总文件数",
+    "totalStorage": "总存储空间",
+    "lastUpload": "最近上传"
   },
   "upload": {
     "arweaveTitle": "去中心化永久存储",
