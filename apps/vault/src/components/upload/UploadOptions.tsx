@@ -41,8 +41,8 @@ export function UploadOptions({
       <div
         className={`group flex items-start gap-4 rounded-xl border p-4 transition-all ${
           encryptUpload
-            ? "border-ring bg-card"
-            : "border-border bg-secondary/30 hover:border-ring"
+            ? "border-ring bg-card/85"
+            : "border-border bg-[hsl(var(--background)/0.72)] hover:border-ring"
         }`}
       >
         <div className="mt-0.5">
@@ -51,7 +51,7 @@ export function UploadOptions({
             checked={encryptUpload}
             onCheckedChange={onEncryptChange}
             disabled={!isUnlocked}
-            className="data-[state=checked]:border-primary-foreground data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground border-white bg-transparent"
+            className="border-primary/40 bg-transparent data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
           />
         </div>
         <div className="flex-1">
@@ -73,8 +73,8 @@ export function UploadOptions({
       <div
         className={`group flex items-start gap-4 rounded-xl border p-4 transition-all ${
           compressUpload && hasCompressibleFile
-            ? "border-ring bg-card"
-            : "border-border bg-secondary/30 hover:border-ring"
+            ? "border-ring bg-card/85"
+            : "border-border bg-[hsl(var(--background)/0.72)] hover:border-ring"
         }`}
       >
         <div className="mt-0.5">
@@ -83,7 +83,7 @@ export function UploadOptions({
             checked={compressUpload}
             onCheckedChange={onCompressChange}
             disabled={!canCompress}
-            className="data-[state=checked]:border-primary-foreground data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground border-white bg-transparent"
+            className="border-primary/40 bg-transparent data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
           />
         </div>
         <div className="flex-1">
@@ -94,7 +94,7 @@ export function UploadOptions({
             {t("upload.enableCompression")}
             <Zap className="text-foreground h-4 w-4" />
             {hasCompressibleFile && (
-              <span className="ml-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
+              <span className="ml-1 rounded-full bg-[hsl(165_48%_92%)] px-2 py-0.5 text-xs font-semibold text-[hsl(165_65%_28%)]">
                 {t("upload.compressionRecommended")}
               </span>
             )}
@@ -111,8 +111,8 @@ export function UploadOptions({
       <div
         className={`group flex items-start gap-4 rounded-xl border p-4 transition-all ${
           storageTier === "Term"
-            ? "border-ring bg-card"
-            : "border-border bg-secondary/30 hover:border-ring"
+            ? "border-ring bg-card/85"
+            : "border-border bg-[hsl(var(--background)/0.72)] hover:border-ring"
         }`}
       >
         <div className="mt-0.5">
@@ -123,7 +123,7 @@ export function UploadOptions({
               onStorageTierChange(checked ? "Term" : "Permanent")
             }
             disabled={disableTermStorage}
-            className="data-[state=checked]:border-primary-foreground data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground border-white bg-transparent"
+            className="border-primary/40 bg-transparent data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
           />
         </div>
         <div className="flex-1">

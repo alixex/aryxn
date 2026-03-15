@@ -21,7 +21,7 @@ export function UploadButton({
 
   return (
     <Button
-      className="group relative h-14 w-full overflow-hidden rounded-xl bg-linear-to-r from-indigo-600 to-purple-600 text-base font-bold text-white shadow-lg shadow-indigo-500/25 transition-all hover:from-indigo-700 hover:to-purple-700 hover:shadow-xl hover:shadow-indigo-500/30 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:shadow-lg"
+      className="group bg-gradient-primary h-14 w-full rounded-xl text-base font-bold text-primary-foreground shadow-[0_14px_30px_-18px_hsl(var(--primary)/0.8)] transition-all hover:-translate-y-0.5 hover:shadow-[0_18px_34px_-16px_hsl(var(--primary)/0.8)] disabled:cursor-not-allowed disabled:opacity-50"
       onClick={onClick}
       disabled={uploading || !file || !canUpload}
     >

@@ -156,7 +156,7 @@ export function PaymentTokenSelector({
           value={selectedAccount ? accountValue(selectedAccount) : ""}
           onValueChange={handleAccountChange}
         >
-          <SelectTrigger className="border-border bg-background h-12 w-full rounded-xl shadow-sm transition-all hover:shadow-md">
+          <SelectTrigger className="border-border bg-card/80 h-12 w-full rounded-xl shadow-sm transition-all hover:border-primary/35 hover:shadow-md">
             <div className="flex items-center gap-2">
               <Wallet className="text-muted-foreground h-4 w-4" />
               <SelectValue
@@ -167,7 +167,7 @@ export function PaymentTokenSelector({
               />
             </div>
           </SelectTrigger>
-          <SelectContent className="rounded-xl border shadow-lg">
+          <SelectContent className="rounded-xl border bg-card shadow-lg">
             {supportedAccounts.map((account) => (
               <SelectItem
                 key={accountValue(account)}
@@ -195,7 +195,7 @@ export function PaymentTokenSelector({
           onValueChange={(val) => onSelectToken(val as PaymentToken)}
           disabled={selectableTokens.length === 0}
         >
-          <SelectTrigger className="border-border bg-background h-12 w-full rounded-xl shadow-sm transition-all hover:shadow-md">
+          <SelectTrigger className="border-border bg-card/80 h-12 w-full rounded-xl shadow-sm transition-all hover:border-primary/35 hover:shadow-md">
             <SelectValue
               placeholder={t(
                 "upload.selectPaymentToken",
@@ -203,7 +203,7 @@ export function PaymentTokenSelector({
               )}
             />
           </SelectTrigger>
-          <SelectContent className="rounded-xl border shadow-lg">
+          <SelectContent className="rounded-xl border bg-card shadow-lg">
             {selectableTokens.map((token) => (
               <SelectItem
                 key={token}
@@ -220,7 +220,7 @@ export function PaymentTokenSelector({
       <div className="flex items-center justify-between px-1">
         <div className="text-muted-foreground flex items-center gap-2 text-xs">
           <span>{t("common.balance")}:</span>
-          <span className="text-foreground font-mono font-medium">
+          <span className="text-foreground font-semibold">
             {balance} {selectedToken}
           </span>
         </div>

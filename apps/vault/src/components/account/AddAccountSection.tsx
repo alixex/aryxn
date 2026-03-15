@@ -80,8 +80,8 @@ export function AddAccountSection({
     <Card className="glass-premium hover:shadow-primary/5 border-none shadow-2xl transition-all duration-500">
       <CardHeader className="glass-strong animate-fade-in-down border-accent/30 bg-card/60 rounded-t-2xl border-b-2 p-6 shadow-lg">
         <CardTitle className="text-foreground flex items-center gap-3 text-base font-bold">
-          <div className="rounded-lg bg-cyan-400/20 p-2">
-            <Plus className="h-5 w-5 text-cyan-400" />
+          <div className="rounded-lg bg-[hsl(var(--secondary)/0.2)] p-2 text-[hsl(var(--secondary))]">
+            <Plus className="h-5 w-5" />
           </div>
           {t("identities.addNew")}
         </CardTitle>
@@ -91,13 +91,13 @@ export function AddAccountSection({
           <TabsList className="bg-accent/10 mx-6 mt-6 mb-2 h-auto w-auto rounded-xl p-1.5 shadow-inner">
             <TabsTrigger
               value="import"
-              className="data-[state=active]:bg-card rounded-md px-4 py-2 text-xs font-semibold data-[state=active]:text-cyan-400 data-[state=active]:shadow-sm"
+              className="data-[state=active]:bg-card rounded-md px-4 py-2 text-xs font-semibold data-[state=active]:text-primary data-[state=active]:shadow-sm"
             >
               {t("identities.import")}
             </TabsTrigger>
             <TabsTrigger
               value="create"
-              className="data-[state=active]:bg-card rounded-md px-4 py-2 text-xs font-semibold data-[state=active]:text-cyan-400 data-[state=active]:shadow-sm"
+              className="data-[state=active]:bg-card rounded-md px-4 py-2 text-xs font-semibold data-[state=active]:text-primary data-[state=active]:shadow-sm"
             >
               {t("identities.new")}
             </TabsTrigger>
@@ -114,8 +114,8 @@ export function AddAccountSection({
                     onClick={() => setImportChain(chain.id)}
                     className={`h-8 gap-1.5 rounded-full px-3 text-[10px] font-bold uppercase transition-all ${
                       importChain === chain.id
-                        ? "bg-cyan-500 text-white hover:bg-cyan-600"
-                        : "border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10"
+                        ? "bg-gradient-primary text-primary-foreground"
+                        : "border-primary/35 text-primary hover:bg-primary/10"
                     }`}
                   >
                     <div className="scale-75">{chain.icon}</div>
@@ -152,7 +152,7 @@ export function AddAccountSection({
                       <button
                         type="button"
                         onClick={() => setShowImportKey(!showImportKey)}
-                        className="text-muted-foreground absolute top-1/2 right-3 -translate-y-1/2 transition-colors hover:text-cyan-400"
+                        className="text-muted-foreground absolute top-1/2 right-3 -translate-y-1/2 transition-colors hover:text-primary"
                       >
                         {showImportKey ? (
                           <EyeOff className="h-4 w-4" />
@@ -179,7 +179,7 @@ export function AddAccountSection({
                     key={chain.id}
                     variant="outline"
                     onClick={() => onCreateAccount(chain.id)}
-                    className="border-border hover:bg-accent/50 group flex h-20 flex-col gap-1.5 rounded-lg transition-all hover:border-cyan-400/50"
+                    className="border-border hover:bg-accent/30 group flex h-20 flex-col gap-1.5 rounded-lg transition-all hover:border-primary/50"
                   >
                     <div className="bg-secondary text-foreground group-hover:bg-muted group-hover:text-foreground rounded-lg p-1.5 transition-colors">
                       {chain.icon}
