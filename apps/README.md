@@ -8,7 +8,7 @@ This directory contains user-facing applications in the Aryxn monorepo.
 
 ## Directory Map
 
-- [vault](./vault): Main web app for account management, uploads, dashboard, swap, and bridge workflows.
+- [vault](./vault): Main web app for account management, uploads, dashboard, search, and settings workflows.
 
 ## App Responsibilities
 
@@ -17,7 +17,7 @@ This directory contains user-facing applications in the Aryxn monorepo.
 - End-user interface built with React + Vite
 - Multi-chain account and wallet operations
 - Upload and encrypted permanent storage flows
-- Transaction history and dashboard UX
+- Search, transaction history, and dashboard UX
 - Settings, localization, and runtime configuration
 
 ## Related Docs

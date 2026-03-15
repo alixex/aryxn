@@ -8,7 +8,7 @@
 
 ---
 
-## **Product Overview**
+## Product Overview
 
 **Aryxn** is a user-sovereignty-first Web3 application that combines **multi-chain account management**, **permanent file storage**, and **history/search tooling** into one unified platform.  
 Inspired by Plato's concept of "aryxn" (recollection), it empowers you to control your digital assets and preserve what matters—securely, privately, and forever.
@@ -17,9 +17,9 @@ Inspired by Plato's concept of "aryxn" (recollection), it empowers you to contro
 
 ---
 
-## **Core Features**
+## Core Features
 
-### 🔐 **Multi-Chain Account Management**
+### 🔐 Multi-Chain Account Management
 
 - **Unified account hub**: Manage accounts across **Ethereum**, **Solana**, **Sui**, **Arweave**, **Bitcoin**, and other major blockchains in one secure place
 - **Dual wallet support**: Use internal accounts (encrypted locally with your master password) or connect external wallets like MetaMask and Phantom
@@ -27,7 +27,7 @@ Inspired by Plato's concept of "aryxn" (recollection), it empowers you to contro
 - **Secure by design**: Private keys and sensitive data are encrypted locally with your master password—never leaving your browser
 - **Easy import**: Import existing accounts via private keys or seed phrases, or create new ones with just a few clicks
 
-### 📁 **Permanent File Storage**
+### 📁 Permanent File Storage
 
 - **Forever storage**: Upload files to Arweave blockchain for permanent, immutable storage that lasts as long as the network exists
 - **Flexible privacy**: Choose between **public storage** for open access or **private encrypted storage** for sensitive files
@@ -37,7 +37,7 @@ Inspired by Plato's concept of "aryxn" (recollection), it empowers you to contro
 - **Universal access**: Access your files from any device using decentralized file links—your data follows you everywhere
 - **Upload cost optimization**: Real-time fee estimation and route guidance to reduce upload costs
 
-### 📊 **Unified Dashboard**
+### 📊 Unified Dashboard
 
 - **Complete overview**: View your upload activity, file records, and status in one interface
 - **File history**: Track file operations with timestamps, metadata, size, and storage network information
@@ -45,7 +45,7 @@ Inspired by Plato's concept of "aryxn" (recollection), it empowers you to contro
 - **Cross-chain sync**: Automatic synchronization of on-chain data to local SQLite cache for fast access and offline viewing
 - **Advanced filtering**: Search and filter across all transaction types with powerful query capabilities
 
-### 🔎 **Search & Retrieval**
+### 🔎 Search & Retrieval
 
 - **Unified search**: Search by file name, metadata, and transaction IDs
 - **Global/mobile search UX**: Dedicated search experiences for desktop and mobile
@@ -53,16 +53,16 @@ Inspired by Plato's concept of "aryxn" (recollection), it empowers you to contro
 
 ---
 
-## **Privacy & Security**
+## Privacy & Security
 
-### 🔒 **Your Data, Your Control**
+### 🔒 Your Data, Your Control
 
 - **Local-first architecture**: All sensitive information (private keys, master password, encrypted data) is stored and encrypted locally in your browser—never sent to any server
 - **Zero-knowledge design**: Aryxn never collects, stores, or has access to your data. We can't see what you store, even if we wanted to
 - **Privacy by default**: Designed to minimize centralized dependencies and reduce trust assumptions—you remain in full control
 - **Browser-native**: The entire application operates entirely in your browser, with no backend servers handling your sensitive data
 
-### 🛡️ **Encryption & Protection**
+### 🛡️ Encryption & Protection
 
 - **End-to-end encryption**: Files are encrypted locally using industry-standard encryption before upload—only you can decrypt them
 - **Master password protection**: A single master password protects all your accounts and encrypted files, giving you one key to all your data
@@ -71,31 +71,31 @@ Inspired by Plato's concept of "aryxn" (recollection), it empowers you to contro
 
 ---
 
-## **Use Cases**
+## Use Cases
 
-### 🔐 **Multi-Chain Account Operations**
+### 🔐 Multi-Chain Account Operations
 
 Manage your blockchain accounts from one interface, switch active identities, and keep keys under local encryption protection.
 
-### 📦 **Personal Digital Vault**
+### 📦 Personal Digital Vault
 
 Build your personal digital archive by securely storing receipts, certificates, photos, and important documents on blockchain. Use encryption for sensitive files, ensuring your private information stays private forever.
 
-### 🎨 **Creator Proofs & IP Protection**
+### 🎨 Creator Proofs & IP Protection
 
 Publish and timestamp your creative work on blockchain for permanent, verifiable proof of creation. Perfect for artists, writers, musicians, and creators who need immutable proof of ownership and creation date.
 
-### 🧭 **Data-First Web3 Workflow**
+### 🧭 Data-First Web3 Workflow
 
 Use one app to manage account identities, upload encrypted/public files, and retrieve historical records quickly with built-in search.
 
-### 🗄️ **Long-term Data Backup**
+### 🗄️ Long-term Data Backup
 
 Create permanent backups of critical files that will outlast any single company or service. Once uploaded to Arweave, your files are stored forever, protected by decentralized infrastructure and cryptographic guarantees.
 
 ---
 
-## **Getting Started**
+## Getting Started
 
 1. **Visit** https://alixex.github.io/aryxn/
 2. **Create** a master password to encrypt your data (make sure to remember it—it's the only way to access your encrypted data)
@@ -115,7 +115,7 @@ Create permanent backups of critical files that will outlast any single company 
 
 ---
 
-## **Technical Stack**
+## Technical Stack
 
 - **Frontend**: React + Vite + TypeScript + Tailwind CSS
 - **State Management**: Zustand with local persistence
@@ -123,15 +123,15 @@ Create permanent backups of critical files that will outlast any single company 
 - **Storage**: Arweave for permanent file storage + Local SQLite for fast indexing
 - **Encryption**: AES-256-GCM for local encryption, end-to-end encrypted file uploads
 
-## **Monorepo Architecture**
+## Monorepo Architecture
 
-### **apps/**
+### apps/
 
 - **vault/**: Primary end-user web application (account management, upload, dashboard, search, settings)
 
 See also: [apps/README.md](apps/README.md)
 
-### **packages/**
+### packages/
 
 - **arweave/**: Arweave interaction utilities and integration logic
 - **chain-constants/**: Shared chain IDs, token metadata, routing constants, and network configuration
@@ -148,7 +148,7 @@ See also: [apps/README.md](apps/README.md)
 
 See also: [packages/README.md](packages/README.md)
 
-### **Repository Layout (High-Level)**
+### Repository Layout (High-Level)
 
 ```
 aryxn/
@@ -172,7 +172,7 @@ aryxn/
 └── client/               # Client assets/build workspace
 ```
 
-## **Open Source**
+## Open Source
 
 Aryxn is open source and licensed under **AGPL-3.0**.  
 See [LICENSE](./LICENSE) for details.
