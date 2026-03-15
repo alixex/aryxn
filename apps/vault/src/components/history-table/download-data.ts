@@ -10,6 +10,30 @@ import {
   getPrimaryGatewayUrl,
 } from "@/lib/storage/gateways"
 
+const GATEWAY_TIMEOUT_MS = 10000
+
+async function fetchWithGatewayTimeout(
+  url: string,
+  init: RequestInit = {},
+  timeoutMs = GATEWAY_TIMEOUT_MS,
+): Promise<Response> {
+  const controller = new AbortController()
+  const parentSignal = init.signal
+  const abortFromParent = () => controller.abort()
+  parentSignal?.addEventListener("abort", abortFromParent, { once: true })
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
+
+  try {
+    return await fetch(url, {
+      ...init,
+      signal: controller.signal,
+    })
+  } finally {
+    clearTimeout(timeoutId)
+    parentSignal?.removeEventListener("abort", abortFromParent)
+  }
+}
+
 /**
  * Suppress SDK chunk-download related errors and warnings.
  */
@@ -92,7 +116,7 @@ export async function fetchDataFromGateways(
 
   for (const gateway of gateways) {
     try {
-      const response = await fetch(`${gateway}/${txId}`, {
+      const response = await fetchWithGatewayTimeout(`${gateway}/${txId}`, {
         signal,
         headers: {
           Accept: "application/octet-stream",
@@ -196,7 +220,7 @@ async function cacheFromGatewayStream(
 
   for (const gateway of gateways) {
     try {
-      const response = await fetch(`${gateway}/${txId}`, {
+      const response = await fetchWithGatewayTimeout(`${gateway}/${txId}`, {
         signal: options.signal,
         headers: {
           Accept: "application/octet-stream",
@@ -287,7 +311,7 @@ async function cacheFileFromGatewayStream(
 
   for (const gateway of gateways) {
     try {
-      const response = await fetch(`${gateway}/${txId}`, {
+      const response = await fetchWithGatewayTimeout(`${gateway}/${txId}`, {
         signal: options.signal,
         headers: {
           Accept: "application/octet-stream",

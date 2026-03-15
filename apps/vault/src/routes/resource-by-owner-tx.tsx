@@ -142,6 +142,8 @@ type DecryptStage =
   | "decrypting"
   | "opening"
 
+const GATEWAY_TIMEOUT_MS = 10000
+
 function concatChunks(chunks: Uint8Array[], total: number): Uint8Array {
   const output = new Uint8Array(total)
   let offset = 0
@@ -163,9 +165,13 @@ async function downloadEncryptedData(
   let lastError: unknown = null
 
   for (const gateway of gateways) {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), GATEWAY_TIMEOUT_MS)
+
     try {
       const response = await fetch(`${gateway}/${txId}`, {
         cache: "no-store",
+        signal: controller.signal,
       })
       if (!response.ok) {
         throw new Error(`Gateway ${gateway} failed: ${response.status}`)
@@ -208,6 +214,8 @@ async function downloadEncryptedData(
       return data
     } catch (error) {
       lastError = error
+    } finally {
+      clearTimeout(timeoutId)
     }
   }
 

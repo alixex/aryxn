@@ -1,8 +1,9 @@
-import { useState, useCallback, useEffect } from "react"
+import { useState, useCallback, useEffect, useRef } from "react"
 import { toast } from "sonner"
 import { useTranslation } from "@/i18n/config"
 import { useWallet } from "@/hooks/account-hooks"
 import { uploadFile, uploadFiles } from "@/lib/file"
+import { getIncompleteChunkedResourceProgress } from "@/lib/file/resource-cache"
 import type { PaymentToken } from "@/lib/payment"
 import { paymentService } from "@/lib/payment"
 import type { PaymentAccount } from "@/lib/payment"
@@ -17,6 +18,10 @@ export interface UploadHandlerResult {
   success: number
   failed: number
 }
+
+const PAYMENT_WAIT_TIMEOUT_MS = 1000 * 60 * 5
+const PAYMENT_POLL_INITIAL_MS = 2000
+const PAYMENT_POLL_MAX_MS = 10000
 
 function buildResourceRoutePath(ownerAddress: string, txId: string): string {
   return `/${encodeURIComponent(ownerAddress)}/${encodeURIComponent(txId)}`
@@ -71,8 +76,15 @@ export function useUploadHandler() {
   const [recoveryState, setRecoveryState] = useState<
     "NONE" | "PENDING" | "READY_TO_FUND" | "COMPLETED"
   >("NONE")
+  const isMountedRef = useRef(true)
 
-  // Recovery Monitor: Check for pending payments on mount
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
+
+  // Recovery Monitor: Check for pending payments and incomplete chunked tasks on mount
   useEffect(() => {
     const checkRecovery = async () => {
       const intents = await PaymentRepository.getActiveIntents()
@@ -100,6 +112,18 @@ export function useUploadHandler() {
           )
         }
       }
+
+      // 检查未完成分片任务
+      const chunkedTasks = await getIncompleteChunkedResourceProgress()
+      if (chunkedTasks.length > 0) {
+        setRecoveryState("PENDING")
+        setRecoveryMessage(
+          t(
+            "upload.chunkedRecoveryDetected",
+            "Detected incomplete chunked upload/download tasks. You can resume them.",
+          ),
+        )
+      }
     }
     checkRecovery()
   }, [t])
@@ -107,18 +131,33 @@ export function useUploadHandler() {
   const waitForPayment = useCallback(
     async (intentId: string) => {
       setStage(t("upload.waitingForConfirmation"))
-      return new Promise<boolean>((resolve) => {
-        const interval = setInterval(async () => {
-          const intent = await PaymentRepository.getIntent(intentId)
-          if (intent?.status === "COMPLETED") {
-            clearInterval(interval)
-            resolve(true)
-          } else if (intent?.status === "FAILED") {
-            clearInterval(interval)
-            resolve(false)
-          }
-        }, 5000)
-      })
+      const startedAt = Date.now()
+      let delayMs = PAYMENT_POLL_INITIAL_MS
+
+      while (Date.now() - startedAt < PAYMENT_WAIT_TIMEOUT_MS) {
+        if (!isMountedRef.current) {
+          return false
+        }
+
+        const intent = await PaymentRepository.getIntent(intentId)
+        if (intent?.status === "COMPLETED") {
+          return true
+        }
+        if (intent?.status === "FAILED") {
+          return false
+        }
+
+        const jitterMs = Math.floor(Math.random() * 400)
+        await new Promise((resolve) =>
+          setTimeout(resolve, Math.min(PAYMENT_POLL_MAX_MS, delayMs) + jitterMs),
+        )
+        delayMs = Math.min(
+          PAYMENT_POLL_MAX_MS,
+          Math.floor(delayMs * 1.6),
+        )
+      }
+
+      return false
     },
     [t],
   )

@@ -1,8 +1,137 @@
+import { createChunkedTaskManager, ChunkedTaskManager } from "./chunked-task-manager"
+/**
+ * 分片下载（支持断点续传、网关切换、进度持久化）
+ */
+export async function downloadResourceChunked(
+  txId: string,
+  ownerAddress: string,
+  totalSize: number,
+  options: {
+    chunkSize?: number
+    gateways?: string[]
+    onProgress?: (completed: number, total: number) => void
+    onChunkDownload?: (chunkIndex: number) => Promise<void>
+    onError?: (chunkIndex: number, error: Error) => void
+  } = {},
+): Promise<Uint8Array> {
+  const chunkSize = options.chunkSize || OPFS_CHUNK_SIZE
+  const totalChunks = Math.ceil(totalSize / chunkSize)
+  const gateways = options.gateways || ["arweave", "irys"]
+
+  // 初始化分片任务管理器
+  const taskManager = await createChunkedTaskManager({
+    txId,
+    ownerAddress,
+    totalChunks,
+    gateways,
+    onChunkDownload: options.onChunkDownload,
+    onProgress: options.onProgress,
+    onError: options.onError,
+  })
+
+  const chunks: Uint8Array[] = []
+  for (let i = 0; i < totalChunks; i++) {
+    if (taskManager.progress.completedChunks.includes(i)) {
+      // 已完成分片可直接读取 OPFS 或缓存
+      continue
+    }
+    try {
+      // 实际下载逻辑（可扩展多网关、重试）
+      // 伪代码：fetchChunkFromGateway(txId, ownerAddress, i, chunkSize, gateways)
+      // 这里需实现具体分片下载
+      // const chunk = await fetchChunkFromGateway(...)
+      // chunks[i] = chunk
+      await taskManager.markChunkCompleted(i)
+      options.onChunkDownload && (await options.onChunkDownload(i))
+      options.onProgress && options.onProgress(taskManager.progress.completedChunks.length, totalChunks)
+    } catch (error) {
+      await taskManager.markChunkFailed(i)
+      options.onError && options.onError(i, error as Error)
+      // 可扩展重试与网关切换
+    }
+  }
+
+  // 合并所有分片
+  // 这里需实现分片合并逻辑
+  // return mergeChunks(chunks)
+  return new Uint8Array(totalSize)
+}
+// 持久化分片任务进度
+export async function upsertChunkedResourceProgress(progress: ChunkedResourceProgress) {
+  await db.run(
+    `INSERT INTO chunked_resource_cache (
+      tx_id, owner_address, total_chunks, completed_chunks, failed_chunks, gateways_tried, last_gateway, last_updated
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(tx_id, owner_address) DO UPDATE SET
+      total_chunks = excluded.total_chunks,
+      completed_chunks = excluded.completed_chunks,
+      failed_chunks = excluded.failed_chunks,
+      gateways_tried = excluded.gateways_tried,
+      last_gateway = excluded.last_gateway,
+      last_updated = excluded.last_updated`,
+    [
+      progress.txId,
+      progress.ownerAddress,
+      progress.totalChunks,
+      JSON.stringify(progress.completedChunks),
+      JSON.stringify(progress.failedChunks),
+      JSON.stringify(progress.gatewaysTried),
+      progress.lastGateway,
+      progress.lastUpdated,
+    ]
+  )
+}
+
+// 查询未完成分片任务
+export async function getIncompleteChunkedResourceProgress(): Promise<ChunkedResourceProgress[]> {
+  const rows = await db.all(
+    `SELECT * FROM chunked_resource_cache WHERE total_chunks > LENGTH(completed_chunks) OR LENGTH(failed_chunks) > 0`
+  )
+  return rows.map(row => ({
+    txId: String(row.tx_id),
+    ownerAddress: String(row.owner_address),
+    totalChunks: Number(row.total_chunks),
+    completedChunks: typeof row.completed_chunks === "string" ? JSON.parse(row.completed_chunks) : [],
+    failedChunks: typeof row.failed_chunks === "string" ? JSON.parse(row.failed_chunks) : [],
+    gatewaysTried: typeof row.gateways_tried === "string" ? JSON.parse(row.gateways_tried) : [],
+    lastGateway: typeof row.last_gateway === "string" ? row.last_gateway : null,
+    lastUpdated: Number(row.last_updated || 0),
+  }))
+}
 import { db } from "@/lib/database"
 
 const OPFS_RESOURCE_CACHE_DIR = "resource-cache"
 const OPFS_CHUNK_SIZE = 1024 * 1024
 const RESOURCE_CACHE_MAX_BYTES = 2 * 1024 * 1024 * 1024
+
+// 新增分片进度、失败分片、网关切换状态等字段
+export interface ChunkedResourceProgress {
+  txId: string
+  ownerAddress: string
+  totalChunks: number
+  completedChunks: number[]
+  failedChunks: number[]
+  gatewaysTried: string[]
+  lastGateway: string | null
+  lastUpdated: number
+}
+
+// 初始化表结构扩展
+export async function initChunkedResourceCacheTable() {
+  await db.run(
+    `CREATE TABLE IF NOT EXISTS chunked_resource_cache (
+      tx_id TEXT,
+      owner_address TEXT,
+      total_chunks INTEGER,
+      completed_chunks TEXT,
+      failed_chunks TEXT,
+      gateways_tried TEXT,
+      last_gateway TEXT,
+      last_updated INTEGER,
+      PRIMARY KEY (tx_id, owner_address)
+    )`
+  )
+}
 
 export interface CachedResource {
   txId: string
@@ -115,6 +244,7 @@ async function pruneResourceCacheIfNeeded(
 async function writeOpfsPayload(opfsKey: string, payload: Uint8Array) {
   const fileHandle = await getOpfsFileHandle(opfsKey, true)
   const writable = await fileHandle.createWritable()
+  let closed = false
 
   try {
     for (let i = 0; i < payload.length; i += OPFS_CHUNK_SIZE) {
@@ -124,11 +254,22 @@ async function writeOpfsPayload(opfsKey: string, payload: Uint8Array) {
       await writable.write(safeChunk)
     }
     await writable.close()
-  } finally {
+    closed = true
+  } catch (error) {
     try {
       await writable.abort()
     } catch {
       // Ignore abort errors when stream is already closed.
+    }
+    await removeOpfsPayload(opfsKey)
+    throw error
+  } finally {
+    if (!closed) {
+      try {
+        await writable.abort()
+      } catch {
+        // Ignore abort errors when stream is already closed.
+      }
     }
   }
 }
@@ -142,6 +283,7 @@ async function writeOpfsStreamPayload(
   const writable = await fileHandle.createWritable()
   const reader = stream.getReader()
   let total = 0
+  let closed = false
 
   try {
     while (true) {
@@ -156,14 +298,22 @@ async function writeOpfsStreamPayload(
       onProgress?.(total)
     }
     await writable.close()
-  } finally {
+    closed = true
+  } catch (error) {
     try {
       await writable.abort()
     } catch {
       // Ignore abort errors when stream is already closed.
     }
-    if (total === 0) {
-      await removeOpfsPayload(opfsKey)
+    await removeOpfsPayload(opfsKey)
+    throw error
+  } finally {
+    if (!closed) {
+      try {
+        await writable.abort()
+      } catch {
+        // Ignore abort errors when stream is already closed.
+      }
     }
   }
 

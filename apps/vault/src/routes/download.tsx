@@ -45,6 +45,8 @@ type DownloadStage =
   | "saving"
   | "done"
 
+const GATEWAY_TIMEOUT_MS = 10000
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function concatChunks(chunks: Uint8Array[], total: number): Uint8Array {
@@ -68,10 +70,15 @@ async function downloadRawData(
   let lastError: unknown = null
 
   for (const gateway of gateways) {
+    const gatewayController = new AbortController()
+    const abortFromParent = () => gatewayController.abort()
+    signal?.addEventListener("abort", abortFromParent, { once: true })
+    const timeoutId = setTimeout(() => gatewayController.abort(), GATEWAY_TIMEOUT_MS)
+
     try {
       const response = await fetch(`${gateway}/${txId}`, {
         cache: "no-store",
-        signal,
+        signal: gatewayController.signal,
       })
       if (!response.ok)
         throw new Error(`Gateway ${gateway} failed: ${response.status}`)
@@ -109,6 +116,9 @@ async function downloadRawData(
       return data
     } catch (error) {
       lastError = error
+    } finally {
+      clearTimeout(timeoutId)
+      signal?.removeEventListener("abort", abortFromParent)
     }
   }
 
