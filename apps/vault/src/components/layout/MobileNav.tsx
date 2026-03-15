@@ -20,11 +20,11 @@ export function MobileNav({ items }: MobileNavProps) {
 
   return (
     <nav className="pb-safe glass-strong border-border fixed right-0 bottom-0 left-0 z-40 border-t md:hidden">
-      <div className="relative flex h-18 items-center justify-around px-2">
+      <div className="relative flex h-19 items-center justify-around px-1.5">
         {/* Sliding indicator blob */}
         {activeIndex !== -1 && (
           <div
-            className="bg-primary/12 absolute top-2.5 bottom-2.5 z-0 rounded-2xl transition-all duration-300"
+            className="bg-primary/12 absolute top-2 bottom-2 z-0 rounded-2xl transition-all duration-300"
             style={{
               width: `calc(${100 / items.length}% - 8px)`,
               left: `calc(${activeIndex * (100 / items.length)}% + 4px)`,
@@ -41,7 +41,7 @@ export function MobileNav({ items }: MobileNavProps) {
             <Link
               key={item.path}
               to={item.path}
-              className={`touch-feedback relative z-10 flex flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-0.5 py-2 transition-all duration-200 ${
+              className={`touch-feedback relative z-10 flex flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-0.5 py-2.5 transition-all duration-200 ${
                 isActive
                   ? "text-primary"
                   : "text-muted-foreground hover:text-foreground"

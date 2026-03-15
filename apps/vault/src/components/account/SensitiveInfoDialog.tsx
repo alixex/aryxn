@@ -139,8 +139,8 @@ export function SensitiveInfoDialog({
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-                <p className="text-sm font-semibold text-red-800">
+              <div className="rounded-lg border border-[hsl(var(--destructive)/0.45)] bg-[hsl(var(--destructive)/0.14)] p-4">
+                <p className="text-[hsl(var(--destructive-foreground))] text-sm font-semibold">
                   {t("identities.dangerZone")}
                 </p>
               </div>

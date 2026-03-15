@@ -365,7 +365,7 @@ export function MobileSearchDialog({
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={() => onOpenChange(false)}
-                      className="group animate-fade-in-up border-border bg-card hover:border-ring block rounded-2xl border-2 p-5 shadow-sm transition-all duration-200 hover:shadow-md active:scale-[0.98]"
+                      className="group animate-fade-in-up border-border bg-card hover:border-ring block rounded-2xl border p-5 shadow-sm transition-all duration-200 hover:shadow-md active:scale-[0.99]"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0 flex-1">

@@ -334,8 +334,8 @@ export function ArweaveSearch() {
                           <span
                             className={`rounded px-1.5 py-0.5 text-xs font-semibold sm:px-2 ${
                               isIrys
-                                ? "bg-purple-100/50 text-purple-700 ring-1 ring-purple-500/30"
-                                : "bg-orange-100/50 text-orange-700 ring-1 ring-orange-500/30"
+                                ? "bg-muted text-foreground ring-border"
+                                : "bg-muted text-foreground ring-border"
                             }`}
                           >
                             {isIrys ? "Irys L1" : "Arweave"}
@@ -346,7 +346,7 @@ export function ArweaveSearch() {
                             </span>
                           )}
                           {contentType && (
-                            <span className="bg-secondary rounded px-1.5 py-0.5 text-xs sm:px-2">
+                            <span className="bg-secondary text-secondary-foreground rounded px-1.5 py-0.5 text-xs sm:px-2">
                               {contentType}
                             </span>
                           )}
