@@ -1,4 +1,4 @@
-// 格式化文件大小
+// Format file size.
 export function formatFileSize(bytes: number | undefined): string {
   if (!bytes) return "-"
   const units = ["B", "KB", "MB", "GB", "TB"]
@@ -11,10 +11,10 @@ export function formatFileSize(bytes: number | undefined): string {
   return `${size.toFixed(unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`
 }
 
-// 格式化日期时间
+// Format date/time using the runtime locale.
 export function formatDateTime(timestamp: number): string {
   const date = new Date(timestamp)
-  return date.toLocaleString("zh-CN", {
+  return date.toLocaleString(undefined, {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
@@ -23,7 +23,7 @@ export function formatDateTime(timestamp: number): string {
   })
 }
 
-// 获取文件类型显示名称
+// Get display name for file type.
 export function getFileTypeDisplay(mimeType: string | undefined): string {
   if (!mimeType) return "-"
   const parts = mimeType.split("/")

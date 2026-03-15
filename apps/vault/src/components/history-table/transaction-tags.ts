@@ -1,5 +1,5 @@
 /**
- * 解码后的 tag 类型
+ * Decoded tag shape.
  */
 export type DecodedTag = {
   name: string
@@ -7,26 +7,26 @@ export type DecodedTag = {
 }
 
 /**
- * 解码 Arweave transaction tag
- * Arweave transaction tags 的 name 和 value 可能是 base64 编码的
+ * Decode a single Arweave transaction tag.
+ * Tag name/value may be base64-encoded.
  */
 export function decodeTag(tag: { name: string; value: string }): DecodedTag {
   try {
-    // 尝试解码 name
+    // Try decoding tag name.
     let decodedName = tag.name
     try {
       decodedName = atob(tag.name)
     } catch {
-      // 如果解码失败，说明已经是字符串格式
+      // If decode fails, the input is likely already plain text.
       decodedName = tag.name
     }
 
-    // 尝试解码 value
+    // Try decoding tag value.
     let decodedValue = tag.value
     try {
       decodedValue = atob(tag.value)
     } catch {
-      // 如果解码失败，说明已经是字符串格式
+      // If decode fails, the input is likely already plain text.
       decodedValue = tag.value
     }
 
@@ -37,7 +37,7 @@ export function decodeTag(tag: { name: string; value: string }): DecodedTag {
 }
 
 /**
- * 解码所有 transaction tags
+ * Decode all transaction tags.
  */
 export function decodeTransactionTags(
   tags: Array<{ name: string; value: string }> | undefined,
@@ -47,7 +47,7 @@ export function decodeTransactionTags(
 }
 
 /**
- * 从解码后的 tags 中提取压缩信息
+ * Extract compression metadata from decoded tags.
  */
 export function extractCompressionInfo(decodedTags: DecodedTag[]) {
   const compressionEnabledTag = decodedTags.find(
@@ -66,7 +66,7 @@ export function extractCompressionInfo(decodedTags: DecodedTag[]) {
 }
 
 /**
- * 从解码后的 tags 中提取加密参数
+ * Extract encryption parameters from decoded tags.
  */
 export function extractEncryptionParams(decodedTags: DecodedTag[]) {
   const encryptionParamsTag = decodedTags.find(

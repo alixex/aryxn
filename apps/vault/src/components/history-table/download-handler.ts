@@ -18,7 +18,7 @@ import {
 } from "./process-data"
 
 /**
- * 下载文件的主处理函数
+ * Main handler for file downloads.
  */
 export async function handleFileDownload(
   record: UploadRecord,
@@ -30,12 +30,12 @@ export async function handleFileDownload(
     signal?: AbortSignal
   },
 ): Promise<void> {
-  // 获取 transaction 元数据
+  // Fetch transaction metadata.
   const { transaction, expectedDataSize } = await getTransactionMetadata(
     record.txId,
   )
 
-  // 解码 transaction tags
+  // Decode transaction tags.
   const decodedTags = decodeTransactionTags(transaction?.tags)
 
   if (decodedTags.length > 0) {
@@ -94,7 +94,7 @@ export async function handleFileDownload(
     return
   }
 
-  // 下载数据
+  // Download transaction data.
   const data = await downloadTransactionData(
     record.txId,
     expectedDataSize,
@@ -108,7 +108,7 @@ export async function handleFileDownload(
     },
   )
 
-  // 如果下载加密文件但不解密，打包成 JSON
+  // When downloading encrypted content without decrypting, package it as JSON.
   if (record.encryptionAlgo !== "none" && !decrypt) {
     console.log("Downloading encrypted file (not decrypting):", {
       fileName: record.fileName,
@@ -150,7 +150,7 @@ export async function handleFileDownload(
     return
   }
 
-  // 处理数据（解密和解压）
+  // Process data (decrypt + decompress).
   const processedData = await processFileData(
     data,
     record,
@@ -159,12 +159,12 @@ export async function handleFileDownload(
     decrypt,
   )
 
-  // 确保 processedData 是标准的 Uint8Array
+  // Ensure processedData is a standard Uint8Array.
   const finalBuffer = new ArrayBuffer(processedData.length)
   const finalArray = new Uint8Array(finalBuffer)
   finalArray.set(processedData)
 
-  // 创建 Blob 并下载
+  // Build Blob and trigger browser download.
   const blobType = record.mimeType || "application/octet-stream"
   const blob = new Blob([finalArray as unknown as BlobPart], {
     type: blobType,
