@@ -2,6 +2,7 @@ import {
   buildSignedBitcoinTransferTx,
   estimateBitcoinTransferVsize,
   getBitcoinAddressFromWIF,
+  isValidBitcoinAddress,
   type BitcoinUtxoInput,
 } from "@aryxn/crypto"
 import { getBitcoinApiUrl } from "@/lib/chain"
@@ -101,7 +102,7 @@ async function broadcastTransaction(txHex: string): Promise<string> {
 }
 
 function validateBtcAddress(address: string) {
-  return /^bc1[0-9a-z]{20,}$/.test(address.toLowerCase())
+  return isValidBitcoinAddress(address)
 }
 
 async function buildTransferPlan(params: {

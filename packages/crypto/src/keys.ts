@@ -64,6 +64,23 @@ export const getBitcoinAddressFromWIF = (wif: string) => {
 }
 
 /**
+ * Validate a Bitcoin address by parsing it against mainnet rules.
+ */
+export const isValidBitcoinAddress = (address: string) => {
+  const normalized = address.trim()
+  if (!normalized) {
+    return false
+  }
+
+  try {
+    bitcoin.address.toOutputScript(normalized, bitcoin.networks.bitcoin)
+    return true
+  } catch {
+    return false
+  }
+}
+
+/**
  * Derive a secp256k1 keypair from a seed for a specific path (Ethereum, etc.)
  */
 export const deriveSecp256k1Key = (seed: Uint8Array, path: string) => {

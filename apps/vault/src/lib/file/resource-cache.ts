@@ -98,6 +98,20 @@ async function pruneResourceCache(maxBytes = RESOURCE_CACHE_MAX_BYTES) {
   }
 }
 
+async function pruneResourceCacheIfNeeded(
+  maxBytes = RESOURCE_CACHE_MAX_BYTES,
+): Promise<void> {
+  const row = await db.get(
+    "SELECT COALESCE(SUM(content_size), 0) AS total_bytes FROM resource_cache",
+  )
+  const totalBytes = Number((row as { total_bytes?: number } | null)?.total_bytes || 0)
+  if (totalBytes <= maxBytes) {
+    return
+  }
+
+  await pruneResourceCache(maxBytes)
+}
+
 async function writeOpfsPayload(opfsKey: string, payload: Uint8Array) {
   const fileHandle = await getOpfsFileHandle(opfsKey, true)
   const writable = await fileHandle.createWritable()
@@ -109,8 +123,13 @@ async function writeOpfsPayload(opfsKey: string, payload: Uint8Array) {
       safeChunk.set(chunk)
       await writable.write(safeChunk)
     }
-  } finally {
     await writable.close()
+  } finally {
+    try {
+      await writable.abort()
+    } catch {
+      // Ignore abort errors when stream is already closed.
+    }
   }
 }
 
@@ -136,8 +155,16 @@ async function writeOpfsStreamPayload(
       total += safeChunk.length
       onProgress?.(total)
     }
-  } finally {
     await writable.close()
+  } finally {
+    try {
+      await writable.abort()
+    } catch {
+      // Ignore abort errors when stream is already closed.
+    }
+    if (total === 0) {
+      await removeOpfsPayload(opfsKey)
+    }
   }
 
   return total
@@ -253,7 +280,7 @@ export async function upsertCachedResource(input: {
     ],
   )
 
-  await pruneResourceCache()
+  await pruneResourceCacheIfNeeded()
 }
 
 export async function upsertCachedResourceFromStream(input: {
@@ -307,7 +334,7 @@ export async function upsertCachedResourceFromStream(input: {
     ],
   )
 
-  await pruneResourceCache()
+  await pruneResourceCacheIfNeeded()
 
   return contentSize
 }

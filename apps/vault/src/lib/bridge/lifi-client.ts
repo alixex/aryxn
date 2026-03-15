@@ -360,12 +360,19 @@ export class LiFiClient {
   }
 
   private fetchWithTimeout(url: string, timeout: number): Promise<Response> {
-    return Promise.race([
-      fetch(url),
-      new Promise<Response>((_, reject) =>
-        setTimeout(() => reject(new Error("Request timeout")), timeout),
-      ),
-    ])
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), timeout)
+
+    return fetch(url, { signal: controller.signal })
+      .catch((error) => {
+        if (error instanceof DOMException && error.name === "AbortError") {
+          throw new Error("Request timeout")
+        }
+        throw error
+      })
+      .finally(() => {
+        clearTimeout(timer)
+      })
   }
 }
 
