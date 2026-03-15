@@ -36,9 +36,7 @@ export function StatCard({
             "group-hover:scale-105",
           )}
         >
-          <div className="transition-transform duration-200">
-            {icon}
-          </div>
+          <div className="transition-transform duration-200">{icon}</div>
         </div>
 
         <div className="min-w-0 flex-1">

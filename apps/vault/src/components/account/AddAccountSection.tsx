@@ -91,13 +91,13 @@ export function AddAccountSection({
           <TabsList className="bg-accent/20 mx-6 mt-6 mb-2 h-auto w-auto rounded-xl p-1.5">
             <TabsTrigger
               value="import"
-              className="data-[state=active]:bg-card rounded-md px-4 py-2 text-xs font-semibold data-[state=active]:text-primary data-[state=active]:shadow-sm"
+              className="data-[state=active]:bg-card data-[state=active]:text-primary rounded-md px-4 py-2 text-xs font-semibold data-[state=active]:shadow-sm"
             >
               {t("identities.import")}
             </TabsTrigger>
             <TabsTrigger
               value="create"
-              className="data-[state=active]:bg-card rounded-md px-4 py-2 text-xs font-semibold data-[state=active]:text-primary data-[state=active]:shadow-sm"
+              className="data-[state=active]:bg-card data-[state=active]:text-primary rounded-md px-4 py-2 text-xs font-semibold data-[state=active]:shadow-sm"
             >
               {t("identities.new")}
             </TabsTrigger>
@@ -152,7 +152,7 @@ export function AddAccountSection({
                       <button
                         type="button"
                         onClick={() => setShowImportKey(!showImportKey)}
-                        className="text-muted-foreground absolute top-1/2 right-3 -translate-y-1/2 transition-colors hover:text-primary"
+                        className="text-muted-foreground hover:text-primary absolute top-1/2 right-3 -translate-y-1/2 transition-colors"
                       >
                         {showImportKey ? (
                           <EyeOff className="h-4 w-4" />
@@ -179,7 +179,7 @@ export function AddAccountSection({
                     key={chain.id}
                     variant="outline"
                     onClick={() => onCreateAccount(chain.id)}
-                    className="border-border bg-[hsl(var(--background)/0.55)] hover:bg-accent/40 group flex h-20 flex-col gap-1.5 rounded-lg transition-all hover:-translate-y-0.5 hover:border-primary/35"
+                    className="border-border hover:bg-accent/40 group hover:border-primary/35 flex h-20 flex-col gap-1.5 rounded-lg bg-[hsl(var(--background)/0.55)] transition-all hover:-translate-y-0.5"
                   >
                     <div className="bg-muted text-foreground group-hover:bg-accent rounded-lg p-1.5 transition-colors">
                       {chain.icon}

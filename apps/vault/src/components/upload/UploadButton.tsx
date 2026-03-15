@@ -21,7 +21,7 @@ export function UploadButton({
 
   return (
     <Button
-      className="touch-target group bg-gradient-primary h-14 w-full rounded-xl px-4 text-base font-bold text-primary-foreground shadow-[0_14px_28px_-20px_hsl(var(--primary)/0.58)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_30px_-20px_hsl(var(--primary)/0.5)] active:translate-y-0 disabled:translate-y-0 disabled:shadow-none disabled:cursor-not-allowed disabled:opacity-55"
+      className="touch-target group bg-gradient-primary text-primary-foreground h-14 w-full rounded-xl px-4 text-base font-bold shadow-[0_14px_28px_-20px_hsl(var(--primary)/0.58)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_30px_-20px_hsl(var(--primary)/0.5)] active:translate-y-0 disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-55 disabled:shadow-none"
       onClick={onClick}
       disabled={uploading || !file || !canUpload}
       aria-busy={uploading}

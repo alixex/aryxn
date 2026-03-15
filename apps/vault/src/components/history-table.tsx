@@ -134,7 +134,7 @@ export function HistoryTable({
                       key={virtualRow.key}
                       data-index={virtualRow.index}
                       ref={rowVirtualizer.measureElement}
-                      className="group hover:bg-[hsl(var(--accent)/0.55)] absolute flex w-full items-center transition-colors duration-150"
+                      className="group absolute flex w-full items-center transition-colors duration-150 hover:bg-[hsl(var(--accent)/0.55)]"
                       style={{
                         transform: `translateY(${virtualRow.start}px)`,
                       }}
@@ -183,7 +183,7 @@ export function HistoryTable({
                           }
                           target="_blank"
                           rel="noreferrer"
-                          className="group/tx text-foreground block truncate font-mono text-xs hover:text-primary hover:underline"
+                          className="group/tx text-foreground hover:text-primary block truncate font-mono text-xs hover:underline"
                           title={r.txId}
                         >
                           <span className="inline-block truncate">

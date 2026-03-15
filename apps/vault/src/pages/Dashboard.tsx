@@ -222,7 +222,7 @@ export default function DashboardPage() {
               <Link to="/account">
                 <Button
                   variant="outline"
-                  className="rounded-lg border-border bg-background text-foreground hover:bg-accent font-semibold"
+                  className="border-border bg-background text-foreground hover:bg-accent rounded-lg font-semibold"
                 >
                   {t("upload.goToAccount")}
                   <ArrowRight className="ml-2 h-4 w-4" />

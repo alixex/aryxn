@@ -172,7 +172,7 @@ export default function UploadPage() {
           <CardContent className="p-0">
             {/* 1. Massive Dropzone Hero Area */}
             <div
-              className={`transition-all duration-300 ${hasSelection ? "border-border/50 bg-[hsl(var(--secondary)/0.06)] border-b p-4 pb-2 sm:p-6 sm:pb-2" : "p-5 sm:p-12"}`}
+              className={`transition-all duration-300 ${hasSelection ? "border-border/50 border-b bg-[hsl(var(--secondary)/0.06)] p-4 pb-2 sm:p-6 sm:pb-2" : "p-5 sm:p-12"}`}
             >
               <FileUploadSection
                 file={file}
@@ -184,7 +184,7 @@ export default function UploadPage() {
               />
 
               {hasSelection && (
-                <div className="border-border/65 bg-[hsl(var(--card)/0.7)] mt-4 flex flex-wrap items-center gap-2 rounded-lg border px-3 py-2 text-[11px] sm:text-xs">
+                <div className="border-border/65 mt-4 flex flex-wrap items-center gap-2 rounded-lg border bg-[hsl(var(--card)/0.7)] px-3 py-2 text-[11px] sm:text-xs">
                   <span className="bg-muted text-foreground rounded-full px-2 py-1 font-medium">
                     {multipleMode
                       ? t("upload.fileCount", "Files")
@@ -192,7 +192,8 @@ export default function UploadPage() {
                     : {selectedFiles.length}
                   </span>
                   <span className="bg-muted text-foreground rounded-full px-2 py-1 font-medium">
-                    {t("upload.totalSize", "Total")}: {formatFileSize(totalSelectedSize)}
+                    {t("upload.totalSize", "Total")}:{" "}
+                    {formatFileSize(totalSelectedSize)}
                   </span>
                   <span className="bg-muted text-foreground rounded-full px-2 py-1 font-medium">
                     {t("upload.payment", "Payment")}: {paymentToken}
@@ -204,7 +205,10 @@ export default function UploadPage() {
                   </span>
                   {compressRecommendation && (
                     <span className="bg-primary/10 text-primary rounded-full px-2 py-1 font-semibold">
-                      {t("upload.compressionRecommended", "Compression Recommended")}
+                      {t(
+                        "upload.compressionRecommended",
+                        "Compression Recommended",
+                      )}
                     </span>
                   )}
                   <span
@@ -230,7 +234,7 @@ export default function UploadPage() {
                   <div className="flex flex-col gap-6 lg:col-span-5">
                     {file && <FilePreview file={file} />}
 
-                    <div className="border-border/50 bg-[hsl(var(--background)/0.58)] rounded-xl border p-4">
+                    <div className="border-border/50 rounded-xl border bg-[hsl(var(--background)/0.58)] p-4">
                       <UploadOptions
                         encryptUpload={encryptUpload}
                         compressUpload={compressUpload}
@@ -247,8 +251,8 @@ export default function UploadPage() {
                   </div>
 
                   {/* Right Column: Payment & Execution */}
-                  <div className="flex flex-col gap-6 lg:col-span-7 lg:sticky lg:top-24 lg:self-start">
-                    <div className="border-border/50 bg-[hsl(var(--background)/0.58)] rounded-xl border p-4 sm:p-5">
+                  <div className="flex flex-col gap-6 lg:sticky lg:top-24 lg:col-span-7 lg:self-start">
+                    <div className="border-border/50 rounded-xl border bg-[hsl(var(--background)/0.58)] p-4 sm:p-5">
                       <PaymentTokenSelector
                         selectedToken={paymentToken}
                         selectedAccount={paymentAccount}
@@ -260,10 +264,13 @@ export default function UploadPage() {
                         !paymentStage &&
                         canUpload &&
                         paymentAccount && (
-                          <div className="animate-in fade-in slide-in-from-bottom-2 border-border/45 bg-[hsl(var(--background)/0.55)] mt-4 rounded-lg border p-3">
+                          <div className="animate-in fade-in slide-in-from-bottom-2 border-border/45 mt-4 rounded-lg border bg-[hsl(var(--background)/0.55)] p-3">
                             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                               <span className="text-muted-foreground text-[10px] font-bold tracking-wider uppercase">
-                                {t("upload.estimatedPath", "Estimated Payment Path")}
+                                {t(
+                                  "upload.estimatedPath",
+                                  "Estimated Payment Path",
+                                )}
                               </span>
                               {(() => {
                                 const irysToken = getIrysFundingToken(
@@ -317,7 +324,7 @@ export default function UploadPage() {
                     {/* Execution Area */}
                     <div className="mt-auto flex flex-col gap-4">
                       {recoveryMessage && (
-                        <div className="bg-[hsl(var(--primary)/0.08)] text-primary ring-[hsl(var(--primary)/0.15)] rounded-lg p-3 text-xs ring-1">
+                        <div className="text-primary rounded-lg bg-[hsl(var(--primary)/0.08)] p-3 text-xs ring-1 ring-[hsl(var(--primary)/0.15)]">
                           <div className="flex items-start justify-between gap-2">
                             <div className="flex min-w-0 items-start gap-2">
                               <Info className="mt-0.5 h-4 w-4 shrink-0" />
@@ -331,7 +338,7 @@ export default function UploadPage() {
                                           "Pending Payment Found",
                                         )}
                                   </p>
-                                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase ring-1 ring-[hsl(var(--primary)/0.18)]">
+                                  <span className="bg-primary/10 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ring-1 ring-[hsl(var(--primary)/0.18)]">
                                     {recoveryState === "COMPLETED"
                                       ? t("common.ready", "Ready")
                                       : t("common.pending", "Pending")}

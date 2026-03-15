@@ -27,7 +27,7 @@ export function DesktopNav({ items }: DesktopNavProps) {
             className={`flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all ${
               isActive
                 ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:bg-[hsl(var(--accent)/0.62)] hover:text-foreground"
+                : "text-muted-foreground hover:text-foreground hover:bg-[hsl(var(--accent)/0.62)]"
             }`}
           >
             <Icon className="h-4 w-4" />

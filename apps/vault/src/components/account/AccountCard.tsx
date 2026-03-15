@@ -91,7 +91,7 @@ export function AccountCard({
       className={`glass-strong animate-fade-in-down group relative cursor-pointer overflow-hidden rounded-2xl border p-5 shadow-[0_16px_28px_-20px_hsl(220_35%_2%/0.72)] transition-all duration-200 sm:p-6 ${
         isActive
           ? "bg-card/88 border-primary/50"
-          : "border-border/80 bg-card/72 hover:-translate-y-0.5 hover:border-primary/35"
+          : "border-border/80 bg-card/72 hover:border-primary/35 hover:-translate-y-0.5"
       }`}
       onClick={(e) => {
         const target = e.target as HTMLElement
@@ -102,7 +102,7 @@ export function AccountCard({
       }}
     >
       {isActive && (
-        <div className="absolute top-0 left-0 h-full w-0.5 bg-primary/80" />
+        <div className="bg-primary/80 absolute top-0 left-0 h-full w-0.5" />
       )}
       <div className="">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -138,7 +138,7 @@ export function AccountCard({
                     e.stopPropagation()
                     onCopyAddress(account.address)
                   }}
-                  className="text-muted-foreground shrink-0 cursor-pointer p-1 transition-colors hover:text-primary"
+                  className="text-muted-foreground hover:text-primary shrink-0 cursor-pointer p-1 transition-colors"
                   title={t("common.copy")}
                 >
                   <Copy className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
@@ -189,7 +189,7 @@ export function AccountCard({
                   variant="ghost"
                   size="sm"
                   onClick={() => onShowSensitive(account, "key")}
-                  className="text-muted-foreground hover:bg-accent h-8 w-8 p-0 hover:text-primary"
+                  className="text-muted-foreground hover:bg-accent hover:text-primary h-8 w-8 p-0"
                   title={t("identities.viewSensitive")}
                 >
                   <Key className="h-4 w-4" />
@@ -199,7 +199,7 @@ export function AccountCard({
                     variant="ghost"
                     size="sm"
                     onClick={() => onShowSensitive(account, "mnemonic")}
-                    className="text-muted-foreground hover:bg-accent h-8 w-8 p-0 hover:text-primary"
+                    className="text-muted-foreground hover:bg-accent hover:text-primary h-8 w-8 p-0"
                     title={t("identities.mnemonic")}
                   >
                     <FileText className="h-4 w-4" />

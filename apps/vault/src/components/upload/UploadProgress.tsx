@@ -27,7 +27,7 @@ export function UploadProgress({ progress }: UploadProgressProps) {
   return (
     <div className="border-border bg-card rounded-lg border p-3 sm:p-4">
       <div className="mb-2 flex flex-col gap-1.5 text-sm sm:flex-row sm:items-center sm:justify-between">
-        <span className="text-foreground wrap-break-word font-medium">
+        <span className="text-foreground font-medium wrap-break-word">
           {progress.currentFile || t("upload.uploading") + "…"}
         </span>
         {progress.current !== undefined && progress.total !== undefined ? (
@@ -57,9 +57,10 @@ export function UploadProgress({ progress }: UploadProgressProps) {
         </div>
       </div>
       {progress.stage && (
-        <div className="text-muted-foreground mt-2 wrap-break-word text-xs">
+        <div className="text-muted-foreground mt-2 text-xs wrap-break-word">
           {progress.stage}
-          {progress.progress !== undefined && ` - ${Math.round(normalizedPercent)}%`}
+          {progress.progress !== undefined &&
+            ` - ${Math.round(normalizedPercent)}%`}
         </div>
       )}
     </div>

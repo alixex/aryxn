@@ -120,11 +120,7 @@
     color: hsl(var(--foreground));
     font-family: "Space Grotesk", "Avenir Next", "Segoe UI", sans-serif;
     background-image:
-      radial-gradient(
-        circle at 8% 10%,
-        hsl(0 0% 100% / 0.05),
-        transparent 35%
-      ),
+      radial-gradient(circle at 8% 10%, hsl(0 0% 100% / 0.05), transparent 35%),
       radial-gradient(
         circle at 88% 12%,
         hsl(220 12% 70% / 0.05),
@@ -171,11 +167,7 @@
   }
 
   .bg-gradient-accent {
-    background: linear-gradient(
-      135deg,
-      hsl(0 0% 96%) 0%,
-      hsl(220 8% 72%) 100%
-    );
+    background: linear-gradient(135deg, hsl(0 0% 96%) 0%, hsl(220 8% 72%) 100%);
   }
 
   .bg-gradient-radial {
@@ -246,26 +238,14 @@
   .mesh-gradient {
     background-color: hsl(var(--background));
     background-image:
-      radial-gradient(
-        at 0% 0%,
-        hsl(0 0% 100% / 0.035) 0px,
-        transparent 50%
-      ),
-      radial-gradient(
-        at 100% 0%,
-        hsl(220 10% 80% / 0.03) 0px,
-        transparent 50%
-      ),
+      radial-gradient(at 0% 0%, hsl(0 0% 100% / 0.035) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, hsl(220 10% 80% / 0.03) 0px, transparent 50%),
       radial-gradient(
         at 100% 100%,
         hsl(0 0% 100% / 0.025) 0px,
         transparent 50%
       ),
-      radial-gradient(
-        at 0% 100%,
-        hsl(220 10% 80% / 0.025) 0px,
-        transparent 50%
-      );
+      radial-gradient(at 0% 100%, hsl(220 10% 80% / 0.025) 0px, transparent 50%);
   }
 
   /* Neon Glow Effects */

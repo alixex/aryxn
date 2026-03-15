@@ -156,7 +156,7 @@ export function PaymentTokenSelector({
           value={selectedAccount ? accountValue(selectedAccount) : ""}
           onValueChange={handleAccountChange}
         >
-          <SelectTrigger className="touch-target border-border bg-card/80 h-12 w-full rounded-xl shadow-sm transition-all hover:border-primary/35 hover:shadow-md">
+          <SelectTrigger className="touch-target border-border bg-card/80 hover:border-primary/35 h-12 w-full rounded-xl shadow-sm transition-all hover:shadow-md">
             <div className="flex items-center gap-2">
               <Wallet className="text-muted-foreground h-4 w-4" />
               <SelectValue
@@ -167,7 +167,7 @@ export function PaymentTokenSelector({
               />
             </div>
           </SelectTrigger>
-          <SelectContent className="rounded-xl border bg-card shadow-lg">
+          <SelectContent className="bg-card rounded-xl border shadow-lg">
             {supportedAccounts.map((account) => (
               <SelectItem
                 key={accountValue(account)}
@@ -195,7 +195,7 @@ export function PaymentTokenSelector({
           onValueChange={(val) => onSelectToken(val as PaymentToken)}
           disabled={selectableTokens.length === 0}
         >
-          <SelectTrigger className="touch-target border-border bg-card/80 h-12 w-full rounded-xl shadow-sm transition-all hover:border-primary/35 hover:shadow-md">
+          <SelectTrigger className="touch-target border-border bg-card/80 hover:border-primary/35 h-12 w-full rounded-xl shadow-sm transition-all hover:shadow-md">
             <SelectValue
               placeholder={t(
                 "upload.selectPaymentToken",
@@ -203,7 +203,7 @@ export function PaymentTokenSelector({
               )}
             />
           </SelectTrigger>
-          <SelectContent className="rounded-xl border bg-card shadow-lg">
+          <SelectContent className="bg-card rounded-xl border shadow-lg">
             {selectableTokens.map((token) => (
               <SelectItem
                 key={token}
@@ -217,10 +217,10 @@ export function PaymentTokenSelector({
         </Select>
       </div>
 
-      <div className="border-border/75 bg-[hsl(var(--background)/0.58)] flex flex-col items-start gap-1.5 rounded-lg border px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
+      <div className="border-border/75 flex flex-col items-start gap-1.5 rounded-lg border bg-[hsl(var(--background)/0.58)] px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="text-muted-foreground flex flex-wrap items-center gap-1.5 text-xs">
           <span>{t("common.balance")}:</span>
-          <span className="text-foreground break-all font-semibold">
+          <span className="text-foreground font-semibold break-all">
             {balance} {selectedToken}
           </span>
         </div>

@@ -27,7 +27,9 @@ export default function AccountHeader({ t, isUnlocked, onLogout }: Props) {
               />
             </svg>
           </div>
-          <span className="leading-tight text-[hsl(var(--foreground))]">{t("common.account")}</span>
+          <span className="leading-tight text-[hsl(var(--foreground))]">
+            {t("common.account")}
+          </span>
         </h2>
         <p className="text-subtitle-muted text-sm font-medium sm:text-base">
           {t("identities.multiChainDesc")}

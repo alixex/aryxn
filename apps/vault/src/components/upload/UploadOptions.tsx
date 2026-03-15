@@ -47,7 +47,7 @@ export function UploadOptions({
         className={`group flex cursor-pointer items-start gap-4 rounded-xl border p-4 transition-all duration-200 ${
           encryptUpload
             ? "border-primary/45 bg-[hsl(var(--card)/0.88)]"
-            : "border-[hsl(var(--border)/0.85)] bg-[hsl(var(--background)/0.76)] hover:border-primary/35"
+            : "hover:border-primary/35 border-[hsl(var(--border)/0.85)] bg-[hsl(var(--background)/0.76)]"
         }`}
         onClick={(event) => {
           if (isCheckboxTarget(event.target) || !isUnlocked) return
@@ -60,7 +60,7 @@ export function UploadOptions({
             checked={encryptUpload}
             onCheckedChange={onEncryptChange}
             disabled={!isUnlocked}
-            className="border-primary/40 bg-transparent data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+            className="border-primary/40 data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground bg-transparent"
           />
         </div>
         <div className="flex-1">
@@ -83,7 +83,7 @@ export function UploadOptions({
         className={`group flex cursor-pointer items-start gap-4 rounded-xl border p-4 transition-all duration-200 ${
           compressUpload && hasCompressibleFile
             ? "border-primary/45 bg-[hsl(var(--card)/0.88)]"
-            : "border-[hsl(var(--border)/0.85)] bg-[hsl(var(--background)/0.76)] hover:border-primary/35"
+            : "hover:border-primary/35 border-[hsl(var(--border)/0.85)] bg-[hsl(var(--background)/0.76)]"
         }`}
         onClick={(event) => {
           if (isCheckboxTarget(event.target) || !canCompress) return
@@ -96,7 +96,7 @@ export function UploadOptions({
             checked={compressUpload}
             onCheckedChange={onCompressChange}
             disabled={!canCompress}
-            className="border-primary/40 bg-transparent data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+            className="border-primary/40 data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground bg-transparent"
           />
         </div>
         <div className="flex-1">
@@ -107,7 +107,7 @@ export function UploadOptions({
             {t("upload.enableCompression")}
             <Zap className="text-foreground h-4 w-4" />
             {hasCompressibleFile && (
-              <span className="ml-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary ring-1 ring-primary/20">
+              <span className="bg-primary/10 text-primary ring-primary/20 ml-1 rounded-full px-2 py-0.5 text-xs font-semibold ring-1">
                 {t("upload.compressionRecommended")}
               </span>
             )}
@@ -125,7 +125,7 @@ export function UploadOptions({
         className={`group flex cursor-pointer items-start gap-4 rounded-xl border p-4 transition-all duration-200 ${
           storageTier === "Term"
             ? "border-primary/45 bg-[hsl(var(--card)/0.88)]"
-            : "border-[hsl(var(--border)/0.85)] bg-[hsl(var(--background)/0.76)] hover:border-primary/35"
+            : "hover:border-primary/35 border-[hsl(var(--border)/0.85)] bg-[hsl(var(--background)/0.76)]"
         }`}
         onClick={(event) => {
           if (isCheckboxTarget(event.target) || disableTermStorage) return
@@ -140,7 +140,7 @@ export function UploadOptions({
               onStorageTierChange(checked ? "Term" : "Permanent")
             }
             disabled={disableTermStorage}
-            className="border-primary/40 bg-transparent data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+            className="border-primary/40 data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground bg-transparent"
           />
         </div>
         <div className="flex-1">
@@ -149,7 +149,7 @@ export function UploadOptions({
             className="text-foreground flex cursor-pointer items-center gap-2 text-sm font-semibold"
           >
             {t("upload.enableTermStorage", "Use Term Storage")}
-            <span className="text-muted-foreground ml-1 rounded-full bg-muted/70 px-2 py-0.5 text-[10px] font-bold uppercase ring-1 ring-border/70">
+            <span className="text-muted-foreground bg-muted/70 ring-border/70 ml-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ring-1">
               {t("common.cheaper", "Cheaper")}
             </span>
           </Label>

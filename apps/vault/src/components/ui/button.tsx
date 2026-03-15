@@ -17,8 +17,7 @@ const buttonVariants = cva(
           "border border-[hsl(var(--border)/0.95)] bg-[hsl(var(--card)/0.72)] text-foreground hover:bg-[hsl(var(--accent)/0.75)] hover:border-[hsl(var(--foreground)/0.24)]",
         secondary:
           "bg-secondary/88 text-secondary-foreground hover:bg-secondary transition-colors",
-        ghost:
-          "text-foreground hover:bg-accent/45 transition-colors",
+        ghost: "text-foreground hover:bg-accent/45 transition-colors",
         link: "text-primary underline-offset-4 hover:underline hover:text-primary/80 transition-colors",
         gradient:
           "bg-gradient-secondary text-secondary-foreground shadow-[0_10px_24px_-16px_hsl(var(--secondary)/0.5)] hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-18px_hsl(var(--secondary)/0.42)] active:translate-y-0",

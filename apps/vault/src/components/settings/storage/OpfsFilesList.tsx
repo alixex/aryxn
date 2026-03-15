@@ -38,7 +38,7 @@ export default function OpfsFilesList({
                 className="bg-card/60 border-border/60 text-muted-foreground flex items-center justify-between rounded-lg border px-3 py-2"
               >
                 <div className="flex items-center gap-2">
-                  <Database className="h-4 w-4 text-foreground/70" />
+                  <Database className="text-foreground/70 h-4 w-4" />
                   <span className="font-mono text-xs font-medium">
                     {file.name}
                   </span>

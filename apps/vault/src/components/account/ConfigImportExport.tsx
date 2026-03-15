@@ -570,7 +570,7 @@ export function ConfigImportExport() {
                   ) : (
                     <div className="animate-in fade-in zoom-in-95 space-y-6 duration-300">
                       <div className="relative overflow-hidden rounded-xl border border-[hsl(var(--primary)/0.35)] bg-[hsl(var(--primary)/0.12)] p-4">
-                        <div className="absolute top-0 left-0 h-full w-1 bg-primary" />
+                        <div className="bg-primary absolute top-0 left-0 h-full w-1" />
                         <div className="flex items-center gap-3">
                           <CheckCircle2 className="text-primary h-6 w-6" />
                           <span className="text-sm font-semibold">
