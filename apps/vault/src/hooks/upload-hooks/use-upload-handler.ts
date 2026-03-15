@@ -17,6 +17,16 @@ export interface UploadHandlerResult {
   failed: number
 }
 
+function buildResourceRoutePath(ownerAddress: string, txId: string): string {
+  return `/${encodeURIComponent(ownerAddress)}/${encodeURIComponent(txId)}`
+}
+
+function openResourceRoute(ownerAddress: string, txId: string): void {
+  const path = buildResourceRoutePath(ownerAddress, txId)
+  const basePath = import.meta.env.BASE_URL.replace(/\/$/, "")
+  window.location.assign(`${basePath}${path}`)
+}
+
 function resolveWalletKeyForPayment(
   paymentAccount: PaymentAccount,
   wallet: any,
@@ -235,7 +245,7 @@ export function useUploadHandler() {
           : undefined
 
         setStage(t("upload.uploading"))
-        await uploadFile(
+        const uploadResult = await uploadFile(
           file,
           activeArweave!.address,
           wallet.internal.activeWallet!,
@@ -253,7 +263,14 @@ export function useUploadHandler() {
           },
         )
 
-        toast.success(t("upload.successArweave"))
+        toast.success(t("upload.successArweave"), {
+          action: {
+            label: t("upload.openResourceRoute", "Open Resource"),
+            onClick: () => {
+              openResourceRoute(activeArweave!.address, uploadResult.txId)
+            },
+          },
+        })
 
         // Cleanup Intent on Full Success
         const intents = await PaymentRepository.getActiveIntents()
@@ -475,11 +492,25 @@ export function useUploadHandler() {
         }
 
         if (successCount > 0) {
+          const firstSuccess = results.find((r) => r.success && r.txId)
           toast.success(
             t("upload.batchSuccess", {
               success: successCount,
               total: files.length,
             }),
+            firstSuccess?.txId
+              ? {
+                  action: {
+                    label: t("upload.openResourceRoute", "Open Resource"),
+                    onClick: () => {
+                      openResourceRoute(
+                        activeArweave!.address,
+                        firstSuccess.txId as string,
+                      )
+                    },
+                  },
+                }
+              : undefined,
           )
 
           // Cleanup Intent on Full Success

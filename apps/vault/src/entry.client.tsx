@@ -11,6 +11,7 @@ import Dashboard from "./routes/dashboard"
 import Account from "./routes/account"
 import Settings from "./routes/settings"
 import NotFound from "./routes/not-found"
+import ResourceByOwnerTx from "./routes/resource-by-owner-tx"
 import { initDatabaseWithSchema } from "./lib/database"
 
 if (typeof window !== "undefined") {
@@ -36,6 +37,10 @@ initDatabaseWithSchema()
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/account" element={<Account />} />
               <Route path="/settings" element={<Settings />} />
+              <Route
+                path="/:ownerAddress/:txId"
+                element={<ResourceByOwnerTx />}
+              />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Providers>

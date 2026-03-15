@@ -23,6 +23,7 @@ export {
   getFolderTree,
   deleteFile,
   getFileById,
+  getFileByOwnerAndTxId,
 } from "./file-manager"
 
 export type { FileManifest, IncrementalManifest } from "./file-sync"
@@ -40,6 +41,7 @@ export {
   queryFileTransactions,
   scheduleAutoSync,
   syncFilesFromArweaveDirect,
+  syncFileByTxIdFromArweave,
   calculateFileHashFromArweave,
 } from "./file-sync-direct"
 

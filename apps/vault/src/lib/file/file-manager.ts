@@ -659,3 +659,26 @@ export async function getFileById(fileId: string): Promise<FileIndex | null> {
     tags: tags.map((t: DbRow) => String(t.tag || "")),
   })
 }
+
+/**
+ * 通过 owner + tx_id 获取文件详情
+ */
+export async function getFileByOwnerAndTxId(
+  ownerAddress: string,
+  txId: string,
+): Promise<FileIndex | null> {
+  const file = await db.get(
+    "SELECT * FROM file_indexes WHERE owner_address = ? AND tx_id = ? LIMIT 1",
+    [ownerAddress, txId],
+  )
+  if (!file) return null
+
+  const tags = await db.all("SELECT tag FROM file_tags WHERE file_id = ?", [
+    file.id,
+  ])
+
+  return FileIndexSchema.parse({
+    ...file,
+    tags: tags.map((t: DbRow) => String(t.tag || "")),
+  })
+}

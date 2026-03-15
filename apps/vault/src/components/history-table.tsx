@@ -1,10 +1,11 @@
 import type { UploadRecord } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Download, ExternalLink, Loader2, Shield } from "lucide-react"
+import { Copy, Download, ExternalLink, Link2, Loader2, Shield } from "lucide-react"
 import { useState, useRef } from "react"
 import { toast } from "sonner"
 import { useTranslation } from "@/i18n/config"
 import { useVirtualizer, type VirtualItem } from "@tanstack/react-virtual"
+import { Link } from "react-router-dom"
 import {
   formatFileSize,
   formatDateTime,
@@ -78,6 +79,34 @@ export function HistoryTable({
       }
     } finally {
       setDownloading(null)
+    }
+  }
+
+  const getResourcePath = (record: UploadRecord): string => {
+    const owner = encodeURIComponent(record.ownerAddress)
+    const tx = encodeURIComponent(record.txId)
+    return `/${owner}/${tx}`
+  }
+
+  const getResourceUrl = (record: UploadRecord): string => {
+    const basePath = import.meta.env.BASE_URL.replace(/\/$/, "")
+    return `${window.location.origin}${basePath}${getResourcePath(record)}`
+  }
+
+  const handleCopyResourceUrl = async (record: UploadRecord) => {
+    try {
+      await navigator.clipboard.writeText(getResourceUrl(record))
+      toast.success(
+        t("history.copyResourceLinkSuccess", "Resource link copied"),
+      )
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      toast.error(
+        t("history.copyResourceLinkFailed", "Failed to copy resource link"),
+        {
+          description: message,
+        },
+      )
     }
   }
 
@@ -230,6 +259,34 @@ export function HistoryTable({
                       </td>
                       <td className="w-25 px-4 py-3.5 text-right sm:px-6">
                         <div className="flex items-center justify-end gap-1 sm:gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            asChild
+                            className="text-muted-foreground hover:bg-accent hover:text-foreground h-8 w-8 transition-colors duration-150 sm:h-9 sm:w-9"
+                            title={t(
+                              "history.viewUniqueResource",
+                              "Open unique resource route",
+                            )}
+                          >
+                            <Link to={getResourcePath(r)}>
+                              <Link2 className="h-4 w-4" />
+                            </Link>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-muted-foreground hover:bg-accent hover:text-foreground h-8 w-8 transition-colors duration-150 sm:h-9 sm:w-9"
+                            onClick={() => {
+                              void handleCopyResourceUrl(r)
+                            }}
+                            title={t(
+                              "history.copyUniqueResourceLink",
+                              "Copy unique resource link",
+                            )}
+                          >
+                            <Copy className="h-4 w-4" />
+                          </Button>
                           <Button
                             variant="ghost"
                             size="icon"

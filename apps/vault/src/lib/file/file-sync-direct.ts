@@ -9,6 +9,7 @@ import { db } from "@/lib/database"
 import { calculateFileHash } from "./file-manager"
 import { ARWEAVE_APP_NAME } from "@/lib/config"
 import type { FileIndex } from "./file-manager"
+import { getFileByOwnerAndTxId } from "./file-manager"
 
 interface ArweaveTransaction {
   id: string
@@ -54,6 +55,17 @@ interface GraphQLResponse {
   errors?: Array<{
     message: string
   }>
+}
+
+interface SingleTxGraphQLQuery {
+  query: string
+  variables: {
+    ids: string[]
+    owner: string[]
+    appName: string
+    ownerAddress: string
+    limit: number
+  }
 }
 
 /**
@@ -674,4 +686,81 @@ export async function calculateFileHashFromArweave(
     console.error("Failed to calculate file hash:", error)
     throw error
   }
+}
+
+/**
+ * 按 owner + tx_id 从链上回源单个文件，并缓存到本地 DB
+ */
+export async function syncFileByTxIdFromArweave(
+  ownerAddress: string,
+  txId: string,
+): Promise<FileIndex | null> {
+  const query: SingleTxGraphQLQuery = {
+    query: `
+      query GetFileByTxId($ids: [ID!]!, $owner: [String!]!, $appName: String!, $ownerAddress: String!, $limit: Int!) {
+        transactions(
+          ids: $ids
+          owners: $owner
+          tags: [
+            { name: "App-Name", values: [$appName] }
+            { name: "Owner-Address", values: [$ownerAddress] }
+          ]
+          first: $limit
+        ) {
+          edges {
+            node {
+              id
+              owner {
+                address
+              }
+              tags {
+                name
+                value
+              }
+              block {
+                height
+                timestamp
+              }
+              data {
+                size
+              }
+            }
+          }
+        }
+      }
+    `,
+    variables: {
+      ids: [txId],
+      owner: [ownerAddress],
+      appName: ARWEAVE_APP_NAME,
+      ownerAddress,
+      limit: 1,
+    },
+  }
+
+  const response = await fetch(RPCs.ARWEAVE_GATEWAY, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(query),
+  })
+
+  if (!response.ok) {
+    const errorText = await response.text()
+    throw new Error(`GraphQL query failed: ${response.status} - ${errorText}`)
+  }
+
+  const result: GraphQLResponse = await response.json()
+  if (result.errors?.length) {
+    throw new Error(`GraphQL query failed: ${result.errors[0]?.message}`)
+  }
+
+  const tx = result.data?.transactions?.edges?.[0]?.node
+  if (!tx) {
+    return null
+  }
+
+  await processTransaction(tx, ownerAddress)
+  return getFileByOwnerAndTxId(ownerAddress, txId)
 }
