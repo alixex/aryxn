@@ -22,6 +22,8 @@ if (typeof window !== "undefined") {
 // Initialize database
 initDatabaseWithSchema()
   .then(() => {
+    const routerBase = import.meta.env.BASE_URL.replace(/\/$/, "") || "/"
+
     const rootElement = document.getElementById("root")
     if (!rootElement) {
       throw new Error("Root element not found")
@@ -30,7 +32,7 @@ initDatabaseWithSchema()
     const root = createRoot(rootElement)
     root.render(
       <StrictMode>
-        <BrowserRouter basename="/aryxn/">
+        <BrowserRouter basename={routerBase}>
           <Providers>
             <Routes>
               <Route path="/" element={<Home />} />

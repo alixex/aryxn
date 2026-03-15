@@ -1,7 +1,7 @@
 # Aryxn
 
 <p align="center">
-  <img src="https://alixex.github.io/aryxn/icon.jpg" alt="Aryxn Icon" width="200" />
+   <img src="https://aryxn.com/icon.jpg" alt="Aryxn Icon" width="200" />
 </p>
 
 [English] | [中文](./README.zh.md)
@@ -13,7 +13,7 @@
 **Aryxn** is a user-sovereignty-first Web3 application that combines **multi-chain account management**, **permanent file storage**, and **history/search tooling** into one unified platform.  
 Inspired by Plato's concept of "aryxn" (recollection), it empowers you to control your digital assets and preserve what matters—securely, privately, and forever.
 
-**🌐 Live**: https://alixex.github.io/aryxn/
+**🌐 Live**: https://aryxn.com/
 
 ---
 
@@ -97,7 +97,7 @@ Create permanent backups of critical files that will outlast any single company 
 
 ## Getting Started
 
-1. **Visit** https://alixex.github.io/aryxn/
+1. **Visit** https://aryxn.com/
 2. **Create** a master password to encrypt your data (make sure to remember it—it's the only way to access your encrypted data)
 3. **Set up accounts**:
    - Import existing accounts via private keys or seed phrases

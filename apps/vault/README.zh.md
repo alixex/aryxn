@@ -1,7 +1,7 @@
 # Aryxn Vault
 
 <p align="center">
-  <img src="https://alixex.github.io/aryxn/icon.jpg" alt="Aryxn Icon" width="200" />
+  <img src="https://aryxn.com/icon.jpg" alt="Aryxn Icon" width="200" />
 </p>
 
 [English](./README.md) | [中文]
@@ -18,7 +18,7 @@
 
 目标是让你在一个界面中完成资产管理、链上交易和长期数据保存，同时将敏感密钥与加密数据保留在本地。
 
-在线地址：https://alixex.github.io/aryxn/
+在线地址：https://aryxn.com/
 
 ---
 
@@ -75,7 +75,7 @@
 
 ## 快速开始
 
-1. 打开 https://alixex.github.io/aryxn/
+1. 打开 https://aryxn.com/
 2. 创建主密码并妥善保存
 3. 添加或连接账户
 4. 管理账户并选择当前活跃身份

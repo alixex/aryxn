@@ -11,7 +11,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#000000" />
-        <link rel="icon" type="image/x-icon" href="/aryxn/favicon.ico" />
+        <link
+          rel="icon"
+          type="image/x-icon"
+          href={`${import.meta.env.BASE_URL}favicon.ico`}
+        />
         <Meta />
         <Links />
       </head>

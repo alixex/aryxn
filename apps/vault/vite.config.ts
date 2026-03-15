@@ -9,8 +9,15 @@ import tsconfigPaths from "vite-tsconfig-paths"
 const PROXY_EVM = "/api/rpc"
 const PROXY_SOLANA = "/api/solana-rpc"
 
+const rawBasePath = (process.env.VITE_BASE_PATH || "/").trim()
+const normalizedBasePath =
+  rawBasePath === "/"
+    ? "/"
+    : `/${rawBasePath.replace(/^\/+|\/+$/g, "")}/`
+
 export default defineConfig({
-  base: "/aryxn/", // GitHub Pages path: alixex.github.io/aryxn/
+  // Use "/" for custom domain/User Pages, "/repo-name/" for Project Pages.
+  base: normalizedBasePath,
   plugins: [
     tailwindcss(),
     wasm(),

@@ -1,7 +1,7 @@
 # Aryxn Vault
 
 <p align="center">
-  <img src="https://alixex.github.io/aryxn/icon.jpg" alt="Aryxn Icon" width="200" />
+  <img src="https://aryxn.com/icon.jpg" alt="Aryxn Icon" width="200" />
 </p>
 
 [English] | [中文](./README.zh.md)
@@ -18,7 +18,7 @@
 
 It is designed for people who want one interface for assets, transactions, and long-term data preservation, while keeping sensitive keys and encrypted content local.
 
-Live app: https://alixex.github.io/aryxn/
+Live app: https://aryxn.com/
 
 ---
 
@@ -75,7 +75,7 @@ Live app: https://alixex.github.io/aryxn/
 
 ## Quick Start
 
-1. Open https://alixex.github.io/aryxn/
+1. Open https://aryxn.com/
 2. Create your master password (store it safely)
 3. Add or connect accounts
 4. Manage accounts and set the active identity

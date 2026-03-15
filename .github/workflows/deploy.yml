@@ -37,6 +37,12 @@ jobs:
     name: Build & Upload
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      # Default to root path for custom domain/User Pages.
+      # If deploying to Project Pages, set repository variable VITE_BASE_PATH=/aryxn/
+      VITE_BASE_PATH: ${{ vars.VITE_BASE_PATH || '/' }}
+      # Custom domain for GitHub Pages. Override with repository variable CUSTOM_DOMAIN.
+      CUSTOM_DOMAIN: ${{ vars.CUSTOM_DOMAIN || 'aryxn.com' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -84,6 +90,11 @@ jobs:
           # echo "Copying admin to /admin..."
           # mkdir -p deploy/admin
           # cp -r apps/admin/dist/* deploy/admin/
+
+          if [ -n "${CUSTOM_DOMAIN}" ]; then
+            echo "Configuring custom domain: ${CUSTOM_DOMAIN}"
+            printf '%s\n' "${CUSTOM_DOMAIN}" > deploy/CNAME
+          fi
           
           echo "Deployment structure ready!"
           ls -la deploy/
