@@ -82,11 +82,11 @@ export function HistoryTable({
   }
 
   return (
-    <div className="border-border bg-card w-full overflow-hidden rounded-xl border">
+    <div className="border-border/90 bg-card/86 w-full overflow-hidden rounded-xl border">
       <div className="w-full overflow-x-auto">
         {/* 固定表头 */}
         <table className="w-full min-w-[800px] table-fixed text-left text-sm">
-          <thead className="glass-strong border-accent/20 bg-card/60 text-muted-foreground border-b-2 text-[10px] font-bold tracking-wider uppercase backdrop-blur-md sm:text-xs">
+          <thead className="glass-strong border-border/85 bg-card/88 text-muted-foreground border-b text-[10px] font-semibold tracking-wider uppercase backdrop-blur-md sm:text-xs">
             <tr>
               <th className="w-[30%] px-4 py-3 sm:px-6">
                 {t("history.fileName")}
@@ -134,7 +134,7 @@ export function HistoryTable({
                       key={virtualRow.key}
                       data-index={virtualRow.index}
                       ref={rowVirtualizer.measureElement}
-                      className="group hover:bg-accent absolute flex w-full items-center transition-all duration-200 hover:shadow-sm"
+                      className="group hover:bg-[hsl(var(--accent)/0.55)] absolute flex w-full items-center transition-colors duration-150"
                       style={{
                         transform: `translateY(${virtualRow.start}px)`,
                       }}
@@ -183,7 +183,7 @@ export function HistoryTable({
                           }
                           target="_blank"
                           rel="noreferrer"
-                          className="group/tx text-foreground block truncate font-mono text-xs hover:text-cyan-400 hover:underline"
+                          className="group/tx text-foreground block truncate font-mono text-xs hover:text-primary hover:underline"
                           title={r.txId}
                         >
                           <span className="inline-block truncate">
@@ -198,11 +198,11 @@ export function HistoryTable({
                         title={r.storageType === "irys" ? "Irys L1" : "Arweave"}
                       >
                         {r.storageType === "irys" ? (
-                          <span className="inline-flex items-center rounded-full bg-purple-50 px-2 py-0.5 text-[10px] font-bold text-purple-700 uppercase ring-1 ring-purple-200 ring-inset">
+                          <span className="bg-muted text-foreground ring-border inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ring-1 ring-inset">
                             Irys L1
                           </span>
                         ) : (
-                          <span className="inline-flex items-center rounded-full bg-orange-50 px-2 py-0.5 text-[10px] font-bold text-orange-700 uppercase ring-1 ring-orange-200 ring-inset">
+                          <span className="bg-muted text-foreground ring-border inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ring-1 ring-inset">
                             Arweave
                           </span>
                         )}
@@ -211,11 +211,11 @@ export function HistoryTable({
                       <td className="w-[10%] truncate px-4 py-4 sm:px-6">
                         {r.encryptionAlgo !== "none" ? (
                           <div
-                            className="flex items-center gap-1.5 text-green-600"
+                            className="text-foreground flex items-center gap-1.5"
                             title={t("history.encrypted")}
                           >
                             <Shield className="h-3.5 w-3.5 shrink-0" />
-                            <span className="truncate text-[10px] font-bold uppercase">
+                            <span className="truncate text-[10px] font-semibold uppercase">
                               {t("history.encrypted")}
                             </span>
                           </div>
@@ -234,7 +234,7 @@ export function HistoryTable({
                             variant="ghost"
                             size="icon"
                             asChild
-                            className="text-muted-foreground hover:bg-accent hover:text-foreground h-8 w-8 transition-all duration-200 hover:scale-110 active:scale-95 sm:h-9 sm:w-9"
+                            className="text-muted-foreground hover:bg-accent hover:text-foreground h-8 w-8 transition-colors duration-150 sm:h-9 sm:w-9"
                           >
                             <a
                               href={
@@ -256,7 +256,7 @@ export function HistoryTable({
                                 size="icon"
                                 onClick={() => handleDownload(r, false)}
                                 disabled={!!downloading}
-                                className="h-8 w-8 transition-all duration-200 hover:scale-110 active:scale-95 sm:h-9 sm:w-9"
+                                className="h-8 w-8 transition-colors duration-150 sm:h-9 sm:w-9"
                                 title={t(
                                   "history.downloadEncryptedTooltip",
                                   "Download encrypted file",
@@ -308,7 +308,7 @@ export function HistoryTable({
                               size="icon"
                               onClick={() => handleDownload(r, true)}
                               disabled={!!downloading}
-                              className={`h-8 w-8 transition-all duration-200 hover:scale-110 active:scale-95 sm:h-9 sm:w-9 ${
+                              className={`h-8 w-8 transition-colors duration-150 sm:h-9 sm:w-9 ${
                                 downloading === r.txId
                                   ? "border-ring bg-accent"
                                   : ""
