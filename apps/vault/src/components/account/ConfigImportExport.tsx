@@ -281,9 +281,9 @@ export function ConfigImportExport() {
 
   return (
     <>
-      <Card className="glass-premium animate-fade-in-down border-none shadow-2xl transition-all duration-500">
-        <CardHeader className="glass-strong animate-fade-in-down border-accent/30 bg-card/60 rounded-t-2xl border-b-2 p-6 shadow-lg">
-          <CardTitle className="text-foreground text-base font-bold">
+      <Card className="animate-fade-in-down border-border/90 bg-card/84 border shadow-[0_16px_30px_-20px_hsl(220_35%_2%/0.72)] transition-all duration-200">
+        <CardHeader className="animate-fade-in-down border-border/85 bg-card/92 rounded-t-2xl border-b p-6">
+          <CardTitle className="text-foreground text-base font-semibold">
             {t("identities.configSync")}
           </CardTitle>
           <CardDescription className="text-muted-foreground text-xs font-medium">
@@ -306,22 +306,21 @@ export function ConfigImportExport() {
               <DialogTrigger asChild>
                 <Button
                   variant="outline"
-                  className="btn-interactive border-primary/50 bg-primary/20 hover:bg-primary/30 hover:border-primary/70 group shadow-primary/10 relative h-12 w-full overflow-hidden shadow-lg sm:flex-1"
+                  className="btn-interactive group relative h-12 w-full overflow-hidden sm:flex-1"
                 >
-                  <div className="from-primary/30 absolute inset-0 bg-linear-to-r to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-                  <Download className="mr-2 h-4 w-4 shrink-0 text-white/90 transition-transform group-hover:-translate-y-0.5" />
-                  <span className="truncate font-bold tracking-tight text-white">
+                  <Download className="mr-2 h-4 w-4 shrink-0 transition-transform group-hover:-translate-y-0.5" />
+                  <span className="truncate font-semibold tracking-tight">
                     {t("identities.export")}
                   </span>
                 </Button>
               </DialogTrigger>
-              <DialogContent className="bg-card/80 fixed top-1/2 left-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 overflow-hidden border-white/10 p-0 backdrop-blur-xl sm:max-w-md">
-                <div className="from-primary/10 bg-linear-to-b to-transparent p-6 pb-0">
+              <DialogContent className="bg-card/86 border-border fixed top-1/2 left-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 overflow-hidden border p-0 backdrop-blur-xl sm:max-w-md">
+                <div className="bg-linear-to-b from-[hsl(var(--primary)/0.12)] to-transparent p-6 pb-0">
                   <DialogHeader>
-                    <div className="bg-primary/10 border-primary/20 mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border shadow-inner">
+                    <div className="bg-primary/12 border-primary/25 mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border">
                       <ShieldCheck className="text-primary h-7 w-7" />
                     </div>
-                    <DialogTitle className="from-foreground to-foreground/70 bg-linear-to-r bg-clip-text text-center text-2xl font-bold text-transparent">
+                    <DialogTitle className="text-center text-2xl font-semibold">
                       {t("identities.exportConfig")}
                     </DialogTitle>
                     <DialogDescription className="text-muted-foreground/80 mt-2 text-center text-sm">
@@ -331,25 +330,25 @@ export function ConfigImportExport() {
                 </div>
                 <div className="space-y-6 p-6">
                   <div className="space-y-4">
-                    <div className="group relative overflow-hidden rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
-                      <div className="absolute top-0 left-0 h-full w-1 bg-amber-500" />
+                    <div className="group relative overflow-hidden rounded-xl border border-[hsl(var(--destructive)/0.35)] bg-[hsl(var(--destructive)/0.08)] p-4">
+                      <div className="absolute top-0 left-0 h-full w-1 bg-[hsl(var(--destructive)/0.7)]" />
                       <div className="mb-2 flex items-start gap-3">
-                        <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" />
-                        <p className="text-sm font-bold text-amber-200">
+                        <AlertCircle className="text-destructive mt-0.5 h-5 w-5 shrink-0" />
+                        <p className="text-sm font-semibold">
                           {t("identities.exportSecurityNotice")}
                         </p>
                       </div>
-                      <ul className="mt-2 ml-8 space-y-2 text-xs leading-relaxed font-medium text-amber-200/80">
+                      <ul className="text-muted-foreground mt-2 ml-8 space-y-2 text-xs leading-relaxed font-medium">
                         <li className="flex items-start gap-2">
-                          <span className="text-amber-500">•</span>
+                          <span className="text-destructive">•</span>
                           <span>{t("identities.exportSecurityTip1")}</span>
                         </li>
                         <li className="flex items-start gap-2">
-                          <span className="text-amber-500">•</span>
+                          <span className="text-destructive">•</span>
                           <span>{t("identities.exportSecurityTip2")}</span>
                         </li>
                         <li className="flex items-start gap-2">
-                          <span className="text-amber-500">•</span>
+                          <span className="text-destructive">•</span>
                           <span>{t("identities.exportSecurityTip3")}</span>
                         </li>
                       </ul>
@@ -365,7 +364,7 @@ export function ConfigImportExport() {
                             setExportPassword(e.target.value)
                             setPasswordError("")
                           }}
-                          className={`focus:border-primary/50 focus:ring-primary/20 h-12 border-white/10 bg-white/5 pr-11 transition-all ${
+                          className={`focus:border-primary/50 focus:ring-primary/20 h-12 border-[hsl(var(--border)/0.85)] bg-[hsl(var(--background)/0.5)] pr-11 transition-all ${
                             passwordError
                               ? "border-destructive focus-visible:ring-destructive"
                               : ""
@@ -402,14 +401,14 @@ export function ConfigImportExport() {
                       )}
                     </div>
                   </div>
-                  <div className="group flex cursor-pointer items-center space-x-3 rounded-xl border border-white/10 bg-white/5 p-4 transition-colors hover:bg-white/10">
+                  <div className="group flex cursor-pointer items-center space-x-3 rounded-xl border border-[hsl(var(--border)/0.85)] bg-[hsl(var(--background)/0.5)] p-4 transition-colors hover:bg-[hsl(var(--accent)/0.45)]">
                     <div className="relative flex h-5 w-5 items-center justify-center">
                       <input
                         type="checkbox"
                         id="include-uploads-export"
                         checked={includeUploads}
                         onChange={(e) => setIncludeUploads(e.target.checked)}
-                        className="peer checked:border-primary checked:bg-primary h-5 w-5 cursor-pointer appearance-none rounded border-2 border-white/20 transition-all"
+                        className="peer checked:border-primary checked:bg-primary h-5 w-5 cursor-pointer appearance-none rounded border-2 border-[hsl(var(--border)/0.85)] transition-all"
                       />
                       <div className="pointer-events-none absolute text-white opacity-0 transition-opacity peer-checked:opacity-100">
                         <svg
@@ -442,7 +441,7 @@ export function ConfigImportExport() {
                         setExportPassword("")
                         setPasswordError("")
                       }}
-                      className="h-12 flex-1 font-semibold hover:bg-white/5"
+                      className="h-12 flex-1 font-semibold"
                       disabled={isExporting}
                     >
                       {t("common.close")}
@@ -488,22 +487,21 @@ export function ConfigImportExport() {
               <DialogTrigger asChild>
                 <Button
                   variant="outline"
-                  className="btn-interactive border-primary/50 bg-primary/20 hover:bg-primary/30 hover:border-primary/70 group shadow-primary/10 relative h-12 w-full overflow-hidden shadow-lg sm:flex-1"
+                  className="btn-interactive group relative h-12 w-full overflow-hidden sm:flex-1"
                 >
-                  <div className="from-primary/30 absolute inset-0 bg-linear-to-r to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-                  <Upload className="mr-2 h-4 w-4 shrink-0 text-white/90 transition-transform group-hover:-translate-y-0.5" />
-                  <span className="truncate font-bold tracking-tight text-white">
+                  <Upload className="mr-2 h-4 w-4 shrink-0 transition-transform group-hover:-translate-y-0.5" />
+                  <span className="truncate font-semibold tracking-tight">
                     {t("identities.import")}
                   </span>
                 </Button>
               </DialogTrigger>
-              <DialogContent className="bg-card/80 fixed top-1/2 left-1/2 z-50 w-full max-w-xl -translate-x-1/2 -translate-y-1/2 overflow-hidden border-white/10 p-0 backdrop-blur-xl">
-                <div className="from-primary/10 bg-linear-to-b to-transparent p-6 pb-0">
+              <DialogContent className="bg-card/86 border-border fixed top-1/2 left-1/2 z-50 w-full max-w-xl -translate-x-1/2 -translate-y-1/2 overflow-hidden border p-0 backdrop-blur-xl">
+                <div className="bg-linear-to-b from-[hsl(var(--primary)/0.12)] to-transparent p-6 pb-0">
                   <DialogHeader>
-                    <div className="bg-primary/10 border-primary/20 mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border shadow-inner">
+                    <div className="bg-primary/12 border-primary/25 mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border">
                       <Upload className="text-primary h-7 w-7" />
                     </div>
-                    <DialogTitle className="from-foreground to-foreground/70 bg-linear-to-r bg-clip-text text-center text-2xl font-bold text-transparent">
+                    <DialogTitle className="text-center text-2xl font-semibold">
                       {t("identities.importConfig")}
                     </DialogTitle>
                     <DialogDescription className="text-muted-foreground/80 mt-2 text-center text-sm">
@@ -514,7 +512,7 @@ export function ConfigImportExport() {
                 <div className="space-y-6 p-6">
                   {!selectedConfig ? (
                     <div className="space-y-6">
-                      <div className="group flex cursor-pointer items-center space-x-3 rounded-xl border border-white/10 bg-white/5 p-4 transition-colors hover:bg-white/10">
+                      <div className="group flex cursor-pointer items-center space-x-3 rounded-xl border border-[hsl(var(--border)/0.85)] bg-[hsl(var(--background)/0.5)] p-4 transition-colors hover:bg-[hsl(var(--accent)/0.4)]">
                         <div className="relative flex h-5 w-5 items-center justify-center">
                           <input
                             type="checkbox"
@@ -523,7 +521,7 @@ export function ConfigImportExport() {
                             onChange={(e) =>
                               setIncludeUploads(e.target.checked)
                             }
-                            className="peer checked:border-primary checked:bg-primary h-5 w-5 cursor-pointer appearance-none rounded border-2 border-white/20 transition-all"
+                            className="peer checked:border-primary checked:bg-primary h-5 w-5 cursor-pointer appearance-none rounded border-2 border-[hsl(var(--border)/0.85)] transition-all"
                           />
                           <div className="pointer-events-none absolute text-white opacity-0 transition-opacity peer-checked:opacity-100">
                             <svg
@@ -560,27 +558,26 @@ export function ConfigImportExport() {
                       <Button
                         onClick={handleImportClick}
                         disabled={isImporting}
-                        className="btn-interactive relative h-12 w-full overflow-hidden rounded-xl border border-white/20 bg-linear-to-r from-indigo-600 to-violet-600 font-bold text-white shadow-lg ring-1 shadow-indigo-500/30 ring-white/10 hover:shadow-indigo-500/50"
+                        className="btn-interactive bg-primary text-primary-foreground relative h-12 w-full overflow-hidden rounded-xl border border-[hsl(var(--border)/0.7)] font-semibold shadow-[0_12px_24px_-18px_hsl(220_35%_2%/0.72)]"
                         variant="default"
                       >
-                        <div className="absolute inset-0 bg-linear-to-r from-white/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-                        <Upload className="mr-3 h-5 w-5 transition-transform group-hover:-translate-y-1" />
-                        <span className="text-sm font-bold tracking-widest uppercase">
+                        <Upload className="mr-3 h-5 w-5" />
+                        <span className="text-sm font-semibold tracking-widest uppercase">
                           {t("identities.selectConfigFile")}
                         </span>
                       </Button>
                     </div>
                   ) : (
                     <div className="animate-in fade-in zoom-in-95 space-y-6 duration-300">
-                      <div className="relative overflow-hidden rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4">
-                        <div className="absolute top-0 left-0 h-full w-1 bg-emerald-500" />
+                      <div className="relative overflow-hidden rounded-xl border border-[hsl(var(--primary)/0.35)] bg-[hsl(var(--primary)/0.12)] p-4">
+                        <div className="absolute top-0 left-0 h-full w-1 bg-primary" />
                         <div className="flex items-center gap-3">
-                          <CheckCircle2 className="h-6 w-6 text-emerald-500" />
-                          <span className="text-sm font-bold text-emerald-100">
+                          <CheckCircle2 className="text-primary h-6 w-6" />
+                          <span className="text-sm font-semibold">
                             {t("identities.configFileSelected")}
                           </span>
                         </div>
-                        <p className="mt-2 ml-9 text-xs leading-relaxed font-medium text-emerald-200/70">
+                        <p className="text-muted-foreground mt-2 ml-9 text-xs leading-relaxed font-medium">
                           {t("identities.importPasswordHint")}
                         </p>
                       </div>
@@ -598,7 +595,7 @@ export function ConfigImportExport() {
                               setImportPassword(e.target.value)
                               setImportPasswordError("")
                             }}
-                            className={`focus:border-primary/50 focus:ring-primary/20 h-12 border-white/10 bg-white/5 pr-11 transition-all ${
+                            className={`focus:border-primary/50 focus:ring-primary/20 h-12 border-[hsl(var(--border)/0.85)] bg-[hsl(var(--background)/0.5)] pr-11 transition-all ${
                               importPasswordError
                                 ? "border-destructive focus-visible:ring-destructive"
                                 : ""
@@ -646,7 +643,7 @@ export function ConfigImportExport() {
                               fileInputRef.current.value = ""
                             }
                           }}
-                          className="h-12 flex-1 font-semibold hover:bg-white/5"
+                          className="h-12 flex-1 font-semibold"
                           disabled={isImporting}
                         >
                           {t("common.back")}
@@ -673,15 +670,15 @@ export function ConfigImportExport() {
                   )}
 
                   {importResult && (
-                    <div className="animate-in fade-in slide-in-from-bottom-2 rounded-xl border border-white/10 bg-white/5 p-5 duration-500">
+                    <div className="animate-in fade-in slide-in-from-bottom-2 rounded-xl border border-[hsl(var(--border)/0.85)] bg-[hsl(var(--background)/0.55)] p-5 duration-500">
                       <div className="mb-4 flex items-center gap-3">
                         <div
-                          className={`rounded-lg p-2 ${importResult.success ? "bg-emerald-500/20" : "bg-amber-500/20"}`}
+                          className={`rounded-lg p-2 ${importResult.success ? "bg-[hsl(var(--primary)/0.16)]" : "bg-[hsl(var(--destructive)/0.18)]"}`}
                         >
                           {importResult.success ? (
-                            <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                            <CheckCircle2 className="text-primary h-5 w-5" />
                           ) : (
-                            <AlertCircle className="h-5 w-5 text-amber-500" />
+                            <AlertCircle className="text-destructive h-5 w-5" />
                           )}
                         </div>
                         <span className="text-lg font-bold">
@@ -692,14 +689,14 @@ export function ConfigImportExport() {
                       </div>
                       <div className="space-y-3">
                         <div className="grid grid-cols-1 gap-2">
-                          <div className="flex items-center justify-between rounded-lg border border-white/5 bg-white/5 p-3">
+                          <div className="flex items-center justify-between rounded-lg border border-[hsl(var(--border)/0.7)] bg-[hsl(var(--background)/0.45)] p-3">
                             <span className="text-foreground text-sm font-semibold">
                               {t("identities.importedWallets", {
                                 count: importResult.importedWallets,
                               })}
                             </span>
                           </div>
-                          <div className="flex items-center justify-between rounded-lg border border-white/5 bg-white/5 p-3">
+                          <div className="flex items-center justify-between rounded-lg border border-[hsl(var(--border)/0.7)] bg-[hsl(var(--background)/0.45)] p-3">
                             <span className="text-foreground text-sm font-semibold">
                               {t("identities.importedMetadata", {
                                 count: importResult.importedMetadata,
@@ -707,7 +704,7 @@ export function ConfigImportExport() {
                             </span>
                           </div>
                           {includeUploads && (
-                            <div className="flex items-center justify-between rounded-lg border border-white/5 bg-white/5 p-3">
+                            <div className="flex items-center justify-between rounded-lg border border-[hsl(var(--border)/0.7)] bg-[hsl(var(--background)/0.45)] p-3">
                               <span className="text-foreground text-sm font-semibold">
                                 {t("identities.importedUploads", {
                                   count: importResult.importedUploads,
