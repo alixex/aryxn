@@ -77,10 +77,10 @@ export function AddAccountSection({
   ]
 
   return (
-    <Card className="glass-premium hover:shadow-primary/5 border-none shadow-2xl transition-all duration-500">
-      <CardHeader className="glass-strong animate-fade-in-down border-accent/30 bg-card/60 rounded-t-2xl border-b-2 p-6 shadow-lg">
-        <CardTitle className="text-foreground flex items-center gap-3 text-base font-bold">
-          <div className="rounded-lg bg-[hsl(var(--secondary)/0.2)] p-2 text-[hsl(var(--secondary))]">
+    <Card className="border-border/90 bg-card/84 border shadow-[0_16px_30px_-20px_hsl(220_35%_2%/0.72)] transition-all duration-200">
+      <CardHeader className="animate-fade-in-down border-border/85 bg-card/92 rounded-t-2xl border-b p-6">
+        <CardTitle className="text-foreground flex items-center gap-3 text-base font-semibold">
+          <div className="bg-muted text-foreground rounded-lg p-2">
             <Plus className="h-5 w-5" />
           </div>
           {t("identities.addNew")}
@@ -88,7 +88,7 @@ export function AddAccountSection({
       </CardHeader>
       <CardContent className="p-0">
         <Tabs defaultValue="import" className="w-full">
-          <TabsList className="bg-accent/10 mx-6 mt-6 mb-2 h-auto w-auto rounded-xl p-1.5 shadow-inner">
+          <TabsList className="bg-accent/20 mx-6 mt-6 mb-2 h-auto w-auto rounded-xl p-1.5">
             <TabsTrigger
               value="import"
               className="data-[state=active]:bg-card rounded-md px-4 py-2 text-xs font-semibold data-[state=active]:text-primary data-[state=active]:shadow-sm"
@@ -114,8 +114,8 @@ export function AddAccountSection({
                     onClick={() => setImportChain(chain.id)}
                     className={`h-8 gap-1.5 rounded-full px-3 text-[10px] font-bold uppercase transition-all ${
                       importChain === chain.id
-                        ? "bg-gradient-primary text-primary-foreground"
-                        : "border-primary/35 text-primary hover:bg-primary/10"
+                        ? "bg-primary text-primary-foreground"
+                        : "border-border text-foreground hover:bg-accent"
                     }`}
                   >
                     <div className="scale-75">{chain.icon}</div>
@@ -165,7 +165,7 @@ export function AddAccountSection({
                 </div>
                 <Button
                   type="submit"
-                  className="bg-gradient-primary text-primary-foreground h-10 w-full rounded-lg font-semibold shadow-[0_10px_22px_-14px_hsl(var(--primary)/0.72)] hover:-translate-y-0.5 hover:shadow-[0_14px_24px_-12px_hsl(var(--primary)/0.75)]"
+                  className="bg-primary text-primary-foreground h-10 w-full rounded-lg font-semibold shadow-[0_10px_20px_-16px_hsl(220_35%_2%/0.72)] hover:-translate-y-0.5"
                 >
                   {t("identities.addSubmit")}
                 </Button>
@@ -179,9 +179,9 @@ export function AddAccountSection({
                     key={chain.id}
                     variant="outline"
                     onClick={() => onCreateAccount(chain.id)}
-                    className="border-border bg-[hsl(var(--background)/0.5)] hover:bg-accent/30 group flex h-20 flex-col gap-1.5 rounded-lg shadow-[inset_0_1px_0_hsl(0_0%_100%/0.5)] transition-all hover:-translate-y-0.5 hover:border-primary/50"
+                    className="border-border bg-[hsl(var(--background)/0.55)] hover:bg-accent/40 group flex h-20 flex-col gap-1.5 rounded-lg transition-all hover:-translate-y-0.5 hover:border-primary/35"
                   >
-                    <div className="bg-[hsl(var(--secondary)/0.2)] text-[hsl(var(--secondary))] group-hover:bg-[hsl(var(--secondary)/0.26)] rounded-lg p-1.5 transition-colors">
+                    <div className="bg-muted text-foreground group-hover:bg-accent rounded-lg p-1.5 transition-colors">
                       {chain.icon}
                     </div>
                     <span className="text-foreground text-[10px] font-semibold">

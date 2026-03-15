@@ -139,7 +139,7 @@ export default function UploadPage() {
 
   return (
     <div className="mesh-gradient relative min-h-screen pb-20">
-      <div className="animate-in fade-in slide-in-from-bottom-2 mx-auto max-w-6xl space-y-5 px-2.5 py-5 duration-700 sm:space-y-8 sm:px-4 sm:py-8">
+      <div className="animate-in fade-in slide-in-from-bottom-2 mx-auto max-w-6xl space-y-6 px-3 py-6 duration-700 sm:space-y-8 sm:px-4 sm:py-8">
         {/* Header Area */}
         <PageHeader
           title={t("common.upload")}

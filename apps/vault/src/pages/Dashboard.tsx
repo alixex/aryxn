@@ -176,7 +176,7 @@ export default function DashboardPage() {
 
   return (
     <div className="mesh-gradient relative min-h-screen">
-      <div className="mx-auto max-w-6xl space-y-6 px-3 py-6 sm:space-y-8 sm:px-4 sm:py-8">
+      <div className="animate-in fade-in slide-in-from-bottom-2 mx-auto max-w-6xl space-y-6 px-3 py-6 duration-700 sm:space-y-8 sm:px-4 sm:py-8">
         <PageHeader
           title={t("common.dashboard")}
           description={t("history.desc")}

@@ -135,7 +135,7 @@ export default function AccountPage() {
 
   return (
     <div className="mesh-gradient relative min-h-screen">
-      <div className="animate-in fade-in slide-in-from-bottom-4 mx-auto max-w-6xl space-y-5 px-2.5 py-5 duration-1000 sm:space-y-8 sm:px-4 sm:py-8">
+      <div className="animate-in fade-in slide-in-from-bottom-2 mx-auto max-w-6xl space-y-6 px-3 py-6 duration-700 sm:space-y-8 sm:px-4 sm:py-8">
         <AccountHeader
           t={t}
           isUnlocked={walletManager.isUnlocked}
@@ -149,8 +149,8 @@ export default function AccountPage() {
         ) : (
           <div className="grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-3">
             <div className="space-y-6 sm:space-y-8 lg:col-span-2">
-              <Card className="glass-premium hover:shadow-primary/5 border-none shadow-2xl transition-all duration-500">
-                <CardHeader className="glass-strong animate-fade-in-down border-accent/30 bg-card/60 flex flex-col space-y-1.5 rounded-t-2xl border-b-2 p-6 shadow-lg">
+              <Card className="border-border/90 bg-card/84 border shadow-[0_16px_30px_-20px_hsl(220_35%_2%/0.72)] transition-all duration-200">
+                <CardHeader className="animate-fade-in-down border-border/85 bg-card/92 flex flex-col space-y-1.5 rounded-t-2xl border-b p-6">
                   <CardTitle className="text-foreground text-base">
                     {t("identities.title")}
                   </CardTitle>
