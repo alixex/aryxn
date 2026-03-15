@@ -308,7 +308,7 @@ export function ConfigImportExport() {
                   variant="outline"
                   className="btn-interactive border-primary/50 bg-primary/20 hover:bg-primary/30 hover:border-primary/70 group shadow-primary/10 relative h-12 w-full overflow-hidden shadow-lg sm:flex-1"
                 >
-                  <div className="from-primary/30 absolute inset-0 bg-gradient-to-r to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                  <div className="from-primary/30 absolute inset-0 bg-linear-to-r to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
                   <Download className="mr-2 h-4 w-4 shrink-0 text-white/90 transition-transform group-hover:-translate-y-0.5" />
                   <span className="truncate font-bold tracking-tight text-white">
                     {t("identities.export")}
@@ -316,12 +316,12 @@ export function ConfigImportExport() {
                 </Button>
               </DialogTrigger>
               <DialogContent className="bg-card/80 fixed top-1/2 left-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 overflow-hidden border-white/10 p-0 backdrop-blur-xl sm:max-w-md">
-                <div className="from-primary/10 bg-gradient-to-b to-transparent p-6 pb-0">
+                <div className="from-primary/10 bg-linear-to-b to-transparent p-6 pb-0">
                   <DialogHeader>
                     <div className="bg-primary/10 border-primary/20 mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border shadow-inner">
                       <ShieldCheck className="text-primary h-7 w-7" />
                     </div>
-                    <DialogTitle className="from-foreground to-foreground/70 bg-gradient-to-r bg-clip-text text-center text-2xl font-bold text-transparent">
+                    <DialogTitle className="from-foreground to-foreground/70 bg-linear-to-r bg-clip-text text-center text-2xl font-bold text-transparent">
                       {t("identities.exportConfig")}
                     </DialogTitle>
                     <DialogDescription className="text-muted-foreground/80 mt-2 text-center text-sm">
@@ -490,7 +490,7 @@ export function ConfigImportExport() {
                   variant="outline"
                   className="btn-interactive border-primary/50 bg-primary/20 hover:bg-primary/30 hover:border-primary/70 group shadow-primary/10 relative h-12 w-full overflow-hidden shadow-lg sm:flex-1"
                 >
-                  <div className="from-primary/30 absolute inset-0 bg-gradient-to-r to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                  <div className="from-primary/30 absolute inset-0 bg-linear-to-r to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
                   <Upload className="mr-2 h-4 w-4 shrink-0 text-white/90 transition-transform group-hover:-translate-y-0.5" />
                   <span className="truncate font-bold tracking-tight text-white">
                     {t("identities.import")}
@@ -498,12 +498,12 @@ export function ConfigImportExport() {
                 </Button>
               </DialogTrigger>
               <DialogContent className="bg-card/80 fixed top-1/2 left-1/2 z-50 w-full max-w-xl -translate-x-1/2 -translate-y-1/2 overflow-hidden border-white/10 p-0 backdrop-blur-xl">
-                <div className="from-primary/10 bg-gradient-to-b to-transparent p-6 pb-0">
+                <div className="from-primary/10 bg-linear-to-b to-transparent p-6 pb-0">
                   <DialogHeader>
                     <div className="bg-primary/10 border-primary/20 mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border shadow-inner">
                       <Upload className="text-primary h-7 w-7" />
                     </div>
-                    <DialogTitle className="from-foreground to-foreground/70 bg-gradient-to-r bg-clip-text text-center text-2xl font-bold text-transparent">
+                    <DialogTitle className="from-foreground to-foreground/70 bg-linear-to-r bg-clip-text text-center text-2xl font-bold text-transparent">
                       {t("identities.importConfig")}
                     </DialogTitle>
                     <DialogDescription className="text-muted-foreground/80 mt-2 text-center text-sm">
@@ -560,10 +560,10 @@ export function ConfigImportExport() {
                       <Button
                         onClick={handleImportClick}
                         disabled={isImporting}
-                        className="btn-interactive relative h-12 w-full overflow-hidden rounded-xl border border-white/20 bg-gradient-to-r from-indigo-600 to-violet-600 font-bold text-white shadow-lg ring-1 shadow-indigo-500/30 ring-white/10 hover:shadow-indigo-500/50"
+                        className="btn-interactive relative h-12 w-full overflow-hidden rounded-xl border border-white/20 bg-linear-to-r from-indigo-600 to-violet-600 font-bold text-white shadow-lg ring-1 shadow-indigo-500/30 ring-white/10 hover:shadow-indigo-500/50"
                         variant="default"
                       >
-                        <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                        <div className="absolute inset-0 bg-linear-to-r from-white/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
                         <Upload className="mr-3 h-5 w-5 transition-transform group-hover:-translate-y-1" />
                         <span className="text-sm font-bold tracking-widest uppercase">
                           {t("identities.selectConfigFile")}

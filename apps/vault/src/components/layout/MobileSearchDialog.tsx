@@ -15,6 +15,38 @@ import { useTranslation, isSimplifiedChinese } from "@/i18n/config"
 import i18n from "@/i18n/config"
 import { useWallet } from "@/hooks/account-hooks"
 
+function parseSearchIntent(input: string): {
+  query: string
+  networkFilter: "all" | "irys" | "arweave"
+} {
+  const raw = input.trim()
+  const lower = raw.toLowerCase()
+
+  if (lower.startsWith("irys:")) {
+    return {
+      query: raw.slice(raw.indexOf(":") + 1).trim(),
+      networkFilter: "irys",
+    }
+  }
+
+  if (lower.startsWith("ar:") || lower.startsWith("arweave:")) {
+    return {
+      query: raw.slice(raw.indexOf(":") + 1).trim(),
+      networkFilter: "arweave",
+    }
+  }
+
+  if (lower.includes("gateway.irys.xyz") || lower.includes(" irys")) {
+    return { query: raw, networkFilter: "irys" }
+  }
+
+  if (lower.includes("arweave.net") || lower.includes(" arweave")) {
+    return { query: raw, networkFilter: "arweave" }
+  }
+
+  return { query: raw, networkFilter: "all" }
+}
+
 interface MobileSearchDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -49,7 +81,9 @@ export function MobileSearchDialog({
   }, [open])
 
   const handleSearch = useCallback(async () => {
-    if (!query.trim()) {
+    const searchIntent = parseSearchIntent(query)
+
+    if (!searchIntent.query) {
       setResults([])
       setHasSearched(false)
       return
@@ -60,23 +94,28 @@ export function MobileSearchDialog({
     setSearchError(null)
 
     try {
-      console.log("Searching for:", query.trim())
-      const searchResults = await searchArweaveTransactions({
-        query: query.trim(),
+      let searchResults = await searchArweaveTransactions({
+        query: searchIntent.query,
         limit: 20,
         ownerAddress: activeAddress || undefined,
         preferLocal: true, // 优先本地搜索
+        networkFilter: searchIntent.networkFilter,
       })
-      console.log(`Search completed: found ${searchResults.length} results`)
+
+      // Seamless fallback: if the inferred network returns nothing, retry all.
+      if (searchResults.length === 0 && searchIntent.networkFilter !== "all") {
+        searchResults = await searchArweaveTransactions({
+          query: searchIntent.query,
+          limit: 20,
+          ownerAddress: activeAddress || undefined,
+          preferLocal: true,
+          networkFilter: "all",
+        })
+      }
+
       setResults(searchResults)
       if (searchResults.length === 0) {
-        setSearchError(null) // 没有结果不是错误
-        console.log("No results found. This might be because:")
-        console.log("1. The keyword is not in recent transactions")
-        console.log("2. The keyword doesn't match any tag values")
-        console.log(
-          "3. Try searching for file names, app names, or transaction IDs",
-        )
+        setSearchError(null)
       }
     } catch (error) {
       console.error("Search failed:", error)
@@ -87,7 +126,7 @@ export function MobileSearchDialog({
     } finally {
       setIsSearching(false)
     }
-  }, [query, activeAddress])
+  }, [query, activeAddress, t])
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
