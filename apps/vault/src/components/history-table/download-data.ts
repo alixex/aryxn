@@ -82,6 +82,7 @@ export async function fetchDataFromGateways(
   txId: string,
   expectedDataSize: number,
   storageType: "arweave" | "irys" = "arweave",
+  onProgress?: (loaded: number, total: number | null) => void,
 ): Promise<Uint8Array | null> {
   const gateways = getDownloadGateways(storageType)
 
@@ -94,8 +95,58 @@ export async function fetchDataFromGateways(
       })
 
       if (response.ok) {
+        const headerSize = response.headers.get("content-length")
+        const fallbackTotal = headerSize ? Number(headerSize) : null
+        const total = expectedDataSize > 0 ? expectedDataSize : fallbackTotal
+
+        if (response.body) {
+          const reader = response.body.getReader()
+          const chunks: Uint8Array[] = []
+          let loaded = 0
+
+          while (true) {
+            const { done, value } = await reader.read()
+            if (done) break
+            if (!value || value.length === 0) continue
+
+            const safeChunk = new Uint8Array(value.length)
+            safeChunk.set(value)
+            chunks.push(safeChunk)
+            loaded += safeChunk.length
+            onProgress?.(loaded, total)
+          }
+
+          const fetchedData = new Uint8Array(loaded)
+          let offset = 0
+          for (const chunk of chunks) {
+            fetchedData.set(chunk, offset)
+            offset += chunk.length
+          }
+
+          console.log(`Fetched from ${gateway}:`, {
+            fetchedLength: fetchedData.length,
+            expectedLength: expectedDataSize,
+            match:
+              expectedDataSize === 0 || fetchedData.length === expectedDataSize,
+          })
+
+          if (
+            expectedDataSize === 0 ||
+            fetchedData.length === expectedDataSize
+          ) {
+            console.log(`Successfully fetched data from ${gateway}`)
+            return fetchedData
+          }
+
+          console.warn(
+            `Data length mismatch from ${gateway}: expected ${expectedDataSize}, got ${fetchedData.length}`,
+          )
+          continue
+        }
+
         const buffer = await response.arrayBuffer()
         const fetchedData = new Uint8Array(buffer)
+        onProgress?.(fetchedData.length, total)
 
         // 检查数据长度
         console.log(`Fetched from ${gateway}:`, {
@@ -132,6 +183,7 @@ async function cacheFromGatewayStream(
     ownerAddress: string
     isEncrypted?: boolean
     mimeType?: string
+    onProgress?: (loaded: number, total: number | null) => void
   },
 ): Promise<Uint8Array | null> {
   const gateways = getDownloadGateways(storageType)
@@ -156,6 +208,12 @@ async function cacheFromGatewayStream(
           storageType,
           isEncrypted: options.isEncrypted === true,
           stream: response.body,
+          onProgress: (loaded) => {
+            options.onProgress?.(
+              loaded,
+              expectedDataSize > 0 ? expectedDataSize : null,
+            )
+          },
         })
 
         if (expectedDataSize > 0 && streamedSize !== expectedDataSize) {
@@ -214,6 +272,7 @@ async function cacheFileFromGatewayStream(
     ownerAddress: string
     isEncrypted?: boolean
     mimeType?: string
+    onProgress?: (loaded: number, total: number | null) => void
   },
 ): Promise<File | null> {
   const gateways = getDownloadGateways(storageType)
@@ -237,6 +296,12 @@ async function cacheFileFromGatewayStream(
         storageType,
         isEncrypted: options.isEncrypted === true,
         stream: response.body,
+        onProgress: (loaded) => {
+          options.onProgress?.(
+            loaded,
+            expectedDataSize > 0 ? expectedDataSize : null,
+          )
+        },
       })
 
       if (expectedDataSize > 0 && streamedSize !== expectedDataSize) {
@@ -320,6 +385,7 @@ export async function downloadTransactionData(
     ownerAddress?: string
     isEncrypted?: boolean
     mimeType?: string
+    onProgress?: (loaded: number, total: number | null) => void
   },
 ): Promise<Uint8Array> {
   if (options?.ownerAddress) {
@@ -329,6 +395,10 @@ export async function downloadTransactionData(
         expectedDataSize === 0 ||
         cached.payload.length === expectedDataSize
       ) {
+        options.onProgress?.(
+          cached.payload.length,
+          expectedDataSize > 0 ? expectedDataSize : cached.payload.length,
+        )
         return cached.payload
       }
       // Ignore stale cache entry and continue with network fetch.
@@ -347,6 +417,7 @@ export async function downloadTransactionData(
         ownerAddress: options.ownerAddress,
         isEncrypted: options.isEncrypted,
         mimeType: options.mimeType,
+        onProgress: options.onProgress,
       },
     )
 
@@ -356,7 +427,12 @@ export async function downloadTransactionData(
   }
 
   // 方法 1: 优先尝试直接通过网关获取
-  let data = await fetchDataFromGateways(txId, expectedDataSize, storageType)
+  let data = await fetchDataFromGateways(
+    txId,
+    expectedDataSize,
+    storageType,
+    options?.onProgress,
+  )
 
   // 方法 2: 如果直接 fetch 失败，尝试使用 SDK 的 getData 方法 (Only fallback to SDK for Arweave data, SDK breaks on Irys)
   if (!data && storageType === "arweave") {
@@ -416,6 +492,7 @@ export async function downloadTransactionFile(
     isEncrypted?: boolean
     mimeType?: string
     fileName?: string
+    onProgress?: (loaded: number, total: number | null) => void
   },
 ): Promise<File> {
   if (options?.ownerAddress) {
@@ -424,6 +501,10 @@ export async function downloadTransactionFile(
       cachedFile &&
       (expectedDataSize === 0 || cachedFile.size === expectedDataSize)
     ) {
+      options?.onProgress?.(
+        cachedFile.size,
+        expectedDataSize > 0 ? expectedDataSize : cachedFile.size,
+      )
       return cachedFile
     }
 
@@ -435,6 +516,7 @@ export async function downloadTransactionFile(
         ownerAddress: options.ownerAddress,
         isEncrypted: options.isEncrypted,
         mimeType: options.mimeType,
+        onProgress: options.onProgress,
       },
     )
     if (streamedFile) {
@@ -450,6 +532,7 @@ export async function downloadTransactionFile(
       ownerAddress: options?.ownerAddress,
       isEncrypted: options?.isEncrypted,
       mimeType: options?.mimeType,
+      onProgress: options?.onProgress,
     },
   )
 

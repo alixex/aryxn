@@ -29,6 +29,11 @@ export function HistoryTable({
 }) {
   const { t } = useTranslation()
   const [downloading, setDownloading] = useState<string | null>(null)
+  const [downloadProgress, setDownloadProgress] = useState<{
+    txId: string
+    loaded: number
+    total: number | null
+  } | null>(null)
 
   const handleDownload = async (
     record: UploadRecord,
@@ -46,8 +51,13 @@ export function HistoryTable({
     }
 
     setDownloading(record.txId)
+    setDownloadProgress({ txId: record.txId, loaded: 0, total: null })
     try {
-      await handleFileDownload(record, masterKey, decrypt, t)
+      await handleFileDownload(record, masterKey, decrypt, t, {
+        onProgress: (loaded, total) => {
+          setDownloadProgress({ txId: record.txId, loaded, total })
+        },
+      })
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : String(e)
 
@@ -75,7 +85,19 @@ export function HistoryTable({
       }
     } finally {
       setDownloading(null)
+      setDownloadProgress(null)
     }
+  }
+
+  const getProgressPercent = (progress: {
+    loaded: number
+    total: number | null
+  }): number | null => {
+    if (!progress.total || progress.total <= 0) {
+      return null
+    }
+
+    return Math.min(100, (progress.loaded / progress.total) * 100)
   }
 
   const getResourcePath = (record: UploadRecord): string => {
@@ -377,6 +399,26 @@ export function HistoryTable({
                             </Button>
                           )}
                         </div>
+                        {downloading === r.txId &&
+                        downloadProgress &&
+                        downloadProgress.txId === r.txId ? (
+                          <div className="mt-2 space-y-1">
+                            <div className="bg-border/70 h-1.5 w-full overflow-hidden rounded-full">
+                              <div
+                                className="bg-primary h-full rounded-full transition-[width] duration-150"
+                                style={{
+                                  width: `${getProgressPercent(downloadProgress) ?? 100}%`,
+                                }}
+                              />
+                            </div>
+                            <p className="text-muted-foreground text-[10px]">
+                              {downloadProgress.total &&
+                              downloadProgress.total > 0
+                                ? `${getProgressPercent(downloadProgress)?.toFixed(1)}% (${downloadProgress.loaded.toLocaleString()}/${downloadProgress.total.toLocaleString()} bytes)`
+                                : `${downloadProgress.loaded.toLocaleString()} bytes`}
+                            </p>
+                          </div>
+                        ) : null}
                       </td>
                 </tr>
               )

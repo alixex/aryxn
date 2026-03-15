@@ -25,6 +25,9 @@ export async function handleFileDownload(
   masterKey: Uint8Array | null,
   decrypt: boolean,
   t: TFunction<"translation", undefined>,
+  options?: {
+    onProgress?: (loaded: number, total: number | null) => void
+  },
 ): Promise<void> {
   // 获取 transaction 元数据
   const { transaction, expectedDataSize } = await getTransactionMetadata(
@@ -72,6 +75,7 @@ export async function handleFileDownload(
         isEncrypted: false,
         mimeType: record.mimeType,
         fileName: record.fileName,
+        onProgress: options?.onProgress,
       },
     )
 
@@ -97,6 +101,7 @@ export async function handleFileDownload(
       ownerAddress: record.ownerAddress,
       isEncrypted: record.encryptionAlgo !== "none",
       mimeType: record.mimeType,
+      onProgress: options?.onProgress,
     },
   )
 

@@ -117,6 +117,7 @@ async function writeOpfsPayload(opfsKey: string, payload: Uint8Array) {
 async function writeOpfsStreamPayload(
   opfsKey: string,
   stream: ReadableStream<Uint8Array>,
+  onProgress?: (loaded: number) => void,
 ): Promise<number> {
   const fileHandle = await getOpfsFileHandle(opfsKey, true)
   const writable = await fileHandle.createWritable()
@@ -133,6 +134,7 @@ async function writeOpfsStreamPayload(
       safeChunk.set(value)
       await writable.write(safeChunk)
       total += safeChunk.length
+      onProgress?.(total)
     }
   } finally {
     await writable.close()
@@ -261,6 +263,7 @@ export async function upsertCachedResourceFromStream(input: {
   storageType?: string | null
   isEncrypted: boolean
   stream: ReadableStream<Uint8Array>
+  onProgress?: (loaded: number) => void
 }): Promise<number> {
   if (!hasOpfsSupport()) {
     throw new Error("OPFS is not supported in this environment")
@@ -268,7 +271,11 @@ export async function upsertCachedResourceFromStream(input: {
 
   const now = Date.now()
   const opfsKey = `${encodeURIComponent(input.txId)}.bin`
-  const contentSize = await writeOpfsStreamPayload(opfsKey, input.stream)
+  const contentSize = await writeOpfsStreamPayload(
+    opfsKey,
+    input.stream,
+    input.onProgress,
+  )
 
   await db.run(
     `INSERT INTO resource_cache (
