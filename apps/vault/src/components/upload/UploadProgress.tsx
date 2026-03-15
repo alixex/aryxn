@@ -23,20 +23,18 @@ export function UploadProgress({ progress }: UploadProgressProps) {
         : 0
 
   const normalizedPercent = Math.max(0, Math.min(100, rawPercent))
+  const primaryLabel =
+    progress.currentFile || progress.stage || t("upload.uploading")
 
   return (
     <div className="border-border bg-card rounded-lg border p-3 sm:p-4">
       <div className="mb-2 flex flex-col gap-1.5 text-sm sm:flex-row sm:items-center sm:justify-between">
         <span className="text-foreground font-medium wrap-break-word">
-          {progress.currentFile || t("upload.uploading") + "…"}
+          {primaryLabel}
         </span>
         {progress.current !== undefined && progress.total !== undefined ? (
           <span className="text-muted-foreground text-xs sm:text-sm">
             {progress.current} / {progress.total}
-          </span>
-        ) : progress.stage ? (
-          <span className="text-muted-foreground text-xs sm:text-sm">
-            {progress.stage}
           </span>
         ) : null}
       </div>
@@ -56,7 +54,7 @@ export function UploadProgress({ progress }: UploadProgressProps) {
           <div className="animate-shimmer absolute inset-0" />
         </div>
       </div>
-      {progress.stage && (
+      {progress.currentFile && progress.stage && (
         <div className="text-muted-foreground mt-2 text-xs wrap-break-word">
           {progress.stage}
           {progress.progress !== undefined &&

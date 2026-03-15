@@ -7,27 +7,21 @@ import { shouldCompressFile } from "@/lib/utils"
 interface UploadOptionsProps {
   encryptUpload: boolean
   compressUpload: boolean
-  storageTier: "Permanent" | "Term"
   file: File | null
   files?: File[]
   isUnlocked: boolean
   onEncryptChange: (checked: boolean) => void
   onCompressChange: (checked: boolean) => void
-  onStorageTierChange: (tier: "Permanent" | "Term") => void
-  disableTermStorage?: boolean
 }
 
 export function UploadOptions({
   encryptUpload,
   compressUpload,
-  storageTier,
   file,
   files = [],
   isUnlocked,
   onEncryptChange,
   onCompressChange,
-  onStorageTierChange,
-  disableTermStorage,
 }: UploadOptionsProps) {
   const { t } = useTranslation()
 
@@ -120,47 +114,6 @@ export function UploadOptions({
         </div>
       </div>
 
-      {/* Storage Tier Options */}
-      <div
-        className={`group flex cursor-pointer items-start gap-4 rounded-xl border p-4 transition-all duration-200 ${
-          storageTier === "Term"
-            ? "border-primary/45 bg-[hsl(var(--card)/0.88)]"
-            : "hover:border-primary/35 border-[hsl(var(--border)/0.85)] bg-[hsl(var(--background)/0.76)]"
-        }`}
-        onClick={(event) => {
-          if (isCheckboxTarget(event.target) || disableTermStorage) return
-          onStorageTierChange(storageTier === "Term" ? "Permanent" : "Term")
-        }}
-      >
-        <div className="mt-0.5">
-          <Checkbox
-            id="storage-tier-term"
-            checked={storageTier === "Term"}
-            onCheckedChange={(checked) =>
-              onStorageTierChange(checked ? "Term" : "Permanent")
-            }
-            disabled={disableTermStorage}
-            className="border-primary/40 data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground bg-transparent"
-          />
-        </div>
-        <div className="flex-1">
-          <Label
-            htmlFor="storage-tier-term"
-            className="text-foreground flex cursor-pointer items-center gap-2 text-sm font-semibold"
-          >
-            {t("upload.enableTermStorage", "Use Term Storage")}
-            <span className="text-muted-foreground bg-muted/70 ring-border/70 ml-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ring-1">
-              {t("common.cheaper", "Cheaper")}
-            </span>
-          </Label>
-          <p className="text-muted-foreground mt-1 text-xs leading-relaxed">
-            {t(
-              "upload.termStorageDesc",
-              "Store files temporarily instead of permanently. Ideal for non-critical files and significantly reduces Irys L1 costs.",
-            )}
-          </p>
-        </div>
-      </div>
     </div>
   )
 }

@@ -12,6 +12,7 @@ import { Chains } from "@aryxn/chain-constants"
 import { getIrysFundingToken } from "@/lib/payment/upload-payment-config"
 import { ChainIcon } from "@/components/common/ChainIcon"
 import type { PaymentAccount, PaymentToken } from "@/lib/payment"
+import { paymentService, RouteRequiredError } from "@/lib/payment"
 import { FilePreview } from "@/components/ui/file-preview"
 import { Card, CardContent } from "@/components/ui/card"
 import { Info, X } from "lucide-react"
@@ -51,8 +52,10 @@ export default function UploadPage() {
   const [paymentAccount, setPaymentAccount] = useState<PaymentAccount | null>(
     null,
   )
-  const [storageTier, setStorageTier] = useState<"Permanent" | "Term">(
-    "Permanent",
+  const [estimatedFee, setEstimatedFee] = useState<string | null>(null)
+  const [estimatingFee, setEstimatingFee] = useState(false)
+  const [estimatedFeeError, setEstimatedFeeError] = useState<string | null>(
+    null,
   )
 
   const multipleMode = files.length > 0
@@ -81,10 +84,67 @@ export default function UploadPage() {
   }, [file, files, multipleMode])
 
   useEffect(() => {
-    if (paymentToken === "AR" && storageTier === "Term") {
-      setStorageTier("Permanent")
+    let cancelled = false
+
+    const estimateFee = async () => {
+      if (!hasSelection || !paymentAccount) {
+        setEstimatedFee(null)
+        setEstimatedFeeError(null)
+        setEstimatingFee(false)
+        return
+      }
+
+      setEstimatingFee(true)
+      setEstimatedFeeError(null)
+
+      try {
+        const estimated = await paymentService.estimateFeeInToken(
+          totalSelectedSize,
+          paymentToken,
+          paymentAccount.chain,
+        )
+
+        if (cancelled) return
+
+        setEstimatedFee(estimated.formatted)
+      } catch (error) {
+        if (cancelled) return
+
+        setEstimatedFee(null)
+
+        if (error instanceof RouteRequiredError) {
+          const key =
+            error.action === "swap"
+              ? "upload.feeRouteRequiredSwap"
+              : "upload.feeRouteRequiredBridge"
+
+          setEstimatedFeeError(
+            t(key, {
+              token: paymentToken,
+              chain: paymentAccount.chain,
+            }),
+          )
+        } else {
+          setEstimatedFeeError(
+            t("upload.feeCalculationFailedWithContext", {
+              token: paymentToken,
+              chain: paymentAccount.chain,
+            }),
+          )
+        }
+      } finally {
+        if (!cancelled) {
+          setEstimatingFee(false)
+        }
+      }
     }
-  }, [paymentToken, storageTier])
+
+    void estimateFee()
+
+    return () => {
+      cancelled = true
+    }
+  }, [hasSelection, paymentAccount, paymentToken, t, totalSelectedSize])
 
   const canUpload = Boolean(hasSelection && isUnlocked && paymentAccount)
 
@@ -99,7 +159,6 @@ export default function UploadPage() {
         paymentToken,
         paymentAccount,
         false,
-        storageTier,
       )
     } else if (file) {
       result = await handleUpload(
@@ -238,14 +297,11 @@ export default function UploadPage() {
                       <UploadOptions
                         encryptUpload={encryptUpload}
                         compressUpload={compressUpload}
-                        storageTier={storageTier}
-                        disableTermStorage={paymentToken === "AR"}
                         file={file}
                         files={files}
                         isUnlocked={isUnlocked}
                         onEncryptChange={setEncryptUpload}
                         onCompressChange={setCompressUpload}
-                        onStorageTierChange={setStorageTier}
                       />
                     </div>
                   </div>
@@ -277,11 +333,16 @@ export default function UploadPage() {
                                   paymentAccount.chain,
                                   paymentToken,
                                 )
+                                const isNativeArPath =
+                                  paymentAccount.chain === Chains.ARWEAVE &&
+                                  paymentToken === "AR"
+                                const isDirectPath =
+                                  isNativeArPath || Boolean(irysToken)
 
                                 const baseBadgeClass =
                                   "inline-flex w-fit items-center gap-1.5 rounded-full px-2 py-0.5 text-[9px] font-bold ring-1"
 
-                                if (irysToken) {
+                                if (isDirectPath) {
                                   return (
                                     <span
                                       className={`${baseBadgeClass} bg-primary/10 text-primary ring-primary/20`}
@@ -290,7 +351,7 @@ export default function UploadPage() {
                                         chain={paymentAccount.chain}
                                         size="xs"
                                       />
-                                      {t("upload.pathDirect", "DIRECT")}
+                                      {t("upload.pathDirect", "Direct")}
                                     </span>
                                   )
                                 }
@@ -317,6 +378,32 @@ export default function UploadPage() {
                               <span className="mx-1">•</span>
                               {paymentToken}
                             </p>
+
+                            <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px]">
+                              <span className="text-muted-foreground font-medium">
+                                {t("upload.estimatedFee", "Estimated Fee")}
+                              </span>
+                              {estimatingFee ? (
+                                <span className="text-muted-foreground">
+                                  {t("upload.calculatingFee", "Calculating fee...")}
+                                </span>
+                              ) : estimatedFee ? (
+                                <span className="text-foreground font-semibold">
+                                  {estimatedFee}
+                                </span>
+                              ) : estimatedFeeError ? (
+                                <span className="text-amber-600">
+                                  {estimatedFeeError}
+                                </span>
+                              ) : (
+                                <span className="text-muted-foreground">
+                                  {t(
+                                    "upload.feeCalculationFailed",
+                                    "Unable to fetch fee information",
+                                  )}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         )}
                     </div>

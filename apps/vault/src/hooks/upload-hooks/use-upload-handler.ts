@@ -10,6 +10,7 @@ import { getIrysFundingToken } from "@/lib/payment"
 import { PaymentRepository } from "@/lib/payment/payment-repository"
 import type { PaymentIntent } from "@/lib/payment/types"
 import { Chains } from "@aryxn/chain-constants"
+import type { TFunction } from "i18next"
 
 export interface UploadHandlerResult {
   status: "SUCCESS" | "FAILED"
@@ -35,6 +36,26 @@ function resolveWalletKeyForPayment(
     return wallet.internal.activeWallet
   }
   return null
+}
+
+function normalizeUploadStageLabel(
+  stage: string | undefined,
+  t: TFunction,
+): string {
+  if (!stage) return ""
+
+  const lower = stage.trim().toLowerCase()
+  if (lower === "uploading" || lower === "uploading...") {
+    return t("upload.uploading")
+  }
+  if (lower === "preparing" || lower === "preparing upload...") {
+    return t("upload.preparing")
+  }
+  if (lower === "processing payment") {
+    return t("upload.processingPayment")
+  }
+
+  return stage
 }
 
 export function useUploadHandler() {
@@ -110,7 +131,6 @@ export function useUploadHandler() {
       paymentToken: PaymentToken = "AR",
       paymentAccount: PaymentAccount | null,
       forceSilent = false,
-      storageTier: "Permanent" | "Term" = "Permanent",
     ) => {
       if (!file) {
         return {
@@ -226,7 +246,7 @@ export function useUploadHandler() {
           },
           intentId: activeIntent?.id,
           onProgress: (p) => {
-            setStage(p.message || p.stage)
+            setStage(normalizeUploadStageLabel(p.message || p.stage, t))
           },
         })
 
@@ -250,8 +270,7 @@ export function useUploadHandler() {
           throw new Error("Payment execution failed.")
         }
 
-        const useIrys =
-          paymentResult === "PAID_IRYS" || paymentResult === "PAID_NATIVE"
+        const useIrys = paymentResult === "PAID_IRYS"
         setPaymentStage(false)
 
         const irysTokenName = useIrys
@@ -271,11 +290,10 @@ export function useUploadHandler() {
             enableCompression: compressUpload,
             onProgress: (p) => {
               setProgress(p.progress)
-              setStage(p.stage)
+              setStage(normalizeUploadStageLabel(p.stage, t))
             },
             useIrys: useIrys,
             irysToken: irysTokenName,
-            storageTier,
           },
         )
 
@@ -334,7 +352,6 @@ export function useUploadHandler() {
       paymentToken: PaymentToken = "AR",
       paymentAccount: PaymentAccount | null,
       forceSilent = false,
-      storageTier: "Permanent" | "Term" = "Permanent",
     ) => {
       if (files.length === 0) {
         return {
@@ -452,7 +469,7 @@ export function useUploadHandler() {
           },
           intentId: activeIntent?.id,
           onProgress: (p) => {
-            setStage(p.message || p.stage)
+            setStage(normalizeUploadStageLabel(p.message || p.stage, t))
           },
         })
 
@@ -475,8 +492,7 @@ export function useUploadHandler() {
           throw new Error("Payment execution failed.")
         }
 
-        const useIrys =
-          paymentResult === "PAID_IRYS" || paymentResult === "PAID_NATIVE"
+        const useIrys = paymentResult === "PAID_IRYS"
         setPaymentStage(false)
 
         const irysTokenName = useIrys
@@ -496,11 +512,10 @@ export function useUploadHandler() {
             enableCompression: compressUpload,
             onProgress: (p) => {
               setProgress(p.progress)
-              setStage(p.stage)
+              setStage(normalizeUploadStageLabel(p.stage, t))
             },
             useIrys: useIrys,
             irysToken: irysTokenName,
-            storageTier,
           },
         )
 
