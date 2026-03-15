@@ -8,12 +8,9 @@ import {
   upsertCachedResource,
 } from "@/lib/file"
 import { RPCs } from "@aryxn/chain-constants"
-import { deriveKey, decryptData, fromBase64 } from "@aryxn/crypto"
+import { deriveKey } from "@aryxn/crypto"
 import type { UploadRecord } from "@/lib/utils"
 import { useWallet } from "@/hooks/account-hooks"
-import { VAULT_SALT_LEGACY } from "@/hooks/vault-hooks/use-vault"
-import { getTransactionMetadata } from "@/components/history-table/download-data"
-import { decodeTransactionTags } from "@/components/history-table/transaction-tags"
 import { processFileData } from "@/components/history-table/process-data"
 import {
   Card,
@@ -40,38 +37,21 @@ type DecryptStage =
   | "decrypting"
   | "opening"
 
-function withTimeout<T>(promise: Promise<T>, ms: number, message: string) {
-  let timer: ReturnType<typeof setTimeout> | null = null
-  return Promise.race([
-    promise,
-    new Promise<T>((_, reject) => {
-      timer = setTimeout(() => reject(new Error(message)), ms)
-    }),
-  ]).finally(() => {
-    if (timer) clearTimeout(timer)
-  }) as Promise<T>
-}
-
-async function fetchWithTimeout(
-  url: string,
-  timeoutMs: number,
-): Promise<Response> {
-  const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), timeoutMs)
-  try {
-    return await fetch(url, {
-      cache: "no-store",
-      signal: controller.signal,
-    })
-  } finally {
-    clearTimeout(timer)
+function concatChunks(chunks: Uint8Array[], total: number): Uint8Array {
+  const output = new Uint8Array(total)
+  let offset = 0
+  for (const chunk of chunks) {
+    output.set(chunk, offset)
+    offset += chunk.length
   }
+  return output
 }
 
 async function downloadEncryptedData(
   txId: string,
   storageType: string,
   expectedSize: number,
+  onProgress?: (loaded: number, total: number | null) => void,
 ): Promise<Uint8Array> {
   const gateways =
     storageType === "irys"
@@ -82,12 +62,41 @@ async function downloadEncryptedData(
 
   for (const gateway of gateways) {
     try {
-      const response = await fetchWithTimeout(`${gateway}/${txId}`, 20000)
+      const response = await fetch(`${gateway}/${txId}`, {
+        cache: "no-store",
+      })
       if (!response.ok) {
         throw new Error(`Gateway ${gateway} failed: ${response.status}`)
       }
 
-      const data = new Uint8Array(await response.arrayBuffer())
+      const headerSize = response.headers.get("content-length")
+      const fallbackTotal = headerSize ? Number(headerSize) : null
+      const total = expectedSize > 0 ? expectedSize : fallbackTotal
+
+      let data: Uint8Array
+      if (response.body) {
+        const reader = response.body.getReader()
+        const chunks: Uint8Array[] = []
+        let loaded = 0
+
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+          if (!value || value.length === 0) continue
+
+          const safeChunk = new Uint8Array(value.length)
+          safeChunk.set(value)
+          chunks.push(safeChunk)
+          loaded += safeChunk.length
+          onProgress?.(loaded, total)
+        }
+
+        data = concatChunks(chunks, loaded)
+      } else {
+        data = new Uint8Array(await response.arrayBuffer())
+        onProgress?.(data.length, total)
+      }
+
       if (expectedSize > 0 && data.length !== expectedSize) {
         throw new Error(
           `Incomplete data from ${gateway}: expected ${expectedSize}, got ${data.length}`,
@@ -146,6 +155,22 @@ function classifyDecryptError(message: string): string {
   return "Unknown issue"
 }
 
+function classifyDecryptErrorByStage(
+  message: string,
+  stage: DecryptStage,
+  passwordVerified: boolean,
+): string {
+  if (stage === "verifying" || message.toLowerCase().includes("incorrect password")) {
+    return "Password verification failed"
+  }
+
+  if (passwordVerified && message.toLowerCase().includes("decryption failed")) {
+    return "Resource data issue"
+  }
+
+  return classifyDecryptError(message)
+}
+
 export default function ResourceByOwnerTx() {
   const { ownerAddress = "", txId = "" } = useParams()
   const wallet = useWallet()
@@ -157,6 +182,10 @@ export default function ResourceByOwnerTx() {
   const [showPassword, setShowPassword] = useState(false)
   const [decryptStage, setDecryptStage] = useState<DecryptStage>("idle")
   const [errorCategory, setErrorCategory] = useState<string | null>(null)
+  const [downloadProgress, setDownloadProgress] = useState<{
+    loaded: number
+    total: number | null
+  }>({ loaded: 0, total: null })
 
   const openBlobResource = useCallback(
     (payload: Uint8Array, mimeType: string) => {
@@ -317,11 +346,14 @@ export default function ResourceByOwnerTx() {
     setDecrypting(true)
     setDecryptError(null)
     setErrorCategory(null)
+    setDownloadProgress({ loaded: 0, total: null })
     setDecryptStage("verifying")
     setDecryptStatus("Validating password...")
+    let currentStage: DecryptStage = "verifying"
+    let passwordVerified = false
 
     try {
-      const salt = wallet.internal.systemSalt || VAULT_SALT_LEGACY
+      const salt = wallet.internal.systemSalt
       const key = await deriveKey(password, salt)
 
       // Stage 1: password verification gate.
@@ -331,7 +363,9 @@ export default function ResourceByOwnerTx() {
           throw new Error("Incorrect password")
         }
       }
+      passwordVerified = true
       setDecryptStage("verified")
+      currentStage = "verified"
       setDecryptStatus("Password verified. Entering next stage...")
 
       const record: UploadRecord = {
@@ -348,7 +382,14 @@ export default function ResourceByOwnerTx() {
         createdAt: Number(file.created_at),
       }
 
+      setDecryptStage("metadata")
+      currentStage = "metadata"
+      setDecryptStatus("Loading local metadata...")
+      const expectedDataSize = Number(file.file_size || 0)
+      const decodedTags: [] = []
+
       setDecryptStage("downloading")
+      currentStage = "downloading"
       setDecryptStatus("Checking local cache...")
 
       const localCached = await getCachedResource(
@@ -357,25 +398,19 @@ export default function ResourceByOwnerTx() {
       )
       let encryptedData: Uint8Array | null =
         localCached?.isEncrypted === true ? localCached.payload : null
-
-      let decodedTags: Array<{ name: string; value: string }> = []
+      let loadedFromCache = encryptedData !== null
 
       if (!encryptedData) {
-        setDecryptStage("metadata")
-        setDecryptStatus("Loading resource metadata...")
-        const { transaction, expectedDataSize } = await withTimeout(
-          getTransactionMetadata(file.tx_id),
-          15000,
-          "Metadata request timed out. Please retry.",
-        )
-        decodedTags = decodeTransactionTags((transaction as any)?.tags)
-
         setDecryptStage("downloading")
+        currentStage = "downloading"
         setDecryptStatus("Downloading encrypted resource...")
         encryptedData = await downloadEncryptedData(
           file.tx_id,
           file.storage_type,
           expectedDataSize,
+          (loaded, total) => {
+            setDownloadProgress({ loaded, total })
+          },
         )
 
         await upsertCachedResource({
@@ -393,6 +428,7 @@ export default function ResourceByOwnerTx() {
       // Fast path: reuse file decrypt pipeline with tag-first parameters.
       try {
         setDecryptStage("decrypting")
+        currentStage = "decrypting"
         setDecryptStatus("Decrypting resource...")
         decrypted = await processFileData(
           encryptedData,
@@ -402,30 +438,71 @@ export default function ResourceByOwnerTx() {
           true,
         )
       } catch {
-        // Fallback path for legacy records with DB-only nonce.
-        const params = JSON.parse(file.encryption_params || "{}") as {
-          nonce?: string
+        if (loadedFromCache) {
+          setDecryptStatus("Cached data failed. Retrying from chain...")
+          const redownloaded = await downloadEncryptedData(
+            file.tx_id,
+            file.storage_type,
+            expectedDataSize,
+            (loaded, total) => {
+              setDownloadProgress({ loaded, total })
+            },
+          )
+
+          await upsertCachedResource({
+            ownerAddress: file.owner_address,
+            txId: file.tx_id,
+            mimeType: file.mime_type,
+            storageType: file.storage_type,
+            isEncrypted: true,
+            payload: redownloaded,
+          })
+
+          try {
+            decrypted = await processFileData(
+              redownloaded,
+              record,
+              decodedTags,
+              key,
+              true,
+            )
+          } catch {
+            throw new Error(
+              "Password verified, but resource payload/metadata mismatch prevented decryption.",
+            )
+          }
+        } else {
+          throw new Error(
+            "Password verified, but resource payload/metadata mismatch prevented decryption.",
+          )
         }
-        if (!params.nonce) {
-          throw new Error("Missing encryption nonce.")
-        }
-        decrypted = await decryptData(
-          encryptedData,
-          fromBase64(params.nonce),
-          key,
-        )
       }
 
       setDecryptStage("opening")
+      currentStage = "opening"
       setDecryptStatus("Opening resource...")
       openBlobResource(decrypted, file.mime_type || "application/octet-stream")
     } catch (error) {
-      const message =
+      let message =
         error instanceof Error
           ? error.message
           : "Failed to decrypt resource. Check password."
+      const category = classifyDecryptErrorByStage(
+        message,
+        currentStage,
+        passwordVerified,
+      )
+
+      if (
+        category === "Resource data issue" &&
+        message.toLowerCase().includes("decryption failed")
+      ) {
+        message =
+          "Password verified, but resource decryption still failed. The cached or remote encrypted payload may be inconsistent with encryption metadata."
+      }
+
       setDecryptError(message)
-      setErrorCategory(classifyDecryptError(message))
+      setErrorCategory(category)
       setDecryptStage("idle")
       setDecryptStatus(null)
     } finally {
@@ -468,6 +545,7 @@ export default function ResourceByOwnerTx() {
                     onChange={(event) => setPassword(event.target.value)}
                     placeholder="Password"
                     className="h-11 pr-11"
+                    disabled={decrypting}
                   />
                   <button
                     type="button"
@@ -476,6 +554,7 @@ export default function ResourceByOwnerTx() {
                     aria-label={
                       showPassword ? "Hide password" : "Show password"
                     }
+                    disabled={decrypting}
                   >
                     {showPassword ? (
                       <EyeOff className="h-4 w-4" />
@@ -502,6 +581,26 @@ export default function ResourceByOwnerTx() {
                   <p className="text-muted-foreground text-xs">
                     Stage: {decryptStage}
                   </p>
+                ) : null}
+                {decryptStage === "downloading" ? (
+                  <div className="space-y-2">
+                    <div className="bg-muted h-2 w-full overflow-hidden rounded-full">
+                      <div
+                        className="bg-primary h-full transition-all duration-200"
+                        style={{
+                          width:
+                            downloadProgress.total && downloadProgress.total > 0
+                              ? `${Math.min(100, (downloadProgress.loaded / downloadProgress.total) * 100)}%`
+                              : "35%",
+                        }}
+                      />
+                    </div>
+                    <p className="text-muted-foreground text-xs">
+                      {downloadProgress.total && downloadProgress.total > 0
+                        ? `${((downloadProgress.loaded / downloadProgress.total) * 100).toFixed(1)}% (${downloadProgress.loaded.toLocaleString()}/${downloadProgress.total.toLocaleString()} bytes)`
+                        : `${downloadProgress.loaded.toLocaleString()} bytes downloaded`}
+                    </p>
+                  </div>
                 ) : null}
                 {decryptError ? (
                   <div className="space-y-1">

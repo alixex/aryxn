@@ -46,6 +46,16 @@ function getNonce(
   }
 }
 
+function normalizeBase64Input(value: string): string {
+  const compact = value.replace(/\s+/g, "")
+  const standard = compact.replace(/-/g, "+").replace(/_/g, "/")
+  const padLength = standard.length % 4
+  if (padLength === 0) {
+    return standard
+  }
+  return standard + "=".repeat(4 - padLength)
+}
+
 /**
  * 解密数据
  */
@@ -56,13 +66,21 @@ export async function decryptFileData(
   encryptionParamsTag: DecodedTag | undefined,
 ): Promise<Uint8Array> {
   const { nonceBase64, source } = getNonce(encryptionParamsTag, record)
+  const normalizedNonceBase64 = normalizeBase64Input(nonceBase64)
 
   console.log(`Using nonce from ${source}:`, {
     nonceBase64: nonceBase64.substring(0, 20) + "...",
+    normalizedNonceBase64: normalizedNonceBase64.substring(0, 20) + "...",
     nonceLength: nonceBase64.length,
+    normalizedNonceLength: normalizedNonceBase64.length,
   })
 
-  const nonceBytes = fromBase64(nonceBase64)
+  let nonceBytes: Uint8Array
+  try {
+    nonceBytes = fromBase64(normalizedNonceBase64)
+  } catch {
+    throw new Error("Invalid nonce encoding in encryption parameters.")
+  }
 
   // 调试信息
   console.log("Decryption info:", {
@@ -78,7 +96,7 @@ export async function decryptFileData(
     console.error("Invalid nonce length:", {
       actual: nonceBytes.length,
       expected: 24,
-      nonceBase64: nonceBase64.substring(0, 50),
+      nonceBase64: normalizedNonceBase64.substring(0, 50),
     })
     throw new Error(
       `Invalid nonce length: expected 24 bytes, got ${nonceBytes.length} bytes. ` +
