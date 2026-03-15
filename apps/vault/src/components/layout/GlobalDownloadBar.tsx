@@ -2,6 +2,7 @@ import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Download, Loader2, X } from "lucide-react"
 import { isTaskActive, useDownloadTaskStore } from "@/lib/store/download-task"
+import { cn } from "@/lib/utils"
 
 function formatSpeed(speedBps: number): string {
   if (speedBps >= 1024 * 1024) {
@@ -13,7 +14,13 @@ function formatSpeed(speedBps: number): string {
   return `${speedBps} B/s`
 }
 
-export function GlobalDownloadBar() {
+export function GlobalDownloadBar({
+  topOffsetClassName = "top-16",
+  compact = false,
+}: {
+  topOffsetClassName?: string
+  compact?: boolean
+}) {
   const activeTask = useDownloadTaskStore((s) => s.activeTask)
   const clearTask = useDownloadTaskStore((s) => s.clearTask)
   const cancelActiveTask = useDownloadTaskStore((s) => s.cancelActiveTask)
@@ -57,7 +64,15 @@ export function GlobalDownloadBar() {
           : activeTask.message || "Downloading"
 
   return (
-    <div className="border-border/80 bg-card/95 fixed top-16 right-3 left-3 z-30 rounded-xl border p-3 shadow-lg backdrop-blur-lg sm:right-4 sm:left-4 lg:right-8 lg:left-8">
+    <div
+      className={cn(
+        "border-border/80 bg-card/95 fixed z-30 rounded-xl border p-3 shadow-lg backdrop-blur-lg",
+        topOffsetClassName,
+        compact
+          ? "right-3 left-3 sm:right-auto sm:left-1/2 sm:w-[min(92vw,540px)] sm:-translate-x-1/2"
+          : "right-3 left-3 sm:right-4 sm:left-4 lg:right-8 lg:left-8",
+      )}
+    >
       <div className="mb-2 flex items-center justify-between gap-3">
         <div className="min-w-0">
           <p className="text-foreground flex items-center gap-2 text-sm font-semibold">

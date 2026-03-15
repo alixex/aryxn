@@ -18,6 +18,8 @@ import {
 } from "@/components/history-table/transaction-tags"
 import { processFileData } from "@/components/history-table/process-data"
 import { decodeAuthParam } from "@/lib/resource-auth"
+import { GlobalDownloadBar } from "@/components/layout/GlobalDownloadBar"
+import { useDownloadTaskStore } from "@/lib/store/download-task"
 import {
   Card,
   CardContent,
@@ -63,13 +65,17 @@ async function downloadRawData(
   storageType: string,
   expectedSize: number,
   onProgress?: (loaded: number, total: number | null) => void,
+  signal?: AbortSignal,
 ): Promise<Uint8Array> {
   const gateways = getDownloadGateways(storageType)
   let lastError: unknown = null
 
   for (const gateway of gateways) {
     try {
-      const response = await fetch(`${gateway}/${txId}`, { cache: "no-store" })
+      const response = await fetch(`${gateway}/${txId}`, {
+        cache: "no-store",
+        signal,
+      })
       if (!response.ok)
         throw new Error(`Gateway ${gateway} failed: ${response.status}`)
 
@@ -181,6 +187,10 @@ export default function DownloadPage() {
     loaded: number
     total: number | null
   }>({ loaded: 0, total: null })
+  const startTask = useDownloadTaskStore((s) => s.startTask)
+  const updateProgress = useDownloadTaskStore((s) => s.updateProgress)
+  const setTaskStatus = useDownloadTaskStore((s) => s.setStatus)
+  const finishTask = useDownloadTaskStore((s) => s.finishTask)
 
   const normalized = useMemo(
     () => ({ ownerAddress: ownerAddress.trim(), txId: txId.trim() }),
@@ -234,6 +244,8 @@ export default function DownloadPage() {
   // ── Core download pipeline ─────────────────────────────────────────────────
 
   const runDownload = async (file: FileIndex, key?: Uint8Array) => {
+    const controller = new AbortController()
+
     setStage("verifying")
     setStatusMsg("Preparing download…")
     setError(null)
@@ -262,6 +274,14 @@ export default function DownloadPage() {
       currentStage = "verified"
 
       const expectedDataSize = Number(file.file_size || 0)
+      startTask({
+        txId: file.tx_id,
+        fileName: file.file_name,
+        total: expectedDataSize > 0 ? expectedDataSize : null,
+        controller,
+      })
+      setTaskStatus("downloading", "Preparing download")
+
       let decodedTags: DecodedTag[] = []
 
       const hydrateTagsForNonceRepair = async () => {
@@ -302,11 +322,16 @@ export default function DownloadPage() {
 
       if (!rawData) {
         setStatusMsg("Downloading from network…")
+        setTaskStatus("downloading", "Downloading from network")
         rawData = await downloadRawData(
           file.tx_id,
           file.storage_type,
           expectedDataSize,
-          (loaded, total) => setDownloadProgress({ loaded, total }),
+          (loaded, total) => {
+            setDownloadProgress({ loaded, total })
+            updateProgress(loaded, total)
+          },
+          controller.signal,
         )
         await upsertCachedResource({
           ownerAddress: file.owner_address,
@@ -349,6 +374,7 @@ export default function DownloadPage() {
           setStage("decrypting")
           currentStage = "decrypting"
           setStatusMsg("Decrypting file…")
+          setTaskStatus("processing", "Decrypting file")
 
           const r1 = await tryDecrypt(payload, key)
           if (r1) return r1
@@ -382,11 +408,16 @@ export default function DownloadPage() {
         } catch {
           if (fromCache) {
             setStatusMsg("Cached data failed. Retrying from network…")
+            setTaskStatus("downloading", "Retrying download")
             const redownloaded = await downloadRawData(
               file.tx_id,
               file.storage_type,
               expectedDataSize,
-              (loaded, total) => setDownloadProgress({ loaded, total }),
+              (loaded, total) => {
+                setDownloadProgress({ loaded, total })
+                updateProgress(loaded, total)
+              },
+              controller.signal,
             )
             await upsertCachedResource({
               ownerAddress: file.owner_address,
@@ -410,6 +441,7 @@ export default function DownloadPage() {
       setStage("saving")
       currentStage = "saving"
       setStatusMsg("Saving file…")
+      setTaskStatus("processing", "Saving file")
       triggerFileSave(
         finalData,
         file.mime_type || "application/octet-stream",
@@ -419,11 +451,21 @@ export default function DownloadPage() {
       setStage("done")
       currentStage = "done"
       setStatusMsg(null)
+      finishTask("completed", "Download completed")
     } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") {
+        finishTask("cancelled", "Download cancelled")
+        setError("Download cancelled.")
+        setStage("idle")
+        setStatusMsg(null)
+        return
+      }
+
       const msg = err instanceof Error ? err.message : String(err)
       setError(msg)
       setStage("idle")
       setStatusMsg(null)
+      finishTask("failed", msg)
       console.error(`[DownloadPage] Download failed at ${currentStage}:`, err)
     }
   }
@@ -518,6 +560,7 @@ export default function DownloadPage() {
   if (state.status === "loading") {
     return (
       <main className="mesh-gradient relative flex min-h-screen items-center justify-center p-4">
+        <GlobalDownloadBar topOffsetClassName="top-3" compact />
         <p className="text-muted-foreground text-sm">Loading…</p>
       </main>
     )
@@ -526,6 +569,7 @@ export default function DownloadPage() {
   if (state.status === "missing") {
     return (
       <main className="p-4 text-sm text-neutral-700">
+        <GlobalDownloadBar topOffsetClassName="top-3" compact />
         File not found.
         {state.reason ? ` ${state.reason}` : ""}
       </main>
@@ -535,6 +579,7 @@ export default function DownloadPage() {
   if (stage === "done") {
     return (
       <main className="mesh-gradient relative flex min-h-screen items-center justify-center px-4">
+        <GlobalDownloadBar topOffsetClassName="top-3" compact />
         <Card className="border-border/70 bg-card/92 w-full max-w-sm overflow-hidden shadow-lg">
           <div className="bg-primary h-1.5 w-full" />
           <CardHeader className="pt-7 text-center">
@@ -555,6 +600,7 @@ export default function DownloadPage() {
   if (!fileInfo?.isEncrypted) {
     return (
       <main className="mesh-gradient relative flex min-h-screen items-center justify-center px-4">
+        <GlobalDownloadBar topOffsetClassName="top-3" compact />
         <Card className="border-border/70 bg-card/92 w-full max-w-sm overflow-hidden shadow-lg">
           <div className="bg-primary h-1.5 w-full" />
           <CardHeader className="pt-7 text-center">
@@ -592,6 +638,7 @@ export default function DownloadPage() {
 
   return (
     <main className="mesh-gradient relative min-h-screen px-4 py-8">
+      <GlobalDownloadBar topOffsetClassName="top-3" compact />
       <div className="mx-auto mt-[8vh] w-full max-w-md">
         <Card className="border-border/70 bg-card/92 overflow-hidden shadow-lg">
           <div className="bg-primary h-1.5 w-full" />
