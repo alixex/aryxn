@@ -85,7 +85,7 @@ export function HistoryTable({
     <div className="border-border/90 bg-card/86 w-full overflow-hidden rounded-xl border">
       <div className="w-full overflow-x-auto">
         {/* 固定表头 */}
-        <table className="w-full min-w-[800px] table-fixed text-left text-sm">
+        <table className="w-full min-w-200 table-fixed text-left text-sm">
           <thead className="glass-strong border-border/85 bg-card/88 text-muted-foreground border-b text-[10px] font-semibold tracking-wider uppercase backdrop-blur-md sm:text-xs">
             <tr>
               <th className="w-[30%] px-4 py-3 sm:px-6">
@@ -105,7 +105,7 @@ export function HistoryTable({
               <th className="w-[10%] px-4 py-3 sm:px-6">
                 {t("history.security")}
               </th>
-              <th className="w-[100px] px-4 py-3 text-right sm:px-6">
+              <th className="w-25 px-4 py-3 text-right sm:px-6">
                 {t("history.action")}
               </th>
             </tr>
@@ -115,9 +115,9 @@ export function HistoryTable({
         {/* 滚动区域 */}
         <div
           ref={parentRef}
-          className="custom-scrollbar max-h-[600px] w-full overflow-y-auto"
+          className="custom-scrollbar max-h-150 w-full overflow-y-auto"
         >
-          <table className="w-full min-w-[800px] table-fixed text-left text-sm">
+          <table className="w-full min-w-200 table-fixed text-left text-sm">
             <tbody
               className="divide-border relative divide-y text-xs sm:text-sm"
               style={{
@@ -228,7 +228,7 @@ export function HistoryTable({
                           </span>
                         )}
                       </td>
-                      <td className="w-[100px] px-4 py-3.5 text-right sm:px-6">
+                      <td className="w-25 px-4 py-3.5 text-right sm:px-6">
                         <div className="flex items-center justify-end gap-1 sm:gap-2">
                           <Button
                             variant="ghost"

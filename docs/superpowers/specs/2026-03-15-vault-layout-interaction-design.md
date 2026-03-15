@@ -110,6 +110,17 @@ Rules:
    - Signal: toast error and dialog remains open for retry
 6. Success states:
    - Signal: toast success + visual state reset on relevant forms/dialogs
+7. Network timeout or transient API failure:
+   - Signal: toast error + keep retry path visible for repeatable actions
+   - Action state: loading cleared and controls re-enabled
+8. Mid-execution cancellation or dialog close:
+   - Signal: no success toast, preserve last stable UI state
+   - Action state: require explicit user re-trigger
+
+### 5.1.2 Desktop/Mobile Feedback Policy
+
+1. Desktop: keep inline form errors and allow supplemental toast.
+2. Mobile: keep inline form errors for active forms; toast is supplemental and never the only validation channel.
 
 ## 5.2 Motion System
 
@@ -140,7 +151,7 @@ User-mandated rule:
 Implementation strategy:
 
 1. Use desktop-scoped utility class `md:cursor-pointer` on clickable non-button containers.
-2. Keep native button semantics; add `md:cursor-pointer` for consistency when class composition removes defaults.
+2. Native `button` and `input` elements rely on default browser pointer behavior; only add `md:cursor-pointer` if a reset class removed that behavior.
 3. For custom clickable elements (`div`, `label`, icon wrappers), require both `md:cursor-pointer` and keyboard-accessible behavior.
 4. Use `cursor-default` or no cursor override on mobile-only behavior; do not force pointer below `md`.
 
@@ -202,6 +213,13 @@ Examples of clickable regions to enforce:
 4. Primary action row: cancel and confirm actions grouped with clear visual priority.
 5. Import result summary: success/failure panel with counts and first error line visible without expansion.
 
+Result panel interaction details:
+
+1. Default collapsed state shows status badge, imported counts, and first error line.
+2. `Show details` expands a bounded scroll area listing full errors.
+3. `Hide details` returns to collapsed summary.
+4. Expanded/collapsed state resets when the dialog closes.
+
 ## 7. Accessibility and Usability Considerations
 
 1. Maintain keyboard navigation and focus visibility for all controls.
@@ -246,6 +264,29 @@ Examples of clickable regions to enforce:
 2. Custom toggles and clickable wrappers in add/import sections have `md:cursor-pointer`.
 3. File-select trigger zone in config import has `md:cursor-pointer`.
 4. Mobile rendering does not force pointer-specific class below `md`.
+
+## 8.2 Verification Method and Acceptance Criteria
+
+1. Verification method:
+   - Manual runtime QA for each modified component interaction.
+   - Lint/typecheck for touched files.
+2. Pass criteria:
+   - No new TypeScript or lint errors in touched files.
+   - No console/runtime errors in listed interaction flows.
+   - Active account remains visually distinguishable using marker + border + surface tint.
+   - Pointer checklist passes on desktop and pointer is not forced below `md`.
+3. Manual scenario checklist:
+   - Select active/inactive account and validate state transitions.
+   - Copy address from multiple account cards.
+   - Trigger wrong-password import and verify inline + toast feedback.
+   - Open/close dialogs in idle and loading states.
+   - Verify file trigger affordance and pointer policy on desktop.
+
+## 8.3 Shared Utility Audit
+
+1. Before implementation, audit whether repeated style patterns require shared extraction.
+2. Keep styles component-local if repetition is below 3 components.
+3. If extraction is needed, create one minimal shared utility for card shell/motion/pointer patterns only.
 
 ## 9. Risks and Mitigations
 
