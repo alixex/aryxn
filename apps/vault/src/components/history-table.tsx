@@ -8,10 +8,9 @@ import {
   Loader2,
   Shield,
 } from "lucide-react"
-import { useState, useRef } from "react"
+import { useState } from "react"
 import { toast } from "sonner"
 import { useTranslation } from "@/i18n/config"
-import { useVirtualizer, type VirtualItem } from "@tanstack/react-virtual"
 import {
   formatFileSize,
   formatDateTime,
@@ -30,15 +29,6 @@ export function HistoryTable({
 }) {
   const { t } = useTranslation()
   const [downloading, setDownloading] = useState<string | null>(null)
-
-  const parentRef = useRef<HTMLDivElement>(null)
-
-  const rowVirtualizer = useVirtualizer({
-    count: records.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 64, // 估计行高 64px
-    overscan: 5,
-  })
 
   const handleDownload = async (
     record: UploadRecord,
@@ -125,7 +115,6 @@ export function HistoryTable({
   return (
     <div className="border-border/90 bg-card/86 w-full overflow-hidden rounded-xl border">
       <div className="w-full overflow-x-auto">
-        {/* 固定表头 */}
         <table className="w-full min-w-200 table-fixed text-left text-sm">
           <thead className="glass-strong border-border/85 bg-card/88 text-muted-foreground border-b text-[10px] font-semibold tracking-wider uppercase backdrop-blur-md sm:text-xs">
             <tr>
@@ -151,35 +140,13 @@ export function HistoryTable({
               </th>
             </tr>
           </thead>
-        </table>
-
-        {/* 滚动区域 */}
-        <div
-          ref={parentRef}
-          className="custom-scrollbar max-h-150 w-full overflow-y-auto"
-        >
-          <table className="w-full min-w-200 table-fixed text-left text-sm">
-            <tbody
-              className="divide-border relative divide-y text-xs sm:text-sm"
-              style={{
-                height: `${rowVirtualizer.getTotalSize()}px`,
-                display: "block",
-              }}
-            >
-              {rowVirtualizer
-                .getVirtualItems()
-                .map((virtualRow: VirtualItem) => {
-                  const r = records[virtualRow.index]
-                  return (
-                    <tr
-                      key={virtualRow.key}
-                      data-index={virtualRow.index}
-                      ref={rowVirtualizer.measureElement}
-                      className="group absolute flex w-full items-center transition-colors duration-150 hover:bg-[hsl(var(--accent)/0.55)]"
-                      style={{
-                        transform: `translateY(${virtualRow.start}px)`,
-                      }}
-                    >
+          <tbody className="divide-border divide-y text-xs sm:text-sm">
+            {records.map((r) => {
+              return (
+                <tr
+                  key={r.txId}
+                  className="group transition-colors duration-150 hover:bg-[hsl(var(--accent)/0.55)]"
+                >
                       {/* 文件名 */}
                       <td
                         className="text-foreground w-[30%] truncate px-4 py-3.5 font-semibold sm:px-6"
@@ -411,19 +378,21 @@ export function HistoryTable({
                           )}
                         </div>
                       </td>
-                    </tr>
-                  )
-                })}
-              {records.length === 0 && (
-                <tr className="flex w-full items-center justify-center pt-12">
-                  <td className="text-muted-foreground w-full px-4 text-center text-sm font-medium italic sm:px-6">
-                    {t("history.noRecords")}
-                  </td>
                 </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+              )
+            })}
+            {records.length === 0 && (
+              <tr>
+                <td
+                  className="text-muted-foreground px-4 py-10 text-center text-sm font-medium italic sm:px-6"
+                  colSpan={8}
+                >
+                  {t("history.noRecords")}
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   )

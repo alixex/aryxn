@@ -256,7 +256,7 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 gap-6 sm:gap-8">
           <div className="w-full">
             <Card className="animate-fade-in-down border-border/90 bg-card/82 border transition-all duration-300">
-              <CardHeader className="bg-card/92 border-border/85 sticky top-16 z-20 flex flex-col space-y-4 border-b p-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 sm:p-6">
+              <CardHeader className="bg-card/92 border-border/85 flex flex-col space-y-4 border-b p-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 sm:p-6">
                 <div className="space-y-1">
                   <CardTitle className="flex items-center gap-2 text-lg font-semibold sm:text-xl">
                     <History className="text-foreground h-5 w-5" />
@@ -318,7 +318,7 @@ export default function DashboardPage() {
                     }
                   />
                 ) : (
-                  <div className="mb-4 flex flex-col items-center gap-4 overflow-x-auto sm:mb-2">
+                  <div className="mb-4 flex flex-col items-center gap-4 sm:mb-2">
                     <HistoryTable
                       records={uploadHistory || []}
                       masterKey={walletManager.masterKey}
