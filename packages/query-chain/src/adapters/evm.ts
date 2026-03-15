@@ -10,7 +10,7 @@ import {
   TransactionTypes,
   TransactionStatuses,
   RPCs,
-} from "@aryxn/chain-constants"
+} from "@alixex/chain-constants"
 
 interface BlockscoutTx {
   hash: string

@@ -1,4 +1,4 @@
-# @aryxn/arweave
+# @alixex/arweave
 
 Aryxn 的简化版 Arweave 协议封装库，移除了对于特定 Tags (标签) 的硬编码。该包专注于文件上传、交易签名和费用估算，依赖应用层提供具体的元数据标签。
 
@@ -38,7 +38,7 @@ Aryxn 的简化版 Arweave 协议封装库，移除了对于特定 Tags (标签)
 ### 上传与压缩
 
 ```typescript
-import { uploadToArweave, estimateArweaveFee } from "@aryxn/arweave"
+import { uploadToArweave, estimateArweaveFee } from "@alixex/arweave"
 
 // 估算费用
 const fee = await estimateArweaveFee(fileSize)
@@ -55,7 +55,7 @@ const txId = await uploadToArweave(data, walletKey, [
 import {
   searchArweaveTransactionsNetwork,
   searchAppTransactions,
-} from "@aryxn/arweave"
+} from "@alixex/arweave"
 
 // 搜索特定应用的交易
 const arweaveResults = await searchAppTransactions("Aryxn", "文件名", 50)
@@ -84,7 +84,7 @@ results.forEach((tx) => {
 import {
   searchArweaveTransactionsNetwork,
   getSearchCache,
-} from "@aryxn/arweave"
+} from "@alixex/arweave"
 
 // 使用缓存（默认行为）
 const results = await searchArweaveTransactionsNetwork({

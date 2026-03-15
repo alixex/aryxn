@@ -1,4 +1,4 @@
-import { fromBase64, toBase64 } from "@aryxn/crypto"
+import { fromBase64, toBase64 } from "@alixex/crypto"
 
 const UNLOCK_SESSION_STORAGE_KEY = "vault_unlock_session_v1"
 const DEFAULT_TTL_MS = 1000 * 60 * 60 * 24 * 7

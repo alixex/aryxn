@@ -45,7 +45,7 @@ type PaymentToken =
 ### 场景 1: 代币配置查询（常量包）
 
 ```typescript
-import { PaymentTokenMetadata } from "@aryxn/chain-constants"
+import { PaymentTokenMetadata } from "@alixex/chain-constants"
 
 const ethConfig = PaymentTokenMetadata["ETH"]
 // => {
@@ -70,7 +70,7 @@ const tokens = getUploadSelectableTokens()
 
 ## 代币配置（来源）
 
-`TOKEN_CONFIG` 在 `@/lib/payment` 中导出，但底层数据源来自 `@aryxn/chain-constants` 包的 `PaymentTokenMetadata`，避免多处重复维护。
+`TOKEN_CONFIG` 在 `@/lib/payment` 中导出，但底层数据源来自 `@alixex/chain-constants` 包的 `PaymentTokenMetadata`，避免多处重复维护。
 
 ```typescript
 interface TokenConfig {
@@ -135,7 +135,7 @@ const config = TOKEN_CONFIG[token]
 ✅ **推荐**
 
 ```typescript
-// 先验证支持的代币（数据来源于 @aryxn/chain-constants）
+// 先验证支持的代币（数据来源于 @alixex/chain-constants）
 if (!TOKEN_CONFIG[selectedToken]) {
   throw new Error("不支持的代币")
 }
@@ -163,7 +163,7 @@ Payment 服务与页面层协作方式：
 
 - `@/hooks/useBridge` - 跨链桥接状态与恢复动作
 - `@/lib/chain` - 多链工具
-- `@aryxn/chain-constants` - 共享链/代币常量与上传支付配置
+- `@alixex/chain-constants` - 共享链/代币常量与上传支付配置
 - CoinGecko API - 历史汇率数据
 
 ## 设计原则

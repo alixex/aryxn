@@ -1,11 +1,11 @@
-# @aryxn/swap-ethereum
+# @alixex/swap-ethereum
 
 Aryxn 万能路由的以太坊交换 SDK，支持 Uniswap V2/V3、Aerodrome 以及多链自动路由逻辑。
 
 ## 安装
 
 ```bash
-pnpm add @aryxn/swap-ethereum
+pnpm add @alixex/swap-ethereum
 ```
 
 ## 使用方法
@@ -13,7 +13,7 @@ pnpm add @aryxn/swap-ethereum
 ### 1. 初始化
 
 ```typescript
-import { EthereumSwapper, CHAIN_CONFIGS } from "@aryxn/swap-ethereum"
+import { EthereumSwapper, CHAIN_CONFIGS } from "@alixex/swap-ethereum"
 
 // 轻松获取不同链的 WETH/USDC 地址预设
 const baseConfig = CHAIN_CONFIGS.BASE

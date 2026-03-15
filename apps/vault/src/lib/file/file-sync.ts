@@ -4,14 +4,14 @@
  */
 
 import { db } from "@/lib/database"
-import { RPCs } from "@aryxn/chain-constants"
+import { RPCs } from "@alixex/chain-constants"
 import { searchFiles } from "./file-manager"
 import {
   MANIFEST_APP_NAME,
   MANIFEST_VERSION,
   INCREMENTAL_MANIFEST_VERSION,
 } from "@/lib/config"
-import type { WalletKey, ArweaveJWK } from "@aryxn/wallet-core"
+import type { WalletKey, ArweaveJWK } from "@alixex/wallet-core"
 import { uploadToArweave } from "@/lib/storage"
 
 /**

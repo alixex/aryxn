@@ -2,7 +2,7 @@
  * ABI definitions for MultiHopSwapper and ERC20 contracts
  */
 
-import type { Abi } from "@aryxn/wallet-core"
+import type { Abi } from "@alixex/wallet-core"
 
 /**
  * MultiHopSwapper Contract ABI

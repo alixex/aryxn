@@ -16,7 +16,7 @@ import { useWallet } from "@/hooks/account-hooks"
 import { useEffect, useMemo, useState } from "react"
 import { getBalance } from "@/lib/chain"
 import { getTokenAddressOnChain } from "@/lib/contracts/token-config"
-import { Chains, ChainIds } from "@aryxn/chain-constants"
+import { Chains, ChainIds } from "@alixex/chain-constants"
 
 interface PaymentTokenSelectorProps {
   selectedToken: PaymentToken

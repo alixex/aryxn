@@ -1,1 +1,1 @@
-export { getStorageInfo } from "@aryxn/storage"
+export { getStorageInfo } from "@alixex/storage"

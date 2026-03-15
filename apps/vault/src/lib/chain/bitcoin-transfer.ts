@@ -4,7 +4,7 @@ import {
   getBitcoinAddressFromWIF,
   isValidBitcoinAddress,
   type BitcoinUtxoInput,
-} from "@aryxn/crypto"
+} from "@alixex/crypto"
 import { getBitcoinApiUrl } from "@/lib/chain"
 
 interface BitcoinFeeEstimates {

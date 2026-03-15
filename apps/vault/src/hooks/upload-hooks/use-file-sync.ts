@@ -2,7 +2,7 @@ import { useState, useCallback } from "react"
 import { toast } from "sonner"
 import { useWallet } from "@/hooks/account-hooks"
 import { syncFilesFromArweaveDirect } from "@/lib/file"
-import { Chains } from "@aryxn/chain-constants"
+import { Chains } from "@alixex/chain-constants"
 
 export function useFileSync() {
   const wallet = useWallet()

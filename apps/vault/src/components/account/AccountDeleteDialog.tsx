@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 import { AlertTriangle, Trash2 } from "lucide-react"
-import { Chains } from "@aryxn/chain-constants"
+import { Chains } from "@alixex/chain-constants"
 import { useTranslation } from "@/i18n/config"
 import { Button } from "@/components/ui/button"
 import {

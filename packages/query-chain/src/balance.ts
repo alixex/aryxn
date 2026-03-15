@@ -1,7 +1,7 @@
 import {
   getBalance as getCoreBalance,
   type BalanceResult,
-} from "@aryxn/wallet-core"
+} from "@alixex/wallet-core"
 import { getRpcUrlForChain } from "./rpc"
 
 export type { BalanceResult }

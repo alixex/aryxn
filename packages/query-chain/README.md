@@ -1,4 +1,4 @@
-# @aryxn/sdk-history
+# @alixex/sdk-history
 
 A unified multi-chain transaction history indexer for Aryxn applications.
 
@@ -26,13 +26,13 @@ This package provides a standardized interface to fetch transaction history from
 ## Installation
 
 ```bash
-pnpm add @aryxn/sdk-history
+pnpm add @alixex/sdk-history
 ```
 
 ## Usage
 
 ```typescript
-import { AggregateHistoryProvider, ChainRecord } from "@aryxn/sdk-history"
+import { AggregateHistoryProvider, ChainRecord } from "@alixex/sdk-history"
 
 // Initialize the provider
 // Note: EVM RPC URL can be provided but currently uses Blockscout API directly

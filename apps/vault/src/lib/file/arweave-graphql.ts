@@ -1,4 +1,4 @@
-import { RPCs } from "@aryxn/chain-constants"
+import { RPCs } from "@alixex/chain-constants"
 
 const GRAPHQL_GATEWAYS = [
   RPCs.ARWEAVE_GATEWAY, // https://arweave.net/graphql

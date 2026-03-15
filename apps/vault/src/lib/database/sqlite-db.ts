@@ -6,7 +6,7 @@ export {
   getOpfsFilesWithSize,
   initDatabase,
   initializeDatabase,
-} from "@aryxn/storage"
+} from "@alixex/storage"
 
 // The unified db object with schema support
 export const db = {

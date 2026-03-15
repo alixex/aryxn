@@ -1,11 +1,11 @@
-# @aryxn/sdk-solana
+# @alixex/sdk-solana
 
 Aryxn 万能路由的 Solana 交换 SDK，原生集成 Jupiter Aggregator v6。
 
 ## 安装
 
 ```bash
-pnpm add @aryxn/sdk-solana
+pnpm add @alixex/sdk-solana
 ```
 
 ## 使用方法
@@ -13,7 +13,7 @@ pnpm add @aryxn/sdk-solana
 ### 1. 初始化
 
 ```typescript
-import { SolanaSwapper } from "@aryxn/sdk-solana"
+import { SolanaSwapper } from "@alixex/sdk-solana"
 
 const swapper = new SolanaSwapper({
   rpcUrl: "https://api.mainnet-beta.solana.com",

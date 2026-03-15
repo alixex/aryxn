@@ -4,7 +4,7 @@ import {
   UploadSelectablePaymentTokens,
   UploadSelectableTokensByAccountChain,
   UploadTokenNativeChainBySymbol,
-} from "@aryxn/chain-constants"
+} from "@alixex/chain-constants"
 import type { PaymentToken, UploadRedirectAction } from "./types"
 
 export interface UploadPaymentConfig {

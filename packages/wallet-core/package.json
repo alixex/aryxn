@@ -1,5 +1,5 @@
 {
-  "name": "@aryxn/wallet-core",
+  "name": "@alixex/wallet-core",
   "version": "1.0.0",
   "description": "Multi-chain wallet logic and core types for Aryxn",
   "main": "src/index.ts",
@@ -14,8 +14,8 @@
     "dist"
   ],
   "dependencies": {
-    "@aryxn/chain-constants": "workspace:*",
-    "@aryxn/crypto": "workspace:*",
-    "@aryxn/storage": "workspace:*"
+    "@alixex/chain-constants": "workspace:*",
+    "@alixex/crypto": "workspace:*",
+    "@alixex/storage": "workspace:*"
   }
 }

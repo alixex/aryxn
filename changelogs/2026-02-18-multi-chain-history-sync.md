@@ -16,7 +16,7 @@ Implement an on-chain history discovery mechanism that:
 - Deduplicates entries to ensure a clean, unified list.
 - Persists found records locally to avoid redundant heavy API calls.
 
-## 3. Architecture: `@aryxn/sdk-history`
+## 3. Architecture: `@alixex/sdk-history`
 
 We will introduce a new package centered around an `AggregateHistoryProvider`.
 
@@ -71,7 +71,7 @@ To prevent UI jank and excessive memory usage, the sync process will follow thes
 sequenceDiagram
     participant UI as DEX UI
     participant Store as useBridgeHistory
-    participant SDK as @aryxn/sdk-history
+    participant SDK as @alixex/sdk-history
     participant RPC as Multi-Chain Nodes
 
     UI->>Store: OnMount
@@ -94,7 +94,7 @@ sequenceDiagram
 
 ## 6. Implementation Stages
 
-1. **Initial Setup**: Create `@aryxn/sdk-history` with an event-driven or callback-based querying interface.
+1. **Initial Setup**: Create `@alixex/sdk-history` with an event-driven or callback-based querying interface.
 2. **Idle Wrapper**: Implement a utility to wrap fetchers in `requestIdleCallback`.
 3. **Incremental Store Updates**: Update `useBridgeHistory` to handle per-item additions without re-filtering the entire list.
 4. **UI Integration**: Show live progress indicator (e.g., "Found 12 records...").

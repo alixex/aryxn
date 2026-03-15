@@ -33,7 +33,7 @@
 ```typescript
 // apps/web/src/lib/bridge/route-types.ts
 
-import type { Address } from "@aryxn/wallet-core"
+import type { Address } from "@alixex/wallet-core"
 
 /**
  * Request to query bridge routes
@@ -174,7 +174,7 @@ export interface BridgeSwapState {
 
 **Step 2: Verify TypeScript compiles**
 
-Run: `pnpm --filter=@aryxn/web type-check`
+Run: `pnpm --filter=@alixex/web type-check`
 Expected: PASS
 
 **Step 3: Commit**
@@ -391,7 +391,7 @@ export function getRetryDelay(attemptNumber: number): number {
 
 **Step 2: Verify TypeScript compiles**
 
-Run: `pnpm --filter=@aryxn/web type-check`
+Run: `pnpm --filter=@alixex/web type-check`
 Expected: PASS
 
 **Step 3: Commit**
@@ -748,7 +748,7 @@ export function getLiFiClient(): LiFiClient {
 
 **Step 2: Verify TypeScript compiles**
 
-Run: `pnpm --filter=@aryxn/web type-check`
+Run: `pnpm --filter=@alixex/web type-check`
 Expected: PASS
 
 **Step 3: Commit**
@@ -774,7 +774,7 @@ git commit -m "feat: add Li.Fi API client wrapper"
 ```typescript
 // apps/web/src/lib/store/bridge-swap-repo.ts
 
-import { getDb } from "@aryxn/storage"
+import { getDb } from "@alixex/storage"
 import type { BridgeSwapRecord } from "@/lib/bridge/route-types"
 
 /**
@@ -958,7 +958,7 @@ export async function clearBridgeSwapHistory(): Promise<void> {
 
 **Step 2: Verify TypeScript compiles**
 
-Run: `pnpm --filter=@aryxn/web type-check`
+Run: `pnpm --filter=@alixex/web type-check`
 Expected: PASS
 
 **Step 3: Commit**
@@ -1028,7 +1028,7 @@ listBridgeSwaps: async () => {
 
 **Step 2: Verify TypeScript compiles**
 
-Run: `pnpm --filter=@aryxn/web type-check`
+Run: `pnpm --filter=@alixex/web type-check`
 Expected: PASS
 
 **Step 3: Commit**
@@ -1158,7 +1158,7 @@ export function useLiFiRoute(
 
 **Step 2: Verify TypeScript compiles**
 
-Run: `pnpm --filter=@aryxn/web type-check`
+Run: `pnpm --filter=@alixex/web type-check`
 Expected: PASS (may need to install use-debounce if not present)
 
 **Step 3: Commit**
@@ -1414,7 +1414,7 @@ export function useBridgeSwap(
 
 **Step 2: Verify TypeScript compiles**
 
-Run: `pnpm --filter=@aryxn/web type-check`
+Run: `pnpm --filter=@alixex/web type-check`
 Expected: May have warnings about wagmi usage, but should compile
 
 **Step 3: Commit**
@@ -1490,7 +1490,7 @@ const [outputChain, setOutputChain] = useState<string | null>(null)
 
 **Step 3: Verify TypeScript compiles**
 
-Run: `pnpm --filter=@aryxn/web type-check`
+Run: `pnpm --filter=@alixex/web type-check`
 Expected: PASS
 
 **Step 4: Commit**
@@ -1640,7 +1640,7 @@ export function BridgePreview({ route, loading, error }: BridgePreviewProps) {
 
 **Step 2: Verify TypeScript compiles**
 
-Run: `pnpm --filter=@aryxn/web type-check`
+Run: `pnpm --filter=@alixex/web type-check`
 Expected: PASS
 
 **Step 3: Commit**

@@ -1,5 +1,5 @@
 import { ExchangeRouter } from "./router"
-import { AggregateHistoryProvider } from "@aryxn/query-chain"
+import { AggregateHistoryProvider } from "@alixex/query-chain"
 import type { ExchangeConfig } from "./types"
 
 export class ExchangeSDK {

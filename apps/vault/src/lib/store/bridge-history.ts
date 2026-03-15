@@ -1,6 +1,6 @@
 import { create } from "zustand"
-import { AppSyncChains } from "@aryxn/chain-constants"
-import { AggregateHistoryProvider, type ChainRecord } from "@aryxn/query-chain"
+import { AppSyncChains } from "@alixex/chain-constants"
+import { AggregateHistoryProvider, type ChainRecord } from "@alixex/query-chain"
 import { getEthereumRpcUrl } from "@/lib/chain"
 import {
   clearBridgeTransactions,

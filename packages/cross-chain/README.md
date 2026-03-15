@@ -1,11 +1,11 @@
-# @aryxn/cross-chain
+# @alixex/cross-chain
 
 Cross-chain bridge toolkit for Aryxn, built around Li.Fi routing/execution with status tracking, simulation, and recovery helpers.
 
 ## Installation
 
 ```bash
-pnpm add @aryxn/cross-chain
+pnpm add @alixex/cross-chain
 ```
 
 ## API Usage
@@ -15,7 +15,7 @@ This package is primarily consumed via `liFiBridgeService`, `BridgeStatusTracker
 ### 1) Build route, estimate cost/risk
 
 ```typescript
-import { liFiBridgeService, type BridgeRouteParams } from "@aryxn/cross-chain"
+import { liFiBridgeService, type BridgeRouteParams } from "@alixex/cross-chain"
 
 const params: BridgeRouteParams = {
   fromChain: 1,
@@ -36,7 +36,7 @@ const risk = await liFiBridgeService.assessRisk(route)
 ### 2) Execute route with signer
 
 ```typescript
-import { liFiBridgeService } from "@aryxn/cross-chain"
+import { liFiBridgeService } from "@alixex/cross-chain"
 import type { Signer } from "ethers"
 
 const txHash = await liFiBridgeService.executeBridgeTransaction(
@@ -48,7 +48,7 @@ const txHash = await liFiBridgeService.executeBridgeTransaction(
 ### 3) Check bridge status (manual refresh flow)
 
 ```typescript
-import { BridgeStatusTracker } from "@aryxn/cross-chain"
+import { BridgeStatusTracker } from "@alixex/cross-chain"
 
 if (BridgeStatusTracker.canRefresh(txHash)) {
   const info = await BridgeStatusTracker.checkStatus(
@@ -63,7 +63,7 @@ if (BridgeStatusTracker.canRefresh(txHash)) {
 ### 4) Recovery flow (retry / claim guidance / speed up)
 
 ```typescript
-import { BridgeRecovery } from "@aryxn/cross-chain"
+import { BridgeRecovery } from "@alixex/cross-chain"
 
 const recoverable = await BridgeRecovery.isRecoverable(
   txHash,
@@ -81,7 +81,7 @@ const rec = await BridgeRecovery.getRecommendations(
 ### 5) Simulate route before execution
 
 ```typescript
-import { simulateBridgeRoute } from "@aryxn/cross-chain"
+import { simulateBridgeRoute } from "@alixex/cross-chain"
 
 const simulation = await simulateBridgeRoute(route)
 if (simulation.status === "FAILED") {
@@ -96,7 +96,7 @@ import {
   validateAddress,
   getChainIdFromName,
   getAddressPlaceholder,
-} from "@aryxn/cross-chain"
+} from "@alixex/cross-chain"
 
 const chainId = getChainIdFromName("ethereum")
 const isValid = chainId ? validateAddress("0x...", chainId) : false

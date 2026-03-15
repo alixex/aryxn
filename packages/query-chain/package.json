@@ -1,5 +1,5 @@
 {
-  "name": "@aryxn/query-chain",
+  "name": "@alixex/query-chain",
   "version": "1.0.0",
   "description": "Multi-chain history indexer and synchronization SDK",
   "main": "src/index.ts",
@@ -10,7 +10,7 @@
     "type-check": "tsc -b --noEmit"
   },
   "dependencies": {
-    "@aryxn/chain-constants": "workspace:*",
-    "@aryxn/wallet-core": "workspace:*"
+    "@alixex/chain-constants": "workspace:*",
+    "@alixex/wallet-core": "workspace:*"
   }
 }

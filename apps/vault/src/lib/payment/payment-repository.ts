@@ -1,6 +1,6 @@
 import { db } from "@/lib/database"
 import type { PaymentIntent, PaymentStatus } from "./types"
-import { type DbRow } from "@aryxn/storage"
+import { type DbRow } from "@alixex/storage"
 
 type PaymentIntentRow = DbRow & {
   id: string

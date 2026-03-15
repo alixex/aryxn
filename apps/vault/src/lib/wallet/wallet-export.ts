@@ -3,7 +3,7 @@
  * 用于处理不同链类型的私钥和助记词导出
  */
 
-import { Chains } from "@aryxn/chain-constants"
+import { Chains } from "@alixex/chain-constants"
 
 export type ChainType =
   | typeof Chains.ETHEREUM

@@ -259,7 +259,7 @@ await db.run("DELETE FROM wallets WHERE ...")
 
 ## 依赖关系
 
-- `@aryxn/storage` - 数据库接口定义
+- `@alixex/storage` - 数据库接口定义
 - SQLite 3 - 通过 sql.js 或原生驱动
 
 ## 设计原则

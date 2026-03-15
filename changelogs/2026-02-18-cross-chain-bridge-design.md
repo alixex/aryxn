@@ -14,7 +14,7 @@ Implement a production-ready cross-chain bridge feature using Li.Fi aggregator a
 ### Current State
 
 - BridgeCard UI exists but uses mock implementation
-- `@aryxn/cross-chain` package is a placeholder
+- `@alixex/cross-chain` package is a placeholder
 - No real cross-chain functionality
 
 ### Problems
@@ -56,7 +56,7 @@ Implement a production-ready cross-chain bridge feature using Li.Fi aggregator a
                          │
                          ▼
 ┌─────────────────────────────────────────────────────────────┐
-│         LiFiBridgeService (@aryxn/cross-chain)              │
+│         LiFiBridgeService (@alixex/cross-chain)              │
 │                                                             │
 │  Smart Router:                                              │
 │  ├─ Small amounts (< $1K): Li.Fi default                   │

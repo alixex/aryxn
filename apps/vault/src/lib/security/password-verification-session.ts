@@ -1,4 +1,4 @@
-import { toBase64 } from "@aryxn/crypto"
+import { toBase64 } from "@alixex/crypto"
 
 const SESSION_STORAGE_KEY = "vault_password_verification_session_v1"
 const SESSION_PROOF_MARKER = "vault-password-verification-proof-v1"

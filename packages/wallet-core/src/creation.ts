@@ -10,7 +10,7 @@ import {
   deriveEd25519Key,
   deriveBitcoinAccount,
   toBase58,
-} from "@aryxn/crypto"
+} from "@alixex/crypto"
 
 export async function createWallet(
   chain: WalletRecord["chain"],

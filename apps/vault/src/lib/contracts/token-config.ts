@@ -2,8 +2,8 @@
  * Token configuration and utility functions
  */
 
-import type { Address } from "@aryxn/wallet-core"
-import { ChainIds } from "@aryxn/chain-constants"
+import type { Address } from "@alixex/wallet-core"
+import { ChainIds } from "@alixex/chain-constants"
 import { TOKEN_MAPPING } from "./addresses"
 
 /**

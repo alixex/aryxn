@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { AccountChains } from "@aryxn/chain-constants"
+import { AccountChains } from "@alixex/chain-constants"
 import { useTranslation } from "@/i18n/config"
 import { useWallet, useAccounts } from "@/hooks/account-hooks"
 import { toast } from "sonner"

@@ -1,4 +1,4 @@
-# @aryxn/sdk-multichain
+# @alixex/sdk-multichain
 
 Unified Multichain Swapper SDK for seamless trading across Solana and Ethereum.
 
@@ -11,7 +11,7 @@ Unified Multichain Swapper SDK for seamless trading across Solana and Ethereum.
 ## Installation
 
 ```bash
-pnpm add @aryxn/sdk-multichain
+pnpm add @alixex/sdk-multichain
 ```
 
 ## Quick Start
@@ -19,7 +19,7 @@ pnpm add @aryxn/sdk-multichain
 ### 1. Initialization
 
 ```typescript
-import { MultiChainSwapper } from "@aryxn/sdk-multichain"
+import { MultiChainSwapper } from "@alixex/sdk-multichain"
 
 const swapper = new MultiChainSwapper({
   ethereumRpcUrl: "https://mainnet.infura.io/v3/...",

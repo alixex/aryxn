@@ -1,6 +1,6 @@
 // apps/web/src/lib/store/bridge-swap-repo.ts
 
-import { type DbRow } from "@aryxn/storage"
+import { type DbRow } from "@alixex/storage"
 import { db } from "@/lib/database"
 import type { BridgeSwapRecord } from "@/lib/bridge/route-types"
 

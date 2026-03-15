@@ -1,5 +1,5 @@
-import { irysService } from "@aryxn/arweave"
-import { normalizeTokenToIrysName } from "@aryxn/chain-constants"
+import { irysService } from "@alixex/arweave"
+import { normalizeTokenToIrysName } from "@alixex/chain-constants"
 
 const NATIVE_PAYMENT_TOKENS = new Set(["AR", "ETH", "SOL", "USDC"])
 

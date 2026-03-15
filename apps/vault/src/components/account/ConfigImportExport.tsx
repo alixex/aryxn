@@ -2,7 +2,7 @@ import { useState, useRef } from "react"
 import { useTranslation } from "@/i18n/config"
 import { useInternal } from "@/hooks/account-hooks"
 import { toast } from "sonner"
-import { Chains } from "@aryxn/chain-constants"
+import { Chains } from "@alixex/chain-constants"
 import {
   Download,
   Upload,
@@ -32,7 +32,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { deriveKey } from "@aryxn/crypto"
+import { deriveKey } from "@alixex/crypto"
 import {
   exportConfig,
   importConfig,

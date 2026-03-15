@@ -11,7 +11,7 @@ export type {
   Abi,
   PublicKey,
   SuiClient,
-} from "@aryxn/wallet-core"
+} from "@alixex/wallet-core"
 
 export {
   initArweave,
@@ -38,4 +38,4 @@ export {
   formatSuiBalance,
   parseSuiAmount,
   getFullnodeUrl,
-} from "@aryxn/wallet-core"
+} from "@alixex/wallet-core"

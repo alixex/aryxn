@@ -8,9 +8,9 @@ import {
   fromBase64,
   decryptData,
   fromBytes,
-} from "@aryxn/crypto"
+} from "@alixex/crypto"
 import { db } from "@/lib/database"
-import type { WalletRecord } from "@aryxn/wallet-core"
+import type { WalletRecord } from "@alixex/wallet-core"
 import {
   saveVaultUnlockSession,
   loadVaultUnlockSession,

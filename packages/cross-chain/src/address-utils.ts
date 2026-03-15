@@ -4,7 +4,7 @@ import {
   ChainIds,
   ChainNameToId,
   EvmChainIds,
-} from "@aryxn/chain-constants"
+} from "@alixex/chain-constants"
 
 /**
  * Validate blockchain address format

@@ -1,4 +1,4 @@
-import { CHAIN_ICONS as LOCAL_ICONS } from "@aryxn/chain-constants"
+import { CHAIN_ICONS as LOCAL_ICONS } from "@alixex/chain-constants"
 
 export const CHAIN_ICONS: Record<string, string> = LOCAL_ICONS
 

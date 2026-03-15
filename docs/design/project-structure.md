@@ -112,11 +112,11 @@ aryxn/
 
 ```
 apps/web
-├── @aryxn/sdk-multichain
-│   ├── @aryxn/sdk-ethereum
-│   │   └── @aryxn/contracts-ethereum (ABI)
-│   └── @aryxn/sdk-solana
-│       └── @aryxn/contracts-solana (IDL)
+├── @alixex/sdk-multichain
+│   ├── @alixex/sdk-ethereum
+│   │   └── @alixex/contracts-ethereum (ABI)
+│   └── @alixex/sdk-solana
+│       └── @alixex/contracts-solana (IDL)
 ```
 
 ---
@@ -144,19 +144,19 @@ packages:
   "license": "AGPL-3.0-or-later",
   "packageManager": "pnpm@10.28.1",
   "scripts": {
-    "dev": "pnpm --filter=@aryxn/vault dev",
-    "build": "pnpm --filter=@aryxn/vault build",
-    "build:contracts": "pnpm --filter='@aryxn/contracts-*' build",
-    "build:sdk": "pnpm --filter='@aryxn/sdk-*' build",
+    "dev": "pnpm --filter=@alixex/vault dev",
+    "build": "pnpm --filter=@alixex/vault build",
+    "build:contracts": "pnpm --filter='@alixex/contracts-*' build",
+    "build:sdk": "pnpm --filter='@alixex/sdk-*' build",
     "build:all": "pnpm build:contracts && pnpm build:sdk && pnpm build",
 
-    "test:web": "pnpm --filter=@aryxn/vault test",
-    "test:ethereum": "pnpm --filter=@aryxn/contracts-ethereum test",
-    "test:solana": "pnpm --filter=@aryxn/contracts-solana test",
+    "test:web": "pnpm --filter=@alixex/vault test",
+    "test:ethereum": "pnpm --filter=@alixex/contracts-ethereum test",
+    "test:solana": "pnpm --filter=@alixex/contracts-solana test",
     "test:all": "pnpm test:web && pnpm test:ethereum && pnpm test:solana",
 
-    "deploy:ethereum": "pnpm --filter=@aryxn/contracts-ethereum deploy",
-    "deploy:solana": "pnpm --filter=@aryxn/contracts-solana deploy",
+    "deploy:ethereum": "pnpm --filter=@alixex/contracts-ethereum deploy",
+    "deploy:solana": "pnpm --filter=@alixex/contracts-solana deploy",
 
     "lint": "pnpm --filter='./apps/*' lint",
     "format": "prettier --write .",
@@ -169,7 +169,7 @@ packages:
 
 ```json
 {
-  "name": "@aryxn/contracts-ethereum",
+  "name": "@alixex/contracts-ethereum",
   "version": "1.0.0",
   "description": "Ethereum smart contracts for multi-hop swaps",
   "license": "MIT",
@@ -190,7 +190,7 @@ packages:
 
 ```json
 {
-  "name": "@aryxn/contracts-solana",
+  "name": "@alixex/contracts-solana",
   "version": "1.0.0",
   "description": "Solana programs for multi-hop swaps",
   "license": "MIT",
@@ -211,7 +211,7 @@ packages:
 
 ```json
 {
-  "name": "@aryxn/sdk-ethereum",
+  "name": "@alixex/sdk-ethereum",
   "version": "1.0.0",
   "description": "TypeScript SDK for Ethereum swaps",
   "main": "dist/index.js",
@@ -227,7 +227,7 @@ packages:
     "ethers": "^6.16.0"
   },
   "devDependencies": {
-    "@aryxn/contracts-ethereum": "workspace:*",
+    "@alixex/contracts-ethereum": "workspace:*",
     "typescript": "~5.9.3"
   },
   "files": ["dist"]
@@ -238,7 +238,7 @@ packages:
 
 ```json
 {
-  "name": "@aryxn/sdk-solana",
+  "name": "@alixex/sdk-solana",
   "version": "1.0.0",
   "description": "TypeScript SDK for Solana swaps",
   "main": "dist/index.js",
@@ -255,7 +255,7 @@ packages:
     "@solana/web3.js": "^1.98.4"
   },
   "devDependencies": {
-    "@aryxn/contracts-solana": "workspace:*",
+    "@alixex/contracts-solana": "workspace:*",
     "typescript": "~5.9.3"
   },
   "files": ["dist"]
@@ -266,7 +266,7 @@ packages:
 
 ```json
 {
-  "name": "@aryxn/sdk-multichain",
+  "name": "@alixex/sdk-multichain",
   "version": "1.0.0",
   "description": "Unified SDK for cross-chain swaps",
   "main": "dist/index.js",
@@ -279,8 +279,8 @@ packages:
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@aryxn/sdk-ethereum": "workspace:*",
-    "@aryxn/sdk-solana": "workspace:*"
+    "@alixex/sdk-ethereum": "workspace:*",
+    "@alixex/sdk-solana": "workspace:*"
   },
   "devDependencies": {
     "typescript": "~5.9.3"
@@ -293,7 +293,7 @@ packages:
 
 ```json
 {
-  "name": "@aryxn/vault",
+  "name": "@alixex/vault",
   "version": "1.0.0",
   "private": true,
   "description": "Aryxn web application",
@@ -307,7 +307,7 @@ packages:
     "format": "prettier --write src"
   },
   "dependencies": {
-    "@aryxn/sdk-multichain": "workspace:*",
+    "@alixex/sdk-multichain": "workspace:*",
     "react": "^19.2.3",
     "react-dom": "^19.2.3"
     // ... 其他依赖
@@ -362,7 +362,7 @@ mv contracts/sdk/* packages/sdk-multichain/src/
 ```typescript
 // 前端代码中
 // 之前: import { swap } from '@/lib/swap'
-// 现在: import { MultiChainSwapper } from '@aryxn/sdk-multichain'
+// 现在: import { MultiChainSwapper } from '@alixex/sdk-multichain'
 
 const swapper = new MultiChainSwapper({
   ethereum: {
@@ -391,7 +391,7 @@ pnpm install
 
 ```typescript
 import { useState } from "react"
-import { MultiChainSwapper } from "@aryxn/sdk-multichain"
+import { MultiChainSwapper } from "@alixex/sdk-multichain"
 
 export function useSwap() {
   const [swapper] = useState(
@@ -463,21 +463,21 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: pnpm/action-setup@v2
-      - run: pnpm --filter=@aryxn/contracts-ethereum test
+      - run: pnpm --filter=@alixex/contracts-ethereum test
 
   test-solana:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: pnpm/action-setup@v2
-      - run: pnpm --filter=@aryxn/contracts-solana test
+      - run: pnpm --filter=@alixex/contracts-solana test
 
   test-web:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: pnpm/action-setup@v2
-      - run: pnpm --filter=@aryxn/vault test
+      - run: pnpm --filter=@alixex/vault test
 ```
 
 ### 3. 版本管理

@@ -9,7 +9,7 @@ import { SolanaAdapter } from "./adapters/solana"
 import { BitcoinAdapter } from "./adapters/bitcoin"
 import { ArweaveAdapter } from "./adapters/arweave"
 import { SuiAdapter } from "./adapters/sui"
-import { Chains } from "@aryxn/chain-constants"
+import { Chains } from "@alixex/chain-constants"
 import { getEthereumRpcUrl } from "./rpc"
 
 export * from "./types"

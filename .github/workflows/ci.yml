@@ -38,7 +38,7 @@ jobs:
         run: pnpm run lint
 
       - name: Check formatting
-        run: pnpm --filter=@aryxn/vault exec prettier --check src components.json index.html public
+        run: pnpm --filter=@alixex/vault exec prettier --check src components.json index.html public
 
   type-check:
     name: Type Check

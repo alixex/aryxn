@@ -1,5 +1,5 @@
 {
-  "name": "@aryxn/cross-chain",
+  "name": "@alixex/cross-chain",
   "version": "1.0.0",
   "description": "Cross-chain bridge and swap aggregator logic",
   "main": "src/index.ts",
@@ -10,9 +10,9 @@
     "type-check": "tsc -b --noEmit"
   },
   "dependencies": {
-    "@aryxn/arweave": "workspace:*",
-    "@aryxn/chain-constants": "workspace:*",
-    "@aryxn/swap-multichain": "workspace:*",
-    "@aryxn/wallet-core": "workspace:*"
+    "@alixex/arweave": "workspace:*",
+    "@alixex/chain-constants": "workspace:*",
+    "@alixex/swap-multichain": "workspace:*",
+    "@alixex/wallet-core": "workspace:*"
   }
 }

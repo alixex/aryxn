@@ -62,11 +62,11 @@ jobs:
         if: steps.cache-build.outputs.cache-hit != 'true'
         run: |
           echo "Building vault (main app)..."
-          pnpm --filter=@aryxn/vault build
+          pnpm --filter=@alixex/vault build
           
           # Add more apps when needed:
           # echo "Building admin app..."
-          # pnpm --filter=@aryxn/admin build
+          # pnpm --filter=@alixex/admin build
 
       - name: Build status
         run: |

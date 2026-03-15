@@ -1,5 +1,5 @@
 import type { UploadRecord } from "@/lib/utils"
-import { decryptData, fromBase64, toBase64 } from "@aryxn/crypto"
+import { decryptData, fromBase64, toBase64 } from "@alixex/crypto"
 import { decompressData } from "@/lib/utils"
 import {
   extractCompressionInfo,

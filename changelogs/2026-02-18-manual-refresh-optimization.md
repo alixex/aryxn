@@ -206,8 +206,8 @@ Set 60s rate limit
 
 ```bash
 # Type-check both packages
-pnpm --filter=@aryxn/cross-chain type-check
-pnpm --filter=@aryxn/web type-check
+pnpm --filter=@alixex/cross-chain type-check
+pnpm --filter=@alixex/web type-check
 
 # Manual testing
 1. Create a bridge transaction

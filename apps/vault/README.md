@@ -90,12 +90,12 @@ This app lives at [apps/vault](./).
 
 Key related packages include:
 
-- `@aryxn/wallet-core`
-- `@aryxn/arweave`
-- `@aryxn/storage`
-- `@aryxn/swap-multichain`
-- `@aryxn/cross-chain`
-- `@aryxn/chain-constants`
+- `@alixex/wallet-core`
+- `@alixex/arweave`
+- `@alixex/storage`
+- `@alixex/swap-multichain`
+- `@alixex/cross-chain`
+- `@alixex/chain-constants`
 
 ---
 

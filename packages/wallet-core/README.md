@@ -1,8 +1,8 @@
-payment-service.ts# @aryxn/wallet-core
+payment-service.ts# @alixex/wallet-core
 
 The core wallet logic for Aryxn, providing chain-agnostic primitives for wallet creation, detection, and account management.
 
-**Note**: This package is purely logical and does **not** depend on low-level crypto libraries directly. It delegates all cryptographic operations to `@aryxn/crypto`.
+**Note**: This package is purely logical and does **not** depend on low-level crypto libraries directly. It delegates all cryptographic operations to `@alixex/crypto`.
 
 ## Features
 
@@ -56,7 +56,7 @@ The core wallet logic for Aryxn, providing chain-agnostic primitives for wallet 
 ### Wallet Operations
 
 ```typescript
-import { createWallet, detectChainAndAddress } from "@aryxn/wallet-core"
+import { createWallet, detectChainAndAddress } from "@alixex/wallet-core"
 
 // Create a new wallet
 const { address, key, mnemonic } = await createWallet("ethereum")
@@ -69,7 +69,7 @@ console.log(info.chain) // "ethereum"
 ### Unified Balance Check
 
 ```typescript
-import { getBalance } from "@aryxn/wallet-core"
+import { getBalance } from "@alixex/wallet-core"
 
 // Get ETH Balance
 const eth = await getBalance("ethereum", "0x...", {

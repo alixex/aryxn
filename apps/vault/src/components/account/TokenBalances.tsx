@@ -11,9 +11,9 @@ import {
   createSolanaConnection,
   createSolanaPublicKey,
   createSuiClient,
-} from "@aryxn/wallet-core"
+} from "@alixex/wallet-core"
 import { RefreshCw } from "lucide-react"
-import { Chains, TokenBalanceChains } from "@aryxn/chain-constants"
+import { Chains, TokenBalanceChains } from "@alixex/chain-constants"
 import {
   SUPPORTED_TOKENS,
   formatTokenAmount,

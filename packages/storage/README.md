@@ -1,4 +1,4 @@
-# @aryxn/storage
+# @alixex/storage
 
 A pure, schema-agnostic SQLite integration with OPFS (Origin Private File System) persistence for Aryxn. This package handles database initialization and file system interactions but does **not** contain specific table definitions.
 
@@ -21,7 +21,7 @@ A pure, schema-agnostic SQLite integration with OPFS (Origin Private File System
 ## Usage
 
 ```typescript
-import { initDatabase, db } from "@aryxn/storage"
+import { initDatabase, db } from "@alixex/storage"
 
 // Initialize with a callback to apply schema
 await initDatabase(async () => {

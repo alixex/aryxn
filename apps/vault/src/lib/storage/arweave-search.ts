@@ -7,7 +7,7 @@ import {
   ArweaveAdapter,
   type SearchResult as ArweaveSearchResult,
   type SearchOptions as BaseSearchOptions,
-} from "@aryxn/query-chain"
+} from "@alixex/query-chain"
 import {
   searchFiles,
   type FileIndex,

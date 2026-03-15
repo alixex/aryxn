@@ -1,5 +1,5 @@
 {
-  "name": "@aryxn/swap-multichain",
+  "name": "@alixex/swap-multichain",
   "version": "1.0.0",
   "description": "Unified SDK for cross-chain token swaps",
   "main": "src/index.ts",
@@ -14,8 +14,8 @@
     "dist"
   ],
   "dependencies": {
-    "@aryxn/chain-constants": "workspace:*",
-    "@aryxn/swap-ethereum": "workspace:*",
-    "@aryxn/swap-solana": "workspace:*"
+    "@alixex/chain-constants": "workspace:*",
+    "@alixex/swap-ethereum": "workspace:*",
+    "@alixex/swap-solana": "workspace:*"
   }
 }

@@ -1,4 +1,4 @@
-# Changelog - @aryxn/swap-ethereum
+# Changelog - @alixex/swap-ethereum
 
 ## [1.1.0] - 2026-02-21
 

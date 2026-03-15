@@ -97,7 +97,7 @@ Arweave 存储费采用多层支付体系。虽然 Arweave 原生使用 AR，但
 ## 4. UI 视觉引导
 
 **[新增] 专业化链图标系统**
-为了确保用户在多链环境下不产生混淆，我们部署了中央图标库 `@aryxn/chain-constants`：
+为了确保用户在多链环境下不产生混淆，我们部署了中央图标库 `@alixex/chain-constants`：
 
 - **清晰辨识**：每个网络（Ethereum, Base, Arbitrum, Optimism, Solana, Arweave）都配有官方高清矢量图标。
 - **路径预判**：在支付前，界面会明确显示 `DIRECT`（直连）、`SWAP`（本地兑换）或 `BRIDGE`（跨链桥接）的标志，并配以链图标，确保交易透明。

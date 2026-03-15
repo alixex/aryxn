@@ -187,9 +187,9 @@ import {
   writeChunkToCache,
 } from "./chunked-task-manager"
 import { db } from "@/lib/database"
-import { type DbRow, type SqlValue } from "@aryxn/storage"
+import { type DbRow, type SqlValue } from "@alixex/storage"
 import { uploadToArweave } from "@/lib/storage"
-import type { WalletKey } from "@aryxn/wallet-core"
+import type { WalletKey } from "@alixex/wallet-core"
 import { z } from "zod"
 
 interface ResourceCacheRow extends DbRow {

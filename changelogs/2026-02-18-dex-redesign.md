@@ -40,7 +40,7 @@ graph TD
 - **Purpose**: Handle cross-chain asset movement.
 - **Logic**:
   - **Source Chain/Token** vs **Dest Chain/Token** selection.
-  - Integration with `@aryxn/sdk-bridge` for quotes and execution.
+  - Integration with `@alixex/sdk-bridge` for quotes and execution.
 - **UI**:
   - Two-column or top-down selection for Source/Dest networks.
   - Estimated Time of Arrival (ETA) display (Critical for UX).

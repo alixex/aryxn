@@ -4,8 +4,8 @@
  */
 
 import { db } from "@/lib/database"
-import type { DbRow } from "@aryxn/storage"
-import type { WalletRecord, VaultMetadata } from "@aryxn/wallet-core"
+import type { DbRow } from "@alixex/storage"
+import type { WalletRecord, VaultMetadata } from "@alixex/wallet-core"
 
 export interface VaultExportData {
   version: string

@@ -12,7 +12,7 @@ import {
   TransactionTypes,
   TransactionStatuses,
   RPCs,
-} from "@aryxn/chain-constants"
+} from "@alixex/chain-constants"
 
 interface ArweaveEdge {
   node: {

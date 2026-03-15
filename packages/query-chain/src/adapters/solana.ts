@@ -4,13 +4,13 @@ import type {
   FetchOptions,
   ChainRecord,
 } from "../types"
-import type { TransactionType } from "@aryxn/chain-constants"
+import type { TransactionType } from "@alixex/chain-constants"
 import {
   Chains,
   TransactionTypes,
   TransactionStatuses,
   RPCs,
-} from "@aryxn/chain-constants"
+} from "@alixex/chain-constants"
 
 interface SolanaSignature {
   signature: string

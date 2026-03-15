@@ -27,7 +27,7 @@ Improved how users understand the underlying transaction flow before they commit
 
 Replaced inconsistent emojis with a centralized, high-quality asset management system.
 
-- **Localized Assets**: Hosted official SVG and PNG logos for all supported chains (Ethereum, Bitcoin, Solana, Base, Arbitrum, Optimism, Arweave) within the `@aryxn/chain-constants` package.
+- **Localized Assets**: Hosted official SVG and PNG logos for all supported chains (Ethereum, Bitcoin, Solana, Base, Arbitrum, Optimism, Arweave) within the `@alixex/chain-constants` package.
 - **Centralized Metadata**: Created a single source of truth for chain branding, ensuring consistent visuals across the entire monorepo.
 - **Refined Aesthetics**:
   - Fixed Solana icon to use official white-on-dark circle branding.

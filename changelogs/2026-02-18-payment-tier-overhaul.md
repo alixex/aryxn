@@ -19,7 +19,7 @@ We have implemented a comprehensive 3-tier payment and storage architecture to o
 ### 3. Tier 3: Custom Bridge & Swap Fallback (BTC, USDT, Memes)
 
 - **Status**: Initial Integration (New Package)
-- **Package**: `@aryxn/sdk-bridge` (Created)
+- **Package**: `@alixex/sdk-bridge` (Created)
 - **Flow**: Tokens like BTC or USDT are identified as "Bridge Required". The UI now gracefully handles these cases by notifying the user that a bridge/swap step is necessary before the final upload.
 - **Architecture**: Separated from standard swaps to handle the asynchronous and multi-chain complexity of bridging.
 

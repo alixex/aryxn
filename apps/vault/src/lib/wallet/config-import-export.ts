@@ -4,12 +4,12 @@
  */
 
 import { db } from "@/lib/database"
-import type { DbRow } from "@aryxn/storage"
+import type { DbRow } from "@alixex/storage"
 import type {
   WalletRecord,
   UploadRecord,
   VaultMetadata,
-} from "@aryxn/wallet-core"
+} from "@alixex/wallet-core"
 import { searchFiles, type FileIndex } from "@/lib/file"
 import {
   deriveKey,
@@ -19,7 +19,7 @@ import {
   fromBase64,
   toBytes,
   fromBytes,
-} from "@aryxn/crypto"
+} from "@alixex/crypto"
 
 const VAULT_SALT_LEGACY = new Uint8Array([
   0x61, 0x6e, 0x61, 0x6d, 0x6e, 0x65, 0x73, 0x69, 0x73, 0x2d, 0x76, 0x61, 0x75,

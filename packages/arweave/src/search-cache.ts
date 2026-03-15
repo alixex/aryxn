@@ -17,10 +17,10 @@ interface SearchCacheConfig {
 import {
   encryptStringForStorage,
   decryptStringFromStorage,
-} from "@aryxn/crypto"
-import { persistEncrypted, loadEncrypted } from "@aryxn/storage"
+} from "@alixex/crypto"
+import { persistEncrypted, loadEncrypted } from "@alixex/storage"
 
-const PERSIST_KEY = "@aryxn/arweave:search-cache"
+const PERSIST_KEY = "@alixex/arweave:search-cache"
 
 /**
  * 搜索结果缓存管理器

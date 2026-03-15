@@ -1,11 +1,11 @@
-# @aryxn/cross-chain
+# @alixex/cross-chain
 
 Aryxn 的跨链工具包，核心基于 Li.Fi 路由/执行能力，并提供状态跟踪、交易模拟与故障恢复能力。
 
 ## 安装
 
 ```bash
-pnpm add @aryxn/cross-chain
+pnpm add @alixex/cross-chain
 ```
 
 ## API 使用
@@ -15,7 +15,7 @@ pnpm add @aryxn/cross-chain
 ### 1）获取路由、成本与风险
 
 ```typescript
-import { liFiBridgeService, type BridgeRouteParams } from "@aryxn/cross-chain"
+import { liFiBridgeService, type BridgeRouteParams } from "@alixex/cross-chain"
 
 const params: BridgeRouteParams = {
   fromChain: 1,
@@ -36,7 +36,7 @@ const risk = await liFiBridgeService.assessRisk(route)
 ### 2）用 signer 执行桥接
 
 ```typescript
-import { liFiBridgeService } from "@aryxn/cross-chain"
+import { liFiBridgeService } from "@alixex/cross-chain"
 import type { Signer } from "ethers"
 
 const txHash = await liFiBridgeService.executeBridgeTransaction(
@@ -48,7 +48,7 @@ const txHash = await liFiBridgeService.executeBridgeTransaction(
 ### 3）状态查询（手动刷新场景）
 
 ```typescript
-import { BridgeStatusTracker } from "@aryxn/cross-chain"
+import { BridgeStatusTracker } from "@alixex/cross-chain"
 
 if (BridgeStatusTracker.canRefresh(txHash)) {
   const info = await BridgeStatusTracker.checkStatus(
@@ -63,7 +63,7 @@ if (BridgeStatusTracker.canRefresh(txHash)) {
 ### 4）恢复流程（重试 / Claim 指引 / 加速）
 
 ```typescript
-import { BridgeRecovery } from "@aryxn/cross-chain"
+import { BridgeRecovery } from "@alixex/cross-chain"
 
 const recoverable = await BridgeRecovery.isRecoverable(
   txHash,
@@ -81,7 +81,7 @@ const rec = await BridgeRecovery.getRecommendations(
 ### 5）执行前模拟
 
 ```typescript
-import { simulateBridgeRoute } from "@aryxn/cross-chain"
+import { simulateBridgeRoute } from "@alixex/cross-chain"
 
 const simulation = await simulateBridgeRoute(route)
 if (simulation.status === "FAILED") {
@@ -96,7 +96,7 @@ import {
   validateAddress,
   getChainIdFromName,
   getAddressPlaceholder,
-} from "@aryxn/cross-chain"
+} from "@alixex/cross-chain"
 
 const chainId = getChainIdFromName("ethereum")
 const isValid = chainId ? validateAddress("0x...", chainId) : false

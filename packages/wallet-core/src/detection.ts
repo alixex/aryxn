@@ -2,7 +2,7 @@ import { ethers } from "ethers"
 import * as solana from "@solana/web3.js"
 import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519"
 import Arweave from "arweave"
-import { Chains } from "@aryxn/chain-constants"
+import { Chains } from "@alixex/chain-constants"
 import type { WalletKey, WalletRecord } from "./types"
 import { defaultArweave } from "./arweave-init"
 import {
@@ -10,7 +10,7 @@ import {
   toBase58,
   fromBase58,
   getBitcoinAddressFromWIF,
-} from "@aryxn/crypto"
+} from "@alixex/crypto"
 
 export async function detectChainAndAddress(
   input: WalletKey | string,

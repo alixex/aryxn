@@ -1,4 +1,4 @@
-# @aryxn/chain-constants
+# @alixex/chain-constants
 
 Shared chain constants and utilities for Aryxn multi-chain applications. Provides single-source-of-truth for chain identifiers, chain IDs, explorer URLs, and chain-related metadata.
 
@@ -15,7 +15,7 @@ Shared chain constants and utilities for Aryxn multi-chain applications. Provide
 ## Installation
 
 ```bash
-pnpm add @aryxn/chain-constants
+pnpm add @alixex/chain-constants
 ```
 
 ## Quick Start
@@ -26,7 +26,7 @@ import {
   ChainIds,
   getExplorerTxUrl,
   AccountChains,
-} from "@aryxn/chain-constants"
+} from "@alixex/chain-constants"
 
 // Use type-safe chain constants
 if (userChain === Chains.ETHEREUM) {
@@ -67,7 +67,7 @@ export const Chains = {
 **Usage:**
 
 ```typescript
-import { Chains } from "@aryxn/chain-constants"
+import { Chains } from "@alixex/chain-constants"
 
 // ✅ Type-safe
 const chain = Chains.ETHEREUM
@@ -99,7 +99,7 @@ export const ChainIds = {
 Array of all EVM-compatible chain IDs:
 
 ```typescript
-import { EvmChainIds } from "@aryxn/chain-constants"
+import { EvmChainIds } from "@alixex/chain-constants"
 
 const isEvm = EvmChainIds.includes(chainId)
 ```
@@ -155,7 +155,7 @@ export const AppSyncChains = [
 Map chain names (with aliases) to numeric IDs:
 
 ```typescript
-import { ChainNameToId } from "@aryxn/chain-constants"
+import { ChainNameToId } from "@alixex/chain-constants"
 
 ChainNameToId.ethereum // 1
 ChainNameToId.eth // 1 (alias)
@@ -168,7 +168,7 @@ ChainNameToId.matic // 137 (alias)
 Reverse mapping from chain ID to display name:
 
 ```typescript
-import { ChainIdToName } from "@aryxn/chain-constants"
+import { ChainIdToName } from "@alixex/chain-constants"
 
 ChainIdToName[1] // "Ethereum"
 ChainIdToName[137] // "Polygon"
@@ -181,7 +181,7 @@ ChainIdToName[137] // "Polygon"
 Generate blockchain explorer URL for a transaction:
 
 ```typescript
-import { getExplorerTxUrl, Chains } from "@aryxn/chain-constants"
+import { getExplorerTxUrl, Chains } from "@alixex/chain-constants"
 
 const url = getExplorerTxUrl(Chains.ETHEREUM, "0xabc123...")
 // => "https://etherscan.io/tx/0xabc123..."
@@ -202,7 +202,7 @@ getExplorerTxUrl("unknown", "abc123")
 Check if a chain has a known explorer URL:
 
 ```typescript
-import { isKnownExplorerChain } from "@aryxn/chain-constants"
+import { isKnownExplorerChain } from "@alixex/chain-constants"
 
 isKnownExplorerChain("ethereum") // true
 isKnownExplorerChain("solana") // true
@@ -227,7 +227,7 @@ export const ExplorerTxBaseByChain = {
 ## TypeScript Types
 
 ```typescript
-import type { ChainType } from "@aryxn/chain-constants"
+import type { ChainType } from "@alixex/chain-constants"
 
 // ChainType = "ethereum" | "solana" | "bitcoin" | "arweave" | "sui"
 const chain: ChainType = Chains.ETHEREUM
@@ -238,7 +238,7 @@ const chain: ChainType = Chains.ETHEREUM
 ### ✅ DO: Use handler maps with Chains enum
 
 ```typescript
-import { Chains } from "@aryxn/chain-constants"
+import { Chains } from "@alixex/chain-constants"
 
 const chainHandlers = {
   [Chains.ETHEREUM]: () => handleEthereum(),
@@ -264,7 +264,7 @@ if (chain === "ethereum") {
 ### ✅ DO: Import specific constants
 
 ```typescript
-import { Chains, AccountChains, getExplorerTxUrl } from "@aryxn/chain-constants"
+import { Chains, AccountChains, getExplorerTxUrl } from "@alixex/chain-constants"
 ```
 
 ### ❌ DON'T: Duplicate chain arrays
@@ -293,9 +293,9 @@ AGPL-3.0-or-later
 
 ## Related Packages
 
-- [@aryxn/cross-chain](../cross-chain) - Cross-chain bridge utilities
-- [@aryxn/query-chain](../query-chain) - Multi-chain data queries
-- [@aryxn/wallet-core](../wallet-core) - Multi-chain wallet management
+- [@alixex/cross-chain](../cross-chain) - Cross-chain bridge utilities
+- [@alixex/query-chain](../query-chain) - Multi-chain data queries
+- [@alixex/wallet-core](../wallet-core) - Multi-chain wallet management
 
 ---
 

@@ -1,6 +1,6 @@
 import { useEffect } from "react"
 import { useWallet } from "@/hooks/account-hooks"
-import { Chains } from "@aryxn/chain-constants"
+import { Chains } from "@alixex/chain-constants"
 
 /**
  * A global provider to silently sync Arweave records in the background.

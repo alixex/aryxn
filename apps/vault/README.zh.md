@@ -90,12 +90,12 @@
 
 相关核心包包括：
 
-- `@aryxn/wallet-core`
-- `@aryxn/arweave`
-- `@aryxn/storage`
-- `@aryxn/swap-multichain`
-- `@aryxn/cross-chain`
-- `@aryxn/chain-constants`
+- `@alixex/wallet-core`
+- `@alixex/arweave`
+- `@alixex/storage`
+- `@alixex/swap-multichain`
+- `@alixex/cross-chain`
+- `@alixex/chain-constants`
 
 ---
 

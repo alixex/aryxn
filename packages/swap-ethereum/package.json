@@ -1,5 +1,5 @@
 {
-  "name": "@aryxn/swap-ethereum",
+  "name": "@alixex/swap-ethereum",
   "version": "1.1.0",
   "description": "TypeScript SDK for Ethereum swaps via the Aryxn Universal Router",
   "main": "src/index.ts",

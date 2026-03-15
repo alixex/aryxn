@@ -1,4 +1,4 @@
-import { db } from "@aryxn/storage"
+import { db } from "@alixex/storage"
 
 export interface ExternalWalletsRaw {
   isPaymentConnected?: boolean

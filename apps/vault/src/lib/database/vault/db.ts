@@ -1,4 +1,4 @@
-import { initDatabase, db as storageDb } from "@aryxn/storage"
+import { initDatabase, db as storageDb } from "@alixex/storage"
 import { SCHEMA, INDEXES, FTS_SCHEMA } from "./schema"
 
 /**

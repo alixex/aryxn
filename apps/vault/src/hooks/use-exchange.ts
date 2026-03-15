@@ -1,10 +1,10 @@
 import { useState, useMemo, useCallback } from "react"
 import { useAccount, useChainId } from "wagmi"
-import { ExchangeSDK } from "@aryxn/exchange-chain"
-import type { ExchangeRequest, ExchangeRoute } from "@aryxn/exchange-chain"
+import { ExchangeSDK } from "@alixex/exchange-chain"
+import type { ExchangeRequest, ExchangeRoute } from "@alixex/exchange-chain"
 import { getSwapperAddress, TOKEN_MAPPING } from "@/lib/contracts/addresses"
-import { Chains, RPCs } from "@aryxn/chain-constants"
-import { getEthereumRpcUrl, getSolanaRpcUrl } from "@aryxn/query-chain"
+import { Chains, RPCs } from "@alixex/chain-constants"
+import { getEthereumRpcUrl, getSolanaRpcUrl } from "@alixex/query-chain"
 
 // Constants for Solana (should be move to a better config file later)
 const SOLANA_PROGRAM_ID = "G2qM2J683JFYibZZCTefyX2W8YT9TRp5npyqm9ddtgHv"

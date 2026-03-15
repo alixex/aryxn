@@ -10,7 +10,7 @@ import type { PaymentAccount } from "@/lib/payment"
 import { getIrysFundingToken } from "@/lib/payment"
 import { PaymentRepository } from "@/lib/payment/payment-repository"
 import type { PaymentIntent } from "@/lib/payment/types"
-import { Chains } from "@aryxn/chain-constants"
+import { Chains } from "@alixex/chain-constants"
 import type { TFunction } from "i18next"
 
 export interface UploadHandlerResult {

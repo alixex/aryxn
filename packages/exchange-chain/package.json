@@ -1,5 +1,5 @@
 {
-  "name": "@aryxn/exchange-chain",
+  "name": "@alixex/exchange-chain",
   "version": "1.0.0",
   "description": "Unified Exchange SDK for Swap and Bridge operations",
   "main": "src/index.ts",
@@ -11,10 +11,10 @@
     "type-check": "tsc -b --noEmit"
   },
   "dependencies": {
-    "@aryxn/chain-constants": "workspace:*",
-    "@aryxn/cross-chain": "workspace:*",
-    "@aryxn/query-chain": "workspace:*",
-    "@aryxn/swap-multichain": "workspace:*",
-    "@aryxn/wallet-core": "workspace:*"
+    "@alixex/chain-constants": "workspace:*",
+    "@alixex/cross-chain": "workspace:*",
+    "@alixex/query-chain": "workspace:*",
+    "@alixex/swap-multichain": "workspace:*",
+    "@alixex/wallet-core": "workspace:*"
   }
 }

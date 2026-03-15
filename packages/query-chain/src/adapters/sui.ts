@@ -4,13 +4,13 @@ import type {
   OnRecordCallback,
   FetchOptions,
 } from "../types"
-import type { TransactionType } from "@aryxn/chain-constants"
+import type { TransactionType } from "@alixex/chain-constants"
 import {
   Chains,
   TransactionTypes,
   TransactionStatuses,
   RPCs,
-} from "@aryxn/chain-constants"
+} from "@alixex/chain-constants"
 
 export class SuiAdapter implements IHistoryAdapter {
   private endpoint = RPCs.SUI_MAINNET

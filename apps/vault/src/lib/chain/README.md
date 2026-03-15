@@ -103,7 +103,7 @@ interface BalanceResult {
 
 ## 依赖关系
 
-- `@aryxn/wallet-core` - 钱包操作和链交互
+- `@alixex/wallet-core` - 钱包操作和链交互
 - `@/lib/storage` - Arweave 相关工具
 
 ## 设计原则

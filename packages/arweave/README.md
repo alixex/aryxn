@@ -1,4 +1,4 @@
-# @aryxn/arweave
+# @alixex/arweave
 
 A simplified, tag-agnostic wrapper for the Arweave protocol. This package handles file uploads, transaction signing, and fee estimation, relying on the application layer to provide specific metadata tags.
 
@@ -38,7 +38,7 @@ A simplified, tag-agnostic wrapper for the Arweave protocol. This package handle
 ### Upload & Compression
 
 ```typescript
-import { uploadToArweave, estimateArweaveFee } from "@aryxn/arweave"
+import { uploadToArweave, estimateArweaveFee } from "@alixex/arweave"
 
 // Estimate fee
 const fee = await estimateArweaveFee(fileSize)
@@ -55,7 +55,7 @@ const txId = await uploadToArweave(data, walletKey, [
 import {
   searchArweaveTransactionsNetwork,
   searchAppTransactions,
-} from "@aryxn/arweave"
+} from "@alixex/arweave"
 
 // Search for specific app transactions
 const arweaveResults = await searchAppTransactions("Aryxn", "filename", 50)
@@ -84,7 +84,7 @@ Search results are cached by default to avoid repeated GraphQL queries:
 import {
   searchArweaveTransactionsNetwork,
   getSearchCache,
-} from "@aryxn/arweave"
+} from "@alixex/arweave"
 
 // Use cache (default behavior)
 const results = await searchArweaveTransactionsNetwork({

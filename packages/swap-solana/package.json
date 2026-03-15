@@ -1,5 +1,5 @@
 {
-  "name": "@aryxn/swap-solana",
+  "name": "@alixex/swap-solana",
   "version": "1.0.0",
   "description": "TypeScript SDK for Solana swaps",
   "main": "src/index.ts",

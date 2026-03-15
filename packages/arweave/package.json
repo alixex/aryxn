@@ -1,5 +1,5 @@
 {
-  "name": "@aryxn/arweave",
+  "name": "@alixex/arweave",
   "version": "1.0.0",
   "description": "Permanent storage operations for Aryxn",
   "main": "src/index.ts",
@@ -14,9 +14,9 @@
     "src"
   ],
   "dependencies": {
-    "@aryxn/chain-constants": "workspace:*",
-    "@aryxn/crypto": "workspace:*",
-    "@aryxn/storage": "workspace:*",
-    "@aryxn/wallet-core": "workspace:*"
+    "@alixex/chain-constants": "workspace:*",
+    "@alixex/crypto": "workspace:*",
+    "@alixex/storage": "workspace:*",
+    "@alixex/wallet-core": "workspace:*"
   }
 }

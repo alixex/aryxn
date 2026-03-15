@@ -1,4 +1,4 @@
-import { fromBase64, toBase64 } from "@aryxn/crypto"
+import { fromBase64, toBase64 } from "@alixex/crypto"
 
 const AUTH_VERSION = "v2"
 const AUTH_STORAGE_KEY = "vault_resource_auth_capabilities_v2"

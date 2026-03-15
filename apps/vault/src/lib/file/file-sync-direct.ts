@@ -1,4 +1,4 @@
-import { RPCs } from "@aryxn/chain-constants"
+import { RPCs } from "@alixex/chain-constants"
 
 /**
  * 直接通过标签查询文件记录的同步工具函数

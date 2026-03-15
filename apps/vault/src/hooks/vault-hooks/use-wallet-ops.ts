@@ -1,13 +1,13 @@
 import { useCallback } from "react"
 import { db } from "@/lib/database"
-import { encryptData, toBytes, toBase64 } from "@aryxn/crypto"
+import { encryptData, toBytes, toBase64 } from "@alixex/crypto"
 import {
   type WalletRecord,
   type WalletKey,
   createWallet,
   detectChainAndAddress,
   type DecryptedData,
-} from "@aryxn/wallet-core"
+} from "@alixex/wallet-core"
 import { toast } from "sonner"
 import { useTranslation } from "@/i18n/config"
 import { arweave } from "@/lib/storage"

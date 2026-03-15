@@ -2,8 +2,8 @@
  * Contract and token address configuration
  */
 
-import type { Address } from "@aryxn/wallet-core"
-import { ChainIds } from "@aryxn/chain-constants"
+import type { Address } from "@alixex/wallet-core"
+import { ChainIds } from "@alixex/chain-constants"
 
 /**
  * Universal Router contract addresses by Chain ID

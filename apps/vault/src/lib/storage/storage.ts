@@ -6,8 +6,8 @@ import {
   shouldCompressFile,
   getActualCompressedSize as genericGetCompressedSize,
   irysService,
-} from "@aryxn/arweave"
-import type { ArweaveJWK } from "@aryxn/wallet-core"
+} from "@alixex/arweave"
+import type { ArweaveJWK } from "@alixex/wallet-core"
 import { ARWEAVE_APP_NAME } from "@/lib/config"
 
 export { arweave, generateArweaveWallet, shouldCompressFile, irysService }

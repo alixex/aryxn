@@ -1,4 +1,4 @@
-# @aryxn/crypto
+# @alixex/crypto
 
 The central cryptographic library for the Aryxn project. This package provides pure, low-level cryptographic primitives and key derivation logic for multiple blockchains.
 
@@ -24,7 +24,7 @@ The central cryptographic library for the Aryxn project. This package provides p
 ## Usage
 
 ```typescript
-import { generateMnemonic, deriveSolanaKey, encryptData } from "@aryxn/crypto"
+import { generateMnemonic, deriveSolanaKey, encryptData } from "@alixex/crypto"
 
 // Generate a mnemonic
 const mnemonic = generateMnemonic()

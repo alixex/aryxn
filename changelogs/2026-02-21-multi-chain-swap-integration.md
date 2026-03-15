@@ -2,11 +2,11 @@
 
 ## Summary
 
-Completed the integration of the refactored `@aryxn/swap-ethereum` SDK into the `apps/web` frontend and synchronized the Universal Router EVM contracts for multi-chain support (Base, Arbitrum, Ethereum).
+Completed the integration of the refactored `@alixex/swap-ethereum` SDK into the `apps/web` frontend and synchronized the Universal Router EVM contracts for multi-chain support (Base, Arbitrum, Ethereum).
 
 ## Changes
 
-### 1. `@aryxn/swap-ethereum` SDK Refactor
+### 1. `@alixex/swap-ethereum` SDK Refactor
 
 - **Native ETH Support**: Implemented automatic wrapping of ETH to WETH and unwrapping.
 - **Multi-Chain Connectivity**: Introduced `ChainPresets` (Base, Arbitrum, Mainnet) to simplify initialization from the frontend.

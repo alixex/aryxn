@@ -20,7 +20,7 @@ graph TD
 ### 1. 自动兑换逻辑
 
 - **触发点**：在 `Upload.tsx` 确认上传时，若 `paymentToken !== "AR"`，进入 `paymentStage`。
-- **SDK 交互**：使用 `@aryxn/sdk-multichain` 获取 `tokenIn -> WAR` 的最优路径报价。
+- **SDK 交互**：使用 `@alixex/sdk-multichain` 获取 `tokenIn -> WAR` 的最优路径报价。
 - **合约执行**：通过 `UniversalRouter` 合约执行 swap 操作，将用户代币转换为 WAR。
 
 ### 2. 桥接集成 (Bridge)
@@ -35,7 +35,7 @@ graph TD
 
 ## 技术栈更新
 
-- **前端 SDK**：`@aryxn/sdk-multichain` (v1.1.0)
+- **前端 SDK**：`@alixex/sdk-multichain` (v1.1.0)
 - **合约接口**：`UniversalRouter.sol`
 - **代币地址**：`0x4fadc7a98f2dc96510e42dd1a74141eeae0c1543` (Ethereum WAR)
 

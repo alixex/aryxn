@@ -7,8 +7,8 @@ import {
   getCachedResourceFile,
   upsertCachedResource,
 } from "@/lib/file"
-import { RPCs } from "@aryxn/chain-constants"
-import { deriveKey } from "@aryxn/crypto"
+import { RPCs } from "@alixex/chain-constants"
+import { deriveKey } from "@alixex/crypto"
 import type { UploadRecord } from "@/lib/utils"
 import { useWallet } from "@/hooks/account-hooks"
 import { db } from "@/lib/database"

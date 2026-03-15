@@ -1,5 +1,5 @@
 import { Copy, Key, FileText, Trash2 } from "lucide-react"
-import { TokenBalanceChains } from "@aryxn/chain-constants"
+import { TokenBalanceChains } from "@alixex/chain-constants"
 import { Button } from "@/components/ui/button"
 import { BalanceDisplay } from "./BalanceDisplay"
 import { TokenBalances } from "./TokenBalances"

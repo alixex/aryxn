@@ -107,7 +107,7 @@ CREATE TABLE IF NOT EXISTS upload_payment_intents (
 
 ### 第一阶段：基础设施 (Infrastructure)
 
-- 修改 `@aryxn/storage` 的 Schema 注册机制。
+- 修改 `@alixex/storage` 的 Schema 注册机制。
 - 实现 `PaymentRepository` 用于操作 `upload_payment_intents` 表。
 
 ### 第二阶段：核心 Service 更新 (Core Services)

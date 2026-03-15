@@ -1,7 +1,7 @@
-import { type DbRow } from "@aryxn/storage"
+import { type DbRow } from "@alixex/storage"
 import { db } from "@/lib/database"
 import type { BridgeTransaction } from "./bridge-history"
-import { encryptData, decryptData, toBase64, fromBase64 } from "@aryxn/crypto"
+import { encryptData, decryptData, toBase64, fromBase64 } from "@alixex/crypto"
 import { getEncryptionKey } from "./encrypted-storage"
 
 type BridgeTransactionRow = DbRow & {

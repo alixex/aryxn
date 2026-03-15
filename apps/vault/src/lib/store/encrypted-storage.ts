@@ -5,7 +5,7 @@ import {
   decryptData,
   toBase64,
   fromBase64,
-} from "@aryxn/crypto"
+} from "@alixex/crypto"
 
 const STORAGE_KEY_KEY = "aryxn_storage_key"
 

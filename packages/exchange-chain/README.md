@@ -1,44 +1,44 @@
-# @aryxn/exchange-chain
+# @alixex/exchange-chain
 
 Unified Exchange SDK for Swap and Bridge operations across multiple chains.
 
 ## Overview
 
-`@aryxn/exchange-chain` provides a high-level router that intelligently selects between simple swaps (on the same chain) and cross-chain bridges. It integrates with `@aryxn/swap-multichain` for DEX operations and `@aryxn/cross-chain` for bridging services (via LiFi).
+`@alixex/exchange-chain` provides a high-level router that intelligently selects between simple swaps (on the same chain) and cross-chain bridges. It integrates with `@alixex/swap-multichain` for DEX operations and `@alixex/cross-chain` for bridging services (via LiFi).
 
 ## Features
 
 - **Unified Interface**: Single API for both swaps and bridges.
 - **Multi-Chain Support**: Support for EVM, Solana, Bitcoin, and Arweave.
 - **Route Optimization**: Automatically determines whether a swap or a bridge is required.
-- **History Tracking**: Integrated transaction history via `@aryxn/query-chain`.
+- **History Tracking**: Integrated transaction history via `@alixex/query-chain`.
 
 ## Installation
 
 ```bash
-npm install @aryxn/exchange-chain
+npm install @alixex/exchange-chain
 # or
-yarn add @aryxn/exchange-chain
+yarn add @alixex/exchange-chain
 # or
-pnpm add @aryxn/exchange-chain
+pnpm add @alixex/exchange-chain
 ```
 
 ## Dependency Requirements
 
 This package depends on several other `@aryxn` workspace packages:
 
-- `@aryxn/chain-constants`
-- `@aryxn/cross-chain`
-- `@aryxn/query-chain`
-- `@aryxn/swap-multichain`
-- `@aryxn/wallet-core`
+- `@alixex/chain-constants`
+- `@alixex/cross-chain`
+- `@alixex/query-chain`
+- `@alixex/swap-multichain`
+- `@alixex/wallet-core`
 
 ## Usage
 
 ### Basic Example
 
 ```typescript
-import { ExchangeSDK } from "@aryxn/exchange-chain"
+import { ExchangeSDK } from "@alixex/exchange-chain"
 
 const sdk = new ExchangeSDK({
   ethereumContractAddress: "0x...",

@@ -1,9 +1,9 @@
 import { useState, useCallback, useEffect, useMemo } from "react"
 import { db } from "@/lib/database"
-import { type DbRow } from "@aryxn/storage"
-import type { WalletRecord, WalletKey } from "@aryxn/wallet-core"
-import { decryptData, fromBase64, fromBytes } from "@aryxn/crypto"
-import { Chains } from "@aryxn/chain-constants"
+import { type DbRow } from "@alixex/storage"
+import type { WalletRecord, WalletKey } from "@alixex/wallet-core"
+import { decryptData, fromBase64, fromBytes } from "@alixex/crypto"
+import { Chains } from "@alixex/chain-constants"
 
 export const STORAGE_KEY_ACTIVE_ADDRESS = "active_address"
 export const STORAGE_KEY_USE_EXTERNAL = "use_external"

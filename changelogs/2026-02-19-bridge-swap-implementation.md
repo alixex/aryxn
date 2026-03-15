@@ -144,8 +144,8 @@ BridgeSwapState
 ## Type-Check Results
 
 ```
-✅ @aryxn/web type-check ........ PASSED
-✅ @aryxn/crypto type-check ..... PASSED
+✅ @alixex/web type-check ........ PASSED
+✅ @alixex/crypto type-check ..... PASSED
 ✅ Zero TypeScript errors
 ✅ All imports resolved
 ```

@@ -1,4 +1,4 @@
-# @aryxn/sdk-history
+# @alixex/sdk-history
 
 Aryxn 应用程序的统一多链交易历史索引器。
 
@@ -26,13 +26,13 @@ Aryxn 应用程序的统一多链交易历史索引器。
 ## 安装
 
 ```bash
-pnpm add @aryxn/sdk-history
+pnpm add @alixex/sdk-history
 ```
 
 ## 使用方法
 
 ```typescript
-import { AggregateHistoryProvider, ChainRecord } from "@aryxn/sdk-history"
+import { AggregateHistoryProvider, ChainRecord } from "@alixex/sdk-history"
 
 // 初始化提供者
 // 注意：虽然可以提供 EVM RPC URL，但目前直接使用 Blockscout API

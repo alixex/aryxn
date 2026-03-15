@@ -162,7 +162,7 @@ fromBytes(bytes: Uint8Array): string
 
 ## 依赖关系
 
-- `@aryxn/crypto` - 底层加密实现
+- `@alixex/crypto` - 底层加密实现
 - Web Crypto API - 浏览器原生加密支持
 
 ## 设计原则

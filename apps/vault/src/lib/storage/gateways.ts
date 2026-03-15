@@ -1,4 +1,4 @@
-import { RPCs } from "@aryxn/chain-constants"
+import { RPCs } from "@alixex/chain-constants"
 
 const IRYS_GATEWAY = "https://gateway.irys.xyz"
 const ARWEAVE_DOWNLOAD_GATEWAYS = [

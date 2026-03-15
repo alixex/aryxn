@@ -1,7 +1,7 @@
-import { Chains } from "@aryxn/chain-constants"
-import { MultiChainSwapper } from "@aryxn/swap-multichain"
-import { LiFiBridgeService } from "@aryxn/cross-chain"
-import { getEthereumRpcUrl, getSolanaRpcUrl } from "@aryxn/query-chain"
+import { Chains } from "@alixex/chain-constants"
+import { MultiChainSwapper } from "@alixex/swap-multichain"
+import { LiFiBridgeService } from "@alixex/cross-chain"
+import { getEthereumRpcUrl, getSolanaRpcUrl } from "@alixex/query-chain"
 import type { ExchangeRequest, ExchangeRoute, ExchangeConfig } from "./types"
 
 export class ExchangeRouter {

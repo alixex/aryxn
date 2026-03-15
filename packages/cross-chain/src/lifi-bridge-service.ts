@@ -10,7 +10,7 @@ import {
   type StatusResponse,
   type ExtendedChain,
 } from "@lifi/sdk"
-import { ChainIds, EvmChainIds } from "@aryxn/chain-constants"
+import { ChainIds, EvmChainIds } from "@alixex/chain-constants"
 import type { Signer } from "ethers"
 
 // Re-export types for consumers

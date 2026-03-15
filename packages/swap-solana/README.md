@@ -1,11 +1,11 @@
-# @aryxn/sdk-solana
+# @alixex/sdk-solana
 
 Solana Swapper SDK with native Jupiter Aggregator v6 integration for the Aryxn Universal Router.
 
 ## Installation
 
 ```bash
-pnpm add @aryxn/sdk-solana
+pnpm add @alixex/sdk-solana
 ```
 
 ## Usage
@@ -13,7 +13,7 @@ pnpm add @aryxn/sdk-solana
 ### 1. Initialize
 
 ```typescript
-import { SolanaSwapper } from "@aryxn/sdk-solana"
+import { SolanaSwapper } from "@alixex/sdk-solana"
 
 const swapper = new SolanaSwapper({
   rpcUrl: "https://api.mainnet-beta.solana.com",

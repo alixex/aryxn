@@ -2,7 +2,7 @@ import type {
   ChainType,
   TransactionType,
   TransactionStatus,
-} from "@aryxn/chain-constants"
+} from "@alixex/chain-constants"
 
 export type { ChainType, TransactionType, TransactionStatus }
 

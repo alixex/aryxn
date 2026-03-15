@@ -1,4 +1,4 @@
-import { initArweave } from "@aryxn/wallet-core"
+import { initArweave } from "@alixex/wallet-core"
 import { t } from "./i18n"
 
 // Initialize Arweave

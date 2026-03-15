@@ -1,10 +1,10 @@
 import { Wallet } from "@coral-xyz/anchor"
 import type { Idl } from "@coral-xyz/anchor"
 import type { Signer, ContractTransactionResponse } from "ethers"
-import { SolanaSwapper } from "@aryxn/swap-solana"
-import { EthereumSwapper, ProtectionLevel } from "@aryxn/swap-ethereum"
+import { SolanaSwapper } from "@alixex/swap-solana"
+import { EthereumSwapper, ProtectionLevel } from "@alixex/swap-ethereum"
 
-import { Chains, SwappableChains } from "@aryxn/chain-constants"
+import { Chains, SwappableChains } from "@alixex/chain-constants"
 
 type SwappableChain = (typeof SwappableChains)[number]
 

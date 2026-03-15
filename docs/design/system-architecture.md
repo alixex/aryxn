@@ -26,9 +26,9 @@ Aryxn 是一个用户主权优先的保险库应用，集成了 DEX 功能。它
 
 统一的 SDK 层抽象了区块链交互，为前端提供一致的 API。
 
-- **`@aryxn/sdk-ethereum`**: 用于与以太坊合约交互的 TypeScript SDK。
-- **`@aryxn/sdk-solana`**: 用于与 Solana 程序交互的 TypeScript SDK。
-- **`@aryxn/sdk-multichain`**: 一个统一的封装器，将请求路由到相应的特定链 SDK。
+- **`@alixex/sdk-ethereum`**: 用于与以太坊合约交互的 TypeScript SDK。
+- **`@alixex/sdk-solana`**: 用于与 Solana 程序交互的 TypeScript SDK。
+- **`@alixex/sdk-multichain`**: 一个统一的封装器，将请求路由到相应的特定链 SDK。
 
 ## 数据同步
 

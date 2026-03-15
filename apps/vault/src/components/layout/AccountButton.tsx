@@ -10,7 +10,7 @@ import {
   BitcoinIcon,
   SuiIcon,
 } from "@/components/icons"
-import { Chains } from "@aryxn/chain-constants"
+import { Chains } from "@alixex/chain-constants"
 
 /**
  * Get chain icon component by chain type.

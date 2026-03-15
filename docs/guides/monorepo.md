@@ -13,9 +13,9 @@
 pnpm dev
 
 # 监听 SDK 变化（开发模式）
-pnpm --filter=@aryxn/sdk-ethereum dev
-pnpm --filter=@aryxn/sdk-solana dev
-pnpm --filter=@aryxn/sdk-multichain dev
+pnpm --filter=@alixex/sdk-ethereum dev
+pnpm --filter=@alixex/sdk-solana dev
+pnpm --filter=@alixex/sdk-multichain dev
 ```
 
 ### 构建
@@ -25,10 +25,10 @@ pnpm --filter=@aryxn/sdk-multichain dev
 pnpm build:sdk
 
 # 构建以太坊合约
-pnpm --filter=@aryxn/contracts-ethereum build
+pnpm --filter=@alixex/contracts-ethereum build
 
 # 构建 Solana 程序（需要 Anchor）
-pnpm --filter=@aryxn/contracts-solana build
+pnpm --filter=@alixex/contracts-solana build
 
 # 全量构建
 pnpm build:all
@@ -57,7 +57,7 @@ pnpm test:solana
 ```
 aryxn/
 ├── apps/
-│   └── vault/                        # 前端应用 (@aryxn/vault)
+│   └── vault/                        # 前端应用 (@alixex/vault)
 │       ├── src/
 │       ├── public/
 │       └── package.json
@@ -95,7 +95,7 @@ aryxn/
 
 ```typescript
 // apps/web/src/lib/swap.ts
-import { MultiChainSwapper } from "@aryxn/sdk-multichain"
+import { MultiChainSwapper } from "@alixex/sdk-multichain"
 
 export const swapper = new MultiChainSwapper({
   ethereum: {
@@ -113,7 +113,7 @@ export const swapper = new MultiChainSwapper({
 
 ```typescript
 // 只使用以太坊
-import { EthereumSwapper } from "@aryxn/sdk-ethereum"
+import { EthereumSwapper } from "@alixex/sdk-ethereum"
 
 const ethSwapper = new EthereumSwapper({
   rpcUrl: "https://eth-mainnet...",
@@ -145,13 +145,13 @@ await ethSwapper.swap({
 vim packages/contracts-ethereum/src/MultiHopSwapper.sol
 
 # 2. 编译
-pnpm --filter=@aryxn/contracts-ethereum build
+pnpm --filter=@alixex/contracts-ethereum build
 
 # 3. 测试
-pnpm --filter=@aryxn/contracts-ethereum test
+pnpm --filter=@alixex/contracts-ethereum test
 
 # 4. 部署（测试网）
-pnpm --filter=@aryxn/contracts-ethereum deploy:sepolia
+pnpm --filter=@alixex/contracts-ethereum deploy:sepolia
 ```
 
 ### 修改 SDK
@@ -161,7 +161,7 @@ pnpm --filter=@aryxn/contracts-ethereum deploy:sepolia
 vim packages/sdk-ethereum/src/index.ts
 
 # 2. 构建
-pnpm --filter=@aryxn/sdk-ethereum build
+pnpm --filter=@alixex/sdk-ethereum build
 
 # 3. 在前端验证（自动 hot reload）
 pnpm dev

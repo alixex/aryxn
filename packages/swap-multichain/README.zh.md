@@ -1,4 +1,4 @@
-# @aryxn/sdk-multichain
+# @alixex/sdk-multichain
 
 多链交换统一 SDK，旨在打通 Solana 和以太坊生态的无缝交易。
 
@@ -11,7 +11,7 @@
 ## 安装
 
 ```bash
-pnpm add @aryxn/sdk-multichain
+pnpm add @alixex/sdk-multichain
 ```
 
 ## 快速上手
@@ -19,7 +19,7 @@ pnpm add @aryxn/sdk-multichain
 ### 1. 初始化
 
 ```typescript
-import { MultiChainSwapper } from "@aryxn/sdk-multichain"
+import { MultiChainSwapper } from "@alixex/sdk-multichain"
 
 const swapper = new MultiChainSwapper({
   ethereumRpcUrl: "https://mainnet.infura.io/v3/...",

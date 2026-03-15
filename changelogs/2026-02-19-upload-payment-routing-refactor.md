@@ -125,8 +125,8 @@ Swap 页面继续承接：
 
 ### 校验
 
-- 类型检查通过：`pnpm --filter=@aryxn/web type-check`
-- 类型检查通过：`pnpm --filter=@aryxn/chain-constants type-check`
+- 类型检查通过：`pnpm --filter=@alixex/web type-check`
+- 类型检查通过：`pnpm --filter=@alixex/chain-constants type-check`
 
 ## 测试建议
 
@@ -176,8 +176,8 @@ Swap 页面继续承接：
 
 ### 发布前技术检查（必须）
 
-- [ ] `pnpm --filter=@aryxn/web type-check` 通过
-- [ ] `pnpm --filter=@aryxn/chain-constants type-check` 通过
+- [ ] `pnpm --filter=@alixex/web type-check` 通过
+- [ ] `pnpm --filter=@alixex/chain-constants type-check` 通过
 - [ ] i18n 新增文案键在 `en/zh` 均存在
 - [ ] `packages/chain-constants/src/tokens.ts` 与 Web 侧使用保持一致
 
@@ -197,7 +197,7 @@ Swap 页面继续承接：
 3. 回滚后执行：
 
 ```bash
-pnpm --filter=@aryxn/web type-check
+pnpm --filter=@alixex/web type-check
 ```
 
 4. 重点验收：

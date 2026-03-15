@@ -1,5 +1,5 @@
 {
-  "name": "@aryxn/vault",
+  "name": "@alixex/vault",
   "private": true,
   "version": "1.0.0",
   "type": "module",
@@ -46,14 +46,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@aryxn/arweave": "workspace:*",
-    "@aryxn/chain-constants": "workspace:*",
-    "@aryxn/cross-chain": "workspace:*",
-    "@aryxn/crypto": "workspace:*",
-    "@aryxn/exchange-chain": "workspace:*",
-    "@aryxn/query-chain": "workspace:*",
-    "@aryxn/storage": "workspace:*",
-    "@aryxn/swap-multichain": "workspace:*",
-    "@aryxn/wallet-core": "workspace:*"
+    "@alixex/arweave": "workspace:*",
+    "@alixex/chain-constants": "workspace:*",
+    "@alixex/cross-chain": "workspace:*",
+    "@alixex/crypto": "workspace:*",
+    "@alixex/exchange-chain": "workspace:*",
+    "@alixex/query-chain": "workspace:*",
+    "@alixex/storage": "workspace:*",
+    "@alixex/swap-multichain": "workspace:*",
+    "@alixex/wallet-core": "workspace:*"
   }
 }

@@ -4,24 +4,24 @@
 
 从代码来看，你提到的三个需求（保存到 SQLite、提供手动更新同步按钮、按地址筛选）在目前架构中的现状非常有利于快速实现：
 
-### 1. 存储底层 (SQLite + @aryxn/storage)
+### 1. 存储底层 (SQLite + @alixex/storage)
 
 **现状**:
 
-- 目前应用已经使用了 `@aryxn/storage` 包（底层是基于 OPFS 优化的 WebAssembly SQLite `@sqlite.org/sqlite-wasm` ）。
+- 目前应用已经使用了 `@alixex/storage` 包（底层是基于 OPFS 优化的 WebAssembly SQLite `@sqlite.org/sqlite-wasm` ）。
 - 桥接/交换的交易记录实质上已经被存入了 SQLite 数据库的 `bridge_transactions` 表中（位于 `apps/web/src/lib/store/bridge-history-repo.ts` ）。
 - 这种方案极其适合在客户端存放成千上万条记录进行超高效率的索引和查询。
 
 **改进空间 (加密存储)**:
 
-- 目前 `bridge_transactions` 的数据是明文存在 SQLite 里的。如果是隐私敏感数据（比如交易金额、来源地址），我们需要在写入前利用已存在的 `@aryxn/crypto` 对敏感列（如 `amount`, `token`）进行对称加密。这也是一个极佳的安全实践。
+- 目前 `bridge_transactions` 的数据是明文存在 SQLite 里的。如果是隐私敏感数据（比如交易金额、来源地址），我们需要在写入前利用已存在的 `@alixex/crypto` 对敏感列（如 `amount`, `token`）进行对称加密。这也是一个极佳的安全实践。
 
 ### 2. 手动同步与自动防抖
 
 **现状**:
 
 - 历史记录组件 `<TransactionHistory />` 中已经实现了手动刷新按钮（"Sync"）。
-- 它通过 `syncWithChain` 方法从后端索引节点（通过 `@aryxn/query-chain` 里的 `AggregateHistoryProvider`）按需拉取数据落库。
+- 它通过 `syncWithChain` 方法从后端索引节点（通过 `@alixex/query-chain` 里的 `AggregateHistoryProvider`）按需拉取数据落库。
 - 自带了 30s 的 Cooldown，避免了高频垃圾请求。
 
 **改进空间**:
@@ -47,7 +47,7 @@
 
 **预测耗时:** 低 (Low)
 
-1. 在 `bridge-history-repo.ts` 中引入 `@aryxn/crypto`。
+1. 在 `bridge-history-repo.ts` 中引入 `@alixex/crypto`。
 2. 在 `upsertBridgeTransaction` 时，对 `amount`、`token` 以及未来可能会有的 `sender` 字段做对称加密后再存入 SQLite。
 3. 在 `listBridgeTransactions` 读取后自动解密还原。
 

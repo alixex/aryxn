@@ -4,12 +4,12 @@ import {
   type Route,
   type LiFiStep,
 } from "@lifi/sdk"
-import { RPCs } from "@aryxn/chain-constants"
+import { RPCs } from "@alixex/chain-constants"
 import {
   createEvmProvider,
   createSolanaConnection,
   createSuiClientWithUrl,
-} from "@aryxn/wallet-core"
+} from "@alixex/wallet-core"
 import { VersionedTransaction } from "@solana/web3.js"
 
 export type BridgeSimulationStatus = "PASSED" | "FAILED" | "UNSUPPORTED"

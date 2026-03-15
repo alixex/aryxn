@@ -2,7 +2,7 @@
 
 ## 1. 项目概述
 
-**Aryxn Web** (`@aryxn/vault`) 是一个基于 React (Vite) 构建的以用户主权为核心的去中心化多链应用。它的核心定位是**跨链账户管家**与**永久加密文件存储库 (Vault)**。
+**Aryxn Web** (`@alixex/vault`) 是一个基于 React (Vite) 构建的以用户主权为核心的去中心化多链应用。它的核心定位是**跨链账户管家**与**永久加密文件存储库 (Vault)**。
 用户可以通过它管理多条主流区块链上的资产和账户，并基于 Arweave 区块链实现端到端加密的永久文件网络存储。
 
 ## 2. 核心模块与功能树
@@ -18,7 +18,7 @@
 - **内部/外部账户融合**:
   - 支持内部生成和导入账户（通过私钥或助记词导入），采用加密 Vault 在本地安全存储。
   - 支持连接外部插件钱包（如 MetaMask, Phantom 等）。
-- **账户详情与资产**: 实时展示各链账户的 Token 余额（通过 `@aryxn/wallet-core` 和各链底层 SDK 计算）。
+- **账户详情与资产**: 实时展示各链账户的 Token 余额（通过 `@alixex/wallet-core` 和各链底层 SDK 计算）。
 - **安全机制**: 敏感信息（私钥、助记词）必须通过应用本地的 Master Password 解锁后方可展示，采用本地加密机制保护用户密钥留存安全。
 
 ### 2.2 数据看板模块 (Dashboard)
@@ -38,7 +38,7 @@
 - **文件处理**: 选择并预览要上传的文件，支持单文件和复合批量的选择模式。
 - **隐私保护与加密**: 提供高强度的端到端加密（Encrypt Upload）选择，确保除所有者外任何节点无法查看数据内容；支持数据压缩选项保护隐私并节省上链成本。
 - **智能资费与路由**: 实时预估 Arweave 存储所需费用，用户需确认作为付款的 Arweave 账户。若余额不足，可无缝联动 Swap 模块提示跨链桥接（Bridge）或同链兑换（Swap）。
-- **上传执行**: 集成了 `@aryxn/arweave` 库以流式分块形式将数据永存至去中心化网络。
+- **上传执行**: 集成了 `@alixex/arweave` 库以流式分块形式将数据永存至去中心化网络。
 
 ### 2.4 跨链交易与路由模块 (Swap / DEX)
 
@@ -65,7 +65,7 @@
 - **轻量路由**: React Router 为核心，具有简单的页面级路由拆分。
 - **状态流转设计**: 舍弃传统的重度全局状态树（如 Redux），大量采用了高度封装且以领域驱动的自定义 Hooks 数据流模式 (`useWallet`, `useAccounts`, `useFileSync`, `useUploadHandler` 等），达到了业务逻辑和视图层的深层解耦。
 - **UI 设计美学**: 基于 Tailwind CSS 及衍生生态 `shadcn/ui`，辅以自设计的 Mesh Gradient（多色网格渐变）、毛玻璃透明叠加态（Glassmorphism），提供具有顶级科技感与高级视觉审美的多态组件体系。
-- **WASM 及浏览器数据库创新**: 深度采用 IndexedDB / OPFS (Origin Private File System) 与 WASM 编译的本地 SQLite，在纯前端浏览器环境构建了足以支撑高并发查询和小文件管理的数据仓储 (`@aryxn/storage`)。
+- **WASM 及浏览器数据库创新**: 深度采用 IndexedDB / OPFS (Origin Private File System) 与 WASM 编译的本地 SQLite，在纯前端浏览器环境构建了足以支撑高并发查询和小文件管理的数据仓储 (`@alixex/storage`)。
 
 ## 4. 总结
 

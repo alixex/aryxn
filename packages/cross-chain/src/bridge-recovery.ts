@@ -1,5 +1,5 @@
 import { getStatus, type ChainId, type StatusResponse } from "@lifi/sdk"
-import { EvmChainIds } from "@aryxn/chain-constants"
+import { EvmChainIds } from "@alixex/chain-constants"
 import type { Signer } from "ethers"
 import {
   liFiBridgeService,

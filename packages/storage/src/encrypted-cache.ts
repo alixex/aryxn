@@ -8,7 +8,7 @@
 import {
   encryptStringForStorage,
   decryptStringFromStorage,
-} from "@aryxn/crypto"
+} from "@alixex/crypto"
 
 export async function persistEncrypted(key: string, obj: any): Promise<void> {
   if (typeof window === "undefined" || !window.localStorage) {

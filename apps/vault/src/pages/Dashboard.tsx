@@ -4,7 +4,7 @@ import { useTranslation } from "@/i18n/config"
 import type { UploadRecord, WalletRecord } from "@/lib/utils"
 import { formatFileSize } from "@/lib/utils"
 import { searchFiles, type FileIndex } from "@/lib/file"
-import { Chains } from "@aryxn/chain-constants"
+import { Chains } from "@alixex/chain-constants"
 import { HistoryTable } from "@/components/history-table"
 
 import {

@@ -1,4 +1,4 @@
-import { RPCs } from "@aryxn/chain-constants"
+import { RPCs } from "@alixex/chain-constants"
 
 /**
  * Checks if the code is running in a browser environment.

@@ -3,7 +3,7 @@
 ## Storage & Encryption Strategy (SQLite)
 
 We will modify `packages/storage` or directly update the `apps/web/src/lib/store/bridge-history-repo.ts` to include encryption.
-Since the SQLite vault relies on `@aryxn/crypto`, we can import utility functions for symmetric encryption.
+Since the SQLite vault relies on `@alixex/crypto`, we can import utility functions for symmetric encryption.
 
 **Core Changes:**
 

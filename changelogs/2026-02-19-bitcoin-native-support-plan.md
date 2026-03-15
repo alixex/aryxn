@@ -45,7 +45,7 @@
 
 ## Technical Design (Phase 1)
 
-- `@aryxn/crypto`
+- `@alixex/crypto`
   - 新增 BTC 交易构建/签名方法（输入 WIF、UTXO、金额、fee）
 - `apps/web`
   - 新增 BTC 网络交互模块（UTXO/fee/broadcast）

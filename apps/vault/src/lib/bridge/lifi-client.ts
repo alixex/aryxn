@@ -6,7 +6,7 @@ import type {
   LiFiTransaction,
 } from "./route-types"
 import { mapBridgeError } from "./bridge-errors"
-import { LIFI_API_URL } from "@aryxn/chain-constants"
+import { LIFI_API_URL } from "@alixex/chain-constants"
 
 // Li.Fi client timeout configuration
 const LIFI_TIMEOUT = 30000 // 30s

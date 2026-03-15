@@ -1,11 +1,11 @@
-# @aryxn/swap-ethereum
+# @alixex/swap-ethereum
 
 Ethereum Swapper SDK for the Aryxn Universal Router, supporting Uniswap V2/V3, Aerodrome, and multi-chain routing.
 
 ## Installation
 
 ```bash
-pnpm add @aryxn/swap-ethereum
+pnpm add @alixex/swap-ethereum
 ```
 
 ## Usage
@@ -13,7 +13,7 @@ pnpm add @aryxn/swap-ethereum
 ### 1. Initialize
 
 ```typescript
-import { EthereumSwapper, CHAIN_CONFIGS } from "@aryxn/swap-ethereum"
+import { EthereumSwapper, CHAIN_CONFIGS } from "@alixex/swap-ethereum"
 
 // Easily get WETH/USDC addresses for different chains
 const baseConfig = CHAIN_CONFIGS.BASE

@@ -9,14 +9,14 @@ import { getBalance, type BalanceResult } from "@/lib/chain"
 import { useVault } from "@/hooks/vault-hooks"
 import { useWalletStorage } from "@/hooks/vault-hooks"
 import { useWalletOps } from "@/hooks/vault-hooks"
-import { AccountChains, Chains } from "@aryxn/chain-constants"
+import { AccountChains, Chains } from "@alixex/chain-constants"
 import { clearPasswordVerificationSession } from "@/lib/security/password-verification-session"
 import type {
   WalletRecord,
   WalletKey,
   ActiveAccount,
   DecryptedData,
-} from "@aryxn/wallet-core"
+} from "@alixex/wallet-core"
 
 // Standardized account shape exposed by the provider
 export type AccountInfo = {

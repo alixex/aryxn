@@ -3,14 +3,14 @@ import {
   Chains,
   PaymentTokenMetadata,
   COINGECKO_API_URL,
-} from "@aryxn/chain-constants"
+} from "@alixex/chain-constants"
 import type { PaymentAccount, PaymentToken } from "./types"
 import {
   getIrysFundingToken,
   resolveUploadRedirectAction,
 } from "./upload-payment-config"
 import type { UploadRedirectAction, PaymentIntent } from "./types"
-import { ExchangeRouter } from "@aryxn/exchange-chain"
+import { ExchangeRouter } from "@alixex/exchange-chain"
 import { PaymentRepository } from "./payment-repository"
 import { config } from "@/lib/config"
 

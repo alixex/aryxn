@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { useTranslation } from "@/i18n/config"
 import { db } from "@/lib/database"
-import { clearAllApplicationData } from "@aryxn/storage"
+import { clearAllApplicationData } from "@alixex/storage"
 import { toast } from "sonner"
 import LanguageSettings from "@/components/settings/LanguageSettings"
 import StorageSettingsCard from "@/components/settings/StorageSettingsCard"

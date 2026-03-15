@@ -1,6 +1,6 @@
 // apps/web/src/lib/bridge/route-types.ts
 
-import type { Address } from "@aryxn/wallet-core"
+import type { Address } from "@alixex/wallet-core"
 
 /**
  * Request to query bridge routes

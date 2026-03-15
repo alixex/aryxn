@@ -154,7 +154,7 @@ BridgeCard (UI)
     │   └─ Debounced quote fetching
     │
     ▼
-LiFiBridgeService (@aryxn/cross-chain)
+LiFiBridgeService (@alixex/cross-chain)
     │
     ├─ getOptimalRoute() → Li.Fi API
     ├─ calculateCostBreakdown()

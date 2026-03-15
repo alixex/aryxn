@@ -1,5 +1,5 @@
 {
-  "name": "@aryxn/crypto",
+  "name": "@alixex/crypto",
   "version": "1.0.0",
   "description": "Pure cryptographic operations for Aryxn",
   "main": "src/index.ts",

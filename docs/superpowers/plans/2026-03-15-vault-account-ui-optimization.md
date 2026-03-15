@@ -56,7 +56,7 @@
   Expected: identify the concrete tsconfig file where `types` should be updated (`apps/vault/tsconfig.app.json` for browser tests in this app).
 
 - [ ] **Step 2: Write the failing test command (expected missing config)**
-      Run: `pnpm --filter @aryxn/vault exec vitest run`
+      Run: `pnpm --filter @alixex/vault exec vitest run`
       Expected: FAIL with missing Vitest configuration/dependencies.
 
 - [ ] **Step 3: Add test dependencies and scripts**
@@ -65,7 +65,7 @@
 - Add scripts: `test`, `test:run`.
 - Add `vitest/globals` to the `types` array in `apps/vault/tsconfig.app.json`.
 - Install with one concrete command so lockfile resolves exact versions:
-  - `pnpm --filter @aryxn/vault add -D vitest @testing-library/react @testing-library/jest-dom jsdom`
+  - `pnpm --filter @alixex/vault add -D vitest @testing-library/react @testing-library/jest-dom jsdom`
 
 - [ ] **Step 4: Add minimal Vitest config and setup file**
       `apps/vault/vitest.config.ts` should include:
@@ -78,7 +78,7 @@
 - `import "@testing-library/jest-dom/vitest"`
 
 - [ ] **Step 5: Run test command to verify framework boots**
-      Run: `pnpm --filter @aryxn/vault test:run`
+      Run: `pnpm --filter @alixex/vault test:run`
       Expected: PASS with 0 tests before Chunk 1 test file is added, then PASS with discovered tests.
       If this fails, verify `vitest.config.ts`, `tsconfig.app.json` types, and installed dev dependencies before continuing.
 
@@ -108,7 +108,7 @@
 - `expect(screen.getByTestId("account-content-grid").className).toMatch(/lg:/)`
 
 - [ ] **Step 2: Run targeted test to verify failure**
-      Run: `pnpm --filter @aryxn/vault test:run -- AccountLayout.shell.test.tsx`
+      Run: `pnpm --filter @alixex/vault test:run -- AccountLayout.shell.test.tsx`
       Expected: FAIL due to missing/changed structural classes/hooks.
 
 - [ ] **Step 3: Implement minimal shell updates**
@@ -148,9 +148,9 @@ Scope guard for Chunk 1:
 
 - [ ] **Step 4: Run test and type check**
       Run:
-- `pnpm --filter @aryxn/vault test:run -- AccountLayout.shell.test.tsx`
-- `pnpm --filter @aryxn/vault type-check`
-- `pnpm --filter @aryxn/vault build`
+- `pnpm --filter @alixex/vault test:run -- AccountLayout.shell.test.tsx`
+- `pnpm --filter @alixex/vault type-check`
+- `pnpm --filter @alixex/vault build`
   Expected: PASS test and PASS type-check.
 
 Manual quick check:
@@ -183,7 +183,7 @@ Manual quick check:
 - account card root keeps focus-visible class path (keyboard navigability baseline).
 
 - [ ] **Step 2: Run targeted tests and confirm fail**
-      Run: `pnpm --filter @aryxn/vault test:run -- AccountCard.interaction.test.tsx`
+      Run: `pnpm --filter @alixex/vault test:run -- AccountCard.interaction.test.tsx`
       Expected: FAIL for at least one interaction/pointer assertion.
 
 - [ ] **Step 3: Implement minimal component changes**
@@ -200,8 +200,8 @@ Motion placement map:
 
 - [ ] **Step 4: Run tests and type check**
       Run:
-- `pnpm --filter @aryxn/vault test:run -- AccountCard.interaction.test.tsx`
-- `pnpm --filter @aryxn/vault type-check`
+- `pnpm --filter @alixex/vault test:run -- AccountCard.interaction.test.tsx`
+- `pnpm --filter @alixex/vault type-check`
   Expected: PASS test and PASS type-check.
 
 - [ ] **Step 5: Commit**
@@ -245,7 +245,7 @@ Motion placement map:
 - custom clickable controls retain focus-visible support.
 
 - [ ] **Step 2: Run targeted tests to verify failure**
-      Run: `pnpm --filter @aryxn/vault test:run -- AddAccountSection.affordance.test.tsx`
+      Run: `pnpm --filter @alixex/vault test:run -- AddAccountSection.affordance.test.tsx`
       Expected: FAIL for missing desktop pointer affordance and/or expected hooks.
 
 - [ ] **Step 3: Implement minimal UI changes**
@@ -254,8 +254,8 @@ Motion placement map:
 
 - [ ] **Step 4: Run tests, lint, and type check**
       Run:
-- `pnpm --filter @aryxn/vault test:run -- AddAccountSection.affordance.test.tsx`
-- `pnpm --filter @aryxn/vault lint`
+- `pnpm --filter @alixex/vault test:run -- AddAccountSection.affordance.test.tsx`
+- `pnpm --filter @alixex/vault lint`
   Expected: PASS tests and PASS lint/type checks.
 
 - [ ] **Step 5: Commit**
@@ -278,7 +278,7 @@ Motion placement map:
 - result summary supports collapsed and expanded detail states.
 
 - [ ] **Step 2: Run targeted tests and confirm fail**
-      Run: `pnpm --filter @aryxn/vault test:run -- ConfigImportExport.dialog.test.tsx`
+      Run: `pnpm --filter @alixex/vault test:run -- ConfigImportExport.dialog.test.tsx`
       Expected: FAIL for missing one or more target behaviors.
 
 - [ ] **Step 3: Implement minimal UI-only changes**
@@ -293,8 +293,8 @@ Motion placement map:
 
 - [ ] **Step 5: Run tests, lint, and type check**
       Run:
-- `pnpm --filter @aryxn/vault test:run -- ConfigImportExport.dialog.test.tsx`
-- `pnpm --filter @aryxn/vault lint`
+- `pnpm --filter @alixex/vault test:run -- ConfigImportExport.dialog.test.tsx`
+- `pnpm --filter @alixex/vault lint`
   Expected: PASS tests and PASS lint/type checks.
 
 - [ ] **Step 6: Commit**
@@ -311,13 +311,13 @@ Motion placement map:
 - Modify: `docs/superpowers/specs/2026-03-15-vault-layout-interaction-design.md` (optional, only if implementation-driven clarifications are needed)
 
 - [ ] **Step 1: Run full account component test suite**
-      Run: `pnpm --filter @aryxn/vault test:run -- src/components/account/__tests__`
+      Run: `pnpm --filter @alixex/vault test:run -- src/components/account/__tests__`
       Expected: PASS all account-related tests.
 
 - [ ] **Step 2: Run project quality gates**
       Run:
-- `pnpm --filter @aryxn/vault type-check`
-- `pnpm --filter @aryxn/vault lint`
+- `pnpm --filter @alixex/vault type-check`
+- `pnpm --filter @alixex/vault lint`
   Expected: PASS with no new errors.
 
 - [ ] **Step 3: Run pointer policy grep check**
@@ -332,7 +332,7 @@ Motion placement map:
 
 - [ ] **Step 4: Manual runtime validation**
       Run:
-      `pnpm --filter @aryxn/vault dev`
+      `pnpm --filter @alixex/vault dev`
       Validate:
 - desktop and mobile layout tiers
 - account select/copy/sensitive actions
