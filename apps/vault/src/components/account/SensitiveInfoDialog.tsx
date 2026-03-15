@@ -164,7 +164,7 @@ export function SensitiveInfoDialog({
           )}
         </div>
 
-        {/* 操作按钮固定在底部 */}
+        {/* Action buttons pinned at the bottom */}
         {decryptedInfo && (
           <div className="border-border shrink-0 space-y-2 border-t pt-4">
             <Button onClick={handleDownload} className="w-full">
