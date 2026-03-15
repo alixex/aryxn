@@ -142,7 +142,6 @@ type DecryptStage =
   | "decrypting"
   | "opening"
 
-const GATEWAY_TIMEOUT_MS = 10000
 
 function concatChunks(chunks: Uint8Array[], total: number): Uint8Array {
   const output = new Uint8Array(total)

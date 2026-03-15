@@ -45,7 +45,6 @@ type DownloadStage =
   | "saving"
   | "done"
 
-const GATEWAY_TIMEOUT_MS = 10000
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
