@@ -142,22 +142,51 @@ Create permanent backups of critical files that will outlast any single company 
 
 ## **Monorepo Architecture**
 
+### **apps/**
+
+- **vault/**: Primary end-user web application (account management, upload, dashboard, swap, bridge, settings)
+
+See also: [apps/README.md](apps/README.md)
+
+### **packages/**
+
+- **arweave/**: Arweave interaction utilities and integration logic
+- **chain-constants/**: Shared chain IDs, token metadata, routing constants, and network configuration
+- **changelogs/**: Package-level changelog assets used by release/documentation workflows
+- **cross-chain/**: Cross-chain bridge orchestration and state handling
+- **crypto/**: Shared cryptographic primitives and encoding helpers
+- **exchange-chain/**: Swap/exchange route planning across supported chains
+- **query-chain/**: On-chain/off-chain query abstraction for multi-chain data access
+- **storage/**: Persistent/local storage helpers, including indexed data support
+- **swap-ethereum/**: Ethereum-specific swap execution adapters
+- **swap-multichain/**: Multi-chain swap coordination layer
+- **swap-solana/**: Solana-specific swap execution adapters
+- **wallet-core/**: Core wallet lifecycle, account operations, and signing abstractions
+
+See also: [packages/README.md](packages/README.md)
+
+### **Repository Layout (High-Level)**
+
 ```
 aryxn/
-├── apps/
-│   └── vault/            # Main Web application
-├── packages/
-│   ├── wallet-core/      # Multi-chain wallet management
-│   ├── arweave/          # Arweave storage integration
-│   ├── swap-ethereum/    # Ethereum DEX integration
-│   ├── swap-solana/      # Solana DEX integration
-│   ├── swap-multichain/  # Multi-hop swap orchestration
-│   ├── cross-chain/      # Cross-chain bridge logic
-│   ├── exchange-chain/   # Exchange routing engine
-│   ├── query-chain/      # Multi-chain data querying
-│   ├── chain-constants/  # Chain configuration & constants
-│   ├── crypto/           # Cryptographic utilities
-│   └── storage/          # Local storage & SQLite
+├── apps/                 # User-facing applications
+│   └── vault/
+├── packages/             # Shared domain modules and SDK layers
+│   ├── arweave/
+│   ├── chain-constants/
+│   ├── changelogs/
+│   ├── cross-chain/
+│   ├── crypto/
+│   ├── exchange-chain/
+│   ├── query-chain/
+│   ├── storage/
+│   ├── swap-ethereum/
+│   ├── swap-multichain/
+│   ├── swap-solana/
+│   └── wallet-core/
+├── docs/                 # Product, architecture, and planning docs
+├── scripts/              # Automation and setup scripts
+└── client/               # Client assets/build workspace
 ```
 
 ## **Open Source**

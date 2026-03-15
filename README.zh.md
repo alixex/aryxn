@@ -142,22 +142,51 @@
 
 ## **Monorepo 架构**
 
+### **apps/**
+
+- **vault/**：面向用户的主 Web 应用（账户管理、上传、仪表板、兑换、跨链、设置）
+
+另见：[apps/README.zh.md](apps/README.zh.md)
+
+### **packages/**
+
+- **arweave/**：Arweave 交互能力与集成逻辑
+- **chain-constants/**：共享链配置、代币元数据与路由常量
+- **changelogs/**：包级变更说明资产（用于发布/文档流程）
+- **cross-chain/**：跨链桥接编排与状态处理
+- **crypto/**：共享加密原语与编码工具
+- **exchange-chain/**：多链兑换路径规划引擎
+- **query-chain/**：多链数据查询抽象层
+- **storage/**：持久化/本地存储辅助能力
+- **swap-ethereum/**：Ethereum 侧兑换执行适配
+- **swap-multichain/**：多链兑换协调层
+- **swap-solana/**：Solana 侧兑换执行适配
+- **wallet-core/**：钱包核心生命周期、账户操作与签名抽象
+
+另见：[packages/README.zh.md](packages/README.zh.md)
+
+### **仓库目录总览（高层）**
+
 ```
 aryxn/
-├── apps/
-│   └── vault/            # 主 Web 应用
-├── packages/
-│   ├── wallet-core/      # 多链钱包管理
-│   ├── arweave/          # Arweave 存储集成
-│   ├── swap-ethereum/    # Ethereum DEX 集成
-│   ├── swap-solana/      # Solana DEX 集成
-│   ├── swap-multichain/  # 多跳兑换编排
-│   ├── cross-chain/      # 跨链桥接逻辑
-│   ├── exchange-chain/   # 交易路由引擎
-│   ├── query-chain/      # 多链数据查询
-│   ├── chain-constants/  # 链配置和常量
-│   ├── crypto/           # 加密工具集
-│   └── storage/          # 本地存储和 SQLite
+├── apps/                 # 面向用户的应用层
+│   └── vault/
+├── packages/             # 共享领域模块与 SDK 层
+│   ├── arweave/
+│   ├── chain-constants/
+│   ├── changelogs/
+│   ├── cross-chain/
+│   ├── crypto/
+│   ├── exchange-chain/
+│   ├── query-chain/
+│   ├── storage/
+│   ├── swap-ethereum/
+│   ├── swap-multichain/
+│   ├── swap-solana/
+│   └── wallet-core/
+├── docs/                 # 产品、架构与方案文档
+├── scripts/              # 自动化与安装脚本
+└── client/               # 客户端资源/构建工作区
 ```
 
 ## **开源**
