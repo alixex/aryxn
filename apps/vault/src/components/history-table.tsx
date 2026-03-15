@@ -71,7 +71,7 @@ export function HistoryTable({
       return
     }
 
-    // 如果请求解密但未解锁，提示用户
+    // If decryption is requested while locked, show a hint.
     if (decrypt && record.encryptionAlgo !== "none" && !masterKey) {
       toast.error(t("history.errorLocked"))
       return
@@ -110,7 +110,7 @@ export function HistoryTable({
 
       finishTask("failed", errorMessage)
 
-      // 检查是否是分块下载相关的错误
+      // Check whether this is a chunk-download related error.
       if (
         errorMessage.includes("chunk") ||
         errorMessage.includes("seeded") ||
@@ -272,14 +272,14 @@ export function HistoryTable({
                   key={r.txId}
                   className="group transition-colors duration-150 hover:bg-[hsl(var(--accent)/0.55)]"
                 >
-                  {/* 文件名 */}
+                  {/* File name */}
                   <td
                     className="text-foreground w-[24%] truncate px-4 py-3.5 font-semibold sm:px-6"
                     title={r.fileName}
                   >
                     <span className="block truncate">{r.fileName}</span>
                   </td>
-                  {/* 文件类型 */}
+                  {/* File type */}
                   <td
                     className="text-muted-foreground w-[9%] truncate px-4 py-3.5 sm:px-6"
                     title={r.mimeType || "-"}
@@ -288,7 +288,7 @@ export function HistoryTable({
                       {getFileTypeDisplay(r.mimeType)}
                     </span>
                   </td>
-                  {/* 文件大小 */}
+                  {/* File size */}
                   <td
                     className="text-muted-foreground w-[8%] truncate px-4 py-3.5 sm:px-6"
                     title={r.fileSize ? formatFileSize(r.fileSize) : "-"}
@@ -297,7 +297,7 @@ export function HistoryTable({
                       {formatFileSize(r.fileSize)}
                     </span>
                   </td>
-                  {/* 时间 */}
+                  {/* Time */}
                   <td
                     className="text-muted-foreground w-[12%] truncate px-4 py-3.5 sm:px-6"
                     title={formatDateTime(r.createdAt)}
@@ -306,7 +306,7 @@ export function HistoryTable({
                       {formatDateTime(r.createdAt)}
                     </span>
                   </td>
-                  {/* 存储 ID */}
+                  {/* Storage ID */}
                   <td className="w-[13%] truncate px-4 py-3.5 sm:px-6">
                     <div>
                       <a
@@ -323,7 +323,7 @@ export function HistoryTable({
                       </a>
                     </div>
                   </td>
-                  {/* 协议 */}
+                  {/* Protocol */}
                   <td
                     className="w-[8%] truncate px-4 py-3.5 sm:px-6"
                     title={r.storageType === "irys" ? "Irys L1" : "Arweave"}
@@ -338,7 +338,7 @@ export function HistoryTable({
                       </span>
                     )}
                   </td>
-                  {/* 安全性 */}
+                  {/* Security */}
                   <td className="w-[8%] truncate px-4 py-3.5 sm:px-6">
                     {r.encryptionAlgo !== "none" ? (
                       <div
@@ -468,7 +468,7 @@ export function HistoryTable({
                         </PopoverContent>
                       </Popover>
                       {r.encryptionAlgo !== "none" && !masterKey ? (
-                        // 加密文件但未解锁：显示两个按钮 - 下载加密版本和解密下载（禁用）
+                        // Encrypted file while locked: show two buttons (encrypted download + disabled decrypted download).
                         <>
                           <Button
                             variant="outline"
@@ -535,7 +535,7 @@ export function HistoryTable({
                           </Button>
                         </>
                       ) : (
-                        // 非加密文件或已解锁：显示单个下载按钮（自动解密）
+                        // Unencrypted or unlocked file: show one download button (auto-decrypt when needed).
                         <>
                           <Button
                             variant="outline"
