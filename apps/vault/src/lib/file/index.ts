@@ -51,4 +51,8 @@ export {
   forceManifestUpdate,
 } from "./manifest-updater"
 
-export { getCachedResource, upsertCachedResource } from "./resource-cache"
+export {
+  getCachedResource,
+  getCachedResourceFile,
+  upsertCachedResource,
+} from "./resource-cache"

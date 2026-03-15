@@ -2,7 +2,11 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import { useParams } from "react-router-dom"
 import { getFileByOwnerAndTxId, syncFileByTxIdFromArweave } from "@/lib/file"
 import type { FileIndex } from "@/lib/file"
-import { getCachedResource, upsertCachedResource } from "@/lib/file"
+import {
+  getCachedResource,
+  getCachedResourceFile,
+  upsertCachedResource,
+} from "@/lib/file"
 import { RPCs } from "@aryxn/chain-constants"
 import { deriveKey, decryptData, fromBase64 } from "@aryxn/crypto"
 import type { UploadRecord } from "@/lib/utils"
@@ -166,6 +170,12 @@ export default function ResourceByOwnerTx() {
     [],
   )
 
+  const openFileResource = useCallback((file: File) => {
+    const objectUrl = URL.createObjectURL(file)
+    setTimeout(() => URL.revokeObjectURL(objectUrl), 60000)
+    window.location.replace(objectUrl)
+  }, [])
+
   const normalized = useMemo(
     () => ({
       ownerAddress: ownerAddress.trim(),
@@ -242,18 +252,15 @@ export default function ResourceByOwnerTx() {
 
     const openPlainResource = async () => {
       try {
-        const cached = await getCachedResource(
+        const cachedFile = await getCachedResourceFile(
           state.file.owner_address,
           state.file.tx_id,
         )
 
         if (cancelled) return
 
-        if (cached && !cached.isEncrypted) {
-          openBlobResource(
-            cached.payload,
-            state.file.mime_type || "application/octet-stream",
-          )
+        if (cachedFile) {
+          openFileResource(cachedFile)
           return
         }
 
@@ -294,7 +301,7 @@ export default function ResourceByOwnerTx() {
     return () => {
       cancelled = true
     }
-  }, [openBlobResource, state])
+  }, [openFileResource, state])
 
   const handleDecryptAndOpen = async (file: FileIndex) => {
     if (!password.trim()) {

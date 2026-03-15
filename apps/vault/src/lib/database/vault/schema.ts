@@ -93,7 +93,9 @@ export const SCHEMA = [
     mime_type TEXT,
     storage_type TEXT,
     is_encrypted INTEGER NOT NULL DEFAULT 0,
-    payload_base64 TEXT NOT NULL,
+    cache_backend TEXT NOT NULL DEFAULT 'opfs',
+    opfs_key TEXT,
+    payload_base64 TEXT NOT NULL DEFAULT '',
     content_size INTEGER NOT NULL,
     created_at INTEGER NOT NULL,
     updated_at INTEGER NOT NULL

@@ -43,6 +43,14 @@ export async function initializeVaultDb() {
         sql: "ALTER TABLE bridge_transactions ADD COLUMN user_address TEXT",
         column: "user_address",
       },
+      {
+        sql: "ALTER TABLE resource_cache ADD COLUMN cache_backend TEXT NOT NULL DEFAULT 'db_base64'",
+        column: "cache_backend",
+      },
+      {
+        sql: "ALTER TABLE resource_cache ADD COLUMN opfs_key TEXT",
+        column: "opfs_key",
+      },
     ]
 
     for (const migration of migrations) {
