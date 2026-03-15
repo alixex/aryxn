@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from "react"
-import { useParams } from "react-router-dom"
+import { useEffect, useMemo, useRef, useState } from "react"
+import { useParams, useSearchParams } from "react-router-dom"
 import { getFileByOwnerAndTxId, syncFileByTxIdFromArweave } from "@/lib/file"
 import type { FileIndex } from "@/lib/file"
 import {
@@ -19,6 +19,7 @@ import {
   type DecodedTag,
 } from "@/components/history-table/transaction-tags"
 import { processFileData } from "@/components/history-table/process-data"
+import { decodeAuthParam } from "@/lib/resource-auth"
 import {
   Card,
   CardContent,
@@ -28,7 +29,104 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Eye, EyeOff, Lock } from "lucide-react"
+import { Download, Eye, EyeOff, Lock } from "lucide-react"
+
+// ─── Inline preview ───────────────────────────────────────────────────────────
+
+function InlinePreview({
+  payload,
+  mimeType,
+  fileName,
+}: {
+  payload: Uint8Array
+  mimeType: string
+  fileName: string
+}) {
+  const url = useMemo(() => {
+    const blob = new Blob([payload.buffer.slice(0) as BlobPart], {
+      type: mimeType || "application/octet-stream",
+    })
+    return URL.createObjectURL(blob)
+  }, [payload, mimeType])
+
+  const urlRef = useRef(url)
+  urlRef.current = url
+  useEffect(() => {
+    return () => URL.revokeObjectURL(urlRef.current)
+  }, [url])
+
+  const handleDownload = () => {
+    const a = document.createElement("a")
+    a.href = url
+    a.download = fileName
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+  }
+
+  const type = mimeType?.split(";")[0].trim() ?? ""
+
+  return (
+    <main className="mesh-gradient relative min-h-screen px-4 py-8">
+      <div className="mx-auto max-w-5xl">
+        <div className="mb-4 flex items-center justify-between">
+          <p
+            className="text-foreground truncate text-sm font-semibold"
+            title={fileName}
+          >
+            {fileName}
+          </p>
+          <Button size="sm" variant="outline" onClick={handleDownload}>
+            <Download className="mr-1.5 h-3.5 w-3.5" />
+            Download
+          </Button>
+        </div>
+
+        <div className="border-border/70 bg-card/80 overflow-hidden rounded-xl border shadow">
+          {type.startsWith("image/") ? (
+            <img
+              src={url}
+              alt={fileName}
+              className="mx-auto block max-h-[80vh] max-w-full object-contain"
+            />
+          ) : type.startsWith("video/") ? (
+            <video
+              src={url}
+              controls
+              className="mx-auto block max-h-[80vh] w-full"
+            />
+          ) : type.startsWith("audio/") ? (
+            <div className="flex items-center justify-center p-10">
+              <audio src={url} controls className="w-full max-w-md" />
+            </div>
+          ) : type === "application/pdf" ? (
+            <iframe
+              src={url}
+              title={fileName}
+              className="h-[85vh] w-full border-0"
+            />
+          ) : type.startsWith("text/") ? (
+            <iframe
+              src={url}
+              title={fileName}
+              className="h-[80vh] w-full border-0"
+            />
+          ) : (
+            <div className="flex flex-col items-center justify-center gap-4 p-12 text-center">
+              <p className="text-muted-foreground text-sm">
+                Preview not available for this file type.
+              </p>
+              <Button onClick={handleDownload}>
+                <Download className="mr-2 h-4 w-4" />
+                Download {fileName}
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
+    </main>
+  )
+}
 
 type LoadState =
   | { status: "loading" }
@@ -180,6 +278,9 @@ function classifyDecryptErrorByStage(
 
 export default function ResourceByOwnerTx() {
   const { ownerAddress = "", txId = "" } = useParams()
+  const [searchParams] = useSearchParams()
+  const authParam = searchParams.get("auth")
+
   const wallet = useWallet()
   const [state, setState] = useState<LoadState>({ status: "loading" })
   const [password, setPassword] = useState("")
@@ -193,24 +294,11 @@ export default function ResourceByOwnerTx() {
     loaded: number
     total: number | null
   }>({ loaded: 0, total: null })
-
-  const openBlobResource = useCallback(
-    (payload: Uint8Array, mimeType: string) => {
-      const blob = new Blob([payload.buffer.slice(0) as BlobPart], {
-        type: mimeType || "application/octet-stream",
-      })
-      const objectUrl = URL.createObjectURL(blob)
-      setTimeout(() => URL.revokeObjectURL(objectUrl), 60000)
-      window.location.replace(objectUrl)
-    },
-    [],
-  )
-
-  const openFileResource = useCallback((file: File) => {
-    const objectUrl = URL.createObjectURL(file)
-    setTimeout(() => URL.revokeObjectURL(objectUrl), 60000)
-    window.location.replace(objectUrl)
-  }, [])
+  const [previewPayload, setPreviewPayload] = useState<{
+    data: Uint8Array
+    mimeType: string
+    fileName: string
+  } | null>(null)
 
   const normalized = useMemo(
     () => ({
@@ -295,34 +383,36 @@ export default function ResourceByOwnerTx() {
 
         if (cancelled) return
 
+        let payload: Uint8Array
         if (cachedFile) {
-          openFileResource(cachedFile)
-          return
+          payload = new Uint8Array(await cachedFile.arrayBuffer())
+        } else {
+          const downloaded = await downloadEncryptedData(
+            state.file.tx_id,
+            state.file.storage_type,
+            Number(state.file.file_size || 0),
+          )
+
+          if (cancelled) return
+
+          await upsertCachedResource({
+            ownerAddress: state.file.owner_address,
+            txId: state.file.tx_id,
+            mimeType: state.file.mime_type,
+            storageType: state.file.storage_type,
+            isEncrypted: false,
+            payload: downloaded,
+          })
+          payload = downloaded
         }
 
-        const downloaded = await downloadEncryptedData(
-          state.file.tx_id,
-          state.file.storage_type,
-          Number(state.file.file_size || 0),
-        )
-
         if (cancelled) return
 
-        await upsertCachedResource({
-          ownerAddress: state.file.owner_address,
-          txId: state.file.tx_id,
-          mimeType: state.file.mime_type,
-          storageType: state.file.storage_type,
-          isEncrypted: false,
-          payload: downloaded,
+        setPreviewPayload({
+          data: payload,
+          mimeType: state.file.mime_type || "application/octet-stream",
+          fileName: state.file.file_name,
         })
-
-        if (cancelled) return
-
-        openBlobResource(
-          downloaded,
-          state.file.mime_type || "application/octet-stream",
-        )
       } catch (error) {
         console.error("Failed to open uncached resource locally:", error)
         const target = `${RPCs.ARWEAVE_BASE}/${state.file.tx_id}`
@@ -337,17 +427,20 @@ export default function ResourceByOwnerTx() {
     return () => {
       cancelled = true
     }
-  }, [openFileResource, state])
+  }, [state])
 
-  const handleDecryptAndOpen = async (file: FileIndex) => {
-    if (!password.trim()) {
-      setDecryptError("Password is required.")
-      return
-    }
+  const handleDecryptAndOpen = async (file: FileIndex, precomputedKey?: Uint8Array) => {
+    // If a key was provided (e.g. from auth param), skip password entry
+    if (!precomputedKey) {
+      if (!password.trim()) {
+        setDecryptError("Password is required.")
+        return
+      }
 
-    if (!wallet.internal.systemSalt) {
-      setDecryptError("Vault is still initializing. Please retry in a moment.")
-      return
+      if (!wallet.internal.systemSalt) {
+        setDecryptError("Vault is still initializing. Please retry in a moment.")
+        return
+      }
     }
 
     setDecrypting(true)
@@ -361,10 +454,10 @@ export default function ResourceByOwnerTx() {
 
     try {
       const salt = wallet.internal.systemSalt
-      const key = await deriveKey(password, salt)
+      const key = precomputedKey ?? await deriveKey(password, salt!)
 
-      // Stage 1: password verification gate.
-      if (wallet.internal.vaultId) {
+      // Stage 1: password verification gate (skip when key is precomputed from auth).
+      if (!precomputedKey && wallet.internal.vaultId) {
         const derivedVaultId = await getVaultIdFromKey(key)
         if (derivedVaultId !== wallet.internal.vaultId) {
           throw new Error("Incorrect password")
@@ -562,8 +655,12 @@ export default function ResourceByOwnerTx() {
 
       setDecryptStage("opening")
       currentStage = "opening"
-      setDecryptStatus("Opening resource...")
-      openBlobResource(decrypted, file.mime_type || "application/octet-stream")
+      setDecryptStatus("Opening preview...")
+      setPreviewPayload({
+        data: decrypted,
+        mimeType: file.mime_type || "application/octet-stream",
+        fileName: file.file_name,
+      })
     } catch (error) {
       let message =
         error instanceof Error
@@ -592,10 +689,60 @@ export default function ResourceByOwnerTx() {
     }
   }
 
+  // ── Auth-param auto-decrypt ─────────────────────────────────────────────────
+
+  useEffect(() => {
+    if (
+      !authParam ||
+      state.status !== "found" ||
+      state.file.encryption_algo === "none"
+    )
+      return
+
+    let cancelled = false
+
+    const openWithAuth = async () => {
+      try {
+        const key = await decodeAuthParam(authParam, normalized.txId)
+        if (cancelled) return
+        await handleDecryptAndOpen(state.file, key)
+      } catch (error) {
+        if (cancelled) return
+        console.warn("Auth param failed:", error)
+        setDecryptError(
+          "The access link could not be verified. Please enter the password manually.",
+        )
+        setErrorCategory("Auth failed")
+      }
+    }
+
+    void openWithAuth()
+    return () => {
+      cancelled = true
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authParam, state, normalized.txId])
+
+  if (previewPayload) {
+    return (
+      <InlinePreview
+        payload={previewPayload.data}
+        mimeType={previewPayload.mimeType}
+        fileName={previewPayload.fileName}
+      />
+    )
+  }
+
   if (state.status === "found") {
     if (state.file.encryption_algo === "none") {
-      return null
+      return (
+        <main className="mesh-gradient relative flex min-h-screen items-center justify-center p-4">
+          <p className="text-muted-foreground text-sm">Loading preview...</p>
+        </main>
+      )
     }
+
+    const autoAuthPending = !!authParam && decrypting
 
     return (
       <main className="mesh-gradient relative min-h-screen px-4 py-8">
@@ -608,9 +755,43 @@ export default function ResourceByOwnerTx() {
               </div>
               <CardTitle className="text-xl">Encrypted Resource</CardTitle>
               <CardDescription>
-                Enter password to verify and display this resource.
+                {autoAuthPending
+                  ? "Verifying access link..."
+                  : "Enter password to verify and preview this resource."}
               </CardDescription>
             </CardHeader>
+            {autoAuthPending && (
+              <CardContent className="pb-6">
+                <div className="space-y-3">
+                  {decryptStage === "downloading" && (
+                    <div className="space-y-2">
+                      <div className="bg-muted h-2 w-full overflow-hidden rounded-full">
+                        <div
+                          className="bg-primary h-full transition-all duration-200"
+                          style={{
+                            width:
+                              downloadProgress.total && downloadProgress.total > 0
+                                ? `${Math.min(100, (downloadProgress.loaded / downloadProgress.total) * 100)}%`
+                                : "35%",
+                          }}
+                        />
+                      </div>
+                      <p className="text-muted-foreground text-center text-xs">
+                        {downloadProgress.total && downloadProgress.total > 0
+                          ? `${((downloadProgress.loaded / downloadProgress.total) * 100).toFixed(1)}%`
+                          : "Downloading..."}
+                      </p>
+                    </div>
+                  )}
+                  {decryptStatus ? (
+                    <p className="text-muted-foreground text-center text-sm">
+                      {decryptStatus}
+                    </p>
+                  ) : null}
+                </div>
+              </CardContent>
+            )}
+            {!autoAuthPending && (
             <CardContent className="pb-6">
               <form
                 className="space-y-3"
@@ -696,6 +877,7 @@ export default function ResourceByOwnerTx() {
                 ) : null}
               </form>
             </CardContent>
+            )}
           </Card>
         </div>
       </main>
@@ -704,14 +886,16 @@ export default function ResourceByOwnerTx() {
 
   if (state.status === "loading") {
     return (
-      <main className="p-4 text-sm text-neutral-600">Loading resource...</main>
+      <main className="mesh-gradient relative flex min-h-screen items-center justify-center p-4">
+        <p className="text-muted-foreground text-sm">Loading resource...</p>
+      </main>
     )
   }
 
   return (
     <main className="p-4 text-sm text-neutral-700">
       Resource not found.
-      {state.reason ? ` ${state.reason}` : ""}
+      {state.status === "missing" && state.reason ? ` ${state.reason}` : ""}
     </main>
   )
 }

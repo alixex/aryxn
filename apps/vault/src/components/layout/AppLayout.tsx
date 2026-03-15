@@ -1,5 +1,6 @@
 import { type ReactNode } from "react"
 import { Navbar } from "./Navbar"
+import { GlobalDownloadBar } from "./GlobalDownloadBar"
 import { useTranslation } from "@/i18n/config"
 import { Toaster } from "sonner"
 
@@ -13,6 +14,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
         <div className="absolute top-12 right-0 h-80 w-80 rounded-full bg-[hsl(var(--secondary)/0.08)] blur-3xl" />
       </div>
       <Navbar />
+      <GlobalDownloadBar />
       <main className="relative z-10 container mx-auto max-w-6xl px-3 py-5 sm:px-4 sm:py-8 lg:px-8">
         {children}
       </main>

@@ -9,7 +9,7 @@ import {
   Shield,
   X,
 } from "lucide-react"
-import { useRef, useState } from "react"
+import { useState } from "react"
 import { toast } from "sonner"
 import { useTranslation } from "@/i18n/config"
 import {
@@ -18,6 +18,8 @@ import {
   getFileTypeDisplay,
 } from "./history-table/utils"
 import { handleFileDownload } from "./history-table/download-handler"
+import { generateAuthParam } from "@/lib/resource-auth"
+import { isTaskActive, useDownloadTaskStore } from "@/lib/store/download-task"
 
 export function HistoryTable({
   records,
@@ -30,18 +32,21 @@ export function HistoryTable({
 }) {
   const { t } = useTranslation()
   const [downloading, setDownloading] = useState<string | null>(null)
-  const [downloadProgress, setDownloadProgress] = useState<{
-    txId: string
-    loaded: number
-    total: number | null
-  } | null>(null)
-  const activeDownloadController = useRef<AbortController | null>(null)
+  const activeTask = useDownloadTaskStore((s) => s.activeTask)
+  const startTask = useDownloadTaskStore((s) => s.startTask)
+  const updateProgress = useDownloadTaskStore((s) => s.updateProgress)
+  const setStatus = useDownloadTaskStore((s) => s.setStatus)
+  const finishTask = useDownloadTaskStore((s) => s.finishTask)
+  const cancelActiveTask = useDownloadTaskStore((s) => s.cancelActiveTask)
+
+  const isAnotherTaskRunning =
+    !!activeTask && isTaskActive(activeTask.status) && activeTask.txId !== downloading
 
   const handleDownload = async (
     record: UploadRecord,
     decrypt: boolean = true,
   ) => {
-    if (downloading && downloading !== record.txId) {
+    if (isAnotherTaskRunning) {
       toast.info(
         t(
           "history.singleDownloadActive",
@@ -63,17 +68,24 @@ export function HistoryTable({
     }
 
     const controller = new AbortController()
-    activeDownloadController.current = controller
+    const totalSize = typeof record.fileSize === "number" ? record.fileSize : 0
+    startTask({
+      txId: record.txId,
+      fileName: record.fileName,
+      total: totalSize > 0 ? totalSize : null,
+      controller,
+    })
 
     setDownloading(record.txId)
-    setDownloadProgress({ txId: record.txId, loaded: 0, total: null })
     try {
+      setStatus("downloading", "Downloading")
       await handleFileDownload(record, masterKey, decrypt, t, {
         onProgress: (loaded, total) => {
-          setDownloadProgress({ txId: record.txId, loaded, total })
+          updateProgress(loaded, total)
         },
         signal: controller.signal,
       })
+      finishTask("completed", "Download completed")
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : String(e)
 
@@ -81,11 +93,12 @@ export function HistoryTable({
         (e instanceof DOMException && e.name === "AbortError") ||
         errorMessage.toLowerCase().includes("abort")
       ) {
-        toast.info(
-          t("history.downloadCancelled", "Download was cancelled."),
-        )
+        finishTask("cancelled", "Download cancelled")
+        toast.info(t("history.downloadCancelled", "Download was cancelled."))
         return
       }
+
+      finishTask("failed", errorMessage)
 
       // 检查是否是分块下载相关的错误
       if (
@@ -110,19 +123,12 @@ export function HistoryTable({
         toast.error(t("history.failedDownload", { message: errorMessage }))
       }
     } finally {
-      if (activeDownloadController.current === controller) {
-        activeDownloadController.current = null
-      }
       setDownloading(null)
-      setDownloadProgress(null)
     }
   }
 
   const cancelActiveDownload = () => {
-    if (!activeDownloadController.current) {
-      return
-    }
-    activeDownloadController.current.abort()
+    cancelActiveTask()
   }
 
   const getProgressPercent = (progress: {
@@ -139,12 +145,23 @@ export function HistoryTable({
   const getResourcePath = (record: UploadRecord): string => {
     const owner = encodeURIComponent(record.ownerAddress)
     const tx = encodeURIComponent(record.txId)
-    return `/${owner}/${tx}`
+    return `/data/${owner}/${tx}`
+  }
+
+  const getDownloadPath = (record: UploadRecord): string => {
+    const owner = encodeURIComponent(record.ownerAddress)
+    const tx = encodeURIComponent(record.txId)
+    return `/download/${owner}/${tx}`
   }
 
   const getResourceUrl = (record: UploadRecord): string => {
     const basePath = import.meta.env.BASE_URL.replace(/\/$/, "")
     return `${window.location.origin}${basePath}${getResourcePath(record)}`
+  }
+
+  const getDownloadUrl = (record: UploadRecord): string => {
+    const basePath = import.meta.env.BASE_URL.replace(/\/$/, "")
+    return `${window.location.origin}${basePath}${getDownloadPath(record)}`
   }
 
   const getGatewayUrl = (record: UploadRecord): string => {
@@ -153,19 +170,60 @@ export function HistoryTable({
       : `https://arweave.net/${record.txId}`
   }
 
-  const handleCopyResourceUrl = async (record: UploadRecord) => {
+  const handleCopyResourceUrl = async (
+    record: UploadRecord,
+    withAuth = false,
+  ) => {
     try {
-      await navigator.clipboard.writeText(getResourceUrl(record))
+      let url = getResourceUrl(record)
+      if (withAuth && masterKey) {
+        const auth = await generateAuthParam(masterKey, record.txId)
+        url = `${url}?auth=${auth}`
+      }
+      await navigator.clipboard.writeText(url)
       toast.success(
-        t("history.copyResourceLinkSuccess", "Resource link copied"),
+        t(
+          withAuth
+            ? "history.copyPreviewLinkAuthSuccess"
+            : "history.copyResourceLinkSuccess",
+          withAuth ? "Preview link (with auth) copied" : "Preview link copied",
+        ),
       )
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error)
       toast.error(
-        t("history.copyResourceLinkFailed", "Failed to copy resource link"),
-        {
-          description: message,
-        },
+        t("history.copyResourceLinkFailed", "Failed to copy link"),
+        { description: message },
+      )
+    }
+  }
+
+  const handleCopyDownloadUrl = async (
+    record: UploadRecord,
+    withAuth = false,
+  ) => {
+    try {
+      let url = getDownloadUrl(record)
+      if (withAuth && masterKey) {
+        const auth = await generateAuthParam(masterKey, record.txId)
+        url = `${url}?auth=${auth}`
+      }
+      await navigator.clipboard.writeText(url)
+      toast.success(
+        t(
+          withAuth
+            ? "history.copyDownloadLinkAuthSuccess"
+            : "history.copyDownloadLinkSuccess",
+          withAuth
+            ? "Download link (with auth) copied"
+            : "Download link copied",
+        ),
+      )
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      toast.error(
+        t("history.copyDownloadLinkFailed", "Failed to copy download link"),
+        { description: message },
       )
     }
   }
@@ -304,14 +362,15 @@ export function HistoryTable({
                       </td>
                       <td className="w-25 px-4 py-3.5 text-right sm:px-6">
                         <div className="flex items-center justify-end gap-1 sm:gap-2">
+                          {/* Open preview page */}
                           <Button
                             variant="ghost"
                             size="icon"
                             asChild
                             className="text-muted-foreground hover:bg-accent hover:text-foreground h-8 w-8 transition-colors duration-150 sm:h-9 sm:w-9"
                             title={t(
-                              "history.viewUniqueResource",
-                              "Open unique resource route",
+                              "history.viewPreview",
+                              "Open preview page",
                             )}
                           >
                             <a
@@ -322,19 +381,55 @@ export function HistoryTable({
                               <Link2 className="h-4 w-4" />
                             </a>
                           </Button>
+                          {/* Copy preview link */}
                           <Button
                             variant="ghost"
                             size="icon"
                             className="text-muted-foreground hover:bg-accent hover:text-foreground h-8 w-8 transition-colors duration-150 sm:h-9 sm:w-9"
                             onClick={() => {
-                              void handleCopyResourceUrl(r)
+                              void handleCopyResourceUrl(
+                                r,
+                                r.encryptionAlgo !== "none" && !!masterKey,
+                              )
                             }}
-                            title={t(
-                              "history.copyUniqueResourceLink",
-                              "Copy unique resource link",
-                            )}
+                            title={
+                              r.encryptionAlgo !== "none" && masterKey
+                                ? t(
+                                    "history.copyPreviewLinkWithAuth",
+                                    "Copy preview link (with auth)",
+                                  )
+                                : t(
+                                    "history.copyUniqueResourceLink",
+                                    "Copy preview link",
+                                  )
+                            }
                           >
                             <Copy className="h-4 w-4" />
+                          </Button>
+                          {/* Copy download link */}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-muted-foreground hover:bg-accent hover:text-foreground h-8 w-8 transition-colors duration-150 sm:h-9 sm:w-9"
+                            onClick={() => {
+                              void handleCopyDownloadUrl(
+                                r,
+                                r.encryptionAlgo !== "none" && !!masterKey,
+                              )
+                            }}
+                            title={
+                              r.encryptionAlgo !== "none" && masterKey
+                                ? t(
+                                    "history.copyDownloadLinkWithAuth",
+                                    "Copy download link (with auth)",
+                                  )
+                                : t(
+                                    "history.copyDownloadLink",
+                                    "Copy download link",
+                                  )
+                            }
+                          >
+                            <Download className="h-4 w-4" />
                           </Button>
                           <Button
                             variant="ghost"
@@ -465,23 +560,25 @@ export function HistoryTable({
                             </>
                           )}
                         </div>
-                        {downloading === r.txId &&
-                        downloadProgress &&
-                        downloadProgress.txId === r.txId ? (
+                        {downloading === r.txId && activeTask ? (
                           <div className="mt-2 space-y-1">
                             <div className="bg-border/70 h-1.5 w-full overflow-hidden rounded-full">
                               <div
                                 className="bg-primary h-full rounded-full transition-[width] duration-150"
                                 style={{
-                                  width: `${getProgressPercent(downloadProgress) ?? 100}%`,
+                                  width: `${
+                                    getProgressPercent({
+                                      loaded: activeTask.loaded,
+                                      total: activeTask.total,
+                                    }) ?? 100
+                                  }%`,
                                 }}
                               />
                             </div>
                             <p className="text-muted-foreground text-[10px]">
-                              {downloadProgress.total &&
-                              downloadProgress.total > 0
-                                ? `${getProgressPercent(downloadProgress)?.toFixed(1)}% (${downloadProgress.loaded.toLocaleString()}/${downloadProgress.total.toLocaleString()} bytes)`
-                                : `${downloadProgress.loaded.toLocaleString()} bytes`}
+                              {activeTask.total && activeTask.total > 0
+                                ? `${getProgressPercent({ loaded: activeTask.loaded, total: activeTask.total })?.toFixed(1)}% (${activeTask.loaded.toLocaleString()}/${activeTask.total.toLocaleString()} bytes)`
+                                : `${activeTask.loaded.toLocaleString()} bytes`}
                             </p>
                           </div>
                         ) : null}

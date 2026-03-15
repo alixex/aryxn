@@ -12,6 +12,7 @@ import Account from "./routes/account"
 import Settings from "./routes/settings"
 import NotFound from "./routes/not-found"
 import ResourceByOwnerTx from "./routes/resource-by-owner-tx"
+import DownloadPage from "./routes/download"
 import { initDatabaseWithSchema } from "./lib/database"
 
 if (typeof window !== "undefined") {
@@ -38,8 +39,12 @@ initDatabaseWithSchema()
               <Route path="/account" element={<Account />} />
               <Route path="/settings" element={<Settings />} />
               <Route
-                path="/:ownerAddress/:txId"
+                path="/data/:ownerAddress/:txId"
                 element={<ResourceByOwnerTx />}
+              />
+              <Route
+                path="/download/:ownerAddress/:txId"
+                element={<DownloadPage />}
               />
               <Route path="*" element={<NotFound />} />
             </Routes>
