@@ -28,7 +28,7 @@ export function UploadProgress({ progress }: UploadProgressProps) {
     <div className="border-border bg-card rounded-lg border p-3 sm:p-4">
       <div className="mb-2 flex flex-col gap-1.5 text-sm sm:flex-row sm:items-center sm:justify-between">
         <span className="text-foreground wrap-break-word font-medium">
-          {progress.currentFile || t("upload.uploading", "Uploading") + "…"}
+          {progress.currentFile || t("upload.uploading") + "…"}
         </span>
         {progress.current !== undefined && progress.total !== undefined ? (
           <span className="text-muted-foreground text-xs sm:text-sm">
