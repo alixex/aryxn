@@ -24,11 +24,11 @@ export function useEvmWallets(): UseEvmWalletsReturn {
   } = useAccount()
   const connections = useConnections()
 
-  // 所有 EVM 账户地址
+  // All EVM account addresses.
   const [allAddresses, setAllAddresses] = useState<string[]>([])
   const [seenAddresses, setSeenAddresses] = useState<Set<string>>(new Set())
 
-  // 获取所有 EVM 账户地址
+  // Fetch all EVM account addresses.
   useEffect(() => {
     const fetchAllAddresses = async () => {
       if (!isPaymentConnected || !connector) {
@@ -38,17 +38,17 @@ export function useEvmWallets(): UseEvmWalletsReturn {
 
       const addresses = new Set<string>()
 
-      // 添加当前连接的地址
+      // Add currently connected address.
       if (paymentAddress) {
         addresses.add(paymentAddress)
       }
 
-      // 添加之前见过的地址
+      // Add previously seen addresses.
       seenAddresses.forEach((addr) => {
         addresses.add(addr)
       })
 
-      // 从所有连接中收集地址
+      // Collect addresses from all connections.
       if (connections && Array.isArray(connections) && connections.length > 0) {
         connections.forEach((conn) => {
           if (
@@ -65,7 +65,7 @@ export function useEvmWallets(): UseEvmWalletsReturn {
         })
       }
 
-      // 尝试从 provider 获取额外的账户
+      // Try fetching additional accounts from provider.
       try {
         if ("provider" in connector && connector.provider) {
           const provider = connector.provider as {
@@ -86,7 +86,7 @@ export function useEvmWallets(): UseEvmWalletsReturn {
         console.debug("Failed to fetch all EVM accounts:", e)
       }
 
-      // 更新已见地址集合
+      // Update seen address set.
       setSeenAddresses((prev) => {
         const newSet = new Set(prev)
         addresses.forEach((addr) => newSet.add(addr))
@@ -98,7 +98,7 @@ export function useEvmWallets(): UseEvmWalletsReturn {
 
     fetchAllAddresses()
 
-    // 监听账户切换事件
+    // Listen for account switch events.
     if (connector && "provider" in connector && connector.provider) {
       const provider = connector.provider as {
         on?: (event: string, handler: (accounts: string[]) => void) => void

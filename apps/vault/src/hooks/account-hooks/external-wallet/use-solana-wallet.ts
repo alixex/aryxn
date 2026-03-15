@@ -21,19 +21,19 @@ export function useSolanaWallet(): UseSolanaWalletReturn {
   const [address, setAddress] = useState<string | null>(null)
   const [isConnected, setIsConnected] = useState(false)
 
-  // 检查 Solana 连接（静默检查，不触发授权弹窗）
+  // Check Solana connection silently (no authorization popup).
   const checkConnection = useCallback(async () => {
     const solana = window.solana
     if (solana && solana.isPhantom) {
       try {
-        // 使用 onlyIfTrusted: true 进行静默检查，不会触发授权弹窗
+        // Use onlyIfTrusted: true for a silent trust check.
         const resp = await solana.connect({ onlyIfTrusted: true })
         if (resp?.publicKey) {
           setAddress(resp.publicKey.toString())
           setIsConnected(true)
         }
       } catch {
-        // 如果未授权或失败，保持断开状态
+        // Keep disconnected when unauthorized or failed.
         setIsConnected(false)
         setAddress(null)
       }
@@ -43,7 +43,7 @@ export function useSolanaWallet(): UseSolanaWalletReturn {
     }
   }, [])
 
-  // 连接 Solana
+  // Connect Solana wallet.
   const connect = useCallback(async () => {
     const solana = window.solana
     if (!solana || !solana.isPhantom) {
@@ -74,7 +74,7 @@ export function useSolanaWallet(): UseSolanaWalletReturn {
     }
   }, [t])
 
-  // 断开 Solana
+  // Disconnect Solana wallet.
   const disconnect = useCallback(async () => {
     const solana = window.solana
     if (solana) {
@@ -89,11 +89,11 @@ export function useSolanaWallet(): UseSolanaWalletReturn {
     }
   }, [t])
 
-  // 监听账户切换事件
+  // Listen for account switch events.
   useEffect(() => {
     const solana = window.solana
     if (solana && solana.isPhantom) {
-      // Phantom 钱包在账户切换时会触发 accountChanged 事件
+      // Phantom emits accountChanged when the active account changes.
       const handleAccountChanged = (publicKey: any) => {
         if (publicKey) {
           setAddress(publicKey.toString())
@@ -106,7 +106,7 @@ export function useSolanaWallet(): UseSolanaWalletReturn {
 
       solana.on?.("accountChanged", handleAccountChanged)
 
-      // 初始检查连接状态
+      // Initial connection state check.
       checkConnection()
 
       return () => {

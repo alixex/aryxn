@@ -21,7 +21,7 @@ export function useArweaveWallet(): UseArweaveWalletReturn {
   const [address, setAddress] = useState<string | null>(null)
   const [isConnected, setIsConnected] = useState(false)
 
-  // 检查 Arweave 连接
+  // Check Arweave connection.
   const checkConnection = useCallback(async () => {
     if (window.arweaveWallet) {
       try {
@@ -35,7 +35,7 @@ export function useArweaveWallet(): UseArweaveWalletReturn {
     }
   }, [])
 
-  // 连接 Arweave
+  // Connect Arweave wallet.
   const connect = useCallback(async () => {
     if (!window.arweaveWallet) {
       window.open("https://www.arconnect.io/", "_blank")
@@ -54,7 +54,7 @@ export function useArweaveWallet(): UseArweaveWalletReturn {
     }
   }, [checkConnection])
 
-  // 断开 Arweave
+  // Disconnect Arweave wallet.
   const disconnect = useCallback(async () => {
     if (window.arweaveWallet) {
       await window.arweaveWallet.disconnect()
@@ -64,7 +64,7 @@ export function useArweaveWallet(): UseArweaveWalletReturn {
     }
   }, [t])
 
-  // 监听钱包切换事件
+  // Listen for wallet switch events.
   useEffect(() => {
     window.addEventListener("walletSwitch", checkConnection)
     return () => window.removeEventListener("walletSwitch", checkConnection)
