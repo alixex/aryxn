@@ -10,9 +10,9 @@ interface Props {
 export default function AccountHeader({ t, isUnlocked, onLogout }: Props) {
   return (
     <div className="flex flex-col gap-4 px-4 sm:flex-row sm:items-center sm:justify-between sm:px-0">
-      <div className="flex flex-col gap-3">
-        <h2 className="flex items-center gap-3 text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
-          <div className="bg-gradient-primary rounded-2xl p-2.5 text-white shadow-xl ring-1 ring-white/35">
+      <div className="flex flex-col gap-2.5">
+        <h2 className="flex items-center gap-3 text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
+          <div className="bg-primary text-primary-foreground ring-border/80 rounded-2xl p-2.5 ring-1">
             <svg
               className="h-7 w-7 sm:h-8 sm:w-8"
               fill="none"
@@ -29,7 +29,7 @@ export default function AccountHeader({ t, isUnlocked, onLogout }: Props) {
           </div>
           <span className="leading-tight text-[hsl(var(--foreground))]">{t("common.account")}</span>
         </h2>
-        <p className="text-subtitle-muted text-sm font-semibold sm:text-base">
+        <p className="text-subtitle-muted text-sm font-medium sm:text-base">
           {t("identities.multiChainDesc")}
         </p>
       </div>

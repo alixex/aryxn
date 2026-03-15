@@ -86,7 +86,7 @@ export function SensitiveInfoDialog({
       <DialogContent className="top-4 flex max-h-[calc(100vh-2rem)] max-w-2xl translate-y-0 flex-col sm:top-[50%] sm:translate-y-[-50%]">
         <DialogHeader className="shrink-0">
           <DialogTitle className="flex items-center gap-2">
-            <ShieldAlert className="h-5 w-5 text-amber-500" />
+            <ShieldAlert className="text-destructive h-5 w-5" />
             {type === "key"
               ? t("identities.viewSensitive")
               : t("identities.mnemonic")}
@@ -99,8 +99,8 @@ export function SensitiveInfoDialog({
         <div className="min-h-0 flex-1 overflow-y-auto">
           {!decryptedInfo ? (
             <div className="space-y-4">
-              <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
-                <p className="text-sm text-amber-800">
+              <div className="rounded-lg border border-[hsl(var(--destructive)/0.45)] bg-[hsl(var(--destructive)/0.14)] p-4">
+                <p className="text-[hsl(var(--destructive-foreground))] text-sm font-medium">
                   {t("identities.confirmPassword")}
                 </p>
               </div>

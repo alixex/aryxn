@@ -9,12 +9,12 @@ interface Props {
 export default function AccountSidebar({ t, walletManager }: Props) {
   return (
     <div className="space-y-6 px-4 sm:px-0">
-      <div className="glass-premium hover:shadow-primary/5 border-none p-6 shadow-2xl transition-all duration-500 sm:p-8">
+      <div className="border-border/90 bg-card/84 border p-6 shadow-[0_16px_30px_-20px_hsl(220_35%_2%/0.72)] transition-all duration-200 sm:p-8">
         <div className="mb-4 flex items-center gap-3">
-          <div className="bg-secondary text-foreground rounded-2xl p-2.5 shadow-lg ring-1 ring-white/20">
+          <div className="bg-muted text-foreground ring-border rounded-2xl p-2.5 ring-1">
             <ShieldCheck className="h-5 w-5" />
           </div>
-          <h3 className="text-foreground text-lg font-extrabold tracking-tight">
+          <h3 className="text-foreground text-lg font-semibold tracking-tight">
             {t("identities.activeVault")}
           </h3>
         </div>
@@ -26,8 +26,8 @@ export default function AccountSidebar({ t, walletManager }: Props) {
         </p>
       </div>
 
-      <div className="glass-premium hover:shadow-primary/5 border-none p-6 shadow-2xl transition-all duration-500 sm:p-8">
-        <h3 className="text-foreground mb-4 flex items-center gap-2 font-extrabold tracking-tight">
+      <div className="border-border/90 bg-card/84 border p-6 shadow-[0_16px_30px_-20px_hsl(220_35%_2%/0.72)] transition-all duration-200 sm:p-8">
+        <h3 className="text-foreground mb-4 flex items-center gap-2 font-semibold tracking-tight">
           <Info className="text-primary h-4 w-4" />{" "}
           {t("identities.securityInfo")}
         </h3>
