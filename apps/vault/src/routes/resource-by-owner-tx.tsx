@@ -300,7 +300,8 @@ export default function ResourceByOwnerTx() {
   const [downloadProgress, setDownloadProgress] = useState<{
     loaded: number
     total: number | null
-  }>({ loaded: 0, total: null })
+    status: "cached" | "downloading" | "resuming" | "idle"
+  }>({ loaded: 0, total: null, status: "idle" })
   const [previewPayload, setPreviewPayload] = useState<{
     data: Uint8Array
     mimeType: string
@@ -385,7 +386,7 @@ export default function ResourceByOwnerTx() {
       try {
         setDecrypting(true)
         setDecryptStage("downloading")
-        setDownloadProgress({ loaded: 0, total: Number(state.file.file_size || 0) })
+        setDownloadProgress({ loaded: 0, total: Number(state.file.file_size || 0), status: "downloading" })
 
         const cachedFile = await getCachedResourceFile(
           state.file.owner_address,
@@ -397,14 +398,16 @@ export default function ResourceByOwnerTx() {
         let payload: Uint8Array
         if (cachedFile) {
           payload = new Uint8Array(await cachedFile.arrayBuffer())
+          setDownloadProgress({ loaded: Number(state.file.file_size || 0), total: Number(state.file.file_size || 0), status: "cached" })
         } else {
+          // TODO: 检查断点续传逻辑，若有未完成任务可设置 status: "resuming"
           const downloaded = await downloadEncryptedData(
             state.file.tx_id,
             state.file.storage_type,
             Number(state.file.file_size || 0),
             (loaded, total) => {
               if (!cancelled) {
-                setDownloadProgress({ loaded, total })
+                setDownloadProgress({ loaded, total, status: "downloading" })
               }
             }
           )
@@ -471,7 +474,7 @@ export default function ResourceByOwnerTx() {
     setDecrypting(true)
     setDecryptError(null)
     setErrorCategory(null)
-    setDownloadProgress({ loaded: 0, total: null })
+    setDownloadProgress({ loaded: 0, total: null, status: "idle" })
     setDecryptStage("verifying")
     setDecryptStatus("Validating password...")
     let currentStage: DecryptStage = "verifying"
@@ -624,7 +627,7 @@ export default function ResourceByOwnerTx() {
           file.storage_type,
           expectedDataSize,
           (loaded, total) => {
-            setDownloadProgress({ loaded, total })
+            setDownloadProgress({ loaded, total, status: "downloading" })
           },
         )
 
@@ -651,7 +654,7 @@ export default function ResourceByOwnerTx() {
             file.storage_type,
             expectedDataSize,
             (loaded, total) => {
-              setDownloadProgress({ loaded, total })
+              setDownloadProgress({ loaded, total, status: "downloading" })
             },
           )
 
@@ -813,17 +816,18 @@ export default function ResourceByOwnerTx() {
                 <div className="space-y-3">
                   {decryptStage === "downloading" && (
                     <div className="space-y-2">
-                      <div className="bg-muted h-2 w-full overflow-hidden rounded-full">
+                      <div className="bg-muted h-1.5 w-full overflow-hidden rounded-full">
                         <div
-                          className="bg-primary h-full transition-all duration-200"
+                          className="bg-primary h-full transition-all duration-300"
                           style={{
-                            width:
-                              downloadProgress.total &&
-                              downloadProgress.total > 0
-                                ? `${Math.min(100, (downloadProgress.loaded / downloadProgress.total) * 100)}%`
-                                : "35%",
+                            width: `${downloadProgress.total ? Math.min(100, (downloadProgress.loaded / downloadProgress.total) * 100) : 0}%`,
                           }}
                         />
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-1">
+                        {downloadProgress.status === "cached" && "已缓存，直接读取"}
+                        {downloadProgress.status === "downloading" && "下载中…"}
+                        {downloadProgress.status === "resuming" && "断点续传中…"}
                       </div>
                       <p className="text-muted-foreground text-center text-xs">
                         {downloadProgress.total && downloadProgress.total > 0
