@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react"
 import { useWallet } from "@/hooks/account-hooks"
 import { useTranslation } from "@/i18n/config"
 import type { UploadRecord, WalletRecord } from "@/lib/utils"
+import { formatFileSize } from "@/lib/utils"
 import { searchFiles, type FileIndex } from "@/lib/file"
 import { Chains } from "@aryxn/chain-constants"
 import { HistoryTable } from "@/components/history-table"
@@ -171,15 +172,6 @@ export default function DashboardPage() {
       )
     : t("common.none")
 
-  // 格式化文件大小
-  const formatBytes = (bytes: number) => {
-    if (bytes === 0) return "0 B"
-    const k = 1024
-    const sizes = ["B", "KB", "MB", "GB", "TB"]
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i]
-  }
-
   const { needsAccountSetup } = useUserAccountSetup()
 
   return (
@@ -191,7 +183,7 @@ export default function DashboardPage() {
           icon={
             <LayoutDashboard className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8" />
           }
-          iconContainerClassName="bg-gradient-primary glow-purple"
+          iconContainerClassName="bg-primary"
           rightSlot={
             <AccountStatusBadge
               label={t("common.activeAccountLabel")}
@@ -216,12 +208,12 @@ export default function DashboardPage() {
         />
 
         {needsAccountSetup && (
-          <div className="glass-strong animate-fade-in-down border-accent/30 bg-card/60 flex items-start gap-4 rounded-2xl border-2 p-6 shadow-lg">
-            <div className="bg-accent/20 flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
-              <AlertCircle className="text-accent h-5 w-5" />
+          <div className="animate-fade-in-down border-border/90 bg-card/70 flex items-start gap-4 rounded-xl border p-5">
+            <div className="bg-muted text-foreground flex h-9 w-9 shrink-0 items-center justify-center rounded-full">
+              <AlertCircle className="h-5 w-5" />
             </div>
             <div className="flex-1">
-              <p className="mb-2 text-base leading-relaxed font-bold">
+              <p className="mb-2 text-base leading-relaxed font-semibold">
                 {t("history.needAccountSetup")}
               </p>
               <p className="text-subtitle-muted mb-3 text-sm leading-relaxed">
@@ -230,7 +222,7 @@ export default function DashboardPage() {
               <Link to="/account">
                 <Button
                   variant="outline"
-                  className="border-border bg-background text-foreground hover:bg-accent rounded-lg font-semibold"
+                  className="rounded-lg border-border bg-background text-foreground hover:bg-accent font-semibold"
                 >
                   {t("upload.goToAccount")}
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -242,7 +234,7 @@ export default function DashboardPage() {
 
         {/* Statistics Cards */}
         {!needsAccountSetup && uploadHistory.length > 0 && (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <StatCard
               icon={<Upload className="h-5 w-5" />}
               label={t("history.totalFiles", "总文件数")}
@@ -251,7 +243,7 @@ export default function DashboardPage() {
             <StatCard
               icon={<HardDrive className="h-5 w-5" />}
               label={t("history.totalStorage", "总存储空间")}
-              value={formatBytes(totalSize)}
+              value={formatFileSize(totalSize, 2)}
             />
             <StatCard
               icon={<Clock className="h-5 w-5" />}
@@ -263,10 +255,10 @@ export default function DashboardPage() {
 
         <div className="grid grid-cols-1 gap-6 sm:gap-8">
           <div className="w-full">
-            <Card className="glass-premium animate-fade-in-down border-none shadow-2xl transition-all duration-500">
-              <CardHeader className="glass-strong border-accent/30 bg-card/60 flex flex-col space-y-4 rounded-t-2xl border-b-2 p-6 shadow-lg sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+            <Card className="animate-fade-in-down border-border/90 bg-card/82 border transition-all duration-300">
+              <CardHeader className="bg-card/92 border-border/85 sticky top-16 z-20 flex flex-col space-y-4 border-b p-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 sm:p-6">
                 <div className="space-y-1">
-                  <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                  <CardTitle className="flex items-center gap-2 text-lg font-semibold sm:text-xl">
                     <History className="text-foreground h-5 w-5" />
                     {t("history.title")}
                   </CardTitle>
@@ -295,16 +287,22 @@ export default function DashboardPage() {
                       className="group w-full sm:w-auto"
                     >
                       <RefreshCw
-                        className={`mr-2 h-3.5 w-3.5 transition-transform duration-200 ${syncing ? "animate-spin" : "group-hover:rotate-180"}`}
+                        className={`mr-2 h-3.5 w-3.5 transition-transform duration-200 ${syncing ? "animate-spin" : "group-hover:rotate-90"}`}
                       />
                       {syncing
                         ? t("history.syncing") + "…"
                         : t("history.syncFromArweave")}
                     </Button>
                   )}
+                  <Link to="/upload" className="w-full sm:w-auto">
+                    <Button size="sm" className="w-full sm:w-auto">
+                      <Upload className="mr-2 h-3.5 w-3.5" />
+                      {t("common.upload", "Upload")}
+                    </Button>
+                  </Link>
                 </div>
               </CardHeader>
-              <CardContent className="p-0 sm:p-6 sm:pt-0">
+              <CardContent className="p-0 sm:p-6 sm:pt-4">
                 {uploadHistory.length === 0 ? (
                   <EmptyState
                     icon={<FileText className="h-12 w-12" />}
@@ -320,7 +318,7 @@ export default function DashboardPage() {
                     }
                   />
                 ) : (
-                  <div className="mb-6 flex flex-col items-center gap-4 overflow-x-auto">
+                  <div className="mb-4 flex flex-col items-center gap-4 overflow-x-auto sm:mb-2">
                     <HistoryTable
                       records={uploadHistory || []}
                       masterKey={walletManager.masterKey}

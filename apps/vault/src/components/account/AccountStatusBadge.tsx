@@ -18,12 +18,12 @@ export function AccountStatusBadge({
   actionIcon,
 }: AccountStatusBadgeProps) {
   return (
-    <div className="glass-premium hover:shadow-primary/5 flex min-h-14 w-full items-center gap-3 border-none p-3 shadow-2xl transition-all duration-500 sm:w-56 sm:px-4 sm:py-2">
+    <div className="border-border/90 bg-card/84 flex min-h-14 w-full items-center gap-3 rounded-xl border px-3 py-2 sm:w-64 sm:px-4">
       <div className="min-w-0 flex-1 sm:text-right">
-        <div className="text-muted-foreground mb-0.5 text-[10px] leading-tight font-bold tracking-wider uppercase">
+        <div className="text-muted-foreground mb-0.5 text-[10px] leading-tight font-semibold tracking-wider uppercase">
           {label}
         </div>
-        <div className="text-foreground truncate text-sm font-bold">
+        <div className="text-foreground truncate text-sm font-semibold">
           {value}
         </div>
       </div>
@@ -33,7 +33,7 @@ export function AccountStatusBadge({
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 hover:text-cyan-400"
+            className="h-8 w-8"
             aria-label={actionAriaLabel}
           >
             {actionIcon}

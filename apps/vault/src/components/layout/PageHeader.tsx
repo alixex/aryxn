@@ -19,12 +19,12 @@ export function PageHeader({
   titleClassName,
 }: PageHeaderProps) {
   return (
-    <div className="flex flex-col gap-6 sm:min-h-31 sm:flex-row sm:items-start sm:justify-between">
+    <div className="flex flex-col gap-5 sm:min-h-31 sm:flex-row sm:items-start sm:justify-between">
       <div className="flex flex-col gap-3 sm:self-start">
-        <h2 className="flex items-center gap-3 text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
+        <h2 className="flex items-center gap-3 text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
           <div
             className={cn(
-              "rounded-xl p-2 text-white shadow-xl ring-1 ring-white/35 sm:rounded-2xl sm:p-2.5",
+              "bg-primary text-primary-foreground rounded-xl p-2 ring-1 ring-[hsl(var(--border)/0.8)] sm:rounded-2xl sm:p-2.5",
               iconContainerClassName,
             )}
           >
@@ -39,7 +39,7 @@ export function PageHeader({
             {title}
           </span>
         </h2>
-        <p className="text-subtitle-muted max-w-lg text-base leading-relaxed font-semibold">
+        <p className="text-subtitle-muted max-w-lg text-base leading-relaxed font-medium">
           {description}
         </p>
       </div>

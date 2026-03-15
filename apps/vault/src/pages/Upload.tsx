@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useTranslation } from "@/i18n/config"
 import { UploadWarning } from "@/components/upload/UploadWarning"
 import { FileUploadSection } from "@/components/upload/FileUploadSection"
@@ -15,7 +15,7 @@ import type { PaymentAccount, PaymentToken } from "@/lib/payment"
 import { FilePreview } from "@/components/ui/file-preview"
 import { Card, CardContent } from "@/components/ui/card"
 import { Info, X } from "lucide-react"
-import { shouldCompressFile } from "@/lib/utils"
+import { shouldCompressFile, formatFileSize } from "@/lib/utils"
 import { PageHeader } from "@/components/layout/PageHeader"
 
 export default function UploadPage() {
@@ -57,6 +57,17 @@ export default function UploadPage() {
 
   const multipleMode = files.length > 0
   const hasSelection = Boolean(file || multipleMode)
+  const selectedFiles = multipleMode ? files : file ? [file] : []
+
+  const totalSelectedSize = useMemo(
+    () => selectedFiles.reduce((sum, current) => sum + current.size, 0),
+    [file, files, multipleMode],
+  )
+
+  const compressRecommendation = useMemo(
+    () => selectedFiles.some((current) => shouldCompressFile(current)),
+    [file, files, multipleMode],
+  )
 
   // Auto-set compression when files change
   useEffect(() => {
@@ -171,6 +182,44 @@ export default function UploadPage() {
                 disabled={!isUnlocked}
                 multiple={true}
               />
+
+              {hasSelection && (
+                <div className="border-border/65 bg-[hsl(var(--card)/0.7)] mt-4 flex flex-wrap items-center gap-2 rounded-lg border px-3 py-2 text-[11px] sm:text-xs">
+                  <span className="bg-muted text-foreground rounded-full px-2 py-1 font-medium">
+                    {multipleMode
+                      ? t("upload.fileCount", "Files")
+                      : t("upload.fileCountSingle", "File")}
+                    : {selectedFiles.length}
+                  </span>
+                  <span className="bg-muted text-foreground rounded-full px-2 py-1 font-medium">
+                    {t("upload.totalSize", "Total")}: {formatFileSize(totalSelectedSize)}
+                  </span>
+                  <span className="bg-muted text-foreground rounded-full px-2 py-1 font-medium">
+                    {t("upload.payment", "Payment")}: {paymentToken}
+                  </span>
+                  <span className="bg-muted text-foreground rounded-full px-2 py-1 font-medium">
+                    {encryptUpload
+                      ? t("upload.encryptOn", "Encrypted")
+                      : t("upload.encryptOff", "Unencrypted")}
+                  </span>
+                  {compressRecommendation && (
+                    <span className="bg-primary/10 text-primary rounded-full px-2 py-1 font-semibold">
+                      {t("upload.compressionRecommended", "Compression Recommended")}
+                    </span>
+                  )}
+                  <span
+                    className={`rounded-full px-2 py-1 font-semibold ${
+                      canUpload
+                        ? "bg-primary/10 text-primary"
+                        : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {canUpload
+                      ? t("upload.readyToUpload", "Ready")
+                      : t("upload.incomplete", "Needs Setup")}
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* 2. Seamlessly Expanded Settings Area (Visible only when file selected) */}
@@ -198,7 +247,7 @@ export default function UploadPage() {
                   </div>
 
                   {/* Right Column: Payment & Execution */}
-                  <div className="flex flex-col gap-6 lg:col-span-7">
+                  <div className="flex flex-col gap-6 lg:col-span-7 lg:sticky lg:top-24 lg:self-start">
                     <div className="border-border/50 bg-[hsl(var(--background)/0.58)] rounded-xl border p-4 sm:p-5">
                       <PaymentTokenSelector
                         selectedToken={paymentToken}

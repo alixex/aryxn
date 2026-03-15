@@ -40,7 +40,7 @@ export function Navbar() {
 
   return (
     <>
-      <header className="glass-strong border-border/70 sticky top-0 z-40 border-b shadow-[0_10px_28px_-22px_hsl(var(--primary)/0.28)] backdrop-blur-xl transition-shadow duration-300">
+      <header className="glass-strong border-border/80 sticky top-0 z-40 border-b shadow-[0_14px_28px_-18px_hsl(220_40%_2%/0.72)] backdrop-blur-xl transition-shadow duration-300">
         <div className="container mx-auto flex h-16 max-w-6xl items-center justify-between gap-2 px-4 sm:gap-4 lg:px-8">
           {/* 左侧：Logo + 搜索框 */}
           <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-4">

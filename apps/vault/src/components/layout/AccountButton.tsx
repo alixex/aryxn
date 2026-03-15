@@ -42,17 +42,17 @@ export function AccountButton() {
     <div className="flex items-center gap-2">
       <Link
         to="/account"
-        className={`flex h-9 items-center gap-2 rounded-full border px-3 shadow-sm transition-all active:scale-95 sm:h-8 ${
+        className={`flex h-9 items-center gap-2 rounded-full border px-3 shadow-sm transition-all active:scale-[0.99] sm:h-8 ${
           hasAnyAccount
-            ? "border-border bg-card hover:bg-accent"
-            : "border-border bg-muted/50 text-muted-foreground hover:border-foreground/20 hover:text-foreground border-dashed"
+            ? "border-border/95 bg-card/90 hover:bg-accent"
+            : "border-border/85 bg-muted/50 text-muted-foreground hover:border-foreground/30 hover:text-foreground border-dashed"
         }`}
       >
         <AccountButtonContent wallet={wallet} />
       </Link>
       <Link
         to="/account"
-        className="border-border bg-card text-muted-foreground hover:bg-accent hover:text-accent-foreground flex h-9 w-9 items-center justify-center rounded-full border shadow-sm transition-all active:scale-95 sm:hidden"
+        className="border-border/95 bg-card/90 text-muted-foreground hover:bg-accent hover:text-accent-foreground flex h-9 w-9 items-center justify-center rounded-full border shadow-sm transition-all active:scale-[0.99] sm:hidden"
       >
         <Settings className="h-5 w-5" />
       </Link>

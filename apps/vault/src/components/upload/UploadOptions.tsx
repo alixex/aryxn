@@ -31,6 +31,11 @@ export function UploadOptions({
 }: UploadOptionsProps) {
   const { t } = useTranslation()
 
+  const isCheckboxTarget = (target: EventTarget | null): boolean => {
+    if (!(target instanceof HTMLElement)) return false
+    return Boolean(target.closest('[role="checkbox"],input,button,label'))
+  }
+
   // 检查是否有文件适合压缩（单个文件或多文件模式）
   const displayFiles = files.length > 0 ? files : file ? [file] : []
   const hasCompressibleFile = displayFiles.some((f) => shouldCompressFile(f))
@@ -39,11 +44,15 @@ export function UploadOptions({
   return (
     <div className="space-y-3">
       <div
-        className={`group flex items-start gap-4 rounded-xl border p-4 transition-all duration-200 ${
+        className={`group flex cursor-pointer items-start gap-4 rounded-xl border p-4 transition-all duration-200 ${
           encryptUpload
             ? "border-primary/45 bg-[hsl(var(--card)/0.88)]"
             : "border-[hsl(var(--border)/0.85)] bg-[hsl(var(--background)/0.76)] hover:border-primary/35"
         }`}
+        onClick={(event) => {
+          if (isCheckboxTarget(event.target) || !isUnlocked) return
+          onEncryptChange(!encryptUpload)
+        }}
       >
         <div className="mt-0.5">
           <Checkbox
@@ -71,11 +80,15 @@ export function UploadOptions({
       </div>
 
       <div
-        className={`group flex items-start gap-4 rounded-xl border p-4 transition-all duration-200 ${
+        className={`group flex cursor-pointer items-start gap-4 rounded-xl border p-4 transition-all duration-200 ${
           compressUpload && hasCompressibleFile
             ? "border-primary/45 bg-[hsl(var(--card)/0.88)]"
             : "border-[hsl(var(--border)/0.85)] bg-[hsl(var(--background)/0.76)] hover:border-primary/35"
         }`}
+        onClick={(event) => {
+          if (isCheckboxTarget(event.target) || !canCompress) return
+          onCompressChange(!compressUpload)
+        }}
       >
         <div className="mt-0.5">
           <Checkbox
@@ -109,11 +122,15 @@ export function UploadOptions({
 
       {/* Storage Tier Options */}
       <div
-        className={`group flex items-start gap-4 rounded-xl border p-4 transition-all duration-200 ${
+        className={`group flex cursor-pointer items-start gap-4 rounded-xl border p-4 transition-all duration-200 ${
           storageTier === "Term"
             ? "border-primary/45 bg-[hsl(var(--card)/0.88)]"
             : "border-[hsl(var(--border)/0.85)] bg-[hsl(var(--background)/0.76)] hover:border-primary/35"
         }`}
+        onClick={(event) => {
+          if (isCheckboxTarget(event.target) || disableTermStorage) return
+          onStorageTierChange(storageTier === "Term" ? "Permanent" : "Term")
+        }}
       >
         <div className="mt-0.5">
           <Checkbox

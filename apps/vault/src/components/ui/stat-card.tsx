@@ -23,38 +23,36 @@ export function StatCard({
   return (
     <Card
       className={cn(
-        "glass-premium group relative overflow-hidden transition-all duration-500",
-        "hover:border-primary/40 hover:-translate-y-1.5 hover:shadow-2xl",
-        "after:absolute after:inset-0 after:z-10 after:translate-x-[-150%] after:bg-linear-to-r after:from-transparent after:via-[hsl(var(--accent)/0.18)] after:to-transparent after:transition-transform after:duration-900 hover:after:translate-x-[150%]",
+        "group border-border/90 bg-card/88 relative overflow-hidden border transition-all duration-200",
+        "hover:border-primary/40 hover:-translate-y-0.5 hover:shadow-[0_16px_28px_-20px_hsl(220_35%_3%/0.72)]",
         className,
       )}
     >
       <CardContent className="relative flex items-center gap-4 p-6">
         <div
           className={cn(
-            "bg-gradient-primary",
-            "shrink-0 rounded-xl p-3.5 text-white shadow-lg transition-all duration-500",
-            "group-hover:scale-110 group-hover:shadow-[0_16px_28px_-14px_hsl(var(--primary)/0.8)]",
+            "bg-primary text-primary-foreground",
+            "shrink-0 rounded-xl p-3 transition-all duration-200",
+            "group-hover:scale-105",
           )}
         >
-          <div className="transition-transform duration-500 group-hover:rotate-12">
+          <div className="transition-transform duration-200">
             {icon}
           </div>
         </div>
 
         <div className="min-w-0 flex-1">
-          <p className="text-muted-foreground group-hover:text-foreground text-xs font-bold tracking-widest uppercase transition-colors duration-300">
+          <p className="text-muted-foreground text-xs font-semibold tracking-widest uppercase">
             {label}
           </p>
-          <p className="text-foreground mt-0.5 truncate text-3xl font-extrabold tracking-tight transition-all duration-500 group-hover:scale-[1.02]">
+          <p className="text-foreground mt-0.5 truncate text-3xl font-semibold tracking-tight">
             {value}
           </p>
           {trend && (
             <p
               className={cn(
-                "mt-1.5 text-xs font-bold transition-all duration-500",
-                trendUp ? "text-[hsl(165_65%_35%)]" : "text-[hsl(6_60%_46%)]",
-                "flex items-center gap-1 group-hover:translate-x-1",
+                "mt-1.5 flex items-center gap-1 text-xs font-semibold",
+                trendUp ? "text-[hsl(165_55%_52%)]" : "text-[hsl(6_70%_62%)]",
               )}
             >
               <span
