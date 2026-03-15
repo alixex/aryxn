@@ -128,7 +128,7 @@ export default function UploadPage() {
 
   return (
     <div className="mesh-gradient relative min-h-screen pb-20">
-      <div className="animate-in fade-in slide-in-from-bottom-4 mx-auto max-w-6xl space-y-6 px-3 py-6 duration-1000 sm:space-y-8 sm:px-4 sm:py-8">
+      <div className="animate-in fade-in slide-in-from-bottom-4 mx-auto max-w-6xl space-y-5 px-2.5 py-5 duration-1000 sm:space-y-8 sm:px-4 sm:py-8">
         {/* Header Area */}
         <PageHeader
           title={t("common.upload")}
@@ -161,7 +161,7 @@ export default function UploadPage() {
           <CardContent className="p-0">
             {/* 1. Massive Dropzone Hero Area */}
             <div
-              className={`transition-all duration-500 ${hasSelection ? "border-border/50 bg-secondary/10 border-b p-6 pb-2" : "p-8 sm:p-12"}`}
+              className={`transition-all duration-500 ${hasSelection ? "border-border/50 bg-secondary/10 border-b p-4 pb-2 sm:p-6 sm:pb-2" : "p-5 sm:p-12"}`}
             >
               <FileUploadSection
                 file={file}
@@ -175,8 +175,8 @@ export default function UploadPage() {
 
             {/* 2. Seamlessly Expanded Settings Area (Visible only when file selected) */}
             {hasSelection && (
-              <div className="animate-in fade-in slide-in-from-top-4 bg-card/60 flex flex-col gap-6 p-6 sm:p-8">
-                <div className="grid gap-8 lg:grid-cols-12">
+              <div className="animate-in fade-in slide-in-from-top-4 bg-card/60 flex flex-col gap-5 p-4 sm:gap-6 sm:p-8">
+                <div className="grid gap-5 sm:gap-8 lg:grid-cols-12">
                   {/* Left Column: Preview & Options */}
                   <div className="flex flex-col gap-6 lg:col-span-5">
                     {file && <FilePreview file={file} />}
@@ -199,7 +199,7 @@ export default function UploadPage() {
 
                   {/* Right Column: Payment & Execution */}
                   <div className="flex flex-col gap-6 lg:col-span-7">
-                    <div className="border-border/50 bg-background/50 rounded-xl border p-5 shadow-inner">
+                    <div className="border-border/50 bg-background/50 rounded-xl border p-4 shadow-inner sm:p-5">
                       <PaymentTokenSelector
                         selectedToken={paymentToken}
                         selectedAccount={paymentAccount}
@@ -212,7 +212,7 @@ export default function UploadPage() {
                         canUpload &&
                         paymentAccount && (
                           <div className="animate-in fade-in slide-in-from-bottom-2 bg-secondary/30 border-border/40 mt-4 rounded-lg border p-3">
-                            <div className="flex items-center justify-between">
+                            <div className="flex flex-wrap items-center justify-between gap-2">
                               <span className="text-muted-foreground text-[10px] font-bold tracking-wider uppercase">
                                 {t(
                                   "upload.estimatedPath",
@@ -226,7 +226,7 @@ export default function UploadPage() {
                                 )
                                 if (irysToken) {
                                   return (
-                                    <span className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[9px] font-bold text-emerald-500 ring-1 ring-emerald-500/20">
+                                    <span className="flex items-center gap-1.5 rounded-full bg-[hsl(var(--secondary)/0.14)] px-2 py-0.5 text-[9px] font-bold text-[hsl(var(--secondary))] ring-1 ring-[hsl(var(--secondary)/0.25)]">
                                       <ChainIcon
                                         chain={paymentAccount.chain}
                                         size="xs"
@@ -236,7 +236,7 @@ export default function UploadPage() {
                                   )
                                 }
                                 return (
-                                  <span className="flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2 py-0.5 text-[9px] font-bold text-amber-500 ring-1 ring-amber-500/20">
+                                  <span className="flex items-center gap-1.5 rounded-full bg-[hsl(var(--accent)/0.2)] px-2 py-0.5 text-[9px] font-bold text-[hsl(var(--foreground))] ring-1 ring-[hsl(var(--accent)/0.35)]">
                                     <ChainIcon
                                       chain={paymentAccount.chain}
                                       size="xs"

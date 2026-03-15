@@ -20,11 +20,11 @@ export function MobileNav({ items }: MobileNavProps) {
 
   return (
     <nav className="pb-safe glass-strong border-border fixed right-0 bottom-0 left-0 z-40 border-t shadow-2xl md:hidden">
-      <div className="relative flex h-[4.6rem] items-center justify-around px-2.5">
+      <div className="relative flex h-[4.5rem] items-center justify-around px-2">
         {/* Sliding indicator blob */}
         {activeIndex !== -1 && (
           <div
-            className="bg-primary/10 cubic-bezier(0.16, 1, 0.3, 1) absolute top-2 bottom-2 z-0 rounded-2xl transition-all duration-500"
+            className="bg-primary/10 cubic-bezier(0.16, 1, 0.3, 1) absolute top-2.5 bottom-2.5 z-0 rounded-2xl transition-all duration-500"
             style={{
               width: `calc(${100 / items.length}% - 8px)`,
               left: `calc(${activeIndex * (100 / items.length)}% + 4px)`,
@@ -41,7 +41,7 @@ export function MobileNav({ items }: MobileNavProps) {
             <Link
               key={item.path}
               to={item.path}
-              className={`touch-feedback relative z-10 flex flex-1 flex-col items-center justify-center gap-0.5 rounded-xl py-2 transition-all duration-300 ${
+              className={`touch-feedback relative z-10 flex flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-0.5 py-2 transition-all duration-300 ${
                 isActive
                   ? "text-primary scale-105"
                   : "text-muted-foreground hover:text-foreground active:scale-95"
@@ -60,7 +60,7 @@ export function MobileNav({ items }: MobileNavProps) {
                   </span>
                 )}
               </div>
-              <span className="text-[10px] leading-tight font-semibold tracking-wide">
+              <span className="block max-w-[4.4rem] truncate text-center text-[9px] leading-tight font-semibold tracking-wide sm:text-[10px]">
                 {item.label}
               </span>
 

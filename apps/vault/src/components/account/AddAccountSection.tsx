@@ -165,7 +165,7 @@ export function AddAccountSection({
                 </div>
                 <Button
                   type="submit"
-                  className="bg-primary text-primary-foreground hover:bg-primary/90 h-10 w-full rounded-lg font-semibold"
+                  className="bg-gradient-primary text-primary-foreground h-10 w-full rounded-lg font-semibold shadow-[0_10px_22px_-14px_hsl(var(--primary)/0.72)] hover:-translate-y-0.5 hover:shadow-[0_14px_24px_-12px_hsl(var(--primary)/0.75)]"
                 >
                   {t("identities.addSubmit")}
                 </Button>
@@ -179,9 +179,9 @@ export function AddAccountSection({
                     key={chain.id}
                     variant="outline"
                     onClick={() => onCreateAccount(chain.id)}
-                    className="border-border hover:bg-accent/30 group flex h-20 flex-col gap-1.5 rounded-lg transition-all hover:border-primary/50"
+                    className="border-border bg-[hsl(var(--background)/0.5)] hover:bg-accent/30 group flex h-20 flex-col gap-1.5 rounded-lg shadow-[inset_0_1px_0_hsl(0_0%_100%/0.5)] transition-all hover:-translate-y-0.5 hover:border-primary/50"
                   >
-                    <div className="bg-secondary text-foreground group-hover:bg-muted group-hover:text-foreground rounded-lg p-1.5 transition-colors">
+                    <div className="bg-[hsl(var(--secondary)/0.2)] text-[hsl(var(--secondary))] group-hover:bg-[hsl(var(--secondary)/0.26)] rounded-lg p-1.5 transition-colors">
                       {chain.icon}
                     </div>
                     <span className="text-foreground text-[10px] font-semibold">

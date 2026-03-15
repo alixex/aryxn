@@ -135,7 +135,7 @@ export default function AccountPage() {
 
   return (
     <div className="mesh-gradient relative min-h-screen">
-      <div className="animate-in fade-in slide-in-from-bottom-4 mx-auto max-w-6xl space-y-6 px-3 py-6 duration-1000 sm:space-y-8 sm:px-4 sm:py-8">
+      <div className="animate-in fade-in slide-in-from-bottom-4 mx-auto max-w-6xl space-y-5 px-2.5 py-5 duration-1000 sm:space-y-8 sm:px-4 sm:py-8">
         <AccountHeader
           t={t}
           isUnlocked={walletManager.isUnlocked}
@@ -160,7 +160,7 @@ export default function AccountPage() {
                 </CardHeader>
                 <CardContent className="p-0">
                   <Tabs defaultValue={AccountChains[0]} className="w-full">
-                    <div className="overflow-x-auto px-4 pt-4 sm:px-6">
+                    <div className="overflow-x-auto px-3 pt-3 sm:px-6 sm:pt-4">
                       <TabsList className="bg-muted mb-0 flex h-auto w-max flex-nowrap justify-start gap-1 rounded-lg p-1 sm:w-auto sm:flex-wrap">
                         {AccountChains.map((chain) => (
                           <TabsTrigger
@@ -177,7 +177,7 @@ export default function AccountPage() {
                       <TabsContent
                         key={chain}
                         value={chain}
-                        className="px-4 pt-4 pb-4 sm:px-6 sm:pb-6"
+                        className="px-3 pt-3 pb-3 sm:px-6 sm:pt-4 sm:pb-6"
                       >
                         <AccountListTab
                           chain={chain}
