@@ -1,7 +1,7 @@
 # Aryxn Vault
 
 <p align="center">
-	<img src="https://alixex.github.io/aryxn/icon.jpg" alt="Aryxn Icon" width="200" />
+  <img src="https://alixex.github.io/aryxn/icon.jpg" alt="Aryxn Icon" width="200" />
 </p>
 
 [English] | [中文](./README.zh.md)
