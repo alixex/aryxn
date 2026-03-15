@@ -21,9 +21,10 @@ export function UploadButton({
 
   return (
     <Button
-      className="group bg-gradient-primary h-14 w-full rounded-xl text-base font-bold text-primary-foreground shadow-[0_14px_30px_-18px_hsl(var(--primary)/0.8)] transition-all hover:-translate-y-0.5 hover:shadow-[0_18px_34px_-16px_hsl(var(--primary)/0.8)] active:scale-[0.99] disabled:translate-y-0 disabled:shadow-none disabled:cursor-not-allowed disabled:opacity-55"
+      className="touch-target group bg-gradient-primary h-14 w-full rounded-xl px-4 text-base font-bold text-primary-foreground shadow-[0_14px_30px_-18px_hsl(var(--primary)/0.8)] transition-all hover:-translate-y-0.5 hover:shadow-[0_18px_34px_-16px_hsl(var(--primary)/0.8)] active:scale-[0.99] disabled:translate-y-0 disabled:shadow-none disabled:cursor-not-allowed disabled:opacity-55"
       onClick={onClick}
       disabled={uploading || !file || !canUpload}
+      aria-busy={uploading}
     >
       {uploading ? (
         <>

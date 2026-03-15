@@ -25,7 +25,7 @@ export function StatCard({
       className={cn(
         "glass-premium group relative overflow-hidden transition-all duration-500",
         "hover:border-primary/40 hover:-translate-y-1.5 hover:shadow-2xl",
-        "after:absolute after:inset-0 after:z-10 after:translate-x-[-150%] after:bg-gradient-to-r after:from-transparent after:via-[hsl(var(--accent)/0.18)] after:to-transparent after:transition-transform after:duration-[900ms] hover:after:translate-x-[150%]",
+        "after:absolute after:inset-0 after:z-10 after:translate-x-[-150%] after:bg-linear-to-r after:from-transparent after:via-[hsl(var(--accent)/0.18)] after:to-transparent after:transition-transform after:duration-900 hover:after:translate-x-[150%]",
         className,
       )}
     >
@@ -33,7 +33,7 @@ export function StatCard({
         <div
           className={cn(
             "bg-gradient-primary",
-            "flex-shrink-0 rounded-xl p-3.5 text-white shadow-lg transition-all duration-500",
+            "shrink-0 rounded-xl p-3.5 text-white shadow-lg transition-all duration-500",
             "group-hover:scale-110 group-hover:shadow-[0_16px_28px_-14px_hsl(var(--primary)/0.8)]",
           )}
         >

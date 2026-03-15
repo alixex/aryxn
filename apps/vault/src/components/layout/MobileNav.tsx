@@ -20,7 +20,7 @@ export function MobileNav({ items }: MobileNavProps) {
 
   return (
     <nav className="pb-safe glass-strong border-border fixed right-0 bottom-0 left-0 z-40 border-t shadow-2xl md:hidden">
-      <div className="relative flex h-[4.5rem] items-center justify-around px-2">
+      <div className="relative flex h-18 items-center justify-around px-2">
         {/* Sliding indicator blob */}
         {activeIndex !== -1 && (
           <div
@@ -50,7 +50,7 @@ export function MobileNav({ items }: MobileNavProps) {
               <div className="relative">
                 <Icon
                   className={`h-5 w-5 transition-transform duration-300 ${
-                    isActive ? "scale-110 rotate-[2deg]" : "scale-100"
+                    isActive ? "scale-110 rotate-2" : "scale-100"
                   }`}
                 />
                 {isAccount && walletManager.isUnlocked && (

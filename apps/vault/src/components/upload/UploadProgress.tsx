@@ -15,11 +15,20 @@ export function UploadProgress({ progress }: UploadProgressProps) {
 
   if (!progress) return null
 
+  const rawPercent =
+    progress.progress !== undefined
+      ? progress.progress
+      : progress.current !== undefined && progress.total !== undefined
+        ? (progress.current / progress.total) * 100
+        : 0
+
+  const normalizedPercent = Math.max(0, Math.min(100, rawPercent))
+
   return (
     <div className="border-border bg-card rounded-lg border p-3 sm:p-4">
       <div className="mb-2 flex flex-col gap-1.5 text-sm sm:flex-row sm:items-center sm:justify-between">
-        <span className="text-foreground wrap-break-word font-medium">
-          {progress.currentFile || t("upload.uploading") + "…"}
+        <span className="text-foreground break-words font-medium">
+          {progress.currentFile || t("upload.uploading", "Uploading") + "…"}
         </span>
         {progress.current !== undefined && progress.total !== undefined ? (
           <span className="text-muted-foreground text-xs sm:text-sm">
@@ -31,17 +40,17 @@ export function UploadProgress({ progress }: UploadProgressProps) {
           </span>
         ) : null}
       </div>
-      <div className="bg-muted h-2 overflow-hidden rounded-full">
+      <div
+        className="bg-muted h-2.5 overflow-hidden rounded-full"
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={Math.round(normalizedPercent)}
+      >
         <div
           className="bg-primary relative h-full overflow-hidden transition-all duration-500 ease-out"
           style={{
-            width: `${
-              progress.progress !== undefined
-                ? progress.progress
-                : progress.current !== undefined && progress.total !== undefined
-                  ? (progress.current / progress.total) * 100
-                  : 0
-            }%`,
+            width: `${normalizedPercent}%`,
           }}
         >
           <div className="animate-shimmer absolute inset-0" />
@@ -50,8 +59,7 @@ export function UploadProgress({ progress }: UploadProgressProps) {
       {progress.stage && (
         <div className="text-muted-foreground mt-2 break-words text-xs">
           {progress.stage}
-          {progress.progress !== undefined &&
-            ` - ${Math.round(progress.progress)}%`}
+          {progress.progress !== undefined && ` - ${Math.round(normalizedPercent)}%`}
         </div>
       )}
     </div>

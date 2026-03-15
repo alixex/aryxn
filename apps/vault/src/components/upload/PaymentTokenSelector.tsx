@@ -156,7 +156,7 @@ export function PaymentTokenSelector({
           value={selectedAccount ? accountValue(selectedAccount) : ""}
           onValueChange={handleAccountChange}
         >
-          <SelectTrigger className="border-border bg-card/80 h-12 w-full rounded-xl shadow-sm transition-all hover:border-primary/35 hover:shadow-md">
+          <SelectTrigger className="touch-target border-border bg-card/80 h-12 w-full rounded-xl shadow-sm transition-all hover:border-primary/35 hover:shadow-md">
             <div className="flex items-center gap-2">
               <Wallet className="text-muted-foreground h-4 w-4" />
               <SelectValue
@@ -195,7 +195,7 @@ export function PaymentTokenSelector({
           onValueChange={(val) => onSelectToken(val as PaymentToken)}
           disabled={selectableTokens.length === 0}
         >
-          <SelectTrigger className="border-border bg-card/80 h-12 w-full rounded-xl shadow-sm transition-all hover:border-primary/35 hover:shadow-md">
+          <SelectTrigger className="touch-target border-border bg-card/80 h-12 w-full rounded-xl shadow-sm transition-all hover:border-primary/35 hover:shadow-md">
             <SelectValue
               placeholder={t(
                 "upload.selectPaymentToken",

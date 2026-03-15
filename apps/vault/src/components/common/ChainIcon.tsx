@@ -47,7 +47,7 @@ export function ChainIcon({ chain, className, size = "md" }: ChainIconProps) {
   return (
     <div
       className={cn(
-        "relative flex-shrink-0",
+        "relative shrink-0",
         size === "xs" && "h-4 w-4",
         size === "sm" && "h-5 w-5",
         size === "md" && "h-8 w-8",

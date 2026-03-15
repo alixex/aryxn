@@ -288,14 +288,14 @@ export default function UploadPage() {
                                       : t("common.pending", "Pending")}
                                   </span>
                                 </div>
-                                <p className="mt-1 break-words opacity-80">
+                                <p className="mt-1 wrap-break-word opacity-80">
                                   {recoveryMessage}
                                 </p>
                               </div>
                             </div>
                             <button
                               onClick={clearRecovery}
-                              className="hover:bg-primary/20 rounded-full p-1 transition-colors"
+                              className="touch-target hover:bg-primary/20 rounded-full p-1 transition-colors"
                             >
                               <X className="h-4 w-4" />
                             </button>
