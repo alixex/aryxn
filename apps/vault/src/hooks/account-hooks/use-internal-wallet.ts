@@ -2,7 +2,6 @@ import { useWallet as useProviderWallet } from "@/providers/wallet-provider"
 
 /**
  * Access internal wallet (vault) management.
- * 访问内部钱包（库）管理接口
  *
  * @example
  * const walletManager = useInternal()

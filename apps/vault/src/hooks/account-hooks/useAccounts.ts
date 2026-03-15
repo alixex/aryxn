@@ -4,7 +4,6 @@ import { useWallet } from "./use-wallet"
 
 /**
  * Manage account list and balance information.
- * 管理账户列表和余额信息
  *
  * @example
  * const {
@@ -104,15 +103,15 @@ export function useAccounts() {
   }
 
   return {
-    /** 账户余额缓存 */
+    /** Cached account balances. */
     balances,
-    /** 余额加载状态 */
+    /** Loading state for balances. */
     loadingBalances,
-    /** 余额显示状态 */
+    /** Visibility state for balances. */
     showBalances,
-    /** 刷新单个账户余额 */
+    /** Refresh one account balance. */
     refreshBalance,
-    /** 切换余额显示状态 */
+    /** Toggle balance visibility. */
     toggleShowBalance,
   }
 }
