@@ -91,13 +91,13 @@ export function AddAccountSection({
           <TabsList className="border-border/60 mx-4 mt-4 grid h-auto grid-cols-2 rounded-2xl border bg-[hsl(var(--background)/0.5)] p-1.5 sm:mx-6 sm:mt-5 sm:w-fit sm:min-w-60">
             <TabsTrigger
               value="import"
-              className="data-[state=active]:bg-card data-[state=active]:text-primary rounded-xl px-4 py-2.5 text-xs font-semibold transition-all duration-200 data-[state=active]:shadow-[0_12px_28px_-18px_hsl(220_35%_2%/0.72)] md:cursor-pointer"
+              className="data-[state=active]:bg-card data-[state=active]:text-primary rounded-xl px-4 py-2.5 text-xs font-semibold transition-all duration-200 data-[state=active]:shadow-[0_12px_28px_-18px_hsl(220_35%_2%/0.72)] cursor-pointer"
             >
               {t("identities.import")}
             </TabsTrigger>
             <TabsTrigger
               value="create"
-              className="data-[state=active]:bg-card data-[state=active]:text-primary rounded-xl px-4 py-2.5 text-xs font-semibold transition-all duration-200 data-[state=active]:shadow-[0_12px_28px_-18px_hsl(220_35%_2%/0.72)] md:cursor-pointer"
+              className="data-[state=active]:bg-card data-[state=active]:text-primary rounded-xl px-4 py-2.5 text-xs font-semibold transition-all duration-200 data-[state=active]:shadow-[0_12px_28px_-18px_hsl(220_35%_2%/0.72)] cursor-pointer"
             >
               {t("identities.new")}
             </TabsTrigger>
@@ -155,7 +155,7 @@ export function AddAccountSection({
                       <button
                         type="button"
                         onClick={() => setShowImportKey(!showImportKey)}
-                        className="text-muted-foreground hover:text-primary absolute top-1/2 right-3 -translate-y-1/2 rounded-full p-1 transition-colors md:cursor-pointer"
+                        className="text-muted-foreground hover:text-primary absolute top-1/2 right-3 -translate-y-1/2 rounded-full p-1 transition-colors cursor-pointer"
                       >
                         {showImportKey ? (
                           <EyeOff className="h-4 w-4" />
@@ -182,7 +182,7 @@ export function AddAccountSection({
                     key={chain.id}
                     variant="outline"
                     onClick={() => onCreateAccount(chain.id)}
-                    className="group border-border/70 hover:border-primary/35 hover:bg-accent/40 flex h-24 flex-col gap-2 rounded-2xl border bg-[hsl(var(--background)/0.56)] transition-all duration-200 hover:-translate-y-0.5 md:cursor-pointer"
+                    className="group border-border/70 hover:border-primary/35 hover:bg-accent/40 flex h-24 flex-col gap-2 rounded-2xl border bg-[hsl(var(--background)/0.56)] transition-all duration-200 hover:-translate-y-0.5 cursor-pointer"
                   >
                     <div className="border-border/50 text-foreground group-hover:border-primary/20 group-hover:bg-accent/70 rounded-2xl border bg-[hsl(var(--background)/0.7)] p-2 transition-colors">
                       {chain.icon}

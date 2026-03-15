@@ -88,7 +88,7 @@ export function AccountCard({
 
   return (
     <div
-      className={`glass-strong animate-fade-in-down group relative overflow-hidden rounded-[26px] border p-5 shadow-[0_14px_30px_-24px_hsl(220_35%_2%/0.48)] transition-all duration-200 sm:p-6 md:cursor-pointer ${
+      className={`glass-strong animate-fade-in-down group relative overflow-hidden rounded-[26px] border p-5 shadow-[0_14px_30px_-24px_hsl(220_35%_2%/0.48)] transition-all duration-200 sm:p-6 cursor-pointer ${
         isActive
           ? "border-primary/35 bg-card/92 shadow-[0_18px_34px_-28px_hsl(var(--primary)/0.28)]"
           : "border-border/70 bg-card/78 hover:border-primary/40 hover:-translate-y-0.5"
