@@ -184,7 +184,10 @@ export async function downloadTransactionData(
   if (options?.ownerAddress) {
     const cached = await getCachedResource(options.ownerAddress, txId)
     if (cached) {
-      if (expectedDataSize === 0 || cached.payload.length === expectedDataSize) {
+      if (
+        expectedDataSize === 0 ||
+        cached.payload.length === expectedDataSize
+      ) {
         return cached.payload
       }
       // Ignore stale cache entry and continue with network fetch.

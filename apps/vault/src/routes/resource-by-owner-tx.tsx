@@ -48,7 +48,10 @@ function withTimeout<T>(promise: Promise<T>, ms: number, message: string) {
   }) as Promise<T>
 }
 
-async function fetchWithTimeout(url: string, timeoutMs: number): Promise<Response> {
+async function fetchWithTimeout(
+  url: string,
+  timeoutMs: number,
+): Promise<Response> {
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), timeoutMs)
   try {
@@ -94,7 +97,8 @@ async function downloadEncryptedData(
   }
 
   throw (
-    lastError || new Error("Failed to download encrypted resource from gateways")
+    lastError ||
+    new Error("Failed to download encrypted resource from gateways")
   )
 }
 
@@ -150,14 +154,17 @@ export default function ResourceByOwnerTx() {
   const [decryptStage, setDecryptStage] = useState<DecryptStage>("idle")
   const [errorCategory, setErrorCategory] = useState<string | null>(null)
 
-  const openBlobResource = useCallback((payload: Uint8Array, mimeType: string) => {
-    const blob = new Blob([payload.buffer.slice(0) as BlobPart], {
-      type: mimeType || "application/octet-stream",
-    })
-    const objectUrl = URL.createObjectURL(blob)
-    setTimeout(() => URL.revokeObjectURL(objectUrl), 60000)
-    window.location.replace(objectUrl)
-  }, [])
+  const openBlobResource = useCallback(
+    (payload: Uint8Array, mimeType: string) => {
+      const blob = new Blob([payload.buffer.slice(0) as BlobPart], {
+        type: mimeType || "application/octet-stream",
+      })
+      const objectUrl = URL.createObjectURL(blob)
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 60000)
+      window.location.replace(objectUrl)
+    },
+    [],
+  )
 
   const normalized = useMemo(
     () => ({
@@ -337,7 +344,10 @@ export default function ResourceByOwnerTx() {
       setDecryptStage("downloading")
       setDecryptStatus("Checking local cache...")
 
-      const localCached = await getCachedResource(file.owner_address, file.tx_id)
+      const localCached = await getCachedResource(
+        file.owner_address,
+        file.tx_id,
+      )
       let encryptedData: Uint8Array | null =
         localCached?.isEncrypted === true ? localCached.payload : null
 
@@ -392,7 +402,11 @@ export default function ResourceByOwnerTx() {
         if (!params.nonce) {
           throw new Error("Missing encryption nonce.")
         }
-        decrypted = await decryptData(encryptedData, fromBase64(params.nonce), key)
+        decrypted = await decryptData(
+          encryptedData,
+          fromBase64(params.nonce),
+          key,
+        )
       }
 
       setDecryptStage("opening")
@@ -403,9 +417,7 @@ export default function ResourceByOwnerTx() {
         error instanceof Error
           ? error.message
           : "Failed to decrypt resource. Check password."
-      setDecryptError(
-        message,
-      )
+      setDecryptError(message)
       setErrorCategory(classifyDecryptError(message))
       setDecryptStage("idle")
       setDecryptStatus(null)
@@ -454,7 +466,9 @@ export default function ResourceByOwnerTx() {
                     type="button"
                     onClick={() => setShowPassword((prev) => !prev)}
                     className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 transition-colors"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
                   >
                     {showPassword ? (
                       <EyeOff className="h-4 w-4" />
@@ -464,12 +478,18 @@ export default function ResourceByOwnerTx() {
                   </button>
                 </div>
 
-                <Button type="submit" className="h-11 w-full" disabled={decrypting}>
+                <Button
+                  type="submit"
+                  className="h-11 w-full"
+                  disabled={decrypting}
+                >
                   {decrypting ? "Decrypting..." : "View Resource"}
                 </Button>
 
                 {decryptStatus ? (
-                  <p className="text-muted-foreground text-xs">{decryptStatus}</p>
+                  <p className="text-muted-foreground text-xs">
+                    {decryptStatus}
+                  </p>
                 ) : null}
                 {decrypting ? (
                   <p className="text-muted-foreground text-xs">
@@ -479,7 +499,9 @@ export default function ResourceByOwnerTx() {
                 {decryptError ? (
                   <div className="space-y-1">
                     {errorCategory ? (
-                      <p className="text-xs text-red-700">Category: {errorCategory}</p>
+                      <p className="text-xs text-red-700">
+                        Category: {errorCategory}
+                      </p>
                     ) : null}
                     <p className="text-xs text-red-600">{decryptError}</p>
                   </div>

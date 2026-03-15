@@ -1,6 +1,13 @@
 import type { UploadRecord } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Copy, Download, ExternalLink, Link2, Loader2, Shield } from "lucide-react"
+import {
+  Copy,
+  Download,
+  ExternalLink,
+  Link2,
+  Loader2,
+  Shield,
+} from "lucide-react"
 import { useState, useRef } from "react"
 import { toast } from "sonner"
 import { useTranslation } from "@/i18n/config"
