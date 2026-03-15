@@ -62,11 +62,7 @@ export async function handleFileDownload(
   })
 
   // For unencrypted and non-compressed files, download from cached File path directly.
-  if (
-    decrypt &&
-    record.encryptionAlgo === "none" &&
-    !compressionEnabled
-  ) {
+  if (decrypt && record.encryptionAlgo === "none" && !compressionEnabled) {
     const file = await downloadTransactionFile(
       record.txId,
       expectedDataSize,

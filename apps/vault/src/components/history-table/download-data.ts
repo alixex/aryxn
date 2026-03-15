@@ -182,10 +182,7 @@ async function cacheFromGatewayStream(
       const fallbackBuffer = await response.arrayBuffer()
       const fallbackData = new Uint8Array(fallbackBuffer)
 
-      if (
-        expectedDataSize > 0 &&
-        fallbackData.length !== expectedDataSize
-      ) {
+      if (expectedDataSize > 0 && fallbackData.length !== expectedDataSize) {
         console.warn("Fallback download size mismatch; trying next gateway", {
           txId,
           expectedDataSize,
@@ -457,11 +454,16 @@ export async function downloadTransactionFile(
     }
   }
 
-  const data = await downloadTransactionData(txId, expectedDataSize, storageType, {
-    ownerAddress: options?.ownerAddress,
-    isEncrypted: options?.isEncrypted,
-    mimeType: options?.mimeType,
-  })
+  const data = await downloadTransactionData(
+    txId,
+    expectedDataSize,
+    storageType,
+    {
+      ownerAddress: options?.ownerAddress,
+      isEncrypted: options?.isEncrypted,
+      mimeType: options?.mimeType,
+    },
+  )
 
   return new File([data as BlobPart], options?.fileName || txId, {
     type: options?.mimeType || "application/octet-stream",

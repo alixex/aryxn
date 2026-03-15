@@ -187,6 +187,20 @@ export function useUploadHandler() {
         } as UploadHandlerResult
       }
 
+      if (encryptUpload && !wallet.internal.masterKey) {
+        toast.error(
+          t(
+            "upload.needUnlockForEncryption",
+            "Unlock your vault before encrypted upload.",
+          ),
+        )
+        return {
+          status: "FAILED",
+          success: 0,
+          failed: 1,
+        } as UploadHandlerResult
+      }
+
       setUploading(true)
       setProgress(0)
       setStage(t("upload.preparing"))
@@ -250,7 +264,9 @@ export function useUploadHandler() {
           activeArweave!.address,
           wallet.internal.activeWallet!,
           {
-            encryptionKey: encryptUpload ? new Uint8Array(32) : undefined,
+            encryptionKey: encryptUpload
+              ? (wallet.internal.masterKey ?? undefined)
+              : undefined,
             useExternalWallet: false,
             enableCompression: compressUpload,
             onProgress: (p) => {
@@ -395,6 +411,20 @@ export function useUploadHandler() {
         } as UploadHandlerResult
       }
 
+      if (encryptUpload && !wallet.internal.masterKey) {
+        toast.error(
+          t(
+            "upload.needUnlockForEncryption",
+            "Unlock your vault before encrypted upload.",
+          ),
+        )
+        return {
+          status: "FAILED",
+          success: 0,
+          failed: files.length,
+        } as UploadHandlerResult
+      }
+
       setUploading(true)
       setProgress(0)
       setStage(t("upload.preparing"))
@@ -459,7 +489,9 @@ export function useUploadHandler() {
           activeArweave!.address,
           wallet.internal.activeWallet!,
           {
-            encryptionKey: encryptUpload ? new Uint8Array(32) : undefined,
+            encryptionKey: encryptUpload
+              ? (wallet.internal.masterKey ?? undefined)
+              : undefined,
             useExternalWallet: false,
             enableCompression: compressUpload,
             onProgress: (p) => {

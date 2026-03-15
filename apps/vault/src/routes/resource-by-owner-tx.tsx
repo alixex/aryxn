@@ -11,6 +11,12 @@ import { RPCs } from "@aryxn/chain-constants"
 import { deriveKey } from "@aryxn/crypto"
 import type { UploadRecord } from "@/lib/utils"
 import { useWallet } from "@/hooks/account-hooks"
+import { db } from "@/lib/database"
+import { getTransactionMetadata } from "@/components/history-table/download-data"
+import {
+  decodeTransactionTags,
+  type DecodedTag,
+} from "@/components/history-table/transaction-tags"
 import { processFileData } from "@/components/history-table/process-data"
 import {
   Card,
@@ -160,7 +166,10 @@ function classifyDecryptErrorByStage(
   stage: DecryptStage,
   passwordVerified: boolean,
 ): string {
-  if (stage === "verifying" || message.toLowerCase().includes("incorrect password")) {
+  if (
+    stage === "verifying" ||
+    message.toLowerCase().includes("incorrect password")
+  ) {
     return "Password verification failed"
   }
 
@@ -386,7 +395,97 @@ export default function ResourceByOwnerTx() {
       currentStage = "metadata"
       setDecryptStatus("Loading local metadata...")
       const expectedDataSize = Number(file.file_size || 0)
-      const decodedTags: [] = []
+      let decodedTags: DecodedTag[] = []
+
+      const hydrateTagsForNonceRepair = async () => {
+        if (decodedTags.length > 0) return
+
+        const { transaction } = await getTransactionMetadata(file.tx_id)
+        const hydrated = decodeTransactionTags((transaction as any)?.tags)
+        decodedTags = hydrated
+
+        const encryptionParamsTag = hydrated.find(
+          (tag) => tag.name === "Encryption-Params" && tag.value,
+        )
+
+        if (!encryptionParamsTag) return
+
+        // Write back repaired metadata so future opens stay local-first.
+        await db.run(
+          `UPDATE file_indexes
+           SET encryption_params = ?, updated_at = ?
+           WHERE tx_id = ? AND owner_address = ?`,
+          [
+            encryptionParamsTag.value,
+            Date.now(),
+            file.tx_id,
+            file.owner_address,
+          ],
+        )
+      }
+
+      const decryptPayload = async (
+        payload: Uint8Array,
+      ): Promise<Uint8Array> => {
+        const zeroKey = new Uint8Array(32)
+
+        const tryDecryptWithKey = async (
+          candidateKey: Uint8Array,
+        ): Promise<Uint8Array | null> => {
+          try {
+            return await processFileData(
+              payload,
+              record,
+              decodedTags,
+              candidateKey,
+              true,
+            )
+          } catch {
+            return null
+          }
+        }
+
+        setDecryptStage("decrypting")
+        currentStage = "decrypting"
+        setDecryptStatus("Decrypting resource...")
+
+        // 1) Local metadata + primary key
+        const primaryLocal = await tryDecryptWithKey(key)
+        if (primaryLocal) {
+          return primaryLocal
+        }
+
+        // 2) Local metadata + legacy zero key
+        setDecryptStatus("Primary key failed. Checking legacy key format...")
+        const legacyLocal = await tryDecryptWithKey(zeroKey)
+        if (legacyLocal) {
+          return legacyLocal
+        }
+
+        // 3) Chain metadata + primary/legacy key (on-demand self-healing)
+        setDecryptStage("metadata")
+        currentStage = "metadata"
+        setDecryptStatus("Verifying encryption metadata from chain...")
+        await hydrateTagsForNonceRepair()
+
+        setDecryptStage("decrypting")
+        currentStage = "decrypting"
+        setDecryptStatus("Retrying with verified metadata...")
+
+        const primaryChain = await tryDecryptWithKey(key)
+        if (primaryChain) {
+          return primaryChain
+        }
+
+        const legacyChain = await tryDecryptWithKey(zeroKey)
+        if (legacyChain) {
+          return legacyChain
+        }
+
+        throw new Error(
+          "Password verified, but no supported key/metadata combination could decrypt this resource.",
+        )
+      }
 
       setDecryptStage("downloading")
       currentStage = "downloading"
@@ -427,16 +526,7 @@ export default function ResourceByOwnerTx() {
 
       // Fast path: reuse file decrypt pipeline with tag-first parameters.
       try {
-        setDecryptStage("decrypting")
-        currentStage = "decrypting"
-        setDecryptStatus("Decrypting resource...")
-        decrypted = await processFileData(
-          encryptedData,
-          record,
-          decodedTags,
-          key,
-          true,
-        )
+        decrypted = await decryptPayload(encryptedData)
       } catch {
         if (loadedFromCache) {
           setDecryptStatus("Cached data failed. Retrying from chain...")
@@ -459,13 +549,7 @@ export default function ResourceByOwnerTx() {
           })
 
           try {
-            decrypted = await processFileData(
-              redownloaded,
-              record,
-              decodedTags,
-              key,
-              true,
-            )
+            decrypted = await decryptPayload(redownloaded)
           } catch {
             throw new Error(
               "Password verified, but resource payload/metadata mismatch prevented decryption.",
