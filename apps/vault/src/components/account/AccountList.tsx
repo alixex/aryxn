@@ -52,12 +52,15 @@ export function AccountList({
 
   if (accounts.length === 0) {
     return (
-      <div className="space-y-3">
-        <div className="glass-strong animate-fade-in-down border-accent/20 bg-card/40 flex flex-col items-center justify-center rounded-2xl border-2 border-dashed py-12 text-center shadow-lg transition-all duration-500">
-          <div className="bg-accent/10 mb-4 rounded-full p-4">
+      <div className="space-y-4">
+        <div className="animate-fade-in-down border-border/60 flex flex-col items-center justify-center rounded-[26px] border border-dashed bg-[hsl(var(--card)/0.7)] px-6 py-14 text-center shadow-[0_12px_28px_-24px_hsl(220_35%_2%/0.45)] transition-all duration-500">
+          <div className="border-border/60 mb-4 rounded-full border bg-[hsl(var(--background)/0.65)] p-4">
             <Wallet className="text-foreground/40 h-10 w-10" />
           </div>
-          <p className="text-muted-foreground max-w-50 text-sm font-medium italic">
+          <div className="text-foreground text-base font-semibold tracking-tight">
+            {chain}
+          </div>
+          <p className="mt-2 max-w-sm text-sm leading-6 font-medium text-[hsl(var(--foreground)/0.65)]">
             {t("identities.emptyState", { chain })}
           </p>
         </div>
@@ -66,7 +69,7 @@ export function AccountList({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {accounts.map((account) => {
         const active = isActive(account)
         const key = account.isExternal

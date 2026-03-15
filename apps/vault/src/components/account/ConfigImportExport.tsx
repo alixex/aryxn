@@ -8,6 +8,8 @@ import {
   Upload,
   AlertCircle,
   CheckCircle2,
+  ChevronDown,
+  ChevronUp,
   Loader2,
   Eye,
   EyeOff,
@@ -76,6 +78,7 @@ export function ConfigImportExport() {
   const [importPassword, setImportPassword] = useState("")
   const [showImportPassword, setShowImportPassword] = useState(false)
   const [importPasswordError, setImportPasswordError] = useState("")
+  const [showImportErrors, setShowImportErrors] = useState(false)
   const [selectedConfig, setSelectedConfig] = useState<ConfigExport | null>(
     null,
   )
@@ -141,6 +144,7 @@ export function ConfigImportExport() {
       setImportPassword("")
       setImportPasswordError("")
       setImportResult(null)
+      setShowImportErrors(false)
     } catch (error) {
       console.error("Failed to read config file:", error)
       const errorMessage =
@@ -172,6 +176,7 @@ export function ConfigImportExport() {
     setIsImporting(true)
     setImportPasswordError("")
     setImportResult(null)
+    setShowImportErrors(false)
 
     try {
       const result = await importConfig(
@@ -281,17 +286,17 @@ export function ConfigImportExport() {
 
   return (
     <>
-      <Card className="animate-fade-in-down border-border/90 bg-card/84 border shadow-[0_16px_30px_-20px_hsl(220_35%_2%/0.72)] transition-all duration-200">
-        <CardHeader className="animate-fade-in-down border-border/85 bg-card/92 rounded-t-2xl border-b p-6">
-          <CardTitle className="text-foreground text-base font-semibold">
+      <Card className="animate-fade-in-down border-border/80 bg-card/88 border shadow-[0_12px_28px_-22px_hsl(220_35%_2%/0.45)] transition-all duration-200">
+        <CardHeader className="animate-fade-in-down border-border/70 rounded-t-[28px] border-b bg-[linear-gradient(180deg,hsl(var(--card))_0%,hsl(var(--card)/0.92)_100%)] px-5 py-5 sm:px-6 sm:py-6">
+          <CardTitle className="text-foreground text-lg font-semibold tracking-tight">
             {t("identities.configSync")}
           </CardTitle>
-          <CardDescription className="text-muted-foreground text-xs font-medium">
+          <CardDescription className="text-muted-foreground/85 text-sm leading-6 font-medium">
             {t("identities.configSyncDesc")}
           </CardDescription>
         </CardHeader>
-        <CardContent className="p-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:gap-2">
+        <CardContent className="p-4 sm:p-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:gap-3">
             <Dialog
               open={isExportDialogOpen}
               onOpenChange={(open) => {
@@ -306,7 +311,7 @@ export function ConfigImportExport() {
               <DialogTrigger asChild>
                 <Button
                   variant="outline"
-                  className="btn-interactive group relative h-12 w-full overflow-hidden sm:flex-1"
+                  className="btn-interactive group border-border/70 relative h-12 w-full overflow-hidden rounded-2xl bg-[hsl(var(--background)/0.5)] sm:flex-1"
                 >
                   <Download className="mr-2 h-4 w-4 shrink-0 transition-transform group-hover:-translate-y-0.5" />
                   <span className="truncate font-semibold tracking-tight">
@@ -314,7 +319,7 @@ export function ConfigImportExport() {
                   </span>
                 </Button>
               </DialogTrigger>
-              <DialogContent className="bg-card/86 border-border fixed top-1/2 left-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 overflow-hidden border p-0 backdrop-blur-xl sm:max-w-md">
+              <DialogContent className="bg-card/95 border-border fixed top-1/2 left-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[30px] border p-0 backdrop-blur-xl sm:max-w-md">
                 <div className="bg-linear-to-b from-[hsl(var(--primary)/0.12)] to-transparent p-6 pb-0">
                   <DialogHeader>
                     <div className="bg-primary/12 border-primary/25 mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border">
@@ -401,14 +406,14 @@ export function ConfigImportExport() {
                       )}
                     </div>
                   </div>
-                  <div className="group flex cursor-pointer items-center space-x-3 rounded-xl border border-[hsl(var(--border)/0.85)] bg-[hsl(var(--background)/0.5)] p-4 transition-colors hover:bg-[hsl(var(--accent)/0.45)]">
+                  <div className="group flex items-center space-x-3 rounded-2xl border border-[hsl(var(--border)/0.85)] bg-[hsl(var(--background)/0.5)] p-4 transition-colors hover:bg-[hsl(var(--accent)/0.45)] md:cursor-pointer">
                     <div className="relative flex h-5 w-5 items-center justify-center">
                       <input
                         type="checkbox"
                         id="include-uploads-export"
                         checked={includeUploads}
                         onChange={(e) => setIncludeUploads(e.target.checked)}
-                        className="peer checked:border-primary checked:bg-primary h-5 w-5 cursor-pointer appearance-none rounded border-2 border-[hsl(var(--border)/0.85)] transition-all"
+                        className="peer checked:border-primary checked:bg-primary h-5 w-5 appearance-none rounded border-2 border-[hsl(var(--border)/0.85)] transition-all md:cursor-pointer"
                       />
                       <div className="pointer-events-none absolute text-white opacity-0 transition-opacity peer-checked:opacity-100">
                         <svg
@@ -428,7 +433,7 @@ export function ConfigImportExport() {
                     </div>
                     <label
                       htmlFor="include-uploads-export"
-                      className="text-foreground/90 flex-1 cursor-pointer text-sm font-semibold select-none"
+                      className="text-foreground/90 flex-1 text-sm font-semibold select-none md:cursor-pointer"
                     >
                       {t("identities.includeUploads")}
                     </label>
@@ -487,7 +492,7 @@ export function ConfigImportExport() {
               <DialogTrigger asChild>
                 <Button
                   variant="outline"
-                  className="btn-interactive group relative h-12 w-full overflow-hidden sm:flex-1"
+                  className="btn-interactive group border-border/70 relative h-12 w-full overflow-hidden rounded-2xl bg-[hsl(var(--background)/0.5)] sm:flex-1"
                 >
                   <Upload className="mr-2 h-4 w-4 shrink-0 transition-transform group-hover:-translate-y-0.5" />
                   <span className="truncate font-semibold tracking-tight">
@@ -495,7 +500,7 @@ export function ConfigImportExport() {
                   </span>
                 </Button>
               </DialogTrigger>
-              <DialogContent className="bg-card/86 border-border fixed top-1/2 left-1/2 z-50 w-full max-w-xl -translate-x-1/2 -translate-y-1/2 overflow-hidden border p-0 backdrop-blur-xl">
+              <DialogContent className="bg-card/95 border-border fixed top-1/2 left-1/2 z-50 w-full max-w-xl -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[30px] border p-0 backdrop-blur-xl">
                 <div className="bg-linear-to-b from-[hsl(var(--primary)/0.12)] to-transparent p-6 pb-0">
                   <DialogHeader>
                     <div className="bg-primary/12 border-primary/25 mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border">
@@ -512,7 +517,7 @@ export function ConfigImportExport() {
                 <div className="space-y-6 p-6">
                   {!selectedConfig ? (
                     <div className="space-y-6">
-                      <div className="group flex cursor-pointer items-center space-x-3 rounded-xl border border-[hsl(var(--border)/0.85)] bg-[hsl(var(--background)/0.5)] p-4 transition-colors hover:bg-[hsl(var(--accent)/0.4)]">
+                      <div className="group flex items-center space-x-3 rounded-2xl border border-[hsl(var(--border)/0.85)] bg-[hsl(var(--background)/0.5)] p-4 transition-colors hover:bg-[hsl(var(--accent)/0.4)] md:cursor-pointer">
                         <div className="relative flex h-5 w-5 items-center justify-center">
                           <input
                             type="checkbox"
@@ -521,7 +526,7 @@ export function ConfigImportExport() {
                             onChange={(e) =>
                               setIncludeUploads(e.target.checked)
                             }
-                            className="peer checked:border-primary checked:bg-primary h-5 w-5 cursor-pointer appearance-none rounded border-2 border-[hsl(var(--border)/0.85)] transition-all"
+                            className="peer checked:border-primary checked:bg-primary h-5 w-5 appearance-none rounded border-2 border-[hsl(var(--border)/0.85)] transition-all md:cursor-pointer"
                           />
                           <div className="pointer-events-none absolute text-white opacity-0 transition-opacity peer-checked:opacity-100">
                             <svg
@@ -541,7 +546,7 @@ export function ConfigImportExport() {
                         </div>
                         <label
                           htmlFor="include-uploads-import"
-                          className="text-foreground/90 flex-1 cursor-pointer text-sm font-semibold select-none"
+                          className="text-foreground/90 flex-1 text-sm font-semibold select-none md:cursor-pointer"
                         >
                           {t("identities.includeUploads")}
                         </label>
@@ -558,7 +563,7 @@ export function ConfigImportExport() {
                       <Button
                         onClick={handleImportClick}
                         disabled={isImporting}
-                        className="btn-interactive bg-primary text-primary-foreground relative h-12 w-full overflow-hidden rounded-xl border border-[hsl(var(--border)/0.7)] font-semibold shadow-[0_12px_24px_-18px_hsl(220_35%_2%/0.72)]"
+                        className="btn-interactive bg-primary text-primary-foreground relative h-14 w-full overflow-hidden rounded-[22px] border border-[hsl(var(--border)/0.7)] font-semibold shadow-[0_12px_24px_-18px_hsl(220_35%_2%/0.72)]"
                         variant="default"
                       >
                         <Upload className="mr-3 h-5 w-5" />
@@ -615,7 +620,7 @@ export function ConfigImportExport() {
                             onClick={() =>
                               setShowImportPassword(!showImportPassword)
                             }
-                            className="text-muted-foreground hover:text-primary absolute top-1/2 right-3 -translate-y-1/2 p-2 transition-colors"
+                            className="text-muted-foreground hover:text-primary absolute top-1/2 right-3 -translate-y-1/2 rounded-full p-2 transition-colors md:cursor-pointer"
                           >
                             {showImportPassword ? (
                               <EyeOff className="h-4 w-4" />
@@ -670,7 +675,7 @@ export function ConfigImportExport() {
                   )}
 
                   {importResult && (
-                    <div className="animate-in fade-in slide-in-from-bottom-2 rounded-xl border border-[hsl(var(--border)/0.85)] bg-[hsl(var(--background)/0.55)] p-5 duration-500">
+                    <div className="animate-in fade-in slide-in-from-bottom-2 rounded-3xl border border-[hsl(var(--border)/0.85)] bg-[hsl(var(--background)/0.55)] p-5 duration-500">
                       <div className="mb-4 flex items-center gap-3">
                         <div
                           className={`rounded-lg p-2 ${importResult.success ? "bg-[hsl(var(--primary)/0.16)]" : "bg-[hsl(var(--destructive)/0.18)]"}`}
@@ -720,17 +725,42 @@ export function ConfigImportExport() {
                               <AlertCircle className="h-4 w-4" />
                               <span>{t("identities.errors")}:</span>
                             </div>
-                            <ul className="text-destructive/80 space-y-1.5 text-xs font-medium">
-                              {importResult.errors.map((error, index) => (
-                                <li
-                                  key={index}
-                                  className="flex items-start gap-2"
-                                >
-                                  <span className="mt-1">•</span>
-                                  <span>{error}</span>
-                                </li>
-                              ))}
-                            </ul>
+                            <div className="space-y-3">
+                              <div className="text-destructive/80 text-xs font-medium">
+                                {importResult.errors[0]}
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setShowImportErrors((value) => !value)
+                                }
+                                className="text-destructive inline-flex items-center gap-1 text-xs font-semibold md:cursor-pointer"
+                              >
+                                {showImportErrors ? (
+                                  <ChevronUp className="h-3.5 w-3.5" />
+                                ) : (
+                                  <ChevronDown className="h-3.5 w-3.5" />
+                                )}
+                                {showImportErrors
+                                  ? t("common.close")
+                                  : t("settings.storageDetails")}
+                              </button>
+                              {showImportErrors && (
+                                <ul className="text-destructive/80 max-h-40 space-y-1.5 overflow-y-auto text-xs font-medium">
+                                  {importResult.errors
+                                    .slice(1)
+                                    .map((error, index) => (
+                                      <li
+                                        key={`${error}-${index}`}
+                                        className="flex items-start gap-2"
+                                      >
+                                        <span className="mt-1">•</span>
+                                        <span>{error}</span>
+                                      </li>
+                                    ))}
+                                </ul>
+                              )}
+                            </div>
                           </div>
                         )}
                       </div>

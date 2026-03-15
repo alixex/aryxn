@@ -134,8 +134,10 @@ export default function AccountPage() {
   }
 
   return (
-    <div className="mesh-gradient relative min-h-screen">
-      <div className="animate-in fade-in slide-in-from-bottom-2 mx-auto max-w-6xl space-y-6 px-3 py-6 duration-700 sm:space-y-8 sm:px-4 sm:py-8">
+    <div className="mesh-gradient relative min-h-screen overflow-hidden">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-[radial-gradient(circle_at_top,hsl(var(--primary)/0.1),transparent_62%)]" />
+      <div className="pointer-events-none absolute top-24 right-0 h-64 w-64 rounded-full bg-[hsl(var(--accent)/0.1)] blur-3xl" />
+      <div className="animate-in fade-in slide-in-from-bottom-2 relative mx-auto max-w-7xl space-y-6 px-4 py-6 duration-700 sm:space-y-8 sm:px-6 sm:py-8 lg:space-y-10 lg:px-8 lg:py-10">
         <AccountHeader
           t={t}
           isUnlocked={walletManager.isUnlocked}
@@ -143,30 +145,33 @@ export default function AccountPage() {
         />
 
         {!walletManager.isUnlocked ? (
-          <div className="px-4 sm:px-0">
+          <div className="mx-auto w-full max-w-2xl">
             <UnlockForm onUnlock={handleUnlock} />
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-3">
-            <div className="space-y-6 sm:space-y-8 lg:col-span-2">
-              <Card className="border-border/90 bg-card/84 border shadow-[0_16px_30px_-20px_hsl(220_35%_2%/0.72)] transition-all duration-200">
-                <CardHeader className="animate-fade-in-down border-border/85 bg-card/92 flex flex-col space-y-1.5 rounded-t-2xl border-b p-6">
-                  <CardTitle className="text-foreground text-base">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.65fr)_minmax(20rem,0.95fr)] lg:items-start lg:gap-8">
+            <div className="space-y-6 lg:space-y-8">
+              <Card className="border-border/70 bg-card/90 overflow-hidden rounded-[28px] border shadow-[0_16px_40px_-30px_hsl(220_35%_2%/0.55)] transition-all duration-200">
+                <CardHeader className="animate-fade-in-down border-border/70 flex flex-col gap-2 border-b bg-[linear-gradient(180deg,hsl(var(--card))_0%,hsl(var(--card)/0.92)_100%)] px-5 py-5 sm:px-6 sm:py-6">
+                  <div className="text-muted-foreground text-[11px] font-semibold tracking-[0.28em] uppercase">
+                    {t("common.account")}
+                  </div>
+                  <CardTitle className="text-foreground text-lg font-semibold tracking-tight sm:text-xl">
                     {t("identities.title")}
                   </CardTitle>
-                  <CardDescription className="text-muted-foreground text-xs">
+                  <CardDescription className="text-muted-foreground/90 max-w-2xl text-sm leading-relaxed">
                     {t("identities.desc")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="p-0">
                   <Tabs defaultValue={AccountChains[0]} className="w-full">
-                    <div className="overflow-x-auto px-3 pt-3 sm:px-6 sm:pt-4">
-                      <TabsList className="bg-muted mb-0 flex h-auto w-max flex-nowrap justify-start gap-1 rounded-lg p-1 sm:w-auto sm:flex-wrap">
+                    <div className="overflow-x-auto px-4 pt-4 sm:px-6 sm:pt-5">
+                      <TabsList className="border-border/60 mb-0 flex h-auto min-w-full flex-nowrap justify-start gap-1.5 rounded-2xl border bg-[hsl(var(--background)/0.52)] p-1.5 sm:w-fit sm:min-w-0">
                         {AccountChains.map((chain) => (
                           <TabsTrigger
                             key={chain}
                             value={chain}
-                            className="data-[state=active]:bg-background data-[state=active]:text-primary rounded-md px-4 py-2 text-xs font-semibold capitalize data-[state=active]:shadow-sm"
+                            className="data-[state=active]:bg-card data-[state=active]:text-primary rounded-xl px-4 py-2.5 text-xs font-semibold capitalize transition-all duration-200 data-[state=active]:shadow-[0_12px_28px_-18px_hsl(220_35%_2%/0.72)] md:cursor-pointer"
                           >
                             {chain}
                           </TabsTrigger>
@@ -177,7 +182,7 @@ export default function AccountPage() {
                       <TabsContent
                         key={chain}
                         value={chain}
-                        className="px-3 pt-3 pb-3 sm:px-6 sm:pt-4 sm:pb-6"
+                        className="px-4 pt-4 pb-4 sm:px-6 sm:pt-5 sm:pb-6"
                       >
                         <AccountListTab
                           chain={chain}
@@ -198,12 +203,10 @@ export default function AccountPage() {
                 </CardContent>
               </Card>
 
-              <div className="px-4 sm:px-0">
-                <AddAccountSection
-                  onAddAccount={handleAddAccount}
-                  onCreateAccount={handleCreateAccount}
-                />
-              </div>
+              <AddAccountSection
+                onAddAccount={handleAddAccount}
+                onCreateAccount={handleCreateAccount}
+              />
             </div>
 
             <AccountSidebar t={t} walletManager={walletManager} />

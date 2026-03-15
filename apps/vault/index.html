@@ -8,35 +8,69 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <!-- Preload CSS for faster rendering -->
     <link rel="modulepreload" href="/src/index.css" />
-    <!-- Critical CSS for loading screen with namespace to avoid conflicts -->
+    <!-- Critical CSS for bootstrapping screen with app-aligned theme -->
     <style>
-      /* Namespaced styles for loading screen - won't conflict with Tailwind */
+      :root {
+        --boot-bg: hsl(220 14% 7%);
+        --boot-fg: hsl(220 12% 93%);
+        --boot-muted: hsl(220 7% 64%);
+        --boot-border: hsl(220 8% 22%);
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        min-height: 100%;
+      }
+
+      body {
+        background-color: var(--boot-bg);
+        color: var(--boot-fg);
+        font-family: "Space Grotesk", "Avenir Next", "Segoe UI", sans-serif;
+      }
+
       .loading-container {
         display: flex;
         min-height: 100vh;
         align-items: center;
         justify-content: center;
-        background-color: #ffffff;
+        background-image:
+          radial-gradient(
+            circle at 8% 10%,
+            hsl(0 0% 100% / 0.05),
+            transparent 35%
+          ),
+          radial-gradient(
+            circle at 88% 12%,
+            hsl(220 12% 70% / 0.05),
+            transparent 32%
+          ),
+          linear-gradient(180deg, hsl(220 14% 7%), hsl(220 12% 8%));
       }
+
       .loading-content {
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 1rem;
+        gap: 0.75rem;
       }
+
       .loading-spinner-wrapper {
         position: relative;
       }
+
       .loading-spinner-outer {
-        height: 4rem;
-        width: 4rem;
-        animation: loading-spin 1s linear infinite;
+        height: 2.75rem;
+        width: 2.75rem;
+        animation: loading-spin 0.9s linear infinite;
         border-radius: 9999px;
-        border-width: 4px;
+        border-width: 2px;
         border-style: solid;
-        border-color: #e2e8f0;
-        border-top-color: #4f46e5;
+        border-color: hsl(220 8% 22%);
+        border-top-color: hsl(0 0% 97%);
       }
+
       @keyframes loading-spin {
         from {
           transform: rotate(0deg);
@@ -55,42 +89,69 @@
         align-items: center;
         justify-content: center;
       }
+
       .loading-spinner-core {
-        height: 2rem;
-        width: 2rem;
+        height: 1.2rem;
+        width: 1.2rem;
         border-radius: 9999px;
-        background: linear-gradient(to bottom right, #6366f1, #a855f7);
+        background: hsl(0 0% 97% / 0.12);
+        border: 1px solid hsl(0 0% 100% / 0.08);
+        backdrop-filter: blur(4px);
       }
+
       .loading-text-wrapper {
         text-align: center;
       }
+
       .loading-text-main {
-        font-size: 0.875rem;
-        line-height: 1.25rem;
-        font-weight: 500;
-        color: #0f172a;
-      }
-      .loading-text-sub {
-        margin-top: 0.25rem;
+        margin: 0;
         font-size: 0.75rem;
         line-height: 1rem;
-        color: #64748b;
+        font-weight: 500;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--boot-muted);
+      }
+
+      .loading-text-sub {
+        margin: 0;
+        font-size: 0.75rem;
+        line-height: 1rem;
+        color: var(--boot-fg);
+      }
+
+      .loading-panel {
+        border: 1px solid var(--boot-border);
+        border-radius: 16px;
+        background: hsl(220 12% 10% / 0.86);
+        box-shadow:
+          0 16px 32px -20px hsl(220 35% 2% / 0.72),
+          inset 0 1px 0 hsl(0 0% 100% / 0.05);
+        padding: 1rem 1.2rem;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .loading-spinner-outer {
+          animation: none;
+        }
       }
     </style>
   </head>
   <body>
     <div id="root">
       <div class="loading-container">
-        <div class="loading-content">
-          <div class="loading-spinner-wrapper">
-            <div class="loading-spinner-outer"></div>
-            <div class="loading-spinner-inner">
-              <div class="loading-spinner-core"></div>
+        <div class="loading-panel">
+          <div class="loading-content">
+            <div class="loading-spinner-wrapper" aria-hidden="true">
+              <div class="loading-spinner-outer"></div>
+              <div class="loading-spinner-inner">
+                <div class="loading-spinner-core"></div>
+              </div>
             </div>
-          </div>
-          <div class="loading-text-wrapper">
-            <p class="loading-text-main">Loading...</p>
-            <p class="loading-text-sub">Preparing your vault</p>
+            <div class="loading-text-wrapper" role="status" aria-live="polite">
+              <p class="loading-text-main">Initializing</p>
+              <p class="loading-text-sub">Preparing your vault</p>
+            </div>
           </div>
         </div>
       </div>

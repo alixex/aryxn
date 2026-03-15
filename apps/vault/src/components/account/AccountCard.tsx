@@ -88,10 +88,10 @@ export function AccountCard({
 
   return (
     <div
-      className={`glass-strong animate-fade-in-down group relative cursor-pointer overflow-hidden rounded-2xl border p-5 shadow-[0_16px_28px_-20px_hsl(220_35%_2%/0.72)] transition-all duration-200 sm:p-6 ${
+      className={`glass-strong animate-fade-in-down group relative overflow-hidden rounded-[26px] border p-5 shadow-[0_14px_30px_-24px_hsl(220_35%_2%/0.48)] transition-all duration-200 sm:p-6 md:cursor-pointer ${
         isActive
-          ? "bg-card/88 border-primary/50"
-          : "border-border/80 bg-card/72 hover:border-primary/35 hover:-translate-y-0.5"
+          ? "border-primary/35 bg-card/92 shadow-[0_18px_34px_-28px_hsl(var(--primary)/0.28)]"
+          : "border-border/70 bg-card/78 hover:border-primary/40 hover:-translate-y-0.5"
       }`}
       onClick={(e) => {
         const target = e.target as HTMLElement
@@ -102,51 +102,55 @@ export function AccountCard({
       }}
     >
       {isActive && (
-        <div className="bg-primary/80 absolute top-0 left-0 h-full w-0.5" />
+        <div className="absolute top-0 left-0 h-full w-1 bg-[linear-gradient(180deg,hsl(var(--primary))_0%,hsl(var(--primary)/0.2)_100%)]" />
       )}
-      <div className="">
+      <div className="absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent,hsl(var(--foreground)/0.12),transparent)]" />
+      <div>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex min-w-0 flex-1 items-start gap-3 sm:gap-4">
             <div
-              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-all sm:h-12 sm:w-12 ${
+              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border transition-all sm:h-12 sm:w-12 ${
                 isActive
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "bg-secondary text-muted-foreground group-hover:bg-muted"
+                  ? "border-primary/20 bg-primary/12 text-primary shadow-sm"
+                  : "border-border/60 text-muted-foreground group-hover:border-primary/20 bg-[hsl(var(--background)/0.6)]"
               }`}
             >
               <div className="scale-75 sm:scale-100">
                 {getChainIcon(account.chain)}
               </div>
             </div>
-            <div className="min-w-0 flex-1 space-y-1.5">
+            <div className="min-w-0 flex-1 space-y-3">
               <div className="flex flex-wrap items-center gap-2">
-                <h3 className="text-foreground truncate text-sm font-bold sm:text-base">
+                <span className="border-border/60 text-muted-foreground rounded-full border bg-[hsl(var(--background)/0.58)] px-2.5 py-1 text-[10px] font-semibold tracking-[0.24em] uppercase">
+                  {account.chain}
+                </span>
+                <h3 className="text-foreground truncate text-sm font-semibold sm:text-base">
                   {account.alias || account.address}
                 </h3>
                 <div className="flex gap-1.5">
                   {isActive && (
-                    <span className="bg-primary text-primary-foreground shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase">
+                    <span className="border-primary/20 bg-primary/12 text-primary shrink-0 rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase">
                       {t("identities.currentAccount")}
                     </span>
                   )}
                 </div>
               </div>
-              <div className="text-muted-foreground flex items-center gap-2 font-mono text-[10px] sm:text-xs">
+              <div className="border-border/60 text-muted-foreground flex items-center gap-2 rounded-2xl border bg-[hsl(var(--background)/0.5)] px-3 py-2.5 font-mono text-[10px] sm:text-xs">
                 <span className="truncate">{account.address}</span>
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
                     onCopyAddress(account.address)
                   }}
-                  className="text-muted-foreground hover:text-primary shrink-0 cursor-pointer p-1 transition-colors"
+                  className="text-muted-foreground hover:text-primary shrink-0 rounded-full p-1.5 transition-colors hover:bg-[hsl(var(--background)/0.9)]"
                   title={t("common.copy")}
                 >
                   <Copy className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                 </button>
               </div>
-              <div className="border-border/40 mt-3 space-y-2 border-t pt-3">
+              <div className="border-border/60 space-y-3 rounded-[22px] border bg-[hsl(var(--background)/0.52)] p-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground/60 text-[10px] font-bold tracking-wider uppercase">
+                  <span className="text-muted-foreground/70 text-[10px] font-bold tracking-[0.28em] uppercase">
                     {t("identities.tokenAssets")}
                   </span>
                 </div>
@@ -180,7 +184,7 @@ export function AccountCard({
             </div>
           </div>
           <div
-            className="flex items-center gap-1 self-end sm:self-start"
+            className="border-border/60 flex items-center gap-1 self-end rounded-full border bg-[hsl(var(--background)/0.45)] p-1 sm:self-start"
             onClick={(e) => e.stopPropagation()}
           >
             {onShowSensitive && (
@@ -189,7 +193,7 @@ export function AccountCard({
                   variant="ghost"
                   size="sm"
                   onClick={() => onShowSensitive(account, "key")}
-                  className="text-muted-foreground hover:bg-accent hover:text-primary h-8 w-8 p-0"
+                  className="text-muted-foreground hover:bg-accent hover:text-primary h-8 w-8 rounded-full p-0"
                   title={t("identities.viewSensitive")}
                 >
                   <Key className="h-4 w-4" />
@@ -199,7 +203,7 @@ export function AccountCard({
                     variant="ghost"
                     size="sm"
                     onClick={() => onShowSensitive(account, "mnemonic")}
-                    className="text-muted-foreground hover:bg-accent hover:text-primary h-8 w-8 p-0"
+                    className="text-muted-foreground hover:bg-accent hover:text-primary h-8 w-8 rounded-full p-0"
                     title={t("identities.mnemonic")}
                   >
                     <FileText className="h-4 w-4" />
@@ -212,7 +216,7 @@ export function AccountCard({
                 variant="ghost"
                 size="sm"
                 onClick={onDelete}
-                className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive h-8 w-8 p-0"
+                className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive h-8 w-8 rounded-full p-0"
                 title={t("identities.deleteAccountConfirm")}
               >
                 <Trash2 className="h-4 w-4" />

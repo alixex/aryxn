@@ -12,15 +12,47 @@ export async function initializeVaultDb() {
     }
 
     // Run simple migrations for existing tables
+    const collectErrorText = (value: unknown): string[] => {
+      if (value === null || value === undefined) return []
+      if (typeof value === "string") return [value]
+      if (typeof value === "number" || typeof value === "boolean") {
+        return [String(value)]
+      }
+      if (Array.isArray(value)) {
+        return value.flatMap((entry) => collectErrorText(entry))
+      }
+      if (typeof value === "object") {
+        const objectValues = Object.values(value as Record<string, unknown>)
+        return objectValues.flatMap((entry) => collectErrorText(entry))
+      }
+      return [String(value)]
+    }
+
+    const isDuplicateColumnError = (error: unknown, column: string) => {
+      const combined = collectErrorText(error).join(" | ").toLowerCase()
+      const lowerColumn = column.toLowerCase()
+
+      return (
+        combined.includes("duplicate column name") ||
+        (combined.includes("already exists") && combined.includes(lowerColumn))
+      )
+    }
+
     const migrations = [
-      "ALTER TABLE bridge_transactions ADD COLUMN user_address TEXT",
+      {
+        sql: "ALTER TABLE bridge_transactions ADD COLUMN user_address TEXT",
+        column: "user_address",
+      },
     ]
 
-    for (const sql of migrations) {
+    for (const migration of migrations) {
       try {
-        await db.exec(sql)
+        await db.exec(migration.sql)
       } catch (e) {
-        console.error(`Failed to migrate: ${sql}`, e)
+        if (isDuplicateColumnError(e, migration.column)) {
+          continue
+        }
+        console.error(`Failed to migrate: ${migration.sql}`, e)
       }
     }
 

@@ -77,10 +77,10 @@ export function AddAccountSection({
   ]
 
   return (
-    <Card className="border-border/90 bg-card/84 border shadow-[0_16px_30px_-20px_hsl(220_35%_2%/0.72)] transition-all duration-200">
-      <CardHeader className="animate-fade-in-down border-border/85 bg-card/92 rounded-t-2xl border-b p-6">
-        <CardTitle className="text-foreground flex items-center gap-3 text-base font-semibold">
-          <div className="bg-muted text-foreground rounded-lg p-2">
+    <Card className="border-border/70 bg-card/90 overflow-hidden rounded-[28px] border shadow-[0_14px_36px_-28px_hsl(220_35%_2%/0.48)] transition-all duration-200">
+      <CardHeader className="animate-fade-in-down border-border/70 border-b bg-[hsl(var(--card)/0.95)] px-5 py-5 sm:px-6 sm:py-6">
+        <CardTitle className="text-foreground flex items-center gap-3 text-lg font-semibold tracking-tight">
+          <div className="border-border/60 text-foreground rounded-2xl border bg-[hsl(var(--background)/0.55)] p-2.5">
             <Plus className="h-5 w-5" />
           </div>
           {t("identities.addNew")}
@@ -88,34 +88,34 @@ export function AddAccountSection({
       </CardHeader>
       <CardContent className="p-0">
         <Tabs defaultValue="import" className="w-full">
-          <TabsList className="bg-accent/20 mx-6 mt-6 mb-2 h-auto w-auto rounded-xl p-1.5">
+          <TabsList className="border-border/60 mx-4 mt-4 grid h-auto grid-cols-2 rounded-2xl border bg-[hsl(var(--background)/0.5)] p-1.5 sm:mx-6 sm:mt-5 sm:w-fit sm:min-w-60">
             <TabsTrigger
               value="import"
-              className="data-[state=active]:bg-card data-[state=active]:text-primary rounded-md px-4 py-2 text-xs font-semibold data-[state=active]:shadow-sm"
+              className="data-[state=active]:bg-card data-[state=active]:text-primary rounded-xl px-4 py-2.5 text-xs font-semibold transition-all duration-200 data-[state=active]:shadow-[0_12px_28px_-18px_hsl(220_35%_2%/0.72)] md:cursor-pointer"
             >
               {t("identities.import")}
             </TabsTrigger>
             <TabsTrigger
               value="create"
-              className="data-[state=active]:bg-card data-[state=active]:text-primary rounded-md px-4 py-2 text-xs font-semibold data-[state=active]:shadow-sm"
+              className="data-[state=active]:bg-card data-[state=active]:text-primary rounded-xl px-4 py-2.5 text-xs font-semibold transition-all duration-200 data-[state=active]:shadow-[0_12px_28px_-18px_hsl(220_35%_2%/0.72)] md:cursor-pointer"
             >
               {t("identities.new")}
             </TabsTrigger>
           </TabsList>
 
-          <div className="p-6 pt-4">
-            <TabsContent value="import" className="mt-0 space-y-4">
-              <div className="flex flex-wrap gap-2">
+          <div className="p-4 pt-4 sm:p-6 sm:pt-5">
+            <TabsContent value="import" className="mt-0 space-y-5">
+              <div className="flex flex-wrap gap-2.5">
                 {chains.map((chain) => (
                   <Button
                     key={`import-${chain.id}`}
                     variant={importChain === chain.id ? "default" : "outline"}
                     size="sm"
                     onClick={() => setImportChain(chain.id)}
-                    className={`h-8 gap-1.5 rounded-full px-3 text-[10px] font-bold uppercase transition-all ${
+                    className={`h-9 gap-2 rounded-full px-3.5 text-[10px] font-bold uppercase transition-all duration-200 ${
                       importChain === chain.id
-                        ? "bg-primary text-primary-foreground"
-                        : "border-border text-foreground hover:bg-accent"
+                        ? "bg-primary text-primary-foreground shadow-[0_10px_20px_-16px_hsl(var(--primary)/0.75)]"
+                        : "border-border/70 text-foreground hover:border-primary/30 hover:bg-accent/50 bg-[hsl(var(--background)/0.5)]"
                     }`}
                   >
                     <div className="scale-75">{chain.icon}</div>
@@ -124,10 +124,13 @@ export function AddAccountSection({
                 ))}
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form
+                onSubmit={handleSubmit}
+                className="border-border/60 space-y-4 rounded-3xl border bg-[hsl(var(--background)/0.5)] p-4 sm:p-5"
+              >
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <label className="text-foreground text-xs font-semibold">
+                    <label className="text-foreground text-xs font-semibold tracking-wide">
                       {t("identities.aliasLabel")}
                     </label>
                     <Input
@@ -138,7 +141,7 @@ export function AddAccountSection({
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-foreground text-xs font-semibold">
+                    <label className="text-foreground text-xs font-semibold tracking-wide">
                       {t("identities.keyLabel")}
                     </label>
                     <div className="relative">
@@ -152,7 +155,7 @@ export function AddAccountSection({
                       <button
                         type="button"
                         onClick={() => setShowImportKey(!showImportKey)}
-                        className="text-muted-foreground hover:text-primary absolute top-1/2 right-3 -translate-y-1/2 transition-colors"
+                        className="text-muted-foreground hover:text-primary absolute top-1/2 right-3 -translate-y-1/2 rounded-full p-1 transition-colors md:cursor-pointer"
                       >
                         {showImportKey ? (
                           <EyeOff className="h-4 w-4" />
@@ -165,7 +168,7 @@ export function AddAccountSection({
                 </div>
                 <Button
                   type="submit"
-                  className="bg-primary text-primary-foreground h-10 w-full rounded-lg font-semibold shadow-[0_10px_20px_-16px_hsl(220_35%_2%/0.72)] hover:-translate-y-0.5"
+                  className="bg-primary text-primary-foreground h-11 w-full rounded-xl font-semibold shadow-[0_10px_20px_-16px_hsl(var(--primary)/0.75)] transition-all duration-200 hover:-translate-y-0.5"
                 >
                   {t("identities.addSubmit")}
                 </Button>
@@ -179,12 +182,12 @@ export function AddAccountSection({
                     key={chain.id}
                     variant="outline"
                     onClick={() => onCreateAccount(chain.id)}
-                    className="border-border hover:bg-accent/40 group hover:border-primary/35 flex h-20 flex-col gap-1.5 rounded-lg bg-[hsl(var(--background)/0.55)] transition-all hover:-translate-y-0.5"
+                    className="group border-border/70 hover:border-primary/35 hover:bg-accent/40 flex h-24 flex-col gap-2 rounded-2xl border bg-[hsl(var(--background)/0.56)] transition-all duration-200 hover:-translate-y-0.5 md:cursor-pointer"
                   >
-                    <div className="bg-muted text-foreground group-hover:bg-accent rounded-lg p-1.5 transition-colors">
+                    <div className="border-border/50 text-foreground group-hover:border-primary/20 group-hover:bg-accent/70 rounded-2xl border bg-[hsl(var(--background)/0.7)] p-2 transition-colors">
                       {chain.icon}
                     </div>
-                    <span className="text-foreground text-[10px] font-semibold">
+                    <span className="text-foreground text-[11px] font-semibold tracking-wide">
                       {chain.name}
                     </span>
                   </Button>

@@ -35,7 +35,7 @@ Status: Proposed and user-approved (approach A)
    - Target: shared hover border at `hover:border-primary/40`
 3. Active state:
    - Current: mostly color-only emphasis
-   - Target: left marker + border + surface tint (`bg-primary/8` equivalent via existing utility mix)
+   - Target: left marker + border + surface tint (`bg-primary/10` with existing utility syntax)
 4. Caption/secondary text:
    - Current: `text-xs` and `text-muted-foreground` mixed inconsistently
    - Target: `text-xs text-muted-foreground` for metadata and `text-sm` for body copy
@@ -53,11 +53,31 @@ Target file: apps/vault/src/pages/Account.tsx
    - Card gaps: `gap-6` desktop, `gap-4` mobile
    - Internal component gaps: `gap-3` to `gap-4`
 4. Responsive behavior:
-   - `< lg`: single-column flow, order = header -> list/tabs -> add account -> sidebar cards
-   - `>= lg`: two-column flow with primary content first and sidebar second
-   - `< sm`: reduce horizontal paddings by one step and keep actions full-width where applicable
+   - `< 640`: single-column flow, reduced horizontal padding, full-width actions
+   - `640-1023`: single-column flow with tablet spacing (`gap-6`, card padding one step larger than mobile)
+   - `>= 1024`: two-column flow with primary content first and sidebar second
 
-## 4.2 Primary Content Column
+## 4.2 Component Relationship Map
+
+1. `Account.tsx`
+   - renders `AccountHeader`
+   - renders main account card shell with `AccountListTab` in tabs
+   - renders `AddAccountSection`
+   - renders `AccountSidebar`
+   - controls `SensitiveInfoDialog` and `CreateAccountDialog`
+2. `AccountListTab`
+   - fetches account list context
+   - renders `AccountList`
+   - renders `AccountDeleteDialog`
+3. `AccountList`
+   - maps each account to `AccountCard`
+
+Scope isolation note:
+
+1. This spec targets the account page flow rooted at `Account.tsx` and nested account components only.
+2. No shared navigation or unrelated route/page components are modified.
+
+## 4.3 Primary Content Column
 
 1. Account card area remains the core focus.
 2. Chain tabs become clearer pill navigation with stronger active state.
@@ -68,7 +88,7 @@ Target file: apps/vault/src/pages/Account.tsx
    - Sensitive/management actions
 4. Add account area sits below list with matching card language.
 
-## 4.3 Sidebar Column
+## 4.4 Sidebar Column
 
 Target file: apps/vault/src/components/account/AccountSidebar.tsx
 
@@ -141,6 +161,10 @@ Rules:
 5. Respect reduced motion:
    - If `prefers-reduced-motion`, disable movement transforms and keep fade-only transitions.
 
+Implementation note:
+
+1. Timing values above are defaults for consistency and may be tuned by +/- 40ms per component if interaction clarity improves.
+
 ## 5.3 Pointer Affordance Policy
 
 User-mandated rule:
@@ -151,7 +175,7 @@ User-mandated rule:
 Implementation strategy:
 
 1. Use desktop-scoped utility class `md:cursor-pointer` on clickable non-button containers.
-2. Native `button` and `input` elements rely on default browser pointer behavior; only add `md:cursor-pointer` if a reset class removed that behavior.
+2. Native `button` and `input` elements rely on default browser pointer behavior; only add `md:cursor-pointer` if a reset class has removed that behavior.
 3. For custom clickable elements (`div`, `label`, icon wrappers), require both `md:cursor-pointer` and keyboard-accessible behavior.
 4. Use `cursor-default` or no cursor override on mobile-only behavior; do not force pointer below `md`.
 
@@ -166,25 +190,32 @@ Examples of clickable regions to enforce:
 
 ## 6.1 apps/vault/src/pages/Account.tsx
 
-1. Refine page shell spacing and visual rhythm.
-2. Strengthen tabs shell and card framing.
-3. Keep business handlers unchanged.
+1. Increase hero-to-body separation by one spacing step.
+2. Normalize section vertical rhythm across header, list block, add-account block, and sidebar.
+3. Reframe tabs shell with consistent inset padding and clearer active-tab visibility.
+4. Keep business handlers unchanged.
 
 ## 6.2 apps/vault/src/components/account/AccountHeader.tsx
 
-1. Hero-like typography and subtitle hierarchy.
-2. Better separation between title block and logout action.
-3. Desktop pointer consistency for action controls.
+1. Keep a fixed two-line hierarchy for title and subtitle.
+2. Align logout control to edge on desktop and keep full-width behavior on small screens.
+3. Preserve focus-visible and desktop pointer consistency for action controls.
 
 ## 6.3 apps/vault/src/components/account/AccountList.tsx
 
 1. Improve empty state visual hierarchy.
 2. Keep card stack spacing consistent with updated rhythm.
 
+### 6.3.1 Empty State Target
+
+1. Centered icon with subdued surface badge.
+2. One short headline and one supporting line with `gap-3` vertical rhythm.
+3. Empty state container uses the same card shell language as normal list cards.
+
 ## 6.4 apps/vault/src/components/account/AccountCard.tsx
 
-1. Refine selected vs non-selected styling.
-2. Stronger internal segmentation for readability.
+1. Selected style must include marker bar, emphasized border, and tinted surface simultaneously.
+2. Segment content as identity -> address/actions -> asset block -> sensitive/destructive actions.
 3. Desktop pointer for clickable card container.
 4. Preserve event propagation guards for nested controls.
 
@@ -193,6 +224,7 @@ Examples of clickable regions to enforce:
 1. Rework import/create tab presentation to match design language.
 2. Chain selector chips and create-chain cards get stronger interaction feedback.
 3. Desktop pointer on all clickable custom surfaces.
+4. Keep create-chain card icon area and label alignment consistent across all chains.
 
 ## 6.6 apps/vault/src/components/account/AccountSidebar.tsx
 
@@ -204,6 +236,7 @@ Examples of clickable regions to enforce:
 1. Keep existing flow logic; refine layout hierarchy in export/import dialogs.
 2. Strengthen affordance for file selection area.
 3. Ensure desktop pointer for custom clickable regions and icon controls.
+4. Keep existing import/export business flow and toast semantics unchanged.
 
 ### 6.7.1 Dialog Layout Target
 
@@ -282,11 +315,22 @@ Result panel interaction details:
    - Open/close dialogs in idle and loading states.
    - Verify file trigger affordance and pointer policy on desktop.
 
+4. Automation support:
+   - Run targeted grep checks for `md:cursor-pointer` within touched account components.
+   - Capture pre/post screenshots at `640`, `1024`, and `1440` widths for visual diff review.
+   - Update existing snapshot tests, if present, during component verification.
+
 ## 8.3 Shared Utility Audit
 
 1. Before implementation, audit whether repeated style patterns require shared extraction.
 2. Keep styles component-local if repetition is below 3 components.
 3. If extraction is needed, create one minimal shared utility for card shell/motion/pointer patterns only.
+
+Decision note:
+
+1. The "3 components" threshold is guidance, not a hard rule.
+2. Final extraction decision is made during implementation once repeated patterns are confirmed.
+3. Confirm extraction decision at the end of Phase 1 before moving into Phase 2.
 
 ## 9. Risks and Mitigations
 
