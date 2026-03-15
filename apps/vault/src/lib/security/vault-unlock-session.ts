@@ -16,7 +16,7 @@ function readUnlockSessionRaw(): VaultUnlockSession | null {
   }
 
   try {
-    const raw = window.sessionStorage.getItem(UNLOCK_SESSION_STORAGE_KEY)
+    const raw = window.localStorage.getItem(UNLOCK_SESSION_STORAGE_KEY)
     if (!raw) {
       return null
     }
@@ -55,7 +55,7 @@ export function saveVaultUnlockSession(
     expiresAt: now + ttlMs,
   }
 
-  window.sessionStorage.setItem(
+  window.localStorage.setItem(
     UNLOCK_SESSION_STORAGE_KEY,
     JSON.stringify(payload),
   )
@@ -90,5 +90,5 @@ export function clearVaultUnlockSession(): void {
   if (typeof window === "undefined") {
     return
   }
-  window.sessionStorage.removeItem(UNLOCK_SESSION_STORAGE_KEY)
+  window.localStorage.removeItem(UNLOCK_SESSION_STORAGE_KEY)
 }

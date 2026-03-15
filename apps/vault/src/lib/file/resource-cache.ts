@@ -214,12 +214,25 @@ export async function getCachedResource(ownerAddress: string, txId: string) {
 
   let payload: Uint8Array
   if (row.cache_backend === "opfs") {
-    const opfsRoot = await (navigator.storage as any).getDirectory()
-    const fileHandle = await opfsRoot.getFileHandle(row.opfs_key, {
-      create: false,
-    })
-    const file = await fileHandle.getFile()
-    payload = new Uint8Array(await file.arrayBuffer())
+    try {
+      const opfsRoot = await (navigator.storage as any).getDirectory()
+      const fileHandle = await opfsRoot.getFileHandle(row.opfs_key, {
+        create: false,
+      })
+      const file = await fileHandle.getFile()
+      payload = new Uint8Array(await file.arrayBuffer())
+    } catch (error) {
+      console.warn(
+        `OPFS cache entry ${row.opfs_key} is missing or inaccessible:`,
+        error,
+      )
+      // Remove stale DB entry to allow fallback to network on retry
+      await db.run(
+        "DELETE FROM resource_cache WHERE owner_address = ? AND tx_id = ?",
+        [ownerAddress, txId],
+      )
+      return null
+    }
   } else {
     const binaryString = atob(String(row.payload_base64))
     payload = new Uint8Array(binaryString.length)

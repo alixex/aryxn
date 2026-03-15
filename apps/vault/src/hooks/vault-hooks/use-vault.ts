@@ -11,6 +11,11 @@ import {
 } from "@aryxn/crypto"
 import { db } from "@/lib/database"
 import type { WalletRecord } from "@aryxn/wallet-core"
+import {
+  saveVaultUnlockSession,
+  loadVaultUnlockSession,
+  clearVaultUnlockSession,
+} from "@/lib/security/vault-unlock-session"
 
 export const VAULT_SALT_LEGACY = new Uint8Array([
   0x61, 0x6e, 0x61, 0x6d, 0x6e, 0x65, 0x73, 0x69, 0x73, 0x2d, 0x76, 0x61, 0x75,
@@ -64,6 +69,15 @@ export function useVault() {
     initSalt()
   }, [])
 
+  // Restore session from localStorage on mount
+  useEffect(() => {
+    const session = loadVaultUnlockSession()
+    if (session) {
+      setMasterKey(session.masterKey)
+      setVaultId(session.vaultId)
+    }
+  }, [])
+
   const getVaultId = async (key: Uint8Array) => {
     const keyBuffer = new Uint8Array(key).buffer
     const hashBuffer = await crypto.subtle.digest("SHA-256", keyBuffer)
@@ -81,6 +95,8 @@ export function useVault() {
         const vid = await getVaultId(key)
         setMasterKey(key)
         setVaultId(vid)
+        // Persist session for 7 days
+        saveVaultUnlockSession(key, vid)
         toast.success(t("unlock.success"))
         return true
       } catch (error) {
@@ -95,6 +111,7 @@ export function useVault() {
   const clearVault = useCallback(() => {
     setMasterKey(null)
     setVaultId(null)
+    clearVaultUnlockSession()
   }, [])
 
   const getDecryptedInfo = useCallback(
