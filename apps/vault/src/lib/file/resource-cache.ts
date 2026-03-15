@@ -75,7 +75,7 @@ export async function downloadResourceChunked(
     onError: options.onError,
   })
 
-  const chunks: Uint8Array[] = new Array(totalChunks)
+  const chunks: Uint8Array[] = Array.from({ length: totalChunks })
   let currentGatewayIndex = 0
 
   for (let i = 0; i < totalChunks; i++) {
@@ -138,13 +138,15 @@ export async function downloadResourceChunked(
 
             currentGatewayIndex = gatewayIndex // Stick with this gateway as it's working
             success = true
-
-            options.onChunkDownload && (await options.onChunkDownload(i))
-            options.onProgress &&
+            if (options.onChunkDownload) {
+              await options.onChunkDownload(i)
+            }
+            if (options.onProgress) {
               options.onProgress(
                 taskManager.progress.completedChunks.length * chunkSize,
                 totalSize,
               )
+            }
             break
           } finally {
             clearTimeout(timeoutId)

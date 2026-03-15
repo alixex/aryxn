@@ -45,7 +45,6 @@ type DownloadStage =
   | "saving"
   | "done"
 
-
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function concatChunks(chunks: Uint8Array[], total: number): Uint8Array {

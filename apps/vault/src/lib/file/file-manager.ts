@@ -43,18 +43,21 @@ export async function uploadFileChunked(
         await uploadChunkToGateway(chunk, key, ownerAddress, gateway)
         await taskManager.markChunkCompleted(i)
         await taskManager.switchGateway(gateway)
-        options.onChunkUpload && (await options.onChunkUpload(i))
-        options.onProgress &&
+        if (options.onChunkUpload) {
+          await options.onChunkUpload(i)
+        }
+        if (options.onProgress) {
           options.onProgress(
             taskManager.progress.completedChunks.length,
             totalChunks,
           )
+        }
         success = true
         break
       } catch (error) {
         lastError = error as Error
         await taskManager.markChunkFailed(i)
-        options.onError && options.onError(i, lastError)
+        if (options.onError) options.onError(i, lastError)
         // 自动切换下一个网关
       }
     }
@@ -77,7 +80,7 @@ async function uploadChunkToGateway(
   _gateway: string,
 ): Promise<void> {
   // 伪代码：根据网关上传分片
-  // 实际实现需根据网关 API、Arweave/Irys等协议
+  // 实际实现需根据网关 API、Arweave/Irys 等协议
   // 这里只模拟成功
   return
 }

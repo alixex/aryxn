@@ -161,6 +161,7 @@ export class ArweaveAdapter implements IHistoryAdapter, ISearchAdapter {
               return [this.mapToSearchResult(response.data.transaction)]
             }
           } catch (e) {
+            console.warn("[ArweaveAdapter] Arweave search error:", e)
             /* ignore */
           }
 
@@ -176,6 +177,7 @@ export class ArweaveAdapter implements IHistoryAdapter, ISearchAdapter {
                 return [this.mapToSearchResult(response.data.transaction)]
               }
             } catch (e) {
+              console.warn("[ArweaveAdapter] IrysL1 search error:", e)
               /* ignore */
             }
           }

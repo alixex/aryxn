@@ -142,7 +142,6 @@ type DecryptStage =
   | "decrypting"
   | "opening"
 
-
 function concatChunks(chunks: Uint8Array[], total: number): Uint8Array {
   const output = new Uint8Array(total)
   let offset = 0
