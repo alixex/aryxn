@@ -24,11 +24,11 @@ export function BalanceDisplay({
 
   const handleToggle = async () => {
     if (!showBalance) {
-      // 显示并刷新余额
+      // Show balance and refresh.
       onToggle(true)
       await onRefresh()
     } else {
-      // 隐藏余额
+      // Hide balance.
       onToggle(false)
     }
   }
