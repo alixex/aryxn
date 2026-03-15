@@ -141,14 +141,14 @@ export function HistoryTable({
                     >
                       {/* 文件名 */}
                       <td
-                        className="text-foreground w-[30%] truncate px-4 py-4 font-bold sm:px-6"
+                        className="text-foreground w-[30%] truncate px-4 py-3.5 font-semibold sm:px-6"
                         title={r.fileName}
                       >
                         <span className="block truncate">{r.fileName}</span>
                       </td>
                       {/* 文件类型 */}
                       <td
-                        className="text-muted-foreground w-[10%] truncate px-4 py-4 sm:px-6"
+                        className="text-muted-foreground w-[10%] truncate px-4 py-3.5 sm:px-6"
                         title={r.mimeType || "-"}
                       >
                         <span className="block truncate text-xs font-medium">
@@ -157,7 +157,7 @@ export function HistoryTable({
                       </td>
                       {/* 文件大小 */}
                       <td
-                        className="text-muted-foreground w-[10%] truncate px-4 py-4 sm:px-6"
+                        className="text-muted-foreground w-[10%] truncate px-4 py-3.5 sm:px-6"
                         title={r.fileSize ? formatFileSize(r.fileSize) : "-"}
                       >
                         <span className="block truncate text-xs font-medium">
@@ -166,7 +166,7 @@ export function HistoryTable({
                       </td>
                       {/* 时间 */}
                       <td
-                        className="text-muted-foreground w-[15%] truncate px-4 py-4 sm:px-6"
+                        className="text-muted-foreground w-[15%] truncate px-4 py-3.5 sm:px-6"
                         title={formatDateTime(r.createdAt)}
                       >
                         <span className="block truncate text-xs font-medium">
@@ -174,7 +174,7 @@ export function HistoryTable({
                         </span>
                       </td>
                       {/* 存储 ID */}
-                      <td className="w-[15%] truncate px-4 py-4 sm:px-6">
+                      <td className="w-[15%] truncate px-4 py-3.5 sm:px-6">
                         <a
                           href={
                             r.storageType === "irys"
@@ -194,7 +194,7 @@ export function HistoryTable({
                       </td>
                       {/* 协议 */}
                       <td
-                        className="w-[10%] truncate px-4 py-4 sm:px-6"
+                        className="w-[10%] truncate px-4 py-3.5 sm:px-6"
                         title={r.storageType === "irys" ? "Irys L1" : "Arweave"}
                       >
                         {r.storageType === "irys" ? (
@@ -208,7 +208,7 @@ export function HistoryTable({
                         )}
                       </td>
                       {/* 安全性 */}
-                      <td className="w-[10%] truncate px-4 py-4 sm:px-6">
+                      <td className="w-[10%] truncate px-4 py-3.5 sm:px-6">
                         {r.encryptionAlgo !== "none" ? (
                           <div
                             className="text-foreground flex items-center gap-1.5"
@@ -228,7 +228,7 @@ export function HistoryTable({
                           </span>
                         )}
                       </td>
-                      <td className="w-[100px] px-4 py-4 text-right sm:px-6">
+                      <td className="w-[100px] px-4 py-3.5 text-right sm:px-6">
                         <div className="flex items-center justify-end gap-1 sm:gap-2">
                           <Button
                             variant="ghost"

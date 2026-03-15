@@ -165,7 +165,7 @@ export default function SettingsPage() {
 
   return (
     <div className="mesh-gradient relative min-h-screen">
-      <div className="animate-in fade-in slide-in-from-bottom-4 mx-auto max-w-6xl space-y-5 px-2.5 py-5 duration-1000 sm:space-y-8 sm:px-4 sm:py-8">
+      <div className="animate-in fade-in slide-in-from-bottom-2 mx-auto max-w-6xl space-y-6 px-3 py-6 duration-700 sm:space-y-8 sm:px-4 sm:py-8">
         <div className="flex flex-col gap-3">
           <PageHeader
             title={t("settings.title", "Settings")}
@@ -194,7 +194,7 @@ export default function SettingsPage() {
                 />
               </svg>
             }
-            iconContainerClassName="bg-gradient-secondary"
+            iconContainerClassName="bg-primary"
           />
         </div>
 

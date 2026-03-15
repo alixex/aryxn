@@ -19,8 +19,8 @@ export function PageHeader({
   titleClassName,
 }: PageHeaderProps) {
   return (
-    <div className="flex flex-col gap-5 sm:min-h-31 sm:flex-row sm:items-start sm:justify-between">
-      <div className="flex flex-col gap-3 sm:self-start">
+    <div className="flex flex-col gap-4 sm:min-h-28 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex flex-col gap-2.5 sm:self-start">
         <h2 className="flex items-center gap-3 text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
           <div
             className={cn(

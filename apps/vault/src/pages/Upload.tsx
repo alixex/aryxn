@@ -159,7 +159,7 @@ export default function UploadPage() {
               />
             </svg>
           }
-          iconContainerClassName="bg-gradient-primary"
+          iconContainerClassName="bg-primary"
         />
 
         <UploadWarning
