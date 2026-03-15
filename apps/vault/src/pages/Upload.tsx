@@ -211,22 +211,25 @@ export default function UploadPage() {
                         !paymentStage &&
                         canUpload &&
                         paymentAccount && (
-                          <div className="animate-in fade-in slide-in-from-bottom-2 bg-secondary/30 border-border/40 mt-4 rounded-lg border p-3">
-                            <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="animate-in fade-in slide-in-from-bottom-2 border-border/45 bg-[hsl(var(--background)/0.55)] mt-4 rounded-lg border p-3">
+                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                               <span className="text-muted-foreground text-[10px] font-bold tracking-wider uppercase">
-                                {t(
-                                  "upload.estimatedPath",
-                                  "Estimated Payment Path",
-                                )}
+                                {t("upload.estimatedPath", "Estimated Payment Path")}
                               </span>
                               {(() => {
                                 const irysToken = getIrysFundingToken(
                                   paymentAccount.chain,
                                   paymentToken,
                                 )
+
+                                const baseBadgeClass =
+                                  "inline-flex w-fit items-center gap-1.5 rounded-full px-2 py-0.5 text-[9px] font-bold ring-1"
+
                                 if (irysToken) {
                                   return (
-                                    <span className="flex items-center gap-1.5 rounded-full bg-[hsl(var(--secondary)/0.14)] px-2 py-0.5 text-[9px] font-bold text-[hsl(var(--secondary))] ring-1 ring-[hsl(var(--secondary)/0.25)]">
+                                    <span
+                                      className={`${baseBadgeClass} bg-[hsl(var(--secondary)/0.14)] text-[hsl(var(--secondary))] ring-[hsl(var(--secondary)/0.25)]`}
+                                    >
                                       <ChainIcon
                                         chain={paymentAccount.chain}
                                         size="xs"
@@ -235,8 +238,11 @@ export default function UploadPage() {
                                     </span>
                                   )
                                 }
+
                                 return (
-                                  <span className="flex items-center gap-1.5 rounded-full bg-[hsl(var(--accent)/0.2)] px-2 py-0.5 text-[9px] font-bold text-[hsl(var(--foreground))] ring-1 ring-[hsl(var(--accent)/0.35)]">
+                                  <span
+                                    className={`${baseBadgeClass} bg-[hsl(var(--accent)/0.2)] text-[hsl(var(--foreground))] ring-[hsl(var(--accent)/0.35)]`}
+                                  >
                                     <ChainIcon
                                       chain={paymentAccount.chain}
                                       size="xs"
@@ -246,6 +252,15 @@ export default function UploadPage() {
                                 )
                               })()}
                             </div>
+
+                            <p className="text-muted-foreground mt-2 text-[11px] leading-relaxed">
+                              {paymentAccount.alias ||
+                                `${paymentAccount.address.slice(0, 6)}...${paymentAccount.address.slice(-4)}`}
+                              <span className="mx-1">•</span>
+                              {paymentAccount.chain}
+                              <span className="mx-1">•</span>
+                              {paymentToken}
+                            </p>
                           </div>
                         )}
                     </div>
@@ -253,25 +268,38 @@ export default function UploadPage() {
                     {/* Execution Area */}
                     <div className="mt-auto flex flex-col gap-4">
                       {recoveryMessage && (
-                        <div className="bg-primary/10 text-primary ring-primary/20 flex items-start gap-2 rounded-lg p-3 text-xs ring-1">
-                          <Info className="mt-0.5 h-4 w-4 shrink-0" />
-                          <div className="flex-1">
-                            <p className="font-semibold">
-                              {recoveryState === "COMPLETED"
-                                ? t("upload.resumeReady", "Payment Ready")
-                                : t(
-                                    "upload.resumeTitle",
-                                    "Pending Payment Found",
-                                  )}
-                            </p>
-                            <p className="opacity-80">{recoveryMessage}</p>
+                        <div className="bg-primary/10 text-primary ring-primary/20 rounded-lg p-3 text-xs ring-1">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex min-w-0 items-start gap-2">
+                              <Info className="mt-0.5 h-4 w-4 shrink-0" />
+                              <div className="min-w-0 flex-1">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <p className="font-semibold">
+                                    {recoveryState === "COMPLETED"
+                                      ? t("upload.resumeReady", "Payment Ready")
+                                      : t(
+                                          "upload.resumeTitle",
+                                          "Pending Payment Found",
+                                        )}
+                                  </p>
+                                  <span className="rounded-full bg-[hsl(var(--primary)/0.18)] px-2 py-0.5 text-[10px] font-semibold uppercase ring-1 ring-[hsl(var(--primary)/0.25)]">
+                                    {recoveryState === "COMPLETED"
+                                      ? t("common.ready", "Ready")
+                                      : t("common.pending", "Pending")}
+                                  </span>
+                                </div>
+                                <p className="mt-1 break-words opacity-80">
+                                  {recoveryMessage}
+                                </p>
+                              </div>
+                            </div>
+                            <button
+                              onClick={clearRecovery}
+                              className="hover:bg-primary/20 rounded-full p-1 transition-colors"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
                           </div>
-                          <button
-                            onClick={clearRecovery}
-                            className="hover:bg-primary/20 rounded-full p-1 transition-colors"
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
                         </div>
                       )}
 

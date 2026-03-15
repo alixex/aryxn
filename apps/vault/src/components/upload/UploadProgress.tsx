@@ -16,17 +16,19 @@ export function UploadProgress({ progress }: UploadProgressProps) {
   if (!progress) return null
 
   return (
-    <div className="border-border bg-card rounded-lg border p-4">
-      <div className="mb-2 flex items-center justify-between text-sm">
-        <span className="text-foreground font-medium">
+    <div className="border-border bg-card rounded-lg border p-3 sm:p-4">
+      <div className="mb-2 flex flex-col gap-1.5 text-sm sm:flex-row sm:items-center sm:justify-between">
+        <span className="text-foreground wrap-break-word font-medium">
           {progress.currentFile || t("upload.uploading") + "…"}
         </span>
         {progress.current !== undefined && progress.total !== undefined ? (
-          <span className="text-muted-foreground">
+          <span className="text-muted-foreground text-xs sm:text-sm">
             {progress.current} / {progress.total}
           </span>
         ) : progress.stage ? (
-          <span className="text-muted-foreground">{progress.stage}</span>
+          <span className="text-muted-foreground text-xs sm:text-sm">
+            {progress.stage}
+          </span>
         ) : null}
       </div>
       <div className="bg-muted h-2 overflow-hidden rounded-full">
@@ -46,7 +48,7 @@ export function UploadProgress({ progress }: UploadProgressProps) {
         </div>
       </div>
       {progress.stage && (
-        <div className="text-muted-foreground mt-2 text-xs">
+        <div className="text-muted-foreground mt-2 break-words text-xs">
           {progress.stage}
           {progress.progress !== undefined &&
             ` - ${Math.round(progress.progress)}%`}

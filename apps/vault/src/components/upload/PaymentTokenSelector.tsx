@@ -217,16 +217,16 @@ export function PaymentTokenSelector({
         </Select>
       </div>
 
-      <div className="border-border/75 bg-[hsl(var(--background)/0.58)] flex items-center justify-between rounded-lg border px-3 py-2">
-        <div className="text-muted-foreground flex items-center gap-2 text-xs">
+      <div className="border-border/75 bg-[hsl(var(--background)/0.58)] flex flex-col items-start gap-1.5 rounded-lg border px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="text-muted-foreground flex flex-wrap items-center gap-1.5 text-xs">
           <span>{t("common.balance")}:</span>
-          <span className="text-foreground font-semibold">
+          <span className="text-foreground break-all font-semibold">
             {balance} {selectedToken}
           </span>
         </div>
 
         {selectedAccount ? (
-          <div className="text-muted-foreground/70 flex items-center gap-1.5 text-xs">
+          <div className="text-muted-foreground/70 flex items-center gap-1.5 self-end text-[11px] sm:self-auto sm:text-xs">
             {isLoading && <RefreshCw className="h-3 w-3 animate-spin" />}
             <span>
               {t("common.updatedAt", "Updated at")} {lastUpdated}
