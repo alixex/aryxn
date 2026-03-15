@@ -1,4 +1,5 @@
 import { arweave } from "@/lib/storage"
+import { getCachedResource, upsertCachedResource } from "@/lib/file"
 
 /**
  * 抑制 SDK 分块下载相关的错误和警告
@@ -174,7 +175,27 @@ export async function downloadTransactionData(
   txId: string,
   expectedDataSize: number = 0,
   storageType: "arweave" | "irys" = "arweave",
+  options?: {
+    ownerAddress?: string
+    isEncrypted?: boolean
+    mimeType?: string
+  },
 ): Promise<Uint8Array> {
+  if (options?.ownerAddress) {
+    const cached = await getCachedResource(options.ownerAddress, txId)
+    if (cached) {
+      if (expectedDataSize === 0 || cached.payload.length === expectedDataSize) {
+        return cached.payload
+      }
+      // Ignore stale cache entry and continue with network fetch.
+      console.warn("Cached resource size mismatch; falling back to network", {
+        txId,
+        expectedDataSize,
+        cachedSize: cached.payload.length,
+      })
+    }
+  }
+
   // 方法 1: 优先尝试直接通过网关获取
   let data = await fetchDataFromGateways(txId, expectedDataSize, storageType)
 
@@ -212,6 +233,21 @@ export async function downloadTransactionData(
     length: data.length,
     expected: expectedDataSize,
   })
+
+  if (options?.ownerAddress) {
+    try {
+      await upsertCachedResource({
+        ownerAddress: options.ownerAddress,
+        txId,
+        mimeType: options.mimeType || null,
+        storageType,
+        isEncrypted: options.isEncrypted === true,
+        payload: data,
+      })
+    } catch (cacheError) {
+      console.warn("Failed to persist resource cache:", cacheError)
+    }
+  }
 
   return data
 }

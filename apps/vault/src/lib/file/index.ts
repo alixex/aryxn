@@ -50,3 +50,5 @@ export {
   scheduleManifestUpdate,
   forceManifestUpdate,
 } from "./manifest-updater"
+
+export { getCachedResource, upsertCachedResource } from "./resource-cache"

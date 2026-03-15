@@ -87,6 +87,17 @@ export const SCHEMA = [
     created_at INTEGER NOT NULL,
     updated_at INTEGER NOT NULL
   )`,
+  `CREATE TABLE IF NOT EXISTS resource_cache (
+    tx_id TEXT PRIMARY KEY,
+    owner_address TEXT NOT NULL,
+    mime_type TEXT,
+    storage_type TEXT,
+    is_encrypted INTEGER NOT NULL DEFAULT 0,
+    payload_base64 TEXT NOT NULL,
+    content_size INTEGER NOT NULL,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+  )`,
 ]
 
 export const INDEXES = [
@@ -112,6 +123,7 @@ export const INDEXES = [
   "CREATE INDEX IF NOT EXISTS idx_payment_intent_status ON upload_payment_intents(status)",
   "CREATE INDEX IF NOT EXISTS idx_payment_intent_updated ON upload_payment_intents(updated_at DESC)",
   "CREATE INDEX IF NOT EXISTS idx_payment_intent_hash ON upload_payment_intents(tx_hash)",
+  "CREATE INDEX IF NOT EXISTS idx_resource_cache_owner ON resource_cache(owner_address)",
 ]
 
 export const FTS_SCHEMA = `

@@ -35,6 +35,11 @@ export async function handleFileDownload(
     record.txId,
     expectedDataSize,
     record.storageType,
+    {
+      ownerAddress: record.ownerAddress,
+      isEncrypted: record.encryptionAlgo !== "none",
+      mimeType: record.mimeType,
+    },
   )
 
   // 解码 transaction tags
