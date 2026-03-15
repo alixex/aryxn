@@ -30,6 +30,7 @@
     "test:all": "pnpm test:web && pnpm test:ethereum && pnpm test:solana",
     "deploy:ethereum": "pnpm --filter=@aryxn/contracts-ethereum deploy",
     "deploy:solana": "pnpm --filter=@aryxn/contracts-solana deploy",
+    "deploy:cloudflare": "VITE_BASE_PATH=/ pnpm --filter=@aryxn/vault build && pnpm dlx wrangler pages deploy apps/vault/dist --project-name aryxn --branch main",
     "lint": "pnpm -r --workspace-concurrency=0 --filter='./apps/*' --filter='./packages/*' lint",
     "type-check": "pnpm -r --workspace-concurrency=0 --filter='./apps/*' --filter='./packages/*' type-check",
     "format": "prettier --write '**/*.{ts,tsx,js,jsx,json,md,css,html}'",
