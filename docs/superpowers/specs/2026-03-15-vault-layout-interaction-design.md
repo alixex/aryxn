@@ -25,6 +25,21 @@ Status: Proposed and user-approved (approach A)
 3. Intentional motion: short, meaningful transitions only.
 4. Predictable interactions: consistent click/focus/active behavior everywhere.
 
+## 3.1 Token Mapping (Current -> Target)
+
+1. Card shell:
+   - Current: `bg-card/84`, `border-border/90`, heavy mixed shadows
+   - Target: `bg-card/88`, `border-border/70`, single soft shadow tone
+2. Interactive hover border:
+   - Current: inconsistent `hover:border-primary/35` usage
+   - Target: shared hover border at `hover:border-primary/40`
+3. Active state:
+   - Current: mostly color-only emphasis
+   - Target: left marker + border + surface tint (`bg-primary/8` equivalent via existing utility mix)
+4. Caption/secondary text:
+   - Current: `text-xs` and `text-muted-foreground` mixed inconsistently
+   - Target: `text-xs text-muted-foreground` for metadata and `text-sm` for body copy
+
 ## 4. Layout Architecture
 
 ## 4.1 Top-level Page Structure
@@ -34,10 +49,13 @@ Target file: apps/vault/src/pages/Account.tsx
 1. Keep a hero-like page header with stronger separation from body content.
 2. Main body uses a dominant content column and a supporting sidebar column.
 3. Refine spacing rhythm:
-   - Section gaps: large
-   - Card gaps: medium
-   - Internal component gaps: small
-4. Keep single-column flow on mobile; preserve the same section order.
+   - Section gaps: `gap-8` desktop, `gap-6` mobile
+   - Card gaps: `gap-6` desktop, `gap-4` mobile
+   - Internal component gaps: `gap-3` to `gap-4`
+4. Responsive behavior:
+   - `< lg`: single-column flow, order = header -> list/tabs -> add account -> sidebar cards
+   - `>= lg`: two-column flow with primary content first and sidebar second
+   - `< sm`: reduce horizontal paddings by one step and keep actions full-width where applicable
 
 ## 4.2 Primary Content Column
 
@@ -76,12 +94,41 @@ Rules:
 2. Hover never relies on color alone; combine subtle elevation/border shift.
 3. Loading actions always show a progress indicator and disable re-trigger.
 
+### 5.1.1 Error/Success Matrix
+
+1. Unlock failure:
+   - Signal: inline password error + toast
+   - Action state: submit re-enabled after response
+2. Import config parse failure:
+   - Signal: toast error + reset file input
+   - Action state: import button stays disabled until file is re-selected
+3. Import wrong password:
+   - Signal: inline error near password field + result panel failure summary
+4. Export password mismatch:
+   - Signal: inline error and blocked export action
+5. Delete account failure:
+   - Signal: toast error and dialog remains open for retry
+6. Success states:
+   - Signal: toast success + visual state reset on relevant forms/dialogs
+
 ## 5.2 Motion System
 
-1. Page section reveal: short fade + slight upward movement.
-2. Card hover: tiny elevation and border emphasis only.
-3. Dialog transitions: unified fade/scale style.
-4. Error hints: non-jarring reveal; no aggressive shake effects.
+1. Page section reveal:
+   - Animation: `opacity 0 -> 1`, `translateY(8px) -> translateY(0)`
+   - Duration: `220ms`
+   - Easing: `cubic-bezier(0.22, 1, 0.36, 1)`
+2. Card hover:
+   - Animation: `translateY(-2px)` + border emphasis
+   - Duration: `140ms`
+   - Easing: `ease-out`
+3. Dialog transitions:
+   - Overlay: fade in/out `160ms`
+   - Content: fade + scale `0.98 -> 1` in `180ms`
+4. Error hints:
+   - Opacity reveal with slight vertical motion (`4px`)
+   - Duration: `160ms`
+5. Respect reduced motion:
+   - If `prefers-reduced-motion`, disable movement transforms and keep fade-only transitions.
 
 ## 5.3 Pointer Affordance Policy
 
@@ -92,9 +139,10 @@ User-mandated rule:
 
 Implementation strategy:
 
-1. Add desktop-scoped pointer class on clickable non-button containers.
-2. Keep native buttons with expected pointer semantics on desktop.
-3. For icon-only controls rendered as button, ensure pointer on desktop and consistent focus states.
+1. Use desktop-scoped utility class `md:cursor-pointer` on clickable non-button containers.
+2. Keep native button semantics; add `md:cursor-pointer` for consistency when class composition removes defaults.
+3. For custom clickable elements (`div`, `label`, icon wrappers), require both `md:cursor-pointer` and keyboard-accessible behavior.
+4. Use `cursor-default` or no cursor override on mobile-only behavior; do not force pointer below `md`.
 
 Examples of clickable regions to enforce:
 
@@ -146,6 +194,14 @@ Examples of clickable regions to enforce:
 2. Strengthen affordance for file selection area.
 3. Ensure desktop pointer for custom clickable regions and icon controls.
 
+### 6.7.1 Dialog Layout Target
+
+1. Header block: icon, title, short description with consistent spacing (`gap-2`/`gap-3`).
+2. Security notice: compact info panel with three bullet points and stronger visual grouping.
+3. Password field area: single-column with inline validation message directly below field.
+4. Primary action row: cancel and confirm actions grouped with clear visual priority.
+5. Import result summary: success/failure panel with counts and first error line visible without expansion.
+
 ## 7. Accessibility and Usability Considerations
 
 1. Maintain keyboard navigation and focus visibility for all controls.
@@ -153,9 +209,24 @@ Examples of clickable regions to enforce:
 3. Avoid motion overload; transitions remain fast and optional-feeling.
 4. Preserve semantic button/input usage when possible; avoid div-as-button unless necessary.
 
+### 7.1 Accessibility Checklist (Implementation)
+
+1. Focus ring:
+   - All interactive controls must expose visible `focus-visible` styles with at least 2px equivalent contrast outline.
+2. Keyboard support:
+   - Tab order follows visual order; Enter/Space activate custom triggers.
+3. Labels:
+   - Password, alias, key input fields keep explicit labels or `aria-label` when visual labels are hidden.
+4. Dialog behavior:
+   - Initial focus lands on first actionable element.
+   - Escape closes dialog unless action is loading.
+5. Announcements:
+   - Error and success toasts remain supplemental; critical form errors also appear inline.
+
 ## 8. Testing and Verification Plan
 
-1. Visual verification on mobile and desktop breakpoints.
+1. Visual verification on breakpoints:
+   - mobile (`<640`), tablet (`640-1023`), desktop (`>=1024`)
 2. Interaction verification:
    - card selection
    - copy address
@@ -169,6 +240,13 @@ Examples of clickable regions to enforce:
    - no wallet logic regressions
    - no dialog open/close regressions
 
+## 8.1 Pointer Policy Verification Checklist
+
+1. `AccountCard` clickable shell has `md:cursor-pointer`.
+2. Custom toggles and clickable wrappers in add/import sections have `md:cursor-pointer`.
+3. File-select trigger zone in config import has `md:cursor-pointer`.
+4. Mobile rendering does not force pointer-specific class below `md`.
+
 ## 9. Risks and Mitigations
 
 1. Risk: styling changes obscure active/inactive states.
@@ -180,8 +258,13 @@ Examples of clickable regions to enforce:
 
 ## 10. Implementation Sequence (high-level)
 
-1. Update page shell and section layout in Account.tsx.
-2. Update AccountHeader and AccountSidebar for unified framing.
-3. Update AccountCard and AccountList for core interaction clarity.
-4. Update AddAccountSection and ConfigImportExport for actionable surfaces and dialog polish.
-5. Run validation and targeted regression checks.
+1. Phase 1: layout shell and hierarchy
+   - `Account.tsx`, `AccountHeader.tsx`, `AccountSidebar.tsx`
+2. Phase 2: core interaction surfaces
+   - `AccountCard.tsx`, `AccountList.tsx`, tabs and empty states
+3. Phase 3: form and dialog refinement
+   - `AddAccountSection.tsx`, `ConfigImportExport.tsx`
+4. Phase 4: verification and polish
+   - pointer checklist, interaction regression, visual pass
+
+This remains one project scope but is intentionally phased to reduce risk and keep each unit independently reviewable.
