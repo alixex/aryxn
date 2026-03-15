@@ -266,17 +266,17 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <StatCard
               icon={<Upload className="h-5 w-5" />}
-              label={t("history.totalFiles", "总文件数")}
+              label={t("history.totalFiles", "Total Files")}
               value={totalFiles}
             />
             <StatCard
               icon={<HardDrive className="h-5 w-5" />}
-              label={t("history.totalStorage", "总存储空间")}
+              label={t("history.totalStorage", "Total Storage")}
               value={formatFileSize(totalSize, 2)}
             />
             <StatCard
               icon={<Clock className="h-5 w-5" />}
-              label={t("history.lastUpload", "最近上传")}
+              label={t("history.lastUpload", "Last Upload")}
               value={lastUploadTime}
             />
           </div>
@@ -341,7 +341,7 @@ export default function DashboardPage() {
                       <Link to="/upload">
                         <Button className="mt-2">
                           <Upload className="mr-2 h-4 w-4" />
-                          {t("common.upload", "立即上传")}
+                          {t("common.upload", "Upload")}
                         </Button>
                       </Link>
                     }

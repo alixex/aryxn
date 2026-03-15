@@ -1,4 +1,4 @@
-// 扩展 window 对象以支持 solana 和 suiWallet
+// Extend the window object to support solana and suiWallet
 import type { PublicKey } from "@solana/web3.js"
 
 interface SolanaProvider {
