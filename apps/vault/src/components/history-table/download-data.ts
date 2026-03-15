@@ -5,6 +5,7 @@ import {
   upsertCachedResource,
   upsertCachedResourceFromStream,
 } from "@/lib/file"
+import { getDownloadGateways, getPrimaryGatewayUrl } from "@/lib/storage/gateways"
 
 /**
  * 抑制 SDK 分块下载相关的错误和警告
@@ -82,10 +83,7 @@ export async function fetchDataFromGateways(
   expectedDataSize: number,
   storageType: "arweave" | "irys" = "arweave",
 ): Promise<Uint8Array | null> {
-  const gateways =
-    storageType === "irys"
-      ? ["https://gateway.irys.xyz"]
-      : ["https://arweave.net", "https://ar-io.net", "https://arweave.live"]
+  const gateways = getDownloadGateways(storageType)
 
   for (const gateway of gateways) {
     try {
@@ -136,10 +134,7 @@ async function cacheFromGatewayStream(
     mimeType?: string
   },
 ): Promise<Uint8Array | null> {
-  const gateways =
-    storageType === "irys"
-      ? ["https://gateway.irys.xyz"]
-      : ["https://arweave.net", "https://ar-io.net", "https://arweave.live"]
+  const gateways = getDownloadGateways(storageType)
 
   for (const gateway of gateways) {
     try {
@@ -221,10 +216,7 @@ async function cacheFileFromGatewayStream(
     mimeType?: string
   },
 ): Promise<File | null> {
-  const gateways =
-    storageType === "irys"
-      ? ["https://gateway.irys.xyz"]
-      : ["https://arweave.net", "https://ar-io.net", "https://arweave.live"]
+  const gateways = getDownloadGateways(storageType)
 
   for (const gateway of gateways) {
     try {
@@ -375,11 +367,7 @@ export async function downloadTransactionData(
     throw new Error(
       `Failed to fetch complete data from all gateways. Expected size: ${expectedDataSize} bytes. ` +
         `This might be because the transaction data hasn't been fully seeded to the network yet. ` +
-        `Please try again later or check the transaction status at ${
-          storageType === "irys"
-            ? `https://gateway.irys.xyz/${txId}`
-            : `https://arweave.net/${txId}`
-        }`,
+        `Please try again later or check the transaction status at ${getPrimaryGatewayUrl(storageType, txId)}`,
     )
   }
 

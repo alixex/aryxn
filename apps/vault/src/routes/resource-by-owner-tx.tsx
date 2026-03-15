@@ -12,6 +12,7 @@ import { deriveKey } from "@aryxn/crypto"
 import type { UploadRecord } from "@/lib/utils"
 import { useWallet } from "@/hooks/account-hooks"
 import { db } from "@/lib/database"
+import { getDownloadGateways } from "@/lib/storage/gateways"
 import { getTransactionMetadata } from "@/components/history-table/download-data"
 import {
   decodeTransactionTags,
@@ -59,10 +60,7 @@ async function downloadEncryptedData(
   expectedSize: number,
   onProgress?: (loaded: number, total: number | null) => void,
 ): Promise<Uint8Array> {
-  const gateways =
-    storageType === "irys"
-      ? ["https://gateway.irys.xyz"]
-      : [RPCs.ARWEAVE_BASE, "https://ar-io.net", "https://arweave.live"]
+  const gateways = getDownloadGateways(storageType)
 
   let lastError: unknown = null
 
