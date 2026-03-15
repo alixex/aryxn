@@ -11,7 +11,7 @@ import {
 } from "@/lib/storage/gateways"
 
 /**
- * 抑制 SDK 分块下载相关的错误和警告
+ * Suppress SDK chunk-download related errors and warnings.
  */
 function suppressChunkErrors() {
   const originalError = console.error
@@ -56,7 +56,7 @@ function suppressChunkErrors() {
 }
 
 /**
- * 获取 transaction 元数据
+ * Fetch transaction metadata.
  */
 export async function getTransactionMetadata(txId: string) {
   const suppress = suppressChunkErrors()
@@ -79,7 +79,7 @@ export async function getTransactionMetadata(txId: string) {
 }
 
 /**
- * 从多个网关尝试下载数据
+ * Try downloading data from multiple gateways.
  */
 export async function fetchDataFromGateways(
   txId: string,
@@ -153,7 +153,7 @@ export async function fetchDataFromGateways(
         const fetchedData = new Uint8Array(buffer)
         onProgress?.(fetchedData.length, total)
 
-        // 检查数据长度
+        // Validate fetched data length.
         console.log(`Fetched from ${gateway}:`, {
           fetchedLength: fetchedData.length,
           expectedLength: expectedDataSize,
@@ -161,7 +161,7 @@ export async function fetchDataFromGateways(
             expectedDataSize === 0 || fetchedData.length === expectedDataSize,
         })
 
-        // 如果数据长度匹配或没有期望长度，使用这个数据
+        // Use the data when length matches or no expected size is available.
         if (expectedDataSize === 0 || fetchedData.length === expectedDataSize) {
           console.log(`Successfully fetched data from ${gateway}`)
           return fetchedData
@@ -337,7 +337,7 @@ async function cacheFileFromGatewayStream(
 }
 
 /**
- * 使用 SDK 的 getData 方法下载数据（回退方案）
+ * Download data using SDK getData as a fallback strategy.
  */
 export async function fetchDataWithSDK(
   txId: string,
@@ -351,14 +351,14 @@ export async function fetchDataWithSDK(
       string: false,
     })) as Uint8Array
 
-    // 检查数据长度是否匹配
+    // Validate data length.
     console.log("SDK getData result:", {
       fetchedLength: transactionData.length,
       expectedLength: expectedDataSize,
       match: transactionData.length === expectedDataSize,
     })
 
-    // 如果数据长度匹配或没有期望长度，使用这个数据
+    // Use the data when length matches or no expected size is available.
     if (expectedDataSize === 0 || transactionData.length === expectedDataSize) {
       console.log("Successfully fetched data using SDK getData method")
       return transactionData
@@ -366,7 +366,7 @@ export async function fetchDataWithSDK(
       console.warn(
         `SDK getData length mismatch: expected ${expectedDataSize}, got ${transactionData.length}`,
       )
-      // 即使长度不匹配，也返回数据作为回退
+      // Return data as a fallback even when length mismatches.
       return transactionData
     }
   } catch (sdkError) {
@@ -384,7 +384,7 @@ export async function fetchDataWithSDK(
 }
 
 /**
- * 下载 transaction 数据（主函数）
+ * Download transaction data (main entry point).
  */
 export async function downloadTransactionData(
   txId: string,
@@ -437,7 +437,7 @@ export async function downloadTransactionData(
     }
   }
 
-  // 方法 1: 优先尝试直接通过网关获取
+  // Method 1: Prefer direct gateway fetch.
   let data = await fetchDataFromGateways(
     txId,
     expectedDataSize,
@@ -446,7 +446,7 @@ export async function downloadTransactionData(
     options?.signal,
   )
 
-  // 方法 2: 如果直接 fetch 失败，尝试使用 SDK 的 getData 方法 (Only fallback to SDK for Arweave data, SDK breaks on Irys)
+  // Method 2: If direct fetch fails, try SDK getData (Arweave only; SDK is unreliable on Irys).
   if (!data && storageType === "arweave") {
     data = await fetchDataWithSDK(txId, expectedDataSize)
   }
@@ -459,7 +459,7 @@ export async function downloadTransactionData(
     )
   }
 
-  // 最终检查数据长度
+  // Final data length validation.
   if (expectedDataSize > 0 && data.length !== expectedDataSize) {
     console.error("Data integrity check failed:", {
       expected: expectedDataSize,

@@ -8,7 +8,7 @@ import {
 } from "./transaction-tags"
 
 /**
- * 确保数据是标准的 Uint8Array（不是 SharedArrayBuffer）
+ * Ensure data is a standard Uint8Array (not backed by SharedArrayBuffer).
  */
 export function ensureStandardUint8Array(data: Uint8Array): Uint8Array {
   const buffer = new ArrayBuffer(data.length)
@@ -18,7 +18,7 @@ export function ensureStandardUint8Array(data: Uint8Array): Uint8Array {
 }
 
 /**
- * 获取 nonce（优先从 transaction tags，回退到数据库）
+ * Get nonce (prefer transaction tags, fallback to database).
  */
 function getNonce(
   encryptionParamsTag: DecodedTag | undefined,
@@ -57,7 +57,7 @@ function normalizeBase64Input(value: string): string {
 }
 
 /**
- * 解密数据
+ * Decrypt file data.
  */
 export async function decryptFileData(
   data: Uint8Array,
@@ -82,7 +82,7 @@ export async function decryptFileData(
     throw new Error("Invalid nonce encoding in encryption parameters.")
   }
 
-  // 调试信息
+  // Debug information.
   console.log("Decryption info:", {
     nonceSource: source,
     nonceLength: nonceBytes.length,
@@ -91,7 +91,7 @@ export async function decryptFileData(
     masterKeyLength: masterKey.length,
   })
 
-  // 检查 nonce 长度是否正确
+  // Validate nonce length.
   if (nonceBytes.length !== 24) {
     console.error("Invalid nonce length:", {
       actual: nonceBytes.length,
@@ -106,19 +106,19 @@ export async function decryptFileData(
 
   const decrypted = await decryptData(data, nonceBytes, masterKey)
 
-  // 确保返回的是 Uint8Array<ArrayBuffer> 类型
+  // Ensure return type is Uint8Array<ArrayBuffer>.
   return ensureStandardUint8Array(decrypted)
 }
 
 /**
- * 解压数据
+ * Decompress file data.
  */
 export async function decompressFileData(
   data: Uint8Array,
   compressionEnabled: boolean,
   compressionAlgo: string | undefined,
 ): Promise<Uint8Array> {
-  // 检查是否是 gzip 格式（gzip 魔数：0x1f 0x8b）
+  // Detect gzip format (magic bytes: 0x1f 0x8b).
   const isGzipCompressed =
     data.length >= 2 && data[0] === 0x1f && data[1] === 0x8b
 
@@ -133,7 +133,7 @@ export async function decompressFileData(
         : "N/A",
   })
 
-  // 如果标记显示压缩，或者数据看起来是 gzip 格式，尝试解压
+  // Attempt decompression if metadata indicates compression or payload looks like gzip.
   if (compressionEnabled || isGzipCompressed) {
     if (compressionAlgo === "gzip" || isGzipCompressed) {
       try {
@@ -154,7 +154,7 @@ export async function decompressFileData(
               `The file was marked as compressed but could not be decompressed.`,
           )
         }
-        // 如果只是检测到 gzip 但未标记，继续使用原始数据
+        // If gzip is only detected heuristically and not explicitly marked, keep original data.
         return data
       }
     }
@@ -164,7 +164,7 @@ export async function decompressFileData(
 }
 
 /**
- * 处理文件数据（解密和解压）
+ * Process file data (decrypt + decompress).
  */
 export async function processFileData(
   data: Uint8Array,
@@ -179,7 +179,7 @@ export async function processFileData(
     extractCompressionInfo(decodedTags)
   const { encryptionParamsTag } = extractEncryptionParams(decodedTags)
 
-  // 1. 先解密（如果加密了且请求解密）
+  // 1) Decrypt first (when encrypted and decryption is requested).
   if (decrypt && record.encryptionAlgo !== "none" && masterKey) {
     processedData = await decryptFileData(
       processedData,
@@ -189,18 +189,18 @@ export async function processFileData(
     )
   }
 
-  // 2. 再解压（如果压缩了）
-  // 注意：
-  // - 如果文件是加密的，压缩数据也在加密数据内部，所以只有解密后才能解压
-  // - 如果文件是未加密的，压缩数据是直接的，可以直接解压
+  // 2) Decompress next (when compressed).
+  // Notes:
+  // - For encrypted files, compressed bytes are inside ciphertext, so decompression is only possible after decryption.
+  // - For unencrypted files, compressed bytes are directly available and can be decompressed immediately.
   const shouldDecompress =
-    // 未加密的文件：总是可以解压
+    // Unencrypted files: can always attempt decompression.
     (record.encryptionAlgo === "none" &&
       (compressionEnabled ||
         (processedData.length >= 2 &&
           processedData[0] === 0x1f &&
           processedData[1] === 0x8b))) ||
-    // 加密的文件：只有在已解密的情况下才能解压
+    // Encrypted files: only decompress after decryption.
     (record.encryptionAlgo !== "none" &&
       decrypt &&
       (compressionEnabled ||
@@ -220,7 +220,7 @@ export async function processFileData(
 }
 
 /**
- * 创建加密文件包（用于下载未解密的加密文件）
+ * Create an encrypted file package (for downloading encrypted payloads without decrypting).
  */
 export function createEncryptedFilePackage(
   data: Uint8Array,
@@ -248,7 +248,7 @@ export function createEncryptedFilePackage(
 
   const jsonString = JSON.stringify(encryptedFileData, null, 2)
 
-  // 验证 JSON 字符串是否有效
+  // Validate generated JSON content.
   try {
     JSON.parse(jsonString)
   } catch (parseError) {
