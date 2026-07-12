@@ -60,4 +60,20 @@ describe("crud", () => {
     removeAccount(second.id)
     expect(activeId()).toBe(first.id)
   })
+
+  it("setActive throws VAULT_LOCKED for a local account when the session is locked", async () => {
+    const { addLocal } = await fresh()
+    const rec = await addLocal("MASTER") // creates + persists a local account
+    // Fresh session: masterPw resets to null, but the account + vault persist on disk.
+    vi.resetModules()
+    const { setActive } = await fresh()
+    await expect(setActive(rec.id)).rejects.toThrow("VAULT_LOCKED")
+  })
+
+  it("importLocal with a bad JWK does not establish a phantom master", async () => {
+    const { importLocal, addLocal } = await fresh()
+    await expect(importLocal(JSON.stringify({ kty: "EC" }), "MASTER")).rejects.toThrow()
+    // The failed import must not have set masterPw; addLocal() with no password rejects.
+    await expect(addLocal()).rejects.toThrow("VAULT_LOCKED")
+  })
 })
