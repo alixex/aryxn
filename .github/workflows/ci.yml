@@ -38,7 +38,7 @@ jobs:
         run: pnpm run lint
 
       - name: Check formatting
-        run: pnpm --filter=@alixex/vault exec prettier --check src components.json index.html public
+        run: pnpm run format:check
 
   type-check:
     name: Type Check
@@ -64,19 +64,8 @@ jobs:
 
       - name: Verify build output
         run: |
-          if [ ! -d "apps/vault/dist" ]; then
-            echo "Error: apps/vault/dist directory not found"
-            exit 1
-          fi
-          if [ ! -f "apps/vault/dist/index.html" ]; then
-            echo "Error: apps/vault/dist/index.html not found"
+          if [ ! -f "apps/link/dist/index.html" ]; then
+            echo "Error: apps/link/dist/index.html not found"
             exit 1
           fi
           echo "Build output verified successfully"
-
-      - name: Cache build artifacts
-        uses: actions/cache/save@v4
-        if: github.ref == 'refs/heads/main'
-        with:
-          path: apps/vault/dist
-          key: build-${{ github.sha }}

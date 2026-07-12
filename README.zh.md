@@ -1,7 +1,7 @@
 # Aryxn
 
 <p align="center">
-   <img src="https://aryxn.com/icon.jpg" alt="Aryxn Icon" width="200" />
+   <img src="https://ark.chaxus.com/icon.jpg" alt="Aryxn Icon" width="200" />
 </p>
 
 [English](./README.md) | [中文]
@@ -15,7 +15,7 @@
 
 一切都在浏览器中运行：密钥与密码永不离开设备，链上数据始终是唯一事实来源，应用仅保留少量本地缓存以提升速度。
 
-**🌐 在线地址**：https://aryxn.com/
+**🌐 在线地址**：https://ark.chaxus.com/
 
 ---
 
@@ -74,7 +74,7 @@ pnpm preview          # 预览生产构建
 ```bash
 pnpm lint             # 对 apps + packages 运行 oxlint
 pnpm type-check       # 对 apps + packages 运行 tsc --noEmit
-pnpm ci               # lint + type-check + build
+pnpm run ci           # lint + type-check + build
 ```
 
 部署（Cloudflare Pages）：
@@ -88,7 +88,7 @@ pnpm deploy:cloudflare
 ## 技术栈
 
 - **UI**：无框架 SPA，基于 [**ranui**](https://www.npmjs.com/package/ranui) 构建——一套 Web Components
-  + 细粒度响应式 builder，实现了 **Geist**（Vercel）设计系统
+  - 细粒度响应式 builder，实现了 **Geist**（Vercel）设计系统
 - **语言 / 工具链**：TypeScript、Vite、pnpm workspaces
 - **存储**：Arweave（永久）+ Irys（永久，EVM 付费）；IndexedDB + localStorage 作本地缓存
 - **付费**：`ethers` v6 与 `@irys/web-upload` 用于 Irys
