@@ -17,11 +17,9 @@ import { cacheAsset, cachedAssets } from "../cache"
 import { syncArweaveAssets, syncIrysAssets } from "../sync"
 import { discoverEvmWallets, type EvmWallet } from "../wallet-evm"
 import { activeAccount, activeJwk, ASSET_CHAIN, type AccountRecord } from "../accounts"
+import { navigate } from "../router"
 
 // ── Reactive state ─────────────────────────────────────────────────────────
-/** Active account address (reactive — reads the accounts store's active signal). */
-const address = (): string | null => activeAccount()?.address ?? null
-
 const [chain, setChain] = signal<Chain>("arweave")
 const [links, setLinks] = signal<AssetRecord[]>([])
 const [query, setQuery] = signal("")
@@ -254,13 +252,18 @@ function renderFilePanel(): void {
 async function doUpload(): Promise<void> {
   const f = currentFile
   if (!f) return
-  if (chain() === "arweave" && !address()) {
-    toast("error", t("err.connectArFirst"))
-    return
+  if (chain() === "arweave") {
+    const acc = activeAccount()
+    if (!acc || acc.network !== "arweave") {
+      toast("error", t("err.connectArFirst"))
+      navigate("/accounts")
+      return
+    }
   }
 
   let evmProvider: unknown
   if (chain() === "irys") {
+    // Irys pays via the connected EVM wallet regardless of the active account.
     try {
       evmProvider = await resolveEvmProvider()
     } catch (e) {
