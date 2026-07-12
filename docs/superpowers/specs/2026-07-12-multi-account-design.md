@@ -117,10 +117,12 @@ delete aryxn:account
 - The migrated account is active but **locked** (empty address ⇒ §6 shows no resources, §7 no
   balance) — identical to how the old app behaved on reload (it showed "Unlock" and had no active
   key until the password was entered).
-- **Address backfill happens in `unlockVault(P)`**: after a successful decrypt, for every vault
-  entry whose record `address` is empty, derive it via `arweave.wallets.jwkToAddress(jwk)` and set
-  `address` (and, if the label is still the placeholder, a shortened-address label). Resources and
-  balance then scope normally.
+- **Address backfill happens in `unlockVault(P)`** in two steps: (1) **verify** — decrypt any one
+  entry (the anchor) to validate `P`; (2) **backfill** — decrypt each vault entry whose record
+  `address` is empty, derive it via `arweave.wallets.jwkToAddress(jwk)`, and set `address` (and, if
+  the label is still the placeholder, a shortened-address label). A decrypt failure on a single
+  non-anchor blob (e.g. a corrupted entry) is **skipped** — that record stays locked — and must not
+  abort the whole unlock. Resources and balance then scope normally.
 
 The user's unlock password is unchanged (`decryptStringFromStorage(vault[id], P)` — same function,
 same ciphertext). Nothing is re-keyed; upgrading is invisible until the user unlocks (exactly as
@@ -236,6 +238,10 @@ Routes (hash mode):
     ⚙ Manage accounts →  (/accounts)
 ```
 
+When the active account is in the locked/unknown state (empty address, §2), the collapsed switcher
+shows the label + "Locked" (no address, no balance), and opening it offers **Unlock** instead of a
+balance.
+
 **Accounts page `/accounts`**:
 
 - Header: title + "Add account" (create local / import keyfile / connect Wander / connect EVM).
@@ -269,7 +275,8 @@ Keep upload behavior close to current, sourcing the signer from the active accou
 - **Add / import a local account while the vault is locked** → `addLocal` / `importLocal` first
   prompt for the master password (unlock this session), then create/import under it (§4).
 - **EVM address changes** in the wallet (account/chain switch) → re-read on focus/`accountsChanged`;
-  the `evm` record's address updates and resources re-scope.
+  the `evm` record's address updates and resources re-scope. The previous address's owner-scoped
+  cached links are left in place (consistent with the remove-account rule), not purged.
 - **Balance fetch failure / offline** → leave balance blank (best-effort); cached links still show.
 - **Legacy records without owner** → §6 self-heal; same-chain fallback prevents disappearance.
 - **Vault locked while switching to a local account** → prompt master password once per session.
