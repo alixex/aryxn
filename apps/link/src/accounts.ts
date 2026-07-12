@@ -3,8 +3,9 @@
 // plan for migration, CRUD, and vault unlock/lock logic built on top of this).
 
 import { signal, computed } from "ranui/builder"
-import { arweave, type ArweaveJWK } from "@alixex/arweave"
-import { decryptStringFromStorage } from "@alixex/crypto"
+import { arweave, generateArweaveWallet, type ArweaveJWK } from "@alixex/arweave"
+import { decryptStringFromStorage, encryptStringForStorage } from "@alixex/crypto"
+import { connectArweave } from "./wallet"
 
 export type Network = "arweave" | "evm"
 export type AccountType = "local" | "wander" | "evm"
@@ -157,4 +158,118 @@ export async function unlockVault(pw: string): Promise<void> {
   }
   if (entries.length > 0 && ok === 0) throw new Error("Wrong password")
   masterPw = pw
+}
+
+// ── CRUD ─────────────────────────────────────────────────────────────────
+
+/** Resolve the master password: use the session master, or establish it from `password` when the vault is empty. */
+function resolveMaster(password?: string): string {
+  if (masterPw !== null) return masterPw
+  if (Object.keys(readVault()).length === 0 && password) {
+    masterPw = password
+    return password
+  }
+  throw new Error("VAULT_LOCKED") // caller must unlockVault() first
+}
+
+async function persistLocal(jwk: ArweaveJWK, pw: string): Promise<AccountRecord> {
+  const address = await arweave.wallets.jwkToAddress(jwk)
+  const id = newId()
+  const blob = JSON.stringify(await encryptStringForStorage(JSON.stringify(jwk), pw))
+  const vault = readVault()
+  vault[id] = blob
+  writeVault(vault)
+  jwkCache.set(id, jwk)
+  const rec: AccountRecord = {
+    id,
+    type: "local",
+    network: "arweave",
+    address,
+    label: shorten(address),
+    createdAt: Date.now(),
+  }
+  persistAccounts([...accounts(), rec])
+  return rec
+}
+
+/** Create a new local account. `password` is required only for the first account (sets the master). */
+export async function addLocal(password?: string): Promise<AccountRecord> {
+  const pw = resolveMaster(password)
+  const { key } = await generateArweaveWallet()
+  return persistLocal(key as ArweaveJWK, pw)
+}
+
+/** Import an Arweave keyfile. `password` required only when establishing the master. */
+export async function importLocal(jwkJson: string, password?: string): Promise<AccountRecord> {
+  const pw = resolveMaster(password)
+  let jwk: ArweaveJWK
+  try {
+    jwk = JSON.parse(jwkJson) as ArweaveJWK
+  } catch {
+    throw new Error("Invalid keyfile: not valid JSON")
+  }
+  if (!jwk || jwk.kty !== "RSA" || !jwk.n) throw new Error("Invalid keyfile: not an Arweave JWK")
+  return persistLocal(jwk, pw)
+}
+
+export async function connectWander(): Promise<AccountRecord> {
+  const address = await connectArweave()
+  const existing = accounts().find((a) => a.type === "wander" && a.address === address)
+  if (existing) return existing
+  const rec: AccountRecord = {
+    id: newId(),
+    type: "wander",
+    network: "arweave",
+    address,
+    label: shorten(address),
+    createdAt: Date.now(),
+  }
+  persistAccounts([...accounts(), rec])
+  return rec
+}
+
+export function connectEvm(address: string): AccountRecord {
+  const existing = accounts().find(
+    (a) => a.type === "evm" && a.address.toLowerCase() === address.toLowerCase(),
+  )
+  if (existing) return existing
+  const rec: AccountRecord = {
+    id: newId(),
+    type: "evm",
+    network: "evm",
+    address,
+    label: shorten(address),
+    createdAt: Date.now(),
+  }
+  persistAccounts([...accounts(), rec])
+  return rec
+}
+
+export function removeAccount(id: string): void {
+  const vault = readVault()
+  if (vault[id]) {
+    delete vault[id]
+    writeVault(vault)
+  }
+  jwkCache.delete(id)
+  const rest = accounts().filter((a) => a.id !== id)
+  persistAccounts(rest)
+  if (activeId() === id) persistActive(rest[0]?.id ?? null)
+}
+
+/** Switch active account. Throws "VAULT_LOCKED" if a local account needs unlocking first. */
+export async function setActive(id: string): Promise<void> {
+  const rec = accounts().find((a) => a.id === id)
+  if (!rec) return
+  if (rec.type === "local" && !jwkCache.has(id)) {
+    if (masterPw === null) throw new Error("VAULT_LOCKED")
+    const blob = readVault()[id]
+    if (blob) {
+      const jwk = JSON.parse(await decryptStringFromStorage(JSON.parse(blob), masterPw)) as ArweaveJWK
+      jwkCache.set(id, jwk)
+      if (!rec.address) await backfillAddress(id, jwk)
+    }
+  }
+  if (rec.type === "wander") await connectArweave().catch(() => {})
+  persistActive(id)
 }
