@@ -127,7 +127,6 @@ aryxn/
 │   ├── crypto/           # Encryption + encoding helpers
 │   ├── storage/          # Local cache (localStorage + IndexedDB)
 │   └── changelogs/       # Changelog assets
-├── docs/                 # Notes and planning docs
 └── scripts/              # Automation and setup scripts
 ```
 

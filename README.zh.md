@@ -122,7 +122,6 @@ aryxn/
 │   ├── crypto/           # 加密 + 编码辅助
 │   ├── storage/          # 本地缓存（localStorage + IndexedDB）
 │   └── changelogs/       # 变更说明资产
-├── docs/                 # 笔记与规划文档
 └── scripts/              # 自动化与初始化脚本
 ```
 
