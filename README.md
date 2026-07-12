@@ -121,10 +121,11 @@ See also: [packages/README.md](packages/README.md)
 aryxn/
 ├── apps/
 │   └── link/             # The permanent-links web app (@alixex/link)
-└── packages/
-    ├── arweave/          # Arweave upload / fee / compression / search
-    ├── crypto/           # Encryption + encoding helpers
-    └── storage/          # Local cache (localStorage + IndexedDB)
+├── packages/
+│   ├── arweave/          # Arweave upload / fee / compression / search
+│   ├── crypto/           # Encryption + encoding helpers
+│   └── storage/          # Local cache (localStorage + IndexedDB)
+└── docs/                 # Design notes
 ```
 
 ## Open Source
