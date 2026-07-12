@@ -8,7 +8,16 @@
       name="description"
       content="Upload a file, get a link that lasts forever. Minimal, open-source permanent storage on Arweave & Irys."
     />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23111111'/%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='2.4'%3E%3Ccircle cx='12.6' cy='16' r='4.9'/%3E%3Ccircle cx='19.4' cy='16' r='4.9'/%3E%3C/g%3E%3C/svg%3E"
+    />
     <style>
+      :root {
+        --brand-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2'%3E%3Ccircle cx='9' cy='12' r='4.6'/%3E%3Ccircle cx='15' cy='12' r='4.6'/%3E%3C/svg%3E");
+        --upload-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 16V4m0 0L8 8m4-4 4 4'/%3E%3Cpath d='M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3'/%3E%3C/svg%3E");
+        --r: 14px;
+      }
       *,
       *::before,
       *::after {
@@ -20,103 +29,167 @@
         padding: 0;
       }
       body {
-        background: var(--ran-color-background, #fff);
-        color: var(--ran-color-foreground, #000);
+        background: var(--ran-color-bg, #fff);
+        color: var(--ran-color-text, #0a0a0a);
         font-family:
-          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
-          Arial, sans-serif;
+          "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+        font-feature-settings: "cv01", "cv03", "ss03";
         -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+        line-height: 1.5;
       }
       #app {
         min-height: 100vh;
       }
       .wrap {
-        max-width: 720px;
+        max-width: 640px;
         margin: 0 auto;
-        padding: 24px 20px 80px;
+        padding: 20px 20px 96px;
       }
+
+      /* ── Header ─────────────────────────────────────────── */
       .topbar {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 12px;
-        margin-bottom: 40px;
+        padding-bottom: 18px;
+        margin-bottom: 48px;
+        border-bottom: 1px solid var(--ran-color-border, #ececec);
       }
       .brand {
-        font-size: 20px;
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        font-size: 18px;
         font-weight: 600;
         letter-spacing: -0.02em;
+      }
+      .brand::before {
+        content: "";
+        width: 20px;
+        height: 20px;
+        background: currentColor;
+        -webkit-mask: var(--brand-mark) center / contain no-repeat;
+        mask: var(--brand-mark) center / contain no-repeat;
       }
       .topbar-actions {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
       }
+
+      /* ── Hero ───────────────────────────────────────────── */
       .hero {
-        margin-bottom: 28px;
+        margin-bottom: 32px;
       }
       .hero h1 {
-        font-size: clamp(28px, 5vw, 40px);
-        line-height: 1.1;
-        letter-spacing: -0.03em;
-        margin: 0 0 10px;
+        font-size: clamp(30px, 6vw, 44px);
+        line-height: 1.05;
+        letter-spacing: -0.035em;
+        margin: 0 0 12px;
         font-weight: 600;
       }
       .hero p {
         margin: 0;
-        color: var(--ran-color-foreground-muted, #666);
+        max-width: 46ch;
+        color: var(--ran-color-text-secondary, #666);
         font-size: 16px;
       }
+
+      /* ── Drop zone ──────────────────────────────────────── */
       .drop {
-        border: 1.5px dashed var(--ran-color-border, #d4d4d4);
-        border-radius: 12px;
-        padding: 44px 24px;
+        border: 1.5px dashed var(--ran-color-border, #dcdcdc);
+        border-radius: var(--r);
+        padding: 40px 24px;
         text-align: center;
         cursor: pointer;
-        transition: border-color 160ms, background 160ms;
-        background: var(--ran-color-background-secondary, #fafafa);
+        background: var(--ran-color-bg-subtle, #fafafa);
+        transition:
+          border-color 160ms ease,
+          background 160ms ease,
+          transform 160ms ease,
+          box-shadow 160ms ease;
       }
-      .drop.drag,
+      .drop::before {
+        content: "";
+        display: block;
+        width: 34px;
+        height: 34px;
+        margin: 0 auto 14px;
+        background: var(--ran-color-text-secondary, #9a9a9a);
+        opacity: 0.55;
+        -webkit-mask: var(--upload-icon) center / contain no-repeat;
+        mask: var(--upload-icon) center / contain no-repeat;
+        transition: opacity 160ms ease, background 160ms ease;
+      }
       .drop:hover {
-        border-color: var(--ran-color-foreground, #000);
+        border-color: var(--ran-color-text, #111);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
+      }
+      .drop:hover::before {
+        opacity: 0.9;
+        background: var(--ran-color-text, #111);
+      }
+      .drop.drag {
+        border-color: var(--ran-color-primary, #0a0a0a);
+        border-style: solid;
+        background: var(--ran-color-bg, #fff);
+      }
+      .drop > div:first-of-type {
+        font-weight: 500;
+        font-size: 15px;
       }
       .drop-hint {
-        color: var(--ran-color-foreground-muted, #666);
-        font-size: 14px;
-        margin-top: 8px;
+        color: var(--ran-color-text-secondary, #888);
+        font-size: 13.5px;
+        margin-top: 6px;
       }
+
+      /* ── Bits ───────────────────────────────────────────── */
       .muted {
-        color: var(--ran-color-foreground-muted, #666);
+        color: var(--ran-color-text-secondary, #777);
         font-size: 13px;
       }
       .row {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 10px;
+        flex-wrap: wrap;
       }
       .space {
         margin-top: 16px;
       }
+
+      /* ── My links ───────────────────────────────────────── */
       .section-title {
-        font-size: 15px;
+        font-size: 13px;
         font-weight: 600;
-        letter-spacing: -0.01em;
-        margin: 0 0 4px;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        color: var(--ran-color-text-secondary, #888);
+        margin: 56px 0 14px;
       }
       .links {
-        margin-top: 44px;
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 8px;
       }
       .link-item {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 12px;
-        padding: 12px 14px;
-        border: 1px solid var(--ran-color-border, #eaeaea);
-        border-radius: 10px;
+        padding: 13px 15px;
+        border: 1px solid var(--ran-color-border, #ececec);
+        border-radius: 12px;
+        transition: border-color 140ms ease, background 140ms ease;
+      }
+      .link-item:hover {
+        border-color: var(--ran-color-border-hover, #d4d4d4);
+        background: var(--ran-color-bg-subtle, #fafafa);
       }
       .link-meta {
         min-width: 0;
@@ -129,22 +202,34 @@
         text-overflow: ellipsis;
       }
       .badge {
-        font-size: 11px;
+        font-size: 10.5px;
+        font-weight: 500;
         text-transform: uppercase;
-        letter-spacing: 0.04em;
-        color: var(--ran-color-foreground-muted, #666);
-        border: 1px solid var(--ran-color-border, #eaeaea);
+        letter-spacing: 0.05em;
+        color: var(--ran-color-text-secondary, #777);
+        border: 1px solid var(--ran-color-border, #e6e6e6);
         border-radius: 999px;
-        padding: 1px 8px;
+        padding: 2px 8px;
+        white-space: nowrap;
       }
       .preview {
         display: block;
         max-width: 100%;
-        border-radius: 8px;
+        border-radius: 10px;
         margin-top: 12px;
+        border: 1px solid var(--ran-color-border, #ececec);
       }
       .hidden {
         display: none !important;
+      }
+
+      @media (max-width: 480px) {
+        .wrap {
+          padding: 16px 16px 72px;
+        }
+        .topbar {
+          margin-bottom: 36px;
+        }
       }
     </style>
   </head>
