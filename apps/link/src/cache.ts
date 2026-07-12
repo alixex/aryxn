@@ -14,9 +14,10 @@ export async function cacheAssets(records: AssetRecord[]): Promise<void> {
   await Promise.all(records.map(cacheAsset))
 }
 
-export async function cachedAssets(): Promise<AssetRecord[]> {
+export async function cachedAssets(owner?: string): Promise<AssetRecord[]> {
   const all = await idbValues<AssetRecord>()
   return all
     .filter((v): v is AssetRecord => !!v && typeof v.txId === "string")
+    .filter((v) => !owner || v.owner === owner)
     .sort((a, b) => b.timestamp - a.timestamp)
 }
