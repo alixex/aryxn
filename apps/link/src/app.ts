@@ -15,6 +15,7 @@ import {
   type Chain,
 } from "./storage"
 import { cacheAsset, cacheAssets, cachedAssets } from "./cache"
+import { discoverEvmWallets, type EvmWallet } from "./wallet-evm"
 
 // ── State ────────────────────────────────────────────────────────────────
 let address: string | null = null
@@ -205,6 +206,18 @@ async function doUpload(): Promise<void> {
     return
   }
 
+  let evmProvider: unknown
+  if (chain === "irys") {
+    try {
+      evmProvider = await resolveEvmProvider()
+    } catch (e) {
+      uploadPanel.replaceChildren(
+        h("div", { class: "space muted", text: (e as Error).message }),
+      )
+      return
+    }
+  }
+
   const progress = h("r-progress", { total: "100" })
   ;(progress as unknown as { percent: string }).percent = "0"
   const stage = h("div", { class: "muted space", text: "准备中…" })
@@ -213,14 +226,18 @@ async function doUpload(): Promise<void> {
   try {
     let record: AssetRecord
     if (chain === "irys") {
-      record = await uploadIrys(file, {
-        onProgress: (p) => {
-          stage.textContent = p.stage
-          ;(progress as unknown as { percent: string }).percent = String(
-            Math.round(p.progress),
-          )
+      record = await uploadIrys(
+        file,
+        {
+          onProgress: (p) => {
+            stage.textContent = p.stage
+            ;(progress as unknown as { percent: string }).percent = String(
+              Math.round(p.progress),
+            )
+          },
         },
-      })
+        evmProvider,
+      )
     } else {
       record = await uploadArweave(file, address!, {
         onProgress: (p) => {
@@ -240,6 +257,33 @@ async function doUpload(): Promise<void> {
       h("div", { class: "space muted", text: `上传失败：${(e as Error).message}` }),
     )
   }
+}
+
+// Pick the EVM wallet to pay Irys with (EIP-6963). One → use it; many → let the
+// user choose; none → error.
+async function resolveEvmProvider(): Promise<unknown> {
+  const wallets = await discoverEvmWallets()
+  if (wallets.length === 0) {
+    throw new Error("未检测到 EVM 钱包（如 MetaMask）——Irys 需要它来支付上传")
+  }
+  if (wallets.length === 1) return wallets[0].provider
+  return chooseWallet(wallets)
+}
+
+function chooseWallet(wallets: EvmWallet[]): Promise<unknown> {
+  return new Promise((resolve) => {
+    const buttons = wallets.map((w) => {
+      const b = h("r-button", { text: w.info.name })
+      b.addEventListener("click", () => resolve(w.provider))
+      return b
+    })
+    uploadPanel.replaceChildren(
+      h("div", { class: "space" }, [
+        h("div", { class: "muted", text: "选择用于 Irys 付费的 EVM 钱包：" }),
+        h("div", { class: "row space" }, buttons),
+      ]),
+    )
+  })
 }
 
 function showResult(record: AssetRecord): void {

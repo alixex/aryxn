@@ -48,8 +48,8 @@ importers:
         specifier: ^6.17.0
         version: 6.17.0(bufferutil@4.1.0)(utf-8-validate@5.0.10)
       ranui:
-        specifier: 0.2.0-alpha.6
-        version: 0.2.0-alpha.6
+        specifier: 0.2.0-alpha.7
+        version: 0.2.0-alpha.7
     devDependencies:
       typescript:
         specifier: ~7.0.2
@@ -78,6 +78,10 @@ importers:
       fflate:
         specifier: ^0.8.3
         version: 0.8.3
+    devDependencies:
+      '@types/node':
+        specifier: ^26.1.1
+        version: 26.1.1
 
   packages/crypto:
     dependencies:
@@ -97,6 +101,10 @@ importers:
       '@alixex/crypto':
         specifier: workspace:*
         version: link:../crypto
+    devDependencies:
+      '@types/node':
+        specifier: ^26.1.1
+        version: 26.1.1
 
 packages:
 
@@ -1747,8 +1755,8 @@ packages:
   randomfill@1.0.4:
     resolution: {integrity: sha512-87lcbR8+MhcWcUiQ+9e+Rwx8MyR2P7qnt15ynUlbm3TU/fjbgz4GsvfSUDTemtCCtVCqb4ZcEFlyPNTh9bBTLw==}
 
-  ranui@0.2.0-alpha.6:
-    resolution: {integrity: sha512-SNWjFUuzrHTksl2iYqLRkbaYXn2RlMBlDAYTqc1tY4+MsLoiEu/exzLK9iETdjwMbRzrPvkAHSn6qoT9Bx+7Iw==}
+  ranui@0.2.0-alpha.7:
+    resolution: {integrity: sha512-68fbU8KrCEHCz3Qvl51KtAzY+nsrlMPWIOOoxzhjv+tYVfCNr0VIs/ml2gM7wRXP4Hnm8Eag0qadWz0zjKQaQg==}
     engines: {node: '>=20.19.0'}
 
   ranuts@0.2.0-alpha.1:
@@ -3841,7 +3849,7 @@ snapshots:
       randombytes: 2.1.0
       safe-buffer: 5.2.1
 
-  ranui@0.2.0-alpha.6:
+  ranui@0.2.0-alpha.7:
     dependencies:
       ranuts: 0.2.0-alpha.1
 
