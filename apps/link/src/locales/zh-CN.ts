@@ -38,4 +38,33 @@ export const zhCN: Record<string, string> = {
   "account.password": "密码",
   "account.needPassword": "请输入密码",
   "account.pickFile": "请选择 keyfile",
+  "account.chooseFile": "选择 keyfile",
+  "account.noFile": "未选择文件",
+  "account.or": "或",
+  "account.backup": "备份此账户",
+  "account.newLocal": "新建本地账户",
+  "account.stored": "解锁已存账户",
+
+  "hero.eyebrow": "永久存储 · Arweave + Irys",
+  "feat.encrypted": "客户端加密",
+  "feat.permanent": "永久保存",
+  "feat.opensource": "开源",
+
+  "theme.system": "跟随系统",
+  "theme.light": "浅色",
+  "theme.dark": "深色",
+
+  "upload.change": "更换",
+  "upload.network": "网络",
+  "upload.another": "再上传一个文件",
+
+  "links.emptyHint": "在上方拖入文件，生成你的第一条永久链接。",
+  "links.private": "私密",
+
+  "toast.connected": "钱包已连接",
+  "toast.created": "本地账户已创建",
+  "toast.imported": "keyfile 已导入",
+  "toast.unlocked": "账户已解锁",
+  "toast.disconnected": "钱包已断开",
+  "toast.copied": "链接已复制到剪贴板",
 }

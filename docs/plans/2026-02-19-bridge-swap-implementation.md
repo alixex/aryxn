@@ -161,12 +161,7 @@ export interface BridgeSwapState {
   step: number // current step (1 of N)
   totalSteps: number
   status:
-    | "idle"
-    | "signing"
-    | "broadcasting"
-    | "confirming"
-    | "complete"
-    | "error"
+    "idle" | "signing" | "broadcasting" | "confirming" | "complete" | "error"
   currentTxHash?: string
   error?: string
 }
@@ -1211,12 +1206,7 @@ interface UseBridgeSwapParams {
 interface UseBridgeSwapResult {
   executing: boolean
   status:
-    | "idle"
-    | "signing"
-    | "broadcasting"
-    | "confirming"
-    | "complete"
-    | "error"
+    "idle" | "signing" | "broadcasting" | "confirming" | "complete" | "error"
   step: number
   totalSteps: number
   currentTxHash?: string

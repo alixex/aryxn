@@ -8,178 +8,139 @@
 
 ---
 
-## Product Overview
+## Overview
 
-**Aryxn** is a user-sovereignty-first Web3 application that combines **multi-chain account management**, **permanent file storage**, and **history/search tooling** into one unified platform.  
-Inspired by Plato's concept of "aryxn" (recollection), it empowers you to control your digital assets and preserve what matters—securely, privately, and forever.
+**Aryxn** is a minimal, open-source web app for **permanent file links**. Upload a file, get a
+link that lasts as long as the network does — stored on **Arweave** or **Irys**, optionally
+**encrypted client-side** so only holders of the link can open it.
+
+Everything runs in your browser. Keys and passwords never leave the device, and the chain stays
+the single source of truth — the app only keeps a small local cache for speed.
 
 **🌐 Live**: https://aryxn.com/
 
 ---
 
-## Core Features
+## Features
 
-### 🔐 Multi-Chain Account Management
+### 🔗 Permanent links
 
-- **Unified account hub**: Manage accounts across **Ethereum**, **Solana**, **Sui**, **Arweave**, **Bitcoin**, and other major blockchains in one secure place
-- **Dual wallet support**: Use internal accounts (encrypted locally with your master password) or connect external wallets like MetaMask and Phantom
-- **Real-time balances**: View token balances and account details across all chains with automatic synchronization
-- **Secure by design**: Private keys and sensitive data are encrypted locally with your master password—never leaving your browser
-- **Easy import**: Import existing accounts via private keys or seed phrases, or create new ones with just a few clicks
+- Upload to **Arweave** (pay with an Arweave account) or **Irys** (pay with an EVM wallet), from one UI
+- Every upload writes the same `App-Name: Aryxn` tag contract, so links stay queryable across versions
+- Real-time upload progress and a shareable permanent URL at the end
 
-### 📁 Permanent File Storage
+### 🔒 Client-side encryption
 
-- **Forever storage**: Upload files to Arweave blockchain for permanent, immutable storage that lasts as long as the network exists
-- **Flexible privacy**: Choose between **public storage** for open access or **private encrypted storage** for sensitive files
-- **End-to-end encryption**: Files are encrypted locally before upload using your master password—only you hold the decryption key
-- **Smart organization**: Organize files with folders, tags, and custom descriptions for easy management
-- **Powerful search**: Quickly find files with full-text search and advanced filtering by name, type, date, or tags
-- **Universal access**: Access your files from any device using decentralized file links—your data follows you everywhere
-- **Upload cost optimization**: Real-time fee estimation and route guidance to reduce upload costs
+- Optional per-file encryption using **XChaCha20-Poly1305** (libsodium `crypto_secretbox`)
+- The decryption key lives in the **URL fragment** (`#…`) — never sent to any server, so only
+  someone with the full link can decrypt
+- A built-in viewer route (`#/view/<chain>/<txId>/<key>`) fetches the ciphertext and decrypts in-browser
 
-### 📊 Unified Dashboard
+### 🔑 Accounts
 
-- **Complete overview**: View your upload activity, file records, and status in one interface
-- **File history**: Track file operations with timestamps, metadata, size, and storage network information
-- **Storage analytics**: Monitor your total uploaded files, storage usage, and upload history
-- **Cross-chain sync**: Automatic synchronization of on-chain data to local SQLite cache for fast access and offline viewing
-- **Advanced filtering**: Search and filter across all transaction types with powerful query capabilities
+- **Local account**: an Arweave keyfile generated or imported in-browser, stored **encrypted**
+  (password-derived key via PBKDF2) in `localStorage` — no extension required
+- **External wallet**: connect **Wander** (formerly ArConnect) to sign Arweave uploads
+- **EVM wallet**: discovered via **EIP-6963** (MetaMask, etc.) to fund Irys uploads
+- Export your keyfile as plain or encrypted JSON for backup / migration
 
-### 🔎 Search & Retrieval
+### 🗂️ History & search
 
-- **Unified search**: Search by file name, metadata, and transaction IDs
-- **Global/mobile search UX**: Dedicated search experiences for desktop and mobile
-- **Direct resource access**: Open/download resources via generated links and gateway fallbacks
+- Your links are cached locally (IndexedDB) and reconciled from both networks' gateways
+- Instant client-side search over your own files
+- Bilingual UI (English / 中文) and system / light / dark themes
 
 ---
 
-## Privacy & Security
+## How it works
 
-### 🔒 Your Data, Your Control
-
-- **Local-first architecture**: All sensitive information (private keys, master password, encrypted data) is stored and encrypted locally in your browser—never sent to any server
-- **Zero-knowledge design**: Aryxn never collects, stores, or has access to your data. We can't see what you store, even if we wanted to
-- **Privacy by default**: Designed to minimize centralized dependencies and reduce trust assumptions—you remain in full control
-- **Browser-native**: The entire application operates entirely in your browser, with no backend servers handling your sensitive data
-
-### 🛡️ Encryption & Protection
-
-- **End-to-end encryption**: Files are encrypted locally using industry-standard encryption before upload—only you can decrypt them
-- **Master password protection**: A single master password protects all your accounts and encrypted files, giving you one key to all your data
-- **Re-authentication**: Extra password confirmation required for sensitive actions like viewing private keys or exporting accounts
-- **Secure by default**: All sensitive operations require explicit user confirmation—no accidental exposure of your data
-
----
-
-## Use Cases
-
-### 🔐 Multi-Chain Account Operations
-
-Manage your blockchain accounts from one interface, switch active identities, and keep keys under local encryption protection.
-
-### 📦 Personal Digital Vault
-
-Build your personal digital archive by securely storing receipts, certificates, photos, and important documents on blockchain. Use encryption for sensitive files, ensuring your private information stays private forever.
-
-### 🎨 Creator Proofs & IP Protection
-
-Publish and timestamp your creative work on blockchain for permanent, verifiable proof of creation. Perfect for artists, writers, musicians, and creators who need immutable proof of ownership and creation date.
-
-### 🧭 Data-First Web3 Workflow
-
-Use one app to manage account identities, upload encrypted/public files, and retrieve historical records quickly with built-in search.
-
-### 🗄️ Long-term Data Backup
-
-Create permanent backups of critical files that will outlast any single company or service. Once uploaded to Arweave, your files are stored forever, protected by decentralized infrastructure and cryptographic guarantees.
+1. **Drop a file** → pick the network (Arweave or Irys) and, optionally, toggle encryption.
+2. **Pay & upload** → the file (encrypted or not) is posted to the chain; progress is shown live.
+3. **Get a permanent link** → copy it, share it. Encrypted links carry the key in the fragment.
+4. **Find it later** → the dashboard lists and searches everything you've uploaded.
 
 ---
 
 ## Getting Started
 
-1. **Visit** https://aryxn.com/
-2. **Create** a master password to encrypt your data (make sure to remember it—it's the only way to access your encrypted data)
-3. **Set up accounts**:
-   - Import existing accounts via private keys or seed phrases
-   - Create new accounts for supported blockchains
-   - Or connect external wallets like MetaMask or Phantom
-4. **Start using core workflows**:
-   - **Manage accounts** across supported chains
-   - **Upload files** in public or encrypted mode
-   - **Search and access** your file records from dashboard/search tools
-5. **Upload files**:
-   - Choose between public or encrypted storage
-   - Files are automatically routed to your Arweave account
-   - System will provide payment path guidance when needed
-6. **Track everything**: Monitor uploads, history, and storage analytics from the unified dashboard
+Requires **Node ≥ 20** and **pnpm ≥ 10**.
+
+```bash
+pnpm install          # install workspace deps
+pnpm dev              # run the app (apps/link) at http://localhost:5173
+pnpm build            # production build → apps/link/dist
+pnpm preview          # preview the production build
+```
+
+Quality gates:
+
+```bash
+pnpm lint             # oxlint across apps + packages
+pnpm type-check       # tsc --noEmit across apps + packages
+pnpm ci               # lint + type-check + build
+```
+
+Deploy (Cloudflare Pages):
+
+```bash
+pnpm deploy:cloudflare
+```
 
 ---
 
-## Technical Stack
+## Tech Stack
 
-- **Frontend**: React + Vite + TypeScript + Tailwind CSS
-- **State Management**: Zustand with local persistence
-- **Multi-Chain SDK**: Custom wallet-core integrating Ethereum, Solana, Sui, Bitcoin, Arweave
-- **Storage**: Arweave for permanent file storage + Local SQLite for fast indexing
-- **Encryption**: AES-256-GCM for local encryption, end-to-end encrypted file uploads
+- **UI**: framework-free SPA built with [**ranui**](https://www.npmjs.com/package/ranui) — a
+  Web-Components + fine-grained reactive builder implementing the **Geist** (Vercel) design system
+- **Language / tooling**: TypeScript, Vite, pnpm workspaces
+- **Storage**: Arweave (permanent) + Irys (permanent, EVM-funded); IndexedDB + localStorage for local cache
+- **Payments**: `ethers` v6 and `@irys/web-upload` for Irys
+- **Crypto**: libsodium XChaCha20-Poly1305 for file encryption; PBKDF2 (WebCrypto) for password-derived storage keys
+
+---
 
 ## Monorepo Architecture
 
 ### apps/
 
-- **vault/**: Primary end-user web application (account management, upload, dashboard, search, settings)
+- **link/** (`@alixex/link`): the web app — upload flow, encryption, accounts, history & search
 
 See also: [apps/README.md](apps/README.md)
 
 ### packages/
 
-- **arweave/**: Arweave interaction utilities and integration logic
-- **chain-constants/**: Shared chain IDs, token metadata, routing constants, and network configuration
-- **changelogs/**: Package-level changelog assets used by release/documentation workflows
-- **cross-chain/**: Cross-chain bridge orchestration and state handling
-- **crypto/**: Shared cryptographic primitives and encoding helpers
-- **exchange-chain/**: Swap/exchange route planning across supported chains
-- **query-chain/**: On-chain/off-chain query abstraction for multi-chain data access
-- **storage/**: Persistent/local storage helpers, including indexed data support
-- **swap-ethereum/**: Ethereum-specific swap execution adapters
-- **swap-multichain/**: Multi-chain swap coordination layer
-- **swap-solana/**: Solana-specific swap execution adapters
-- **wallet-core/**: Core wallet lifecycle, account operations, and signing abstractions
+- **arweave/** (`@alixex/arweave`): Arweave uploads, fee estimation, (de)compression, and GraphQL search + cache
+- **crypto/** (`@alixex/crypto`): symmetric encryption (libsodium) and encoding/PBKDF2 helpers
+- **storage/** (`@alixex/storage`): encrypted `localStorage` cache + IndexedDB key-value helpers
+- **changelogs/**: package-level changelog assets
 
 See also: [packages/README.md](packages/README.md)
+
+> The pnpm workspace also globs `contracts/*`, reserved for on-chain contracts — currently empty.
 
 ### Repository Layout (High-Level)
 
 ```
 aryxn/
-├── apps/                 # User-facing applications
-│   └── vault/
-├── packages/             # Shared domain modules and SDK layers
-│   ├── arweave/
-│   ├── chain-constants/
-│   ├── changelogs/
-│   ├── cross-chain/
-│   ├── crypto/
-│   ├── exchange-chain/
-│   ├── query-chain/
-│   ├── storage/
-│   ├── swap-ethereum/
-│   ├── swap-multichain/
-│   ├── swap-solana/
-│   └── wallet-core/
-├── docs/                 # Product, architecture, and planning docs
-├── scripts/              # Automation and setup scripts
-└── client/               # Client assets/build workspace
+├── apps/
+│   └── link/             # The permanent-links web app (@alixex/link)
+├── packages/
+│   ├── arweave/          # Arweave upload / fee / compression / search
+│   ├── crypto/           # Encryption + encoding helpers
+│   ├── storage/          # Local cache (localStorage + IndexedDB)
+│   └── changelogs/       # Changelog assets
+├── contracts/            # Reserved (empty)
+├── docs/                 # Notes and planning docs
+└── scripts/              # Automation and setup scripts
 ```
 
 ## Open Source
 
-Aryxn is open source and licensed under **AGPL-3.0**.  
+Aryxn is open source and licensed under **AGPL-3.0**.
 See [LICENSE](./LICENSE) for details.
 
-**Contributions Welcome!**  
-Check out our [GitHub repository](https://github.com/ranuts/aryxn) to contribute.
+**Contributions welcome** — see the [GitHub repository](https://github.com/ranuts/aryxn).
 
 ---
 
-**Aryxn — Built for long-term memory.**
+**Aryxn — a link that outlives everything.**

@@ -40,4 +40,33 @@ export const en: Record<string, string> = {
   "account.password": "Password",
   "account.needPassword": "Enter a password",
   "account.pickFile": "Choose a keyfile",
+  "account.chooseFile": "Choose keyfile",
+  "account.noFile": "No file chosen",
+  "account.or": "or",
+  "account.backup": "Back up this account",
+  "account.newLocal": "New local account",
+  "account.stored": "Unlock stored account",
+
+  "hero.eyebrow": "Permanent · Arweave + Irys",
+  "feat.encrypted": "Client-side encryption",
+  "feat.permanent": "Stored forever",
+  "feat.opensource": "Open source",
+
+  "theme.system": "System",
+  "theme.light": "Light",
+  "theme.dark": "Dark",
+
+  "upload.change": "Change",
+  "upload.network": "Network",
+  "upload.another": "Upload another file",
+
+  "links.emptyHint": "Drop a file above to mint your first permanent link.",
+  "links.private": "Private",
+
+  "toast.connected": "Wallet connected",
+  "toast.created": "Local account created",
+  "toast.imported": "Keyfile imported",
+  "toast.unlocked": "Account unlocked",
+  "toast.disconnected": "Wallet disconnected",
+  "toast.copied": "Link copied to clipboard",
 }

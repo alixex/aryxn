@@ -15,22 +15,35 @@ export function renderViewer(
 ): void {
   createRoot(() => {
     const body = Div().build()
-    body.replaceChildren(Div().class("muted").text(t("view.decrypting")).build())
+    body.replaceChildren(
+      Div().class("muted").text(t("view.decrypting")).build(),
+    )
 
     root.replaceChildren(
       Div()
         .class("wrap")
         .children(
-          Div().class("hero").children(View("h1").text(t("view.title"))),
-          body,
+          Div()
+            .class("hero reveal")
+            .children(
+              Div().class("hero-grid"),
+              View("h1").text(t("view.title")),
+            ),
+          Div().class("uploader reveal d1").children(body),
         )
         .build(),
     )
 
     void (async () => {
       try {
-        const { bytes, fileName, contentType } = await decryptAsset(chain, txId, keyB64)
-        const url = URL.createObjectURL(new Blob([bytes as BlobPart], { type: contentType }))
+        const { bytes, fileName, contentType } = await decryptAsset(
+          chain,
+          txId,
+          keyB64,
+        )
+        const url = URL.createObjectURL(
+          new Blob([bytes as BlobPart], { type: contentType }),
+        )
         const download = View("r-button")
           .attr("type", "primary")
           .text(t("view.download"))
@@ -47,7 +60,10 @@ export function renderViewer(
             .children(
               Div().class("link-name").text(fileName),
               contentType.startsWith("image/")
-                ? View("img").attr("src", url).attr("alt", fileName).class("preview")
+                ? View("img")
+                    .attr("src", url)
+                    .attr("alt", fileName)
+                    .class("preview")
                 : null,
               Div().class("space").children(download),
             )
@@ -55,7 +71,10 @@ export function renderViewer(
         )
       } catch (e) {
         body.replaceChildren(
-          Div().class("muted").text(`${t("view.failed")} ${(e as Error).message}`).build(),
+          Div()
+            .class("muted")
+            .text(`${t("view.failed")} ${(e as Error).message}`)
+            .build(),
         )
       }
     })()

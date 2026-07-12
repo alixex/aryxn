@@ -2588,9 +2588,7 @@ describe("Swap Tests", () => {
   it("Should execute BASIC swap", async () => {
     const tx = await program.methods
       .swap(amountIn, minOut, { basic: {} })
-      .accounts({
-        /*...*/
-      })
+      .accounts({/*...*/})
       .rpc()
 
     expect(tx).to.be.ok

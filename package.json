@@ -2,7 +2,7 @@
   "name": "aryxn-workspace",
   "private": true,
   "version": "1.0.0",
-  "description": "A user-sovereignty-first vault for accounts and permanent files with integrated DEX.",
+  "description": "Minimal, open-source permanent file links on Arweave & Irys — upload a file, get a link that lasts forever.",
   "license": "AGPL-3.0-or-later",
   "author": "chaxus",
   "homepage": "https://aryxn.com/",

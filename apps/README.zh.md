@@ -8,22 +8,16 @@
 
 ## 目录说明
 
-- [vault](./vault)：主 Web 应用，覆盖账户管理、上传、仪表板、搜索与设置流程。
+- [link](./link)：Aryxn Web 应用——上传文件，获得一条 Arweave 或 Irys 上的永久链接。
 
 ## 应用职责
 
-### vault
+### link（`@alixex/link`）
 
-- 基于 React + Vite 的终端用户界面
-- 多链账户与钱包操作
-- 上传与加密永久存储流程
-- 搜索、交易历史与仪表板体验
-- 设置、国际化与运行时配置
-
-## 相关文档
-
-- [Vault README (EN)](./vault/README.md)
-- [Vault README (ZH)](./vault/README.zh.md)
+- 无框架 SPA，基于 **ranui**（Geist 设计系统）、TypeScript 与 Vite 构建
+- 面向 **Arweave** 与 **Irys** 的上传流程，支持可选的客户端加密
+- 账户管理：本地加密 Arweave keyfile、外部 **Wander** 钱包，以及用于为 Irys 付费的 **EVM** 钱包（EIP-6963）
+- 对自己链接的本地历史与搜索；双语（en / zh）与 系统 / 浅色 / 深色 主题
 
 ## 约定
 
