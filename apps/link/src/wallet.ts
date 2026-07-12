@@ -39,3 +39,20 @@ export async function getArBalance(address: string): Promise<string> {
   const ar = arweave.ar.winstonToAr(winston)
   return Number(ar).toFixed(4)
 }
+
+/**
+ * The already-authorized EVM address (MetaMask), if any — used to look up Irys
+ * upload history. Passive: uses `eth_accounts`, never prompts a connection.
+ */
+export async function getConnectedEvmAddress(): Promise<string | null> {
+  const eth = (globalThis as unknown as {
+    ethereum?: { request?: (a: { method: string }) => Promise<string[]> }
+  }).ethereum
+  if (!eth?.request) return null
+  try {
+    const accounts = await eth.request({ method: "eth_accounts" })
+    return accounts?.[0] ?? null
+  } catch {
+    return null
+  }
+}

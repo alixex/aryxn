@@ -3,12 +3,14 @@ import {
   connectArweave,
   disconnectArweave,
   getArBalance,
+  getConnectedEvmAddress,
   hasArweaveWallet,
 } from "./wallet"
 import {
   uploadArweave,
   uploadIrys,
   listArweaveByOwner,
+  listIrysByOwner,
   type AssetRecord,
   type Chain,
 } from "./storage"
@@ -258,18 +260,26 @@ function showResult(record: AssetRecord): void {
 
 // ── My links ─────────────────────────────────────────────────────────────
 async function refreshLinks(): Promise<void> {
-  // Local cache first (instant), then merge chain history (backward compatible).
-  let records = await cachedAssets()
+  // Local cache is shown first (instant); then merge chain history from both
+  // networks (backward compatible): Arweave by AR address, Irys by EVM address.
+  renderLinks(await cachedAssets())
+
   if (address) {
     try {
-      const onChain = await listArweaveByOwner(address)
-      await cacheAssets(onChain)
-      records = await cachedAssets()
+      await cacheAssets(await listArweaveByOwner(address))
     } catch {
       /* offline / gateway hiccup — cache still shows */
     }
   }
-  renderLinks(records)
+  const evm = await getConnectedEvmAddress()
+  if (evm) {
+    try {
+      await cacheAssets(await listIrysByOwner(evm))
+    } catch {
+      /* Irys gateway hiccup — cache still shows */
+    }
+  }
+  renderLinks(await cachedAssets())
 }
 
 function renderLinks(records: AssetRecord[]): void {

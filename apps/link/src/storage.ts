@@ -72,8 +72,10 @@ export const IRYS_GRAPHQL = "https://uploader.irys.xyz/graphql"
 export async function uploadIrys(
   file: File,
   opts: UploadOpts = {},
+  evmProvider?: unknown,
 ): Promise<AssetRecord> {
-  const eth = (globalThis as unknown as { ethereum?: unknown }).ethereum
+  const eth =
+    evmProvider ?? (globalThis as unknown as { ethereum?: unknown }).ethereum
   if (!eth) {
     throw new Error("未检测到 EVM 钱包（如 MetaMask）——Irys 需要它来支付上传")
   }
@@ -160,6 +162,51 @@ export async function listArweaveByOwner(
       timestamp: (node.block?.timestamp ?? 0) * 1000,
       chain: "arweave" as const,
       url: gatewayUrl(node.id),
+    }
+  })
+}
+
+interface IrysNode {
+  id: string
+  timestamp: number | null
+  tags: Array<{ name: string; value: string }>
+}
+
+/**
+ * List a wallet's previously uploaded Aryxn assets from Irys (by the paying EVM
+ * address). Same tag contract; Irys `timestamp` is already in milliseconds.
+ */
+export async function listIrysByOwner(
+  address: string,
+  limit = 100,
+): Promise<AssetRecord[]> {
+  const query = {
+    query: `query($owner:[String!]!,$app:[String!]!,$n:Int!){
+      transactions(owners:$owner, tags:[{name:"App-Name", values:$app}], first:$n){
+        edges{ node{ id timestamp tags{ name value } } }
+      }
+    }`,
+    variables: { owner: [address], app: [APP_NAME], n: limit },
+  }
+  const res = await fetch(IRYS_GRAPHQL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(query),
+  })
+  if (!res.ok) throw new Error(`Irys GraphQL ${res.status}`)
+  const json = await res.json()
+  const edges: Array<{ node: IrysNode }> = json?.data?.transactions?.edges ?? []
+  return edges.map(({ node }) => {
+    const tag = (n: string) =>
+      node.tags.find((t) => t.name === n)?.value ?? ""
+    return {
+      txId: node.id,
+      fileName: tag("File-Name") || node.id,
+      contentType: tag("Content-Type") || "application/octet-stream",
+      size: 0,
+      timestamp: node.timestamp ?? 0,
+      chain: "irys" as const,
+      url: `${IRYS_GATEWAY}/${node.id}`,
     }
   })
 }
