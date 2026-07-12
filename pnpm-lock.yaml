@@ -48,8 +48,8 @@ importers:
         specifier: ^6.17.0
         version: 6.17.0(bufferutil@4.1.0)(utf-8-validate@5.0.10)
       ranui:
-        specifier: 0.2.0-alpha.7
-        version: 0.2.0-alpha.7
+        specifier: 0.2.1-alpha.1
+        version: 0.2.1-alpha.1
     devDependencies:
       typescript:
         specifier: ~7.0.2
@@ -1755,8 +1755,8 @@ packages:
   randomfill@1.0.4:
     resolution: {integrity: sha512-87lcbR8+MhcWcUiQ+9e+Rwx8MyR2P7qnt15ynUlbm3TU/fjbgz4GsvfSUDTemtCCtVCqb4ZcEFlyPNTh9bBTLw==}
 
-  ranui@0.2.0-alpha.7:
-    resolution: {integrity: sha512-68fbU8KrCEHCz3Qvl51KtAzY+nsrlMPWIOOoxzhjv+tYVfCNr0VIs/ml2gM7wRXP4Hnm8Eag0qadWz0zjKQaQg==}
+  ranui@0.2.1-alpha.1:
+    resolution: {integrity: sha512-3Tud2tvzKiAUMd8SjQrdTCdwdjoNdJ/yW1kbkHUP21Ff3rk0pFIDgIfR36jxy67yVm6wsfX/FcZ16SUfzicZEA==}
     engines: {node: '>=20.19.0'}
 
   ranuts@0.2.0-alpha.1:
@@ -3849,7 +3849,7 @@ snapshots:
       randombytes: 2.1.0
       safe-buffer: 5.2.1
 
-  ranui@0.2.0-alpha.7:
+  ranui@0.2.1-alpha.1:
     dependencies:
       ranuts: 0.2.0-alpha.1
 
