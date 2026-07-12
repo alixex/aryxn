@@ -57,12 +57,10 @@ describe("migration + unlock", () => {
   })
 
   it("unlock with a wrong password throws and does not unlock", async () => {
-    localStorage.clear()
-    localStorage.setItem("aryxn:vault", JSON.stringify({ id1: legacyBlob({ kty: "RSA", n: "X" }, "RIGHT") }))
-    localStorage.setItem(
-      "aryxn:accounts",
-      JSON.stringify([{ id: "id1", type: "local", network: "arweave", address: "", label: "Local account", createdAt: 1 }]),
-    )
+    // Seed a real vault entry (password "RIGHT") via the public migrate path,
+    // so unlockVault actually has an entry to reject — self-contained, order-independent.
+    localStorage.setItem("aryxn:account", legacyBlob({ kty: "RSA", n: "WRONGTEST" }, "RIGHT"))
+    migrateLegacy()
     await expect(unlockVault("WRONG")).rejects.toThrow()
   })
 })
