@@ -1,7 +1,7 @@
 # Aryxn
 
 <p align="center">
-   <img src="https://aryxn.com/icon.jpg" alt="Aryxn Icon" width="200" />
+   <img src="https://ark.chaxus.com/icon.jpg" alt="Aryxn Icon" width="200" />
 </p>
 
 [English] | [中文](./README.zh.md)
@@ -17,7 +17,7 @@ link that lasts as long as the network does — stored on **Arweave** or **Irys*
 Everything runs in your browser. Keys and passwords never leave the device, and the chain stays
 the single source of truth — the app only keeps a small local cache for speed.
 
-**🌐 Live**: https://aryxn.com/
+**🌐 Live**: https://ark.chaxus.com/
 
 ---
 
@@ -77,7 +77,7 @@ Quality gates:
 ```bash
 pnpm lint             # oxlint across apps + packages
 pnpm type-check       # tsc --noEmit across apps + packages
-pnpm ci               # lint + type-check + build
+pnpm run ci           # lint + type-check + build
 ```
 
 Deploy (Cloudflare Pages):

@@ -308,8 +308,7 @@ function buildAccountBody(): HTMLElement {
             .text(tr("account.export"))
             .on("click", () => {
               const jwk = accounts.exportKeyfile()
-              if (jwk)
-                downloadText(jwk, `ark-${acc.address.slice(0, 8)}.json`)
+              if (jwk) downloadText(jwk, `ark-${acc.address.slice(0, 8)}.json`)
             }),
           Div()
             .class("acct-field")
