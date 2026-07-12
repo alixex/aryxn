@@ -26,7 +26,7 @@ if (root) {
   const view = location.hash.match(/^#\/view\/(arweave|irys)\/([^/]+)\/(.+)$/)
   if (view) {
     const [, chain, txId, key] = view
-    void import("./viewer").then(({ renderViewer }) =>
+    void import("./pages/viewer").then(({ renderViewer }) =>
       renderViewer(root, chain as Chain, txId, key),
     )
   } else {

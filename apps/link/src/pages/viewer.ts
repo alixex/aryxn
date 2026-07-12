@@ -4,8 +4,8 @@
 // client-side, then offers a download (and an inline preview for images).
 
 import { View, Div, createRoot } from "ranui/builder"
-import { t } from "./i18n"
-import { decryptAsset, type Chain } from "./storage"
+import { t } from "../i18n"
+import { decryptAsset, type Chain } from "../storage"
 
 export function renderViewer(
   root: HTMLElement,
@@ -79,4 +79,9 @@ export function renderViewer(
       }
     })()
   })
+}
+
+/** Router entry: the hash router passes { chain, txId, payload }. */
+export function renderViewerPage(host: HTMLElement, params: Record<string, string>): void {
+  renderViewer(host, params.chain as Chain, params.txId, params.payload)
 }
