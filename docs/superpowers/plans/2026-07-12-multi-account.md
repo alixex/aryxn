@@ -24,6 +24,7 @@
 ## File Structure
 
 **New files**
+
 - `apps/link/src/accounts.ts` — account book store: types (`AccountRecord`, `Network`, `ASSET_CHAIN`), ranui signals (`accounts`, `activeId`, `activeAccount`), migration, vault unlock/lock, CRUD, `setActive`, `activeJwk`. Replaces `account.ts`.
 - `apps/link/src/balances.ts` — per-address balance fetch (AR + EVM) into a `balances` signal map; `usageFor(records)` reduction.
 - `apps/link/src/router.ts` — hash router using ranui's createRoot-per-page pattern; renders the matched page into an outlet, disposing the previous page.
@@ -35,6 +36,7 @@
 - `apps/link/vitest.config.ts` — Vitest config.
 
 **Modified files**
+
 - `apps/link/src/storage.ts` — `AssetRecord.owner`; `makeRecord` owner param; upload fns pass owner; list fns stamp owner.
 - `apps/link/src/cache.ts` — `cachedAssets(owner?)` filter.
 - `apps/link/src/main.ts` — bootstrap shell + router.
@@ -43,6 +45,7 @@
 - `apps/link/package.json` — vitest devDeps + `test` script.
 
 **Deleted files**
+
 - `apps/link/src/account.ts` (subsumed by `accounts.ts`).
 - `apps/link/src/app.ts` (split into `shell.ts` + `pages/home.ts`).
 - `apps/link/src/viewer.ts` (moved to `pages/viewer.ts`).
@@ -54,6 +57,7 @@
 ### Task 0: Add Vitest (happy-dom)
 
 **Files:**
+
 - Modify: `apps/link/package.json`
 - Create: `apps/link/vitest.config.ts`
 - Create: `apps/link/src/smoke.test.ts`
@@ -110,6 +114,7 @@ git commit -m "test: add vitest (happy-dom) harness to link app"
 ### Task 1: `AssetRecord.owner`
 
 **Files:**
+
 - Modify: `apps/link/src/storage.ts` (interface `AssetRecord`; `makeRecord`; `uploadArweave`; `uploadIrys`; `listArweaveByOwner`; `listIrysByOwner`)
 
 - [ ] **Step 1: Add `owner` to the interface**
@@ -117,8 +122,8 @@ git commit -m "test: add vitest (happy-dom) harness to link app"
 In `AssetRecord` (storage.ts ~line 19) add:
 
 ```ts
-  /** The address that uploaded this asset — AR address for arweave, EVM address for irys. */
-  owner: string
+/** The address that uploaded this asset — AR address for arweave, EVM address for irys. */
+owner: string
 ```
 
 - [ ] **Step 2: Thread `owner` through `makeRecord`**
@@ -141,7 +146,9 @@ function makeRecord(
     size,
     timestamp: Date.now(),
     chain,
-    url: encKey ? viewerLink(chain, txId, encKey) : `${chainGateway(chain)}/${txId}`,
+    url: encKey
+      ? viewerLink(chain, txId, encKey)
+      : `${chainGateway(chain)}/${txId}`,
     encrypted: !!encKey,
     encKey,
     owner,
@@ -154,15 +161,17 @@ function makeRecord(
 In `uploadArweave`, the final return becomes:
 
 ```ts
-  return makeRecord("arweave", txId, file, finalSize, ownerAddress, encKey)
+return makeRecord("arweave", txId, file, finalSize, ownerAddress, encKey)
 ```
 
 In `uploadIrys`, add an `ownerAddress` derivation before the return. After the uploader is built, read the paying address from the provider and pass it:
 
 ```ts
-  const evmAddress: string = await provider.getSigner().then((s) => s.getAddress())
-  // …existing upload…
-  return makeRecord("irys", receipt.id, file, data.length, evmAddress, encKey)
+const evmAddress: string = await provider
+  .getSigner()
+  .then((s) => s.getAddress())
+// …existing upload…
+return makeRecord("irys", receipt.id, file, data.length, evmAddress, encKey)
 ```
 
 - [ ] **Step 4: Stamp owner in the list functions**
@@ -182,6 +191,7 @@ git commit -m "feat(storage): add owner to AssetRecord and stamp it on upload/re
 ### Task 2: `cachedAssets(owner?)` filter
 
 **Files:**
+
 - Modify: `apps/link/src/cache.ts`
 - Test: `apps/link/src/cache.test.ts`
 
@@ -200,9 +210,19 @@ vi.mock("@alixex/storage", () => ({
 import { cachedAssets, cacheAsset } from "./cache"
 import type { AssetRecord } from "./storage"
 
-const rec = (txId: string, owner: string, chain: "arweave" | "irys" = "arweave"): AssetRecord => ({
-  txId, fileName: txId, contentType: "text/plain", size: 1, timestamp: 1, chain,
-  url: "u", owner,
+const rec = (
+  txId: string,
+  owner: string,
+  chain: "arweave" | "irys" = "arweave",
+): AssetRecord => ({
+  txId,
+  fileName: txId,
+  contentType: "text/plain",
+  size: 1,
+  timestamp: 1,
+  chain,
+  url: "u",
+  owner,
 })
 
 describe("cachedAssets(owner)", () => {
@@ -263,14 +283,22 @@ git commit -m "feat(cache): filter cached assets by owner"
 ### Task 3: Store scaffolding — types, storage keys, signals, persistence
 
 **Files:**
+
 - Create: `apps/link/src/accounts.ts`
 
 - [ ] **Step 1: Create the module with types, keys, signals, and private helpers**
 
 ```ts
 import { signal, computed } from "ranui/builder"
-import { arweave, generateArweaveWallet, type ArweaveJWK } from "@alixex/arweave"
-import { encryptStringForStorage, decryptStringFromStorage } from "@alixex/crypto"
+import {
+  arweave,
+  generateArweaveWallet,
+  type ArweaveJWK,
+} from "@alixex/arweave"
+import {
+  encryptStringForStorage,
+  decryptStringFromStorage,
+} from "@alixex/crypto"
 import { connectArweave } from "./wallet"
 
 export type Network = "arweave" | "evm"
@@ -319,8 +347,12 @@ function newId(): string {
 }
 
 // ── Reactive state ─────────────────────────────────────────────────────────
-const [accounts, setAccounts] = signal<AccountRecord[]>(readJSON(ACCOUNTS_KEY, []))
-const [activeId, setActiveId] = signal<string | null>(localStorage.getItem(ACTIVE_KEY))
+const [accounts, setAccounts] = signal<AccountRecord[]>(
+  readJSON(ACCOUNTS_KEY, []),
+)
+const [activeId, setActiveId] = signal<string | null>(
+  localStorage.getItem(ACTIVE_KEY),
+)
 export { accounts, activeId }
 export const activeAccount = computed<AccountRecord | null>(
   () => accounts().find((a) => a.id === activeId()) ?? null,
@@ -368,6 +400,7 @@ git commit -m "feat(accounts): store scaffolding — types, keys, signals"
 ### Task 4: Legacy migration + vault unlock (verify anchor, backfill each, skip corrupt)
 
 **Files:**
+
 - Modify: `apps/link/src/accounts.ts`
 - Test: `apps/link/src/accounts.test.ts`
 
@@ -379,17 +412,28 @@ import { describe, it, expect, beforeEach, vi } from "vitest"
 // Deterministic, fast doubles for the crypto + arweave deps.
 vi.mock("@alixex/crypto", () => ({
   // "encrypt" = wrap; "decrypt" = unwrap iff pw matches, else throw.
-  encryptStringForStorage: vi.fn(async (plain: string, pw: string) => ({ pw, plain })),
-  decryptStringFromStorage: vi.fn(async (enc: { pw: string; plain: string }, pw: string) => {
-    if (enc.pw !== pw) throw new Error("bad pw")
-    return enc.plain
-  }),
+  encryptStringForStorage: vi.fn(async (plain: string, pw: string) => ({
+    pw,
+    plain,
+  })),
+  decryptStringFromStorage: vi.fn(
+    async (enc: { pw: string; plain: string }, pw: string) => {
+      if (enc.pw !== pw) throw new Error("bad pw")
+      return enc.plain
+    },
+  ),
 }))
 vi.mock("@alixex/arweave", () => ({
-  arweave: { wallets: { jwkToAddress: vi.fn(async (jwk: { n: string }) => `addr_${jwk.n}`) } },
+  arweave: {
+    wallets: {
+      jwkToAddress: vi.fn(async (jwk: { n: string }) => `addr_${jwk.n}`),
+    },
+  },
   generateArweaveWallet: vi.fn(async () => ({ key: { kty: "RSA", n: "NEW" } })),
 }))
-vi.mock("./wallet", () => ({ connectArweave: vi.fn(async () => "WANDER_ADDR") }))
+vi.mock("./wallet", () => ({
+  connectArweave: vi.fn(async () => "WANDER_ADDR"),
+}))
 
 import {
   migrateLegacy,
@@ -412,7 +456,10 @@ describe("migration + unlock", () => {
   })
 
   it("migrates the legacy single account into the book, locked (empty address)", () => {
-    localStorage.setItem("aryxn:account", legacyBlob({ kty: "RSA", n: "OLD" }, "P"))
+    localStorage.setItem(
+      "aryxn:account",
+      legacyBlob({ kty: "RSA", n: "OLD" }, "P"),
+    )
     migrateLegacy()
     expect(localStorage.getItem("aryxn:account")).toBeNull()
     const list = accounts()
@@ -434,10 +481,22 @@ describe("migration + unlock", () => {
 
   it("unlock with a wrong password throws and does not unlock", async () => {
     localStorage.clear()
-    localStorage.setItem("aryxn:vault", JSON.stringify({ id1: legacyBlob({ kty: "RSA", n: "X" }, "RIGHT") }))
+    localStorage.setItem(
+      "aryxn:vault",
+      JSON.stringify({ id1: legacyBlob({ kty: "RSA", n: "X" }, "RIGHT") }),
+    )
     localStorage.setItem(
       "aryxn:accounts",
-      JSON.stringify([{ id: "id1", type: "local", network: "arweave", address: "", label: "Local account", createdAt: 1 }]),
+      JSON.stringify([
+        {
+          id: "id1",
+          type: "local",
+          network: "arweave",
+          address: "",
+          label: "Local account",
+          createdAt: 1,
+        },
+      ]),
     )
     await expect(unlockVault("WRONG")).rejects.toThrow()
   })
@@ -480,7 +539,11 @@ async function backfillAddress(id: string, jwk: ArweaveJWK): Promise<void> {
   persistAccounts(
     accounts().map((a) =>
       a.id === id
-        ? { ...a, address, label: a.label === PLACEHOLDER_LABEL ? shorten(address) : a.label }
+        ? {
+            ...a,
+            address,
+            label: a.label === PLACEHOLDER_LABEL ? shorten(address) : a.label,
+          }
         : a,
     ),
   )
@@ -493,7 +556,9 @@ export async function unlockVault(pw: string): Promise<void> {
   let ok = 0
   for (const [id, blob] of entries) {
     try {
-      const jwk = JSON.parse(await decryptStringFromStorage(JSON.parse(blob), pw)) as ArweaveJWK
+      const jwk = JSON.parse(
+        await decryptStringFromStorage(JSON.parse(blob), pw),
+      ) as ArweaveJWK
       jwkCache.set(id, jwk)
       await backfillAddress(id, jwk)
       ok++
@@ -521,13 +586,21 @@ git commit -m "feat(accounts): legacy migration + master-password unlock with ad
 ### Task 5: CRUD + setActive
 
 **Files:**
+
 - Modify: `apps/link/src/accounts.ts`
 - Test: `apps/link/src/accounts.test.ts` (append)
 
 - [ ] **Step 1: Append failing tests**
 
 ```ts
-import { addLocal, importLocal, connectEvm, removeAccount, setActive, activeId } from "./accounts"
+import {
+  addLocal,
+  importLocal,
+  connectEvm,
+  removeAccount,
+  setActive,
+  activeId,
+} from "./accounts"
 
 describe("crud", () => {
   beforeEach(() => {
@@ -567,10 +640,15 @@ Expected: FAIL — CRUD functions not exported.
 - [ ] **Step 3: Implement CRUD + setActive**
 
 ```ts
-async function persistLocal(jwk: ArweaveJWK, pw: string): Promise<AccountRecord> {
+async function persistLocal(
+  jwk: ArweaveJWK,
+  pw: string,
+): Promise<AccountRecord> {
   const address = await arweave.wallets.jwkToAddress(jwk)
   const id = newId()
-  const blob = JSON.stringify(await encryptStringForStorage(JSON.stringify(jwk), pw))
+  const blob = JSON.stringify(
+    await encryptStringForStorage(JSON.stringify(jwk), pw),
+  )
   const vault = readVault()
   vault[id] = blob
   writeVault(vault)
@@ -595,7 +673,10 @@ export async function addLocal(password?: string): Promise<AccountRecord> {
 }
 
 /** Import an Arweave keyfile. `password` required only when establishing the master. */
-export async function importLocal(jwkJson: string, password?: string): Promise<AccountRecord> {
+export async function importLocal(
+  jwkJson: string,
+  password?: string,
+): Promise<AccountRecord> {
   const pw = resolveMaster(password)
   let jwk: ArweaveJWK
   try {
@@ -603,7 +684,8 @@ export async function importLocal(jwkJson: string, password?: string): Promise<A
   } catch {
     throw new Error("Invalid keyfile: not valid JSON")
   }
-  if (!jwk || jwk.kty !== "RSA" || !jwk.n) throw new Error("Invalid keyfile: not an Arweave JWK")
+  if (!jwk || jwk.kty !== "RSA" || !jwk.n)
+    throw new Error("Invalid keyfile: not an Arweave JWK")
   return persistLocal(jwk, pw)
 }
 
@@ -619,7 +701,9 @@ function resolveMaster(password?: string): string {
 
 export async function connectWander(): Promise<AccountRecord> {
   const address = await connectArweave()
-  const existing = accounts().find((a) => a.type === "wander" && a.address === address)
+  const existing = accounts().find(
+    (a) => a.type === "wander" && a.address === address,
+  )
   if (existing) return existing
   const rec: AccountRecord = {
     id: newId(),
@@ -635,7 +719,8 @@ export async function connectWander(): Promise<AccountRecord> {
 
 export function connectEvm(address: string): AccountRecord {
   const existing = accounts().find(
-    (a) => a.type === "evm" && a.address.toLowerCase() === address.toLowerCase(),
+    (a) =>
+      a.type === "evm" && a.address.toLowerCase() === address.toLowerCase(),
   )
   if (existing) return existing
   const rec: AccountRecord = {
@@ -671,7 +756,9 @@ export async function setActive(id: string): Promise<void> {
     // master set but not cached (rare) — try to decrypt this one entry
     const blob = readVault()[id]
     if (blob) {
-      const jwk = JSON.parse(await decryptStringFromStorage(JSON.parse(blob), masterPw)) as ArweaveJWK
+      const jwk = JSON.parse(
+        await decryptStringFromStorage(JSON.parse(blob), masterPw),
+      ) as ArweaveJWK
       jwkCache.set(id, jwk)
       if (!rec.address) await backfillAddress(id, jwk)
     }
@@ -702,6 +789,7 @@ git commit -m "feat(accounts): CRUD (add/import/connect/remove) + setActive"
 ### Task 6: `balances.ts`
 
 **Files:**
+
 - Create: `apps/link/src/balances.ts`
 - Test: `apps/link/src/balances.test.ts`
 
@@ -713,13 +801,22 @@ import { usageFor } from "./balances"
 import type { AssetRecord } from "./storage"
 
 const rec = (size: number): AssetRecord => ({
-  txId: String(size), fileName: "f", contentType: "t", size, timestamp: 1,
-  chain: "arweave", url: "u", owner: "O",
+  txId: String(size),
+  fileName: "f",
+  contentType: "t",
+  size,
+  timestamp: 1,
+  chain: "arweave",
+  url: "u",
+  owner: "O",
 })
 
 describe("usageFor", () => {
   it("counts files and sums bytes", () => {
-    expect(usageFor([rec(100), rec(400)])).toEqual({ count: 2, totalBytes: 500 })
+    expect(usageFor([rec(100), rec(400)])).toEqual({
+      count: 2,
+      totalBytes: 500,
+    })
   })
   it("handles empty", () => {
     expect(usageFor([])).toEqual({ count: 0, totalBytes: 0 })
@@ -748,7 +845,10 @@ export interface Usage {
 /** Pure reduction over an account's owner-filtered records. */
 export function usageFor(records: AssetRecord[]): Usage {
   return records.reduce<Usage>(
-    (u, r) => ({ count: u.count + 1, totalBytes: u.totalBytes + (r.size || 0) }),
+    (u, r) => ({
+      count: u.count + 1,
+      totalBytes: u.totalBytes + (r.size || 0),
+    }),
     { count: 0, totalBytes: 0 },
   )
 }
@@ -765,11 +865,21 @@ export async function refreshBalance(acc: AccountRecord): Promise<void> {
       const ar = await getArBalance(acc.address)
       setBalances({ ...balances(), [acc.address]: `${ar} AR` })
     } else {
-      const eth = (globalThis as unknown as {
-        ethereum?: { request?: (a: { method: string; params: unknown[] }) => Promise<string> }
-      }).ethereum
+      const eth = (
+        globalThis as unknown as {
+          ethereum?: {
+            request?: (a: {
+              method: string
+              params: unknown[]
+            }) => Promise<string>
+          }
+        }
+      ).ethereum
       if (!eth?.request) return
-      const hex = await eth.request({ method: "eth_getBalance", params: [acc.address, "latest"] })
+      const hex = await eth.request({
+        method: "eth_getBalance",
+        params: [acc.address, "latest"],
+      })
       const wei = BigInt(hex)
       const eth4 = (Number(wei) / 1e18).toFixed(4)
       setBalances({ ...balances(), [acc.address]: `${eth4} ETH` })
@@ -801,6 +911,7 @@ git commit -m "feat(balances): per-account native balance + usage reduction"
 ### Task 7: Hash router
 
 **Files:**
+
 - Create: `apps/link/src/router.ts`
 
 - [ ] **Step 1: Implement the router (ranui createRoot-per-page pattern)**
@@ -808,7 +919,10 @@ git commit -m "feat(balances): per-account native balance + usage reduction"
 ```ts
 import { createRoot } from "ranui/builder"
 
-export type PageRender = (host: HTMLElement, params: Record<string, string>) => void
+export type PageRender = (
+  host: HTMLElement,
+  params: Record<string, string>,
+) => void
 
 interface Route {
   match: (hash: string) => Record<string, string> | null
@@ -817,7 +931,11 @@ interface Route {
 
 /** Mount a hash router into `outlet`. Each page renders inside its own createRoot,
  *  disposed on navigation (ranui SPA pattern, BUILDER.md §3). */
-export function mountRouter(outlet: HTMLElement, routes: Route[], fallback: PageRender): () => void {
+export function mountRouter(
+  outlet: HTMLElement,
+  routes: Route[],
+  fallback: PageRender,
+): () => void {
   let dispose: (() => void) | null = null
 
   const run = (): void => {
@@ -848,7 +966,9 @@ export function mountRouter(outlet: HTMLElement, routes: Route[], fallback: Page
 }
 
 /** Exact-path matcher, e.g. matchPath("#/accounts"). */
-export function matchPath(path: string): (hash: string) => Record<string, string> | null {
+export function matchPath(
+  path: string,
+): (hash: string) => Record<string, string> | null {
   return (hash) => (hash.replace(/\?.*$/, "") === path ? {} : null)
 }
 
@@ -876,6 +996,7 @@ git commit -m "feat(router): hash router with per-page createRoot lifecycle"
 ### Task 8: Move viewer to `pages/viewer.ts`
 
 **Files:**
+
 - Create: `apps/link/src/pages/viewer.ts` (moved)
 - Delete: `apps/link/src/viewer.ts`
 
@@ -884,7 +1005,10 @@ git commit -m "feat(router): hash router with per-page createRoot lifecycle"
 `git mv apps/link/src/viewer.ts apps/link/src/pages/viewer.ts`. Update its imports (`./i18n` → `../i18n`, `./storage` → `../storage`). Export a `PageRender`-compatible entry:
 
 ```ts
-export function renderViewerPage(host: HTMLElement, params: Record<string, string>): void {
+export function renderViewerPage(
+  host: HTMLElement,
+  params: Record<string, string>,
+): void {
   renderViewer(host, params.chain as Chain, params.txId, params.key)
 }
 ```
@@ -905,12 +1029,14 @@ git commit -m "refactor: move viewer to pages/viewer.ts"
 ### Task 9: Move home page to `pages/home.ts`
 
 **Files:**
+
 - Create: `apps/link/src/pages/home.ts` (from `app.ts`)
 - Delete: `apps/link/src/app.ts`, `apps/link/src/account.ts`
 
 - [ ] **Step 1: Create `pages/home.ts` from `app.ts`**
 
 `git mv apps/link/src/app.ts apps/link/src/pages/home.ts`. Then edit:
+
 - Fix relative imports (`./i18n` → `../i18n`, `./wallet` → `../wallet`, `./storage` → `../storage`, `./cache` → `../cache`, `./wallet-evm` → `../wallet-evm`).
 - Replace `import * as accounts from "./account"` / `import type { Account } from "./account"` with the new store: `import { activeAccount, activeJwk, accounts as accountBook } from "../accounts"`.
 - Delete the nav-building code (`themeSwitch`, `langBtn`, `connectBtn`, `nav`, `accountModal`, `openAccountModal`, `buildAccountBody`, `connectLabel`, `loadBalance`, `applyAccount`, `setModalOpen`, `runAccount`, `pwdField`, `downloadText`, `acctGroup`) — the shell (Task 10) and accounts page (Task 12) own account UI now.
@@ -925,10 +1051,18 @@ async function refreshLinks(): Promise<void> {
   // Show owner-scoped cache immediately; legacy owner-less records of the matching chain still show.
   setLinks(visibleAssets(await cachedAssets(), acc))
   if (acc?.network === "arweave" && owner) {
-    try { await cacheAssets(await listArweaveByOwner(owner)) } catch { /* offline */ }
+    try {
+      await cacheAssets(await listArweaveByOwner(owner))
+    } catch {
+      /* offline */
+    }
   }
   if (acc?.network === "evm" && owner) {
-    try { await cacheAssets(await listIrysByOwner(owner)) } catch { /* offline */ }
+    try {
+      await cacheAssets(await listIrysByOwner(owner))
+    } catch {
+      /* offline */
+    }
   }
   setLinks(visibleAssets(await cachedAssets(), acc))
 }
@@ -939,10 +1073,15 @@ Add the visibility helper (implements §6 self-heal with the `ASSET_CHAIN` map):
 ```ts
 import { ASSET_CHAIN, type AccountRecord } from "../accounts"
 
-function visibleAssets(all: AssetRecord[], acc: AccountRecord | null): AssetRecord[] {
+function visibleAssets(
+  all: AssetRecord[],
+  acc: AccountRecord | null,
+): AssetRecord[] {
   if (!acc || !acc.address) return []
   const chain = ASSET_CHAIN[acc.network]
-  return all.filter((r) => r.owner === acc.address || (!r.owner && r.chain === chain))
+  return all.filter(
+    (r) => r.owner === acc.address || (!r.owner && r.chain === chain),
+  )
 }
 ```
 
@@ -977,6 +1116,7 @@ git commit -m "refactor: move home into pages/home.ts; scope links per active ac
 ### Task 10: Shell + nav account switcher
 
 **Files:**
+
 - Create: `apps/link/src/shell.ts`
 - Modify: `apps/link/src/main.ts`
 
@@ -999,18 +1139,30 @@ export function mountShell(root: HTMLElement): void {
   createRoot(() => {
     const outlet = Div().build()
 
-    const nav = View("header").class("nav").children(
-      Div().class("nav-inner").children(
-        Div().class("brand").text("aryxn").on("click", () => navigate("#/")),
-        Div().class("nav-actions").children(
-          buildThemeSwitch(),
-          buildLangButton(),
-          buildAccountSwitcher(),
-        ),
-      ),
-    ).build()
+    const nav = View("header")
+      .class("nav")
+      .children(
+        Div()
+          .class("nav-inner")
+          .children(
+            Div()
+              .class("brand")
+              .text("aryxn")
+              .on("click", () => navigate("#/")),
+            Div()
+              .class("nav-actions")
+              .children(
+                buildThemeSwitch(),
+                buildLangButton(),
+                buildAccountSwitcher(),
+              ),
+          ),
+      )
+      .build()
 
-    const onScroll = (): void => { nav.classList.toggle("scrolled", window.scrollY > 4) }
+    const onScroll = (): void => {
+      nav.classList.toggle("scrolled", window.scrollY > 4)
+    }
     window.addEventListener("scroll", onScroll, { passive: true })
     onScroll()
 
@@ -1046,7 +1198,10 @@ function buildThemeSwitch(): HTMLElement {
 function buildLangButton(): HTMLElement {
   return View("r-button")
     .attr("type", "text")
-    .text(() => { activeAccount(); return t("lang.toggle") })
+    .text(() => {
+      activeAccount()
+      return t("lang.toggle")
+    })
     .on("click", () => {
       i18n.setLocale(i18n.getLocale() === "en" ? "zh-CN" : "en")
       location.reload() // simplest reliable re-render of all pages on locale switch
@@ -1056,13 +1211,16 @@ function buildLangButton(): HTMLElement {
 
 function buildAccountSwitcher(): HTMLElement {
   // Trigger button: active label + balance (or "Connect" / "Locked").
-  const trigger = View("r-button").attr("type", "contrast").text(() => {
-    const a = activeAccount()
-    if (!a) return t("connect")
-    if (!a.address) return `${a.label} · ${t("account.locked")}`
-    const bal = balances()[a.address]
-    return bal ? `${a.label} · ${bal}` : a.label
-  }).build()
+  const trigger = View("r-button")
+    .attr("type", "contrast")
+    .text(() => {
+      const a = activeAccount()
+      if (!a) return t("connect")
+      if (!a.address) return `${a.label} · ${t("account.locked")}`
+      const bal = balances()[a.address]
+      return bal ? `${a.label} · ${bal}` : a.label
+    })
+    .build()
 
   const list = Div().build()
   createEffectListRebuild(list) // rebuilds the dropdown body when accounts/balances change
@@ -1116,6 +1274,7 @@ git commit -m "feat(shell): persistent nav + account switcher + router mount"
 ### Task 11: Accounts page
 
 **Files:**
+
 - Create: `apps/link/src/pages/accounts.ts`
 - Modify: `apps/link/src/index.html` (styles)
 - Modify: `apps/link/src/locales/en.ts`, `apps/link/src/locales/zh-CN.ts`
@@ -1175,6 +1334,7 @@ git commit -m "feat(accounts-page): management page with switch, balance, usage,
 ### Task 12: Upload signer resolution from the active account
 
 **Files:**
+
 - Modify: `apps/link/src/pages/home.ts`
 
 - [ ] **Step 1: Update `doUpload` signer resolution**
@@ -1208,6 +1368,7 @@ Expected: all green.
 - [ ] **Step 2: Migration smoke test (manual, headless)**
 
 Seed a legacy account and confirm it migrates + unlocks with the old password:
+
 - In a preview session, `localStorage.setItem("aryxn:account", <an old-format blob>)`, reload, open `#/accounts`, confirm one locked account appears, unlock with its password, confirm the address + balance resolve and its links show. (Use the seed-page technique from earlier for headless, or verify manually in a normal browser.)
 
 - [ ] **Step 3: Light + dark, narrow + wide**
@@ -1226,6 +1387,7 @@ git commit -m "chore: multi-account verification tweaks"
 ## Self-Review
 
 **Spec coverage:**
+
 - §2 model → Task 3 (types, `ASSET_CHAIN`). §3 storage → Task 3 (keys, persistence). §4 password/migration → Task 4 (migrate + unlock + backfill), Task 5 (`resolveMaster`). §5 store API → Tasks 3–5. §6 owner scoping → Task 1 (owner), Task 2 (filter), Task 9 (`visibleAssets` self-heal). §7 balance/usage → Task 6. §8 routing/shell/accounts page → Tasks 7–11. §9 upload signer → Task 12. §10 edge cases → covered across Tasks 4/5/9/11 (unlock error, remove re-derive, add-while-locked via `resolveMaster` throw, locked switcher label in Task 10). §11 testing → Tasks 2/4/5/6 unit + Task 13 manual. §12 back-compat → Task 4 migration.
 
 **Placeholder scan:** UI tasks (10/11/12) describe structure + key snippets rather than every line, because they follow existing `index.html`/`home.ts` patterns already in the repo and are design-driven; each has concrete acceptance (`type-check`/`build`/screenshot) and exact file paths. No `TODO`/`TBD` markers.

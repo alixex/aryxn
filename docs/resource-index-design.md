@@ -64,12 +64,17 @@ GraphQL schema，查询同款，但**两条路径并不对称**：
 **当前策略的 4 个真实缺口：**
 
 1. ~~**first:100 封顶、无分页**~~ → **✅ 已由 P1 修复**（游标分页拉全 + 水位增量）。
-2. **Irys size=0**（已定性，非可查缺陷）→ 官方 SDK schema 确认 Irys transaction node
-   **无 size 字段**（可查字段只有 id/receipt/tags/address/token/signature/timestamp），
-   与 Arweave 的 `data{size}` 不同。跨设备对账回来的 Irys 文件只能显示「0 B」，除非对
-   每个文件发 HEAD 请求读 `Content-Length`；上传当次本地缓存已有真值。
-3. **双地址割裂** → AR 文件按 AR 地址查、Irys 按 EVM 地址查；只连一个身份就看不到
-   另一条链的文件。「我的链接」要完整需两个身份都连上。
+2. ~~**Irys size=0**~~ → **✅ 已缓解**。官方 SDK schema 确认 Irys transaction node
+   **无 size 字段**（只有 id/receipt/tags/address/token/signature/timestamp），与
+   Arweave 的 `data{size}` 不同，靠 GraphQL 修不了。现在 `syncIrysAssets` 对每个新同步
+   的 Irys 文件发 **HEAD 读 `Content-Length`** 补大小（`fetchIrysSize`，稳态被水位限流；
+   冷启动会有一批 HEAD 突发，但无 body、廉价）。best-effort，失败则回落 0。
+3. ~~**双地址割裂**~~ → **✅ 由「一地址一账户」模型解决**。AR 文件按 AR 地址、Irys 按
+   EVM 地址——本 app 里一个地址天然只属于一条链（AR 43 位 base64 / EVM `0x…`），所以
+   **一地址 = 一账户 = 一条链的资源**，无跨账户归属歧义。多账户切换 = 换地址 → 该地址
+   首拉一次、之后走 `cachedAssets(owner)`（owner 隔离缓存，串不到别的账户名下）+ 每地址
+   独立水位（`sync:<chain>:<address>`）。小优化：`refreshLinks` 可按当前账户地址类型只查
+   对应链（地址格式即可判链），省一次无用查询；即便不分派，owner 过滤也保证显示不错。
 4. **搜索是本地-only** → 是优点（秒回、离线、零网关依赖）也是局限（只能搜已进缓存
    的、只按 fileName）。跨设备搜全量得先把列表同步全（回到缺口 1）。
 
@@ -210,14 +215,15 @@ GraphQL 多取两个字段：`pageInfo{ hasNextPage }` 与 `edges{ cursor node{.
 **注意点（落地状态）：**
 
 1. ✅ **水位按（链 + 地址）分别存**：`sync:arweave:<arAddr>`、`sync:irys:<evmAddr>`。
-2. ✅ **Irys 已补显式排序**：`listIrysByOwner` 加了 `order:DESC`（水位依赖最新在前）。
+2. ✅ **水位守卫**：`syncChain` 会校验水位指向的 tx **是否还在缓存**，若已被浏览器淘汰
+   则忽略水位、全量重扫，防止「缓存被清但水位残留 → 文件从列表消失」（测试
+   `sync.test.ts`）。
+3. ✅ **Irys 已补显式排序**：`listIrysByOwner` 加了 `order:DESC`（水位依赖最新在前）。
    字段已按**官方 SDK 源码**（`Irys-xyz/query` `src/queries/irys/transactions.ts`）核对
    正确：`order`（枚举）/`first`/`after`/`owners`/`pageInfo{hasNextPage}`/`edges{cursor}`
    全对。仅建议真机 smoke 一次确认运行时，非"可能写错"。
-
-**缺口 2（Irys `size=0`）已定性、不可靠 GraphQL 修**：官方 schema 里 Irys transaction
-node **无 size 字段**（有 id/receipt/tags/address/token/signature/timestamp）。要跨设备
-显示大小只能对每个文件发 HEAD 读 `Content-Length`，或沿用上传当次的本地缓存值（现状）。
+4. ✅ **Irys size 补齐**：`syncIrysAssets` 用 `fetchIrysSize`（HEAD `Content-Length`）
+   给新同步的 Irys 文件补大小（Irys schema 无 size 字段，只能这么补）。best-effort。
 
 ### P2（条件项，非待办）加密可变索引
 

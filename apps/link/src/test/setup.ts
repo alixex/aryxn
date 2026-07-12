@@ -10,7 +10,9 @@ import { Window } from "happy-dom"
 
 const isUsable = (key: "localStorage" | "sessionStorage") => {
   try {
-    const store = (globalThis as unknown as Record<string, Storage | undefined>)[key]
+    const store = (
+      globalThis as unknown as Record<string, Storage | undefined>
+    )[key]
     return typeof store?.setItem === "function"
   } catch {
     return false

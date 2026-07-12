@@ -1,13 +1,44 @@
 import { describe, it, expect, vi, afterEach } from "vitest"
-import { encryptFile, decryptAsset, listArweaveByOwner } from "./storage"
+import {
+  encryptFile,
+  decryptAsset,
+  listArweaveByOwner,
+  fetchIrysSize,
+} from "./storage"
 
 afterEach(() => vi.unstubAllGlobals())
 
+describe("fetchIrysSize (P1 gap #2: HEAD Content-Length)", () => {
+  it("returns the Content-Length as a number", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        headers: {
+          get: (h: string) => (h === "content-length" ? "4096" : null),
+        },
+      })),
+    )
+    expect(await fetchIrysSize("TX")).toBe(4096)
+  })
+
+  it("returns 0 when the header is absent", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({ headers: { get: () => null } })),
+    )
+    expect(await fetchIrysSize("TX")).toBe(0)
+  })
+})
+
 describe("encrypt envelope (P0: no on-chain filename leak)", () => {
   it("carries name/type inside the ciphertext and recovers them on decrypt", async () => {
-    const file = new File([new TextEncoder().encode("hello world")], "secret.pdf", {
-      type: "application/pdf",
-    })
+    const file = new File(
+      [new TextEncoder().encode("hello world")],
+      "secret.pdf",
+      {
+        type: "application/pdf",
+      },
+    )
     const { data, keyB64 } = await encryptFile(file)
 
     // The blob is opaque bytes — the plaintext name must not appear in it.
@@ -30,10 +61,7 @@ describe("listArweaveByOwner (P1: pagination + watermark)", () => {
     cursor: `cur-${id}`,
     node: { id, tags: [], data: { size: "1" }, block: { timestamp: 1 } },
   })
-  const page = (
-    edges: ReturnType<typeof edge>[],
-    hasNextPage: boolean,
-  ) => ({
+  const page = (edges: ReturnType<typeof edge>[], hasNextPage: boolean) => ({
     ok: true,
     json: async () => ({
       data: { transactions: { pageInfo: { hasNextPage }, edges } },

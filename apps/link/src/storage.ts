@@ -67,7 +67,10 @@ export async function encryptFile(
 ): Promise<{ data: Uint8Array; keyB64: string }> {
   const raw = new Uint8Array(await file.arrayBuffer())
   const meta = new TextEncoder().encode(
-    JSON.stringify({ n: file.name, t: file.type || "application/octet-stream" }),
+    JSON.stringify({
+      n: file.name,
+      t: file.type || "application/octet-stream",
+    }),
   )
   const plain = new Uint8Array(4 + meta.length + raw.length)
   new DataView(plain.buffer).setUint32(0, meta.length) // big-endian meta length
@@ -299,6 +302,21 @@ interface IrysNode {
   id: string
   timestamp: number | null
   tags: Array<{ name: string; value: string }>
+}
+
+/**
+ * Recover an Irys data item's byte size via a HEAD `Content-Length`. Irys
+ * GraphQL has no size field (unlike Arweave's `data{size}`), so reconciled Irys
+ * records come back as 0 until this fills them. Best-effort — returns 0 on error.
+ */
+export async function fetchIrysSize(txId: string): Promise<number> {
+  try {
+    const res = await fetch(`${IRYS_GATEWAY}/${txId}`, { method: "HEAD" })
+    const len = res.headers.get("content-length")
+    return len ? Number(len) : 0
+  } catch {
+    return 0
+  }
 }
 
 /**

@@ -1,10 +1,15 @@
 // Local "my links" cache — IndexedDB (via @alixex/storage). The chain is the
 // source of truth; this is just for instant, offline-friendly display.
 
-import { idbSet, idbValues } from "@alixex/storage"
+import { idbGet, idbSet, idbValues } from "@alixex/storage"
 import type { AssetRecord } from "./storage"
 
 const KEY = (txId: string) => `link:${txId}`
+
+/** Whether a tx is present in the local cache — used to validate a sync watermark. */
+export async function isCached(txId: string): Promise<boolean> {
+  return (await idbGet<AssetRecord>(KEY(txId))) != null
+}
 
 export async function cacheAsset(record: AssetRecord): Promise<void> {
   await idbSet(KEY(record.txId), record)
