@@ -3,17 +3,28 @@ import { describe, it, expect, beforeEach, vi } from "vitest"
 // Deterministic, fast doubles for the crypto + arweave deps.
 vi.mock("@alixex/crypto", () => ({
   // "encrypt" = wrap; "decrypt" = unwrap iff pw matches, else throw.
-  encryptStringForStorage: vi.fn(async (plain: string, pw: string) => ({ pw, plain })),
-  decryptStringFromStorage: vi.fn(async (enc: { pw: string; plain: string }, pw: string) => {
-    if (enc.pw !== pw) throw new Error("bad pw")
-    return enc.plain
-  }),
+  encryptStringForStorage: vi.fn(async (plain: string, pw: string) => ({
+    pw,
+    plain,
+  })),
+  decryptStringFromStorage: vi.fn(
+    async (enc: { pw: string; plain: string }, pw: string) => {
+      if (enc.pw !== pw) throw new Error("bad pw")
+      return enc.plain
+    },
+  ),
 }))
 vi.mock("@alixex/arweave", () => ({
-  arweave: { wallets: { jwkToAddress: vi.fn(async (jwk: { n: string }) => `addr_${jwk.n}`) } },
+  arweave: {
+    wallets: {
+      jwkToAddress: vi.fn(async (jwk: { n: string }) => `addr_${jwk.n}`),
+    },
+  },
   generateArweaveWallet: vi.fn(async () => ({ key: { kty: "RSA", n: "NEW" } })),
 }))
-vi.mock("./wallet", () => ({ connectArweave: vi.fn(async () => "WANDER_ADDR") }))
+vi.mock("./wallet", () => ({
+  connectArweave: vi.fn(async () => "WANDER_ADDR"),
+}))
 
 import {
   migrateLegacy,
@@ -36,7 +47,10 @@ describe("migration + unlock", () => {
   })
 
   it("migrates the legacy single account into the book, locked (empty address)", () => {
-    localStorage.setItem("aryxn:account", legacyBlob({ kty: "RSA", n: "OLD" }, "P"))
+    localStorage.setItem(
+      "aryxn:account",
+      legacyBlob({ kty: "RSA", n: "OLD" }, "P"),
+    )
     migrateLegacy()
     expect(localStorage.getItem("aryxn:account")).toBeNull()
     const list = accounts()
@@ -59,7 +73,10 @@ describe("migration + unlock", () => {
   it("unlock with a wrong password throws and does not unlock", async () => {
     // Seed a real vault entry (password "RIGHT") via the public migrate path,
     // so unlockVault actually has an entry to reject — self-contained, order-independent.
-    localStorage.setItem("aryxn:account", legacyBlob({ kty: "RSA", n: "WRONGTEST" }, "RIGHT"))
+    localStorage.setItem(
+      "aryxn:account",
+      legacyBlob({ kty: "RSA", n: "WRONGTEST" }, "RIGHT"),
+    )
     migrateLegacy()
     await expect(unlockVault("WRONG")).rejects.toThrow()
   })

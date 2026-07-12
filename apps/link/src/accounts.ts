@@ -3,8 +3,15 @@
 // plan for migration, CRUD, and vault unlock/lock logic built on top of this).
 
 import { signal, computed } from "ranui/builder"
-import { arweave, generateArweaveWallet, type ArweaveJWK } from "@alixex/arweave"
-import { decryptStringFromStorage, encryptStringForStorage } from "@alixex/crypto"
+import {
+  arweave,
+  generateArweaveWallet,
+  type ArweaveJWK,
+} from "@alixex/arweave"
+import {
+  decryptStringFromStorage,
+  encryptStringForStorage,
+} from "@alixex/crypto"
 import { connectArweave } from "./wallet"
 
 export type Network = "arweave" | "evm"
@@ -135,7 +142,11 @@ async function backfillAddress(id: string, jwk: ArweaveJWK): Promise<void> {
   persistAccounts(
     accounts().map((a) =>
       a.id === id
-        ? { ...a, address, label: a.label === PLACEHOLDER_LABEL ? shorten(address) : a.label }
+        ? {
+            ...a,
+            address,
+            label: a.label === PLACEHOLDER_LABEL ? shorten(address) : a.label,
+          }
         : a,
     ),
   )
@@ -148,7 +159,9 @@ export async function unlockVault(pw: string): Promise<void> {
   let ok = 0
   for (const [id, blob] of entries) {
     try {
-      const jwk = JSON.parse(await decryptStringFromStorage(JSON.parse(blob), pw)) as ArweaveJWK
+      const jwk = JSON.parse(
+        await decryptStringFromStorage(JSON.parse(blob), pw),
+      ) as ArweaveJWK
       jwkCache.set(id, jwk)
       await backfillAddress(id, jwk)
       ok++
@@ -172,10 +185,15 @@ function resolveMaster(password?: string): string {
   throw new Error("VAULT_LOCKED") // caller must unlockVault() first
 }
 
-async function persistLocal(jwk: ArweaveJWK, pw: string): Promise<AccountRecord> {
+async function persistLocal(
+  jwk: ArweaveJWK,
+  pw: string,
+): Promise<AccountRecord> {
   const address = await arweave.wallets.jwkToAddress(jwk)
   const id = newId()
-  const blob = JSON.stringify(await encryptStringForStorage(JSON.stringify(jwk), pw))
+  const blob = JSON.stringify(
+    await encryptStringForStorage(JSON.stringify(jwk), pw),
+  )
   const vault = readVault()
   vault[id] = blob
   writeVault(vault)
@@ -200,21 +218,27 @@ export async function addLocal(password?: string): Promise<AccountRecord> {
 }
 
 /** Import an Arweave keyfile. `password` required only when establishing the master. */
-export async function importLocal(jwkJson: string, password?: string): Promise<AccountRecord> {
+export async function importLocal(
+  jwkJson: string,
+  password?: string,
+): Promise<AccountRecord> {
   let jwk: ArweaveJWK
   try {
     jwk = JSON.parse(jwkJson) as ArweaveJWK
   } catch {
     throw new Error("Invalid keyfile: not valid JSON")
   }
-  if (!jwk || jwk.kty !== "RSA" || !jwk.n) throw new Error("Invalid keyfile: not an Arweave JWK")
+  if (!jwk || jwk.kty !== "RSA" || !jwk.n)
+    throw new Error("Invalid keyfile: not an Arweave JWK")
   const pw = resolveMaster(password)
   return persistLocal(jwk, pw)
 }
 
 export async function connectWander(): Promise<AccountRecord> {
   const address = await connectArweave()
-  const existing = accounts().find((a) => a.type === "wander" && a.address === address)
+  const existing = accounts().find(
+    (a) => a.type === "wander" && a.address === address,
+  )
   if (existing) return existing
   const rec: AccountRecord = {
     id: newId(),
@@ -230,7 +254,8 @@ export async function connectWander(): Promise<AccountRecord> {
 
 export function connectEvm(address: string): AccountRecord {
   const existing = accounts().find(
-    (a) => a.type === "evm" && a.address.toLowerCase() === address.toLowerCase(),
+    (a) =>
+      a.type === "evm" && a.address.toLowerCase() === address.toLowerCase(),
   )
   if (existing) return existing
   const rec: AccountRecord = {
@@ -265,7 +290,9 @@ export async function setActive(id: string): Promise<void> {
     if (masterPw === null) throw new Error("VAULT_LOCKED")
     const blob = readVault()[id]
     if (blob) {
-      const jwk = JSON.parse(await decryptStringFromStorage(JSON.parse(blob), masterPw)) as ArweaveJWK
+      const jwk = JSON.parse(
+        await decryptStringFromStorage(JSON.parse(blob), masterPw),
+      ) as ArweaveJWK
       jwkCache.set(id, jwk)
       if (!rec.address) await backfillAddress(id, jwk)
     }

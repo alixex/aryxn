@@ -7,11 +7,12 @@ import { idbGet, idbSet } from "@alixex/storage"
 import {
   listArweaveByOwner,
   listIrysByOwner,
+  fetchIrysSize,
   type AssetRecord,
   type Chain,
   type ListOpts,
 } from "./storage"
-import { cacheAssets } from "./cache"
+import { cacheAssets, isCached } from "./cache"
 
 const wmKey = (chain: Chain, address: string) => `sync:${chain}:${address}`
 
@@ -20,7 +21,11 @@ async function syncChain(
   address: string,
   list: (a: string, o: ListOpts) => Promise<AssetRecord[]>,
 ): Promise<void> {
-  const until = await idbGet<string>(wmKey(chain, address))
+  let until = await idbGet<string>(wmKey(chain, address))
+  // Guard against a stale watermark: if its tx is no longer cached (e.g. the
+  // browser evicted cache entries but kept this key), ignore it and re-scan the
+  // full history so nothing stays hidden.
+  if (until && !(await isCached(until))) until = undefined
   const fresh = await list(address, { until })
   if (fresh.length === 0) return // nothing new since last sync
   await cacheAssets(fresh)
@@ -33,5 +38,15 @@ export function syncArweaveAssets(address: string): Promise<void> {
 }
 
 export function syncIrysAssets(address: string): Promise<void> {
-  return syncChain("irys", address, listIrysByOwner)
+  return syncChain("irys", address, async (a, o) => {
+    const fresh = await listIrysByOwner(a, o)
+    // Irys GraphQL has no size field — backfill each fresh item via a HEAD
+    // Content-Length (bounded by the watermark in steady state). Best-effort.
+    await Promise.allSettled(
+      fresh.map(async (r) => {
+        if (r.size === 0) r.size = await fetchIrysSize(r.txId)
+      }),
+    )
+    return fresh
+  })
 }

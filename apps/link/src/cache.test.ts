@@ -10,9 +10,19 @@ vi.mock("@alixex/storage", () => ({
 import { cachedAssets, cacheAsset } from "./cache"
 import type { AssetRecord } from "./storage"
 
-const rec = (txId: string, owner: string, chain: "arweave" | "irys" = "arweave"): AssetRecord => ({
-  txId, fileName: txId, contentType: "text/plain", size: 1, timestamp: 1, chain,
-  url: "u", owner,
+const rec = (
+  txId: string,
+  owner: string,
+  chain: "arweave" | "irys" = "arweave",
+): AssetRecord => ({
+  txId,
+  fileName: txId,
+  contentType: "text/plain",
+  size: 1,
+  timestamp: 1,
+  chain,
+  url: "u",
+  owner,
 })
 
 describe("cachedAssets(owner)", () => {

@@ -1,17 +1,28 @@
 import { describe, it, expect, beforeEach, vi } from "vitest"
 
 vi.mock("@alixex/crypto", () => ({
-  encryptStringForStorage: vi.fn(async (plain: string, pw: string) => ({ pw, plain })),
-  decryptStringFromStorage: vi.fn(async (enc: { pw: string; plain: string }, pw: string) => {
-    if (enc.pw !== pw) throw new Error("bad pw")
-    return enc.plain
-  }),
+  encryptStringForStorage: vi.fn(async (plain: string, pw: string) => ({
+    pw,
+    plain,
+  })),
+  decryptStringFromStorage: vi.fn(
+    async (enc: { pw: string; plain: string }, pw: string) => {
+      if (enc.pw !== pw) throw new Error("bad pw")
+      return enc.plain
+    },
+  ),
 }))
 vi.mock("@alixex/arweave", () => ({
-  arweave: { wallets: { jwkToAddress: vi.fn(async (jwk: { n: string }) => `addr_${jwk.n}`) } },
+  arweave: {
+    wallets: {
+      jwkToAddress: vi.fn(async (jwk: { n: string }) => `addr_${jwk.n}`),
+    },
+  },
   generateArweaveWallet: vi.fn(async () => ({ key: { kty: "RSA", n: "NEW" } })),
 }))
-vi.mock("./wallet", () => ({ connectArweave: vi.fn(async () => "WANDER_ADDR") }))
+vi.mock("./wallet", () => ({
+  connectArweave: vi.fn(async () => "WANDER_ADDR"),
+}))
 
 beforeEach(() => {
   localStorage.clear()
@@ -48,11 +59,14 @@ describe("crud", () => {
 
   it("importLocal rejects a non-Arweave JWK", async () => {
     const { importLocal } = await fresh()
-    await expect(importLocal(JSON.stringify({ kty: "EC" }), "MASTER")).rejects.toThrow()
+    await expect(
+      importLocal(JSON.stringify({ kty: "EC" }), "MASTER"),
+    ).rejects.toThrow()
   })
 
   it("removeAccount re-derives the active pointer", async () => {
-    const { addLocal, connectEvm, setActive, removeAccount, activeId } = await fresh()
+    const { addLocal, connectEvm, setActive, removeAccount, activeId } =
+      await fresh()
     const first = await addLocal("MASTER")
     const second = connectEvm("0xDEF")
     await setActive(second.id)
@@ -72,7 +86,9 @@ describe("crud", () => {
 
   it("importLocal with a bad JWK does not establish a phantom master", async () => {
     const { importLocal, addLocal } = await fresh()
-    await expect(importLocal(JSON.stringify({ kty: "EC" }), "MASTER")).rejects.toThrow()
+    await expect(
+      importLocal(JSON.stringify({ kty: "EC" }), "MASTER"),
+    ).rejects.toThrow()
     // The failed import must not have set masterPw; addLocal() with no password rejects.
     await expect(addLocal()).rejects.toThrow("VAULT_LOCKED")
   })
