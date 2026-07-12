@@ -93,3 +93,28 @@ describe("crud", () => {
     await expect(addLocal()).rejects.toThrow("VAULT_LOCKED")
   })
 })
+
+describe("export", () => {
+  it("exportKeyfile returns the jwk JSON for a created (unlocked) local account", async () => {
+    const { addLocal, exportKeyfile } = await fresh()
+    const rec = await addLocal("MASTER")
+    const json = exportKeyfile(rec.id)
+    expect(json).not.toBeNull()
+    expect(JSON.parse(json!)).toEqual({ kty: "RSA", n: "NEW" }) // matches the mocked generateArweaveWallet
+  })
+
+  it("exportKeyfile returns null for an unknown id", async () => {
+    const { exportKeyfile } = await fresh()
+    expect(exportKeyfile("nope")).toBeNull()
+  })
+
+  it("exportEncrypted returns a blob (and null when the account isn't loaded)", async () => {
+    const { addLocal, exportEncrypted } = await fresh()
+    const rec = await addLocal("MASTER")
+    const blob = await exportEncrypted(rec.id, "backuppw")
+    expect(blob).not.toBeNull()
+    // With the mocked crypto, encryptStringForStorage returns {pw, plain}; the blob is its JSON.
+    expect(JSON.parse(blob!)).toMatchObject({ pw: "backuppw" })
+    expect(await exportEncrypted("nope", "x")).toBeNull()
+  })
+})
