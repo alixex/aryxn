@@ -21,7 +21,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@alixex/arweave": "workspace:*",
@@ -37,6 +39,8 @@
     "typescript": "~7.0.2",
     "vite": "^8.1.4",
     "vite-plugin-node-polyfills": "^0.28.0",
-    "vite-plugin-wasm": "^3.6.0"
+    "vite-plugin-wasm": "^3.6.0",
+    "vitest": "^3.2.0",
+    "happy-dom": "^15.11.0"
   }
 }
