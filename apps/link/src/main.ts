@@ -1,6 +1,6 @@
 // Per-component ESM imports (tree-shakeable) — only the elements this app uses,
 // plus the theme utils. The builder + reactivity come from "ranui/builder"
-// (imported in app.ts). See memory [[ranui-import-system]].
+// (imported in pages/home.ts). See memory [[ranui-import-system]].
 import "ranui/theme-switch"
 import "ranui/button"
 import "ranui/progress"
@@ -12,7 +12,7 @@ import "ranui/message"
 import "ranui/style"
 import "ranui/fonts"
 import { initTheme, setTheme } from "ranui/theme"
-import { renderApp } from "./app"
+import { renderHome } from "./pages/home"
 import { type Chain } from "./storage"
 
 // Restore persisted theme; default to following the OS (Geist light/dark).
@@ -31,6 +31,6 @@ if (root) {
     )
   } else {
     // Built once inside a reactive scope — signals drive fine-grained updates.
-    renderApp(root)
+    renderHome(root)
   }
 }
