@@ -18,12 +18,11 @@ import {
 import {
   uploadArweave,
   uploadIrys,
-  listArweaveByOwner,
-  listIrysByOwner,
   type AssetRecord,
   type Chain,
 } from "./storage"
-import { cacheAsset, cacheAssets, cachedAssets } from "./cache"
+import { cacheAsset, cachedAssets } from "./cache"
+import { syncArweaveAssets, syncIrysAssets } from "./sync"
 import { discoverEvmWallets, type EvmWallet } from "./wallet-evm"
 import * as accounts from "./account"
 import type { Account } from "./account"
@@ -722,7 +721,7 @@ async function refreshLinks(): Promise<void> {
   const a = address()
   if (a) {
     try {
-      await cacheAssets(await listArweaveByOwner(a))
+      await syncArweaveAssets(a)
     } catch {
       /* offline / gateway hiccup — cache still shows */
     }
@@ -730,7 +729,7 @@ async function refreshLinks(): Promise<void> {
   const evm = await getConnectedEvmAddress()
   if (evm) {
     try {
-      await cacheAssets(await listIrysByOwner(evm))
+      await syncIrysAssets(evm)
     } catch {
       /* Irys gateway hiccup — cache still shows */
     }
