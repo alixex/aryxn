@@ -5,11 +5,16 @@ import {
   signal,
   createEffect,
   createRoot,
+  onCleanup,
   type ElementBuilder,
 } from "ranui/builder"
 import { setTheme } from "ranui/theme"
 import { t, i18n } from "./i18n"
-import { getArBalance, getConnectedEvmAddress, hasArweaveWallet } from "./wallet"
+import {
+  getArBalance,
+  getConnectedEvmAddress,
+  hasArweaveWallet,
+} from "./wallet"
 import {
   uploadArweave,
   uploadIrys,
@@ -39,13 +44,27 @@ const [encrypt, setEncrypt] = signal(false)
 
 function filterLinks(records: AssetRecord[], q: string): AssetRecord[] {
   const s = q.trim().toLowerCase()
-  return s ? records.filter((r) => r.fileName.toLowerCase().includes(s)) : records
+  return s
+    ? records.filter((r) => r.fileName.toLowerCase().includes(s))
+    : records
 }
 
 // Reactive translate: reads the locale signal so getter bindings re-run on switch.
 const tr = (key: string, params?: Record<string, string | number>): string => {
   locale()
   return t(key, params)
+}
+
+/** Non-blocking toast (Geist message) — falls back to alert only if unavailable. */
+function toast(kind: "success" | "error" | "info", msg: string): void {
+  const m = (
+    window as unknown as {
+      ranui?: { message?: Record<string, (s: string) => void> }
+    }
+  ).ranui?.message
+  const fn = m?.[kind]
+  if (fn) fn(msg)
+  else if (kind === "error") alert(msg)
 }
 
 function fmtSize(bytes: number): string {
@@ -63,7 +82,11 @@ let currentFile: File | null = null
 /** Build the app once inside a reactive scope. Returns its dispose (MPA-ready). */
 export function renderApp(root: HTMLElement): () => void {
   return createRoot((dispose) => {
+    // ── Nav ────────────────────────────────────────────────────────────────
     const themeSwitch = View("r-theme-switch")
+      .attr("label-system", tr("theme.system"))
+      .attr("label-light", tr("theme.light"))
+      .attr("label-dark", tr("theme.dark"))
       .on("change", (e: Event) => {
         const theme = (e as CustomEvent<{ theme: string }>).detail?.theme
         if (theme) setTheme(theme as "system" | "light" | "dark")
@@ -71,6 +94,7 @@ export function renderApp(root: HTMLElement): () => void {
       .build()
 
     const langBtn = View("r-button")
+      .attr("type", "text")
       .text(() => tr("lang.toggle"))
       .on("click", () => {
         const next = i18n.getLocale() === "en" ? "zh-CN" : "en"
@@ -80,35 +104,67 @@ export function renderApp(root: HTMLElement): () => void {
       .build()
 
     const connectBtn = View("r-button")
-      .attr("type", "primary")
+      .attr("type", "contrast")
       .text(() => connectLabel())
       .on("click", () => openAccountModal())
       .build()
 
     accountModal = View("r-modal")
-      .attr("title", tr("account.title"))
+      .attr("title", () => tr("account.title"))
       .attr("closable", "")
       .build()
 
-    const topbar = Div()
-      .class("topbar")
+    const nav = View("header")
+      .class("nav")
       .children(
-        Div().class("brand").text("aryxn"),
-        Div().class("topbar-actions").children(themeSwitch, langBtn, connectBtn),
+        Div()
+          .class("nav-inner")
+          .children(
+            Div().class("brand").text("aryxn"),
+            Div()
+              .class("nav-actions")
+              .children(themeSwitch, langBtn, connectBtn),
+          ),
       )
       .build()
 
+    // Border appears once the page scrolls under the sticky nav.
+    const onScroll = (): void => {
+      nav.classList.toggle("scrolled", window.scrollY > 4)
+    }
+    window.addEventListener("scroll", onScroll, { passive: true })
+    onCleanup(() => window.removeEventListener("scroll", onScroll))
+
+    // ── Hero ───────────────────────────────────────────────────────────────
     const hero = Div()
-      .class("hero")
+      .class("hero reveal")
       .children(
+        Div().class("hero-grid"),
+        Span()
+          .class("eyebrow")
+          .text(() => tr("hero.eyebrow")),
         View("h1").text(() => tr("hero.title")),
         View("p").text(() => tr("hero.subtitle")),
       )
       .build()
 
-    const dropZone = renderDropZone()
-    uploadPanel = Div().build()
+    // ── Uploader ───────────────────────────────────────────────────────────
+    uploadPanel = renderDropZone()
+    const uploader = Div()
+      .class("uploader reveal d1")
+      .children(uploadPanel)
+      .build()
 
+    const trust = Div()
+      .class("trust reveal d2")
+      .children(
+        Span().text(() => tr("feat.encrypted")),
+        Span().text(() => tr("feat.permanent")),
+        Span().text(() => tr("feat.opensource")),
+      )
+      .build()
+
+    // ── My links ───────────────────────────────────────────────────────────
     const linksEl = Div().class("links").build()
     createEffect(() => renderLinks(linksEl, filterLinks(links(), query())))
 
@@ -116,22 +172,39 @@ export function renderApp(root: HTMLElement): () => void {
       .attr("placeholder", () => tr("links.search"))
       .build()
     search.addEventListener("input", (e) =>
-      setQuery((e as unknown as CustomEvent<{ value: string }>).detail?.value ?? ""),
+      setQuery(
+        (e as unknown as CustomEvent<{ value: string }>).detail?.value ?? "",
+      ),
     )
 
     const linksSection = Div()
+      .class("reveal d3")
       .children(
-        View("h2").class("section-title").text(() => tr("links.title")),
-        search,
+        Div()
+          .class("section-head")
+          .children(
+            Span()
+              .class("section-title")
+              .text(() => tr("links.title")),
+            Span()
+              .class("section-count")
+              .text(() => {
+                const n = filterLinks(links(), query()).length
+                return n ? String(n) : ""
+              }),
+          ),
+        Div().class("search-wrap").children(search),
         linksEl,
       )
       .build()
 
     root.replaceChildren(
-      Div().class("wrap").children(topbar, hero, dropZone, uploadPanel, linksSection).build(),
+      nav,
+      Div().class("wrap").children(hero, uploader, trust, linksSection).build(),
       accountModal,
     )
 
+    onScroll()
     void refreshLinks()
     return dispose
   })
@@ -179,19 +252,24 @@ function val(el: HTMLElement): string {
 }
 
 function pwdField(): HTMLElement {
-  return View("r-input").attr("type", "password").attr("placeholder", tr("account.password")).build()
+  return View("r-input")
+    .attr("type", "password")
+    .attr("placeholder", tr("account.password"))
+    .build()
 }
 
 async function runAccount(fn: () => Promise<void>): Promise<void> {
   try {
     await fn()
   } catch (e) {
-    alert((e as Error).message)
+    toast("error", (e as Error).message)
   }
 }
 
 function downloadText(text: string, name: string): void {
-  const url = URL.createObjectURL(new Blob([text], { type: "application/json" }))
+  const url = URL.createObjectURL(
+    new Blob([text], { type: "application/json" }),
+  )
   const a = document.createElement("a")
   a.href = url
   a.download = name
@@ -199,88 +277,130 @@ function downloadText(text: string, name: string): void {
   setTimeout(() => URL.revokeObjectURL(url), 1000)
 }
 
+/** A titled group of controls in the account sheet. */
+function acctGroup(
+  label: string,
+  ...nodes: Array<ElementBuilder<HTMLElement> | HTMLElement | null>
+): ElementBuilder<HTMLDivElement> {
+  return Div()
+    .class("acct-group")
+    .children(Span().class("acct-label").text(label), ...nodes)
+}
+
 function buildAccountBody(): HTMLElement {
   const acc = account()
-  const rows: Array<ElementBuilder<HTMLDivElement> | null> = []
+  const groups: Array<ElementBuilder<HTMLElement> | null> = []
 
   if (acc) {
-    rows.push(
-      Div().class("muted").text(tr(acc.kind === "local" ? "account.local" : "account.external")),
-      Div().class("link-name").text(acc.address),
+    groups.push(
+      acctGroup(
+        tr(acc.kind === "local" ? "account.local" : "account.external"),
+        Div().class("acct-addr").text(acc.address),
+      ),
     )
+
     if (acc.kind === "local") {
-      rows.push(
-        Div().class("row space").children(
+      const encPwd = pwdField()
+      groups.push(
+        acctGroup(
+          tr("account.backup"),
           View("r-button")
             .text(tr("account.export"))
             .on("click", () => {
               const jwk = accounts.exportKeyfile()
-              if (jwk) downloadText(jwk, `aryxn-${acc.address.slice(0, 8)}.json`)
+              if (jwk)
+                downloadText(jwk, `aryxn-${acc.address.slice(0, 8)}.json`)
             }),
-        ),
-      )
-      const encPwd = pwdField()
-      rows.push(
-        Div().class("row space").children(
-          encPwd,
-          View("r-button")
-            .text(tr("account.exportEnc"))
-            .on("click", () =>
-              void runAccount(async () => {
-                const blob = await accounts.exportEncrypted(val(encPwd))
-                if (blob) downloadText(blob, `aryxn-${acc.address.slice(0, 8)}.enc.json`)
-              }),
+          Div()
+            .class("acct-field")
+            .children(
+              encPwd,
+              View("r-button")
+                .text(tr("account.exportEnc"))
+                .on(
+                  "click",
+                  () =>
+                    void runAccount(async () => {
+                      const blob = await accounts.exportEncrypted(val(encPwd))
+                      if (blob)
+                        downloadText(
+                          blob,
+                          `aryxn-${acc.address.slice(0, 8)}.enc.json`,
+                        )
+                    }),
+                ),
             ),
         ),
       )
     }
-    rows.push(
-      Div().class("row space").children(
-        View("r-button")
-          .attr("type", "warning")
-          .text(tr("account.disconnect"))
-          .on("click", () =>
-            void runAccount(async () => {
-              await accounts.disconnect()
-              applyAccount(null)
-              setModalOpen(false)
-            }),
-          ),
-      ),
+
+    groups.push(
+      Div()
+        .class("acct-group")
+        .children(
+          View("r-button")
+            .attr("type", "warning")
+            .text(tr("account.disconnect"))
+            .on(
+              "click",
+              () =>
+                void runAccount(async () => {
+                  await accounts.disconnect()
+                  applyAccount(null)
+                  setModalOpen(false)
+                  toast("info", tr("toast.disconnected"))
+                }),
+            ),
+        ),
     )
-    return Div().class("space").children(rows).build()
+    return Div().class("acct").children(groups).build()
   }
 
   // Not connected: connect external, create, import, or unlock a stored account.
   if (hasArweaveWallet()) {
-    rows.push(
-      Div().class("row space").children(
-        View("r-button")
-          .attr("type", "primary")
-          .text(tr("account.connectWander"))
-          .on("click", () =>
-            void runAccount(async () => {
-              applyAccount(await accounts.connectExternal())
-              setModalOpen(false)
-            }),
-          ),
-      ),
+    groups.push(
+      Div()
+        .class("acct-group")
+        .children(
+          View("r-button")
+            .attr("type", "primary")
+            .text(tr("account.connectWander"))
+            .on(
+              "click",
+              () =>
+                void runAccount(async () => {
+                  applyAccount(await accounts.connectExternal())
+                  setModalOpen(false)
+                  toast("success", tr("toast.connected"))
+                }),
+            ),
+        ),
+      Div().class("acct-divider").text(tr("account.or")),
     )
   }
 
   const createPwd = pwdField()
-  rows.push(
-    Div().class("row space").children(
-      createPwd,
-      View("r-button")
-        .text(tr("account.create"))
-        .on("click", () =>
-          void runAccount(async () => {
-            const p = val(createPwd)
-            if (!p) throw new Error(tr("account.needPassword"))
-            applyAccount(await accounts.createLocal(p))
-            setModalOpen(false)
-          }),
+  groups.push(
+    acctGroup(
+      tr("account.newLocal"),
+      Div()
+        .class("acct-field")
+        .children(
+          createPwd,
+          View("r-button")
+            .attr("type", "primary")
+            .text(tr("account.create"))
+            .on(
+              "click",
+              () =>
+                void runAccount(async () => {
+                  const p = val(createPwd)
+                  if (!p) throw new Error(tr("account.needPassword"))
+                  applyAccount(await accounts.createLocal(p))
+                  setModalOpen(false)
+                  toast("success", tr("toast.created"))
+                }),
+            ),
         ),
     ),
   )
@@ -290,49 +410,69 @@ function buildAccountBody(): HTMLElement {
     .attr("accept", ".json,application/json")
     .build()
   const importPwd = pwdField()
-  rows.push(
-    Div().class("row space").children(
+  groups.push(
+    acctGroup(
+      tr("account.import"),
       fileInput,
-      importPwd,
-      View("r-button")
-        .text(tr("account.import"))
-        .on("click", () =>
-          void runAccount(async () => {
-            const f = fileInput.files?.[0]
-            if (!f) throw new Error(tr("account.pickFile"))
-            const p = val(importPwd)
-            if (!p) throw new Error(tr("account.needPassword"))
-            applyAccount(await accounts.importKeyfile(await f.text(), p))
-            setModalOpen(false)
-          }),
+      Div()
+        .class("acct-field")
+        .children(
+          importPwd,
+          View("r-button")
+            .text(tr("account.import"))
+            .on(
+              "click",
+              () =>
+                void runAccount(async () => {
+                  const f = fileInput.files?.[0]
+                  if (!f) throw new Error(tr("account.pickFile"))
+                  const p = val(importPwd)
+                  if (!p) throw new Error(tr("account.needPassword"))
+                  applyAccount(await accounts.importKeyfile(await f.text(), p))
+                  setModalOpen(false)
+                  toast("success", tr("toast.imported"))
+                }),
+            ),
         ),
     ),
   )
 
   if (accounts.hasStoredAccount()) {
     const unlockPwd = pwdField()
-    rows.push(
-      Div().class("row space").children(
-        unlockPwd,
-        View("r-button")
-          .attr("type", "primary")
-          .text(tr("account.unlock"))
-          .on("click", () =>
-            void runAccount(async () => {
-              applyAccount(await accounts.unlock(val(unlockPwd)))
-              setModalOpen(false)
-            }),
+    groups.push(
+      Div().class("acct-divider").text(tr("account.or")),
+      acctGroup(
+        tr("account.stored"),
+        Div()
+          .class("acct-field")
+          .children(
+            unlockPwd,
+            View("r-button")
+              .attr("type", "primary")
+              .text(tr("account.unlock"))
+              .on(
+                "click",
+                () =>
+                  void runAccount(async () => {
+                    applyAccount(await accounts.unlock(val(unlockPwd)))
+                    setModalOpen(false)
+                    toast("success", tr("toast.unlocked"))
+                  }),
+              ),
           ),
       ),
     )
   }
 
-  return Div().class("space").children(rows).build()
+  return Div().class("acct").children(groups).build()
 }
 
 // ── Upload ───────────────────────────────────────────────────────────────
 function renderDropZone(): HTMLElement {
-  const input = View<HTMLInputElement>("input").attr("type", "file").class("hidden").build()
+  const input = View<HTMLInputElement>("input")
+    .attr("type", "file")
+    .class("hidden")
+    .build()
   input.addEventListener("change", () => {
     if (input.files && input.files[0]) selectFile(input.files[0])
   })
@@ -340,8 +480,12 @@ function renderDropZone(): HTMLElement {
   const zone = Div()
     .class("drop")
     .children(
-      Div().text(() => tr("drop.title")),
-      Div().class("drop-hint").text(() => tr("drop.hint")),
+      Div()
+        .class("drop-title")
+        .text(() => tr("drop.title")),
+      Div()
+        .class("drop-hint")
+        .text(() => tr("drop.hint")),
       input,
     )
     .build()
@@ -366,8 +510,9 @@ function selectFile(f: File): void {
 }
 
 function chainBtn(value: Chain, label: string): HTMLElement {
-  return View("r-button")
-    .attr("type", chain() === value ? "primary" : "")
+  return View("button")
+    .class(chain() === value ? "seg-item active" : "seg-item")
+    .attr("type", "button")
     .text(label)
     .on("click", () => {
       setChain(value)
@@ -377,9 +522,15 @@ function chainBtn(value: Chain, label: string): HTMLElement {
 }
 
 function encryptToggle(): HTMLElement {
-  const cb = View("r-checkbox").boolAttr("checked", encrypt()).text(tr("upload.encrypt")).build()
+  const cb = View("r-checkbox")
+    .boolAttr("checked", encrypt())
+    .text(tr("upload.encrypt"))
+    .build()
   cb.addEventListener("change", (e) =>
-    setEncrypt((e as unknown as CustomEvent<{ checked: boolean }>).detail?.checked ?? false),
+    setEncrypt(
+      (e as unknown as CustomEvent<{ checked: boolean }>).detail?.checked ??
+        false,
+    ),
   )
   return cb
 }
@@ -389,22 +540,39 @@ function renderFilePanel(): void {
   if (!f) return
   uploadPanel.replaceChildren(
     Div()
-      .class("space")
       .children(
         Div()
-          .class("row")
+          .class("file-row")
           .children(
+            Div().class("file-ico"),
             Div()
-              .class("link-meta")
+              .class("file-meta")
               .children(
-                Div().class("link-name").text(f.name),
+                Div().class("file-name").text(f.name),
                 Div().class("muted").text(fmtSize(f.size)),
               ),
+            View("r-button")
+              .attr("type", "text")
+              .text(tr("upload.change"))
+              .on("click", () => {
+                currentFile = null
+                uploadPanel.replaceChildren(renderDropZone())
+              }),
           ),
-        Div().class("row").children(chainBtn("arweave", "Arweave"), chainBtn("irys", "Irys")),
-        encryptToggle(),
         Div()
-          .class("space")
+          .class("ctl-row")
+          .children(
+            Span().class("ctl-label").text(tr("upload.network")),
+            Div()
+              .class("segmented")
+              .children(
+                chainBtn("arweave", "Arweave"),
+                chainBtn("irys", "Irys"),
+              ),
+          ),
+        Div().class("ctl-row").children(encryptToggle()),
+        Div()
+          .class("cta")
           .children(
             View("r-button")
               .attr("type", "primary")
@@ -420,7 +588,8 @@ async function doUpload(): Promise<void> {
   const f = currentFile
   if (!f) return
   if (chain() === "arweave" && !address()) {
-    alert(tr("err.connectArFirst"))
+    toast("error", tr("err.connectArFirst"))
+    openAccountModal()
     return
   }
 
@@ -429,19 +598,25 @@ async function doUpload(): Promise<void> {
     try {
       evmProvider = await resolveEvmProvider()
     } catch (e) {
-      uploadPanel.replaceChildren(Div().class("space muted").text((e as Error).message).build())
+      toast("error", (e as Error).message)
       return
     }
   }
 
   const progress = View("r-progress").attr("total", "100").build()
   ;(progress as unknown as { percent: string }).percent = "0"
-  const stage = Div().class("muted space").text(tr("upload.preparing")).build()
-  uploadPanel.replaceChildren(Div().class("space").children(stage, progress).build())
+  const stageText = Span().text(tr("upload.preparing")).build()
+  const stage = Div()
+    .class("stage")
+    .children(View("r-loading").attr("name", "circle"), stageText)
+    .build()
+  uploadPanel.replaceChildren(Div().children(stage, progress).build())
 
   const onProgress = (p: { stage: string; progress: number }): void => {
-    stage.textContent = p.stage
-    ;(progress as unknown as { percent: string }).percent = String(Math.round(p.progress))
+    stageText.textContent = p.stage
+    ;(progress as unknown as { percent: string }).percent = String(
+      Math.round(p.progress),
+    )
   }
 
   try {
@@ -459,9 +634,8 @@ async function doUpload(): Promise<void> {
     currentFile = null
     void refreshLinks()
   } catch (e) {
-    uploadPanel.replaceChildren(
-      Div().class("space muted").text(tr("upload.failed", { msg: (e as Error).message })).build(),
-    )
+    toast("error", tr("upload.failed", { msg: (e as Error).message }))
+    renderFilePanel()
   }
 }
 
@@ -483,10 +657,12 @@ function chooseWallet(wallets: EvmWallet[]): Promise<unknown> {
     )
     uploadPanel.replaceChildren(
       Div()
-        .class("space")
         .children(
-          Div().class("muted").text(tr("chain.pickEvm")),
-          Div().class("row space").children(buttons),
+          Div()
+            .class("muted")
+            .style("margin-bottom", "10px")
+            .text(tr("chain.pickEvm")),
+          Div().class("acct-group").children(buttons),
         )
         .build(),
     )
@@ -500,6 +676,7 @@ function copyButton(url: string, variant = ""): HTMLElement {
     .on("click", () => {
       void navigator.clipboard.writeText(url)
       btn.textContent = tr("action.copied")
+      toast("success", tr("toast.copied"))
       setTimeout(() => (btn.textContent = tr("action.copy")), 1500)
     })
     .build()
@@ -509,12 +686,30 @@ function copyButton(url: string, variant = ""): HTMLElement {
 function showResult(record: AssetRecord): void {
   uploadPanel.replaceChildren(
     Div()
-      .class("space")
       .children(
-        Div().class("muted").text(tr("upload.done")),
         Div()
-          .class("row space")
-          .children(View("r-link").attr("href", record.url).text(record.url), copyButton(record.url)),
+          .class("result-head")
+          .children(
+            Span().class("result-check"),
+            Span().text(tr("upload.done")),
+          ),
+        Div()
+          .class("permalink")
+          .children(
+            View("a")
+              .attr("href", record.url)
+              .attr("target", "_blank")
+              .text(record.url),
+            copyButton(record.url, "contrast"),
+          ),
+        Div()
+          .class("cta")
+          .children(
+            View("r-button")
+              .attr("type", "text")
+              .text(tr("upload.another"))
+              .on("click", () => uploadPanel.replaceChildren(renderDropZone())),
+          ),
       )
       .build(),
   )
@@ -546,7 +741,15 @@ async function refreshLinks(): Promise<void> {
 
 function renderLinks(container: HTMLElement, records: AssetRecord[]): void {
   if (records.length === 0) {
-    container.replaceChildren(Div().class("muted").text(tr("links.empty")).build())
+    container.replaceChildren(
+      Div()
+        .class("empty")
+        .children(
+          Div().class("empty-title").text(tr("links.empty")),
+          Div().class("empty-hint").text(tr("links.emptyHint")),
+        )
+        .build(),
+    )
     return
   }
   container.replaceChildren(
@@ -558,14 +761,24 @@ function renderLinks(container: HTMLElement, records: AssetRecord[]): void {
             .class("link-meta")
             .children(
               Div().class("link-name").text(r.fileName),
-              Div().class("muted").text(fmtSize(r.size)),
+              Div()
+                .class("link-sub")
+                .children(
+                  Span().class("badge").text(r.chain),
+                  r.encrypted
+                    ? Span().class("badge").text(tr("links.private"))
+                    : null,
+                  Span().text(fmtSize(r.size)),
+                ),
             ),
           Div()
-            .class("row")
+            .class("link-actions")
             .children(
-              Span().class("badge").text(r.chain),
-              r.encrypted ? Span().class("badge").text("🔒") : null,
-              View("r-link").attr("href", r.url).text(tr("action.open")),
+              View("a")
+                .class("open-link")
+                .attr("href", r.url)
+                .attr("target", "_blank")
+                .text(tr("action.open")),
               copyButton(r.url, "text"),
             ),
         )

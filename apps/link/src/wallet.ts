@@ -12,8 +12,10 @@ interface ArweaveWalletApi {
 }
 
 function api(): ArweaveWalletApi | null {
-  return (globalThis as unknown as { arweaveWallet?: ArweaveWalletApi })
-    .arweaveWallet ?? null
+  return (
+    (globalThis as unknown as { arweaveWallet?: ArweaveWalletApi })
+      .arweaveWallet ?? null
+  )
 }
 
 export function hasArweaveWallet(): boolean {
@@ -45,9 +47,11 @@ export async function getArBalance(address: string): Promise<string> {
  * upload history. Passive: uses `eth_accounts`, never prompts a connection.
  */
 export async function getConnectedEvmAddress(): Promise<string | null> {
-  const eth = (globalThis as unknown as {
-    ethereum?: { request?: (a: { method: string }) => Promise<string[]> }
-  }).ethereum
+  const eth = (
+    globalThis as unknown as {
+      ethereum?: { request?: (a: { method: string }) => Promise<string[]> }
+    }
+  ).ethereum
   if (!eth?.request) return null
   try {
     const accounts = await eth.request({ method: "eth_accounts" })

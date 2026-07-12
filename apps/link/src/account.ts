@@ -6,8 +6,15 @@
 // (import their old keyfile → see history + keep uploading) and work without any
 // browser extension. No transfer / multi-chain — this is a storage account only.
 
-import { arweave, generateArweaveWallet, type ArweaveJWK } from "@alixex/arweave"
-import { encryptStringForStorage, decryptStringFromStorage } from "@alixex/crypto"
+import {
+  arweave,
+  generateArweaveWallet,
+  type ArweaveJWK,
+} from "@alixex/arweave"
+import {
+  encryptStringForStorage,
+  decryptStringFromStorage,
+} from "@alixex/crypto"
 import {
   connectArweave as connectWander,
   disconnectArweave as disconnectWander,
@@ -49,7 +56,10 @@ export async function createLocal(password: string): Promise<Account> {
 }
 
 /** Import an existing Arweave keyfile (JWK JSON), encrypted with `password`. */
-export async function importKeyfile(jwkJson: string, password: string): Promise<Account> {
+export async function importKeyfile(
+  jwkJson: string,
+  password: string,
+): Promise<Account> {
   let jwk: ArweaveJWK
   try {
     jwk = JSON.parse(jwkJson) as ArweaveJWK
@@ -102,7 +112,9 @@ export function exportKeyfile(): string | null {
 }
 
 /** Export the active local keyfile encrypted with `password` (safe to store). */
-export async function exportEncrypted(password: string): Promise<string | null> {
+export async function exportEncrypted(
+  password: string,
+): Promise<string | null> {
   if (!localJwk) return null
   const enc = await encryptStringForStorage(JSON.stringify(localJwk), password)
   return JSON.stringify(enc)

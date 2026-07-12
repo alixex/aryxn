@@ -17,7 +17,6 @@
     "libsodium-wrappers": "^0.8.4"
   },
   "devDependencies": {
-    "@types/libsodium-wrappers": "^0.8.2",
     "@types/node": "^26.1.1"
   }
 }

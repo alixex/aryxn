@@ -34,29 +34,32 @@ Arweave 存储费采用多层支付体系。虽然 Arweave 原生使用 AR，但
 ### 2.1 Bitcoin 链 (原生 BTC) 路径
 
 由于 Irys 节点目前不直接支持原生 BTC 支付，用户需要通过 Exchange SDK 进行一次原子兑换：
-| 步骤 | 动作 | 说明 |
-| :--- | :--- | :--- |
-| 1 | **Exchange SDK** | 将 **原生 BTC** 兑换为 **ETH (Ethereum)** 或 **USDC (Solana)** (底层使用 Thorchain 协议)。 |
-| 2 | **Irys Service** | 使用接收到的 **ETH/USDC** 为 Irys 充值。 |
-| 3 | **存储** | 将文件上传至 Arweave。 |
+
+| 步骤 | 动作             | 说明                                                                                       |
+| :--- | :--------------- | :----------------------------------------------------------------------------------------- |
+| 1    | **Exchange SDK** | 将 **原生 BTC** 兑换为 **ETH (Ethereum)** 或 **USDC (Solana)** (底层使用 Thorchain 协议)。 |
+| 2    | **Irys Service** | 使用接收到的 **ETH/USDC** 为 Irys 充值。                                                   |
+| 3    | **存储**         | 将文件上传至 Arweave。                                                                     |
 
 ### 2.2 Solana 上的 USDT 路径 (特殊情况)
 
 由于 Irys 原生支持 Solana 上的 USDC 但**不支持** USDT：
-| 步骤 | 动作 | 说明 |
-| :--- | :--- | :--- |
-| 1 | **Exchange SDK** | 在 Solana 链内将 **USDT** 兑换为 **SOL** 或 **USDC**。 |
-| 2 | **Irys Service** | 使用 **SOL/USDC (Solana)** 为 Irys 充值。 |
-| 3 | **存储** | 将文件上传至 Arweave。 |
+
+| 步骤 | 动作             | 说明                                                   |
+| :--- | :--------------- | :----------------------------------------------------- |
+| 1    | **Exchange SDK** | 在 Solana 链内将 **USDT** 兑换为 **SOL** 或 **USDC**。 |
+| 2    | **Irys Service** | 使用 **SOL/USDC (Solana)** 为 Irys 充值。              |
+| 3    | **存储**         | 将文件上传至 Arweave。                                 |
 
 ### 2.3 Sui 上的 USDT 和 USDC 路径
 
 目前的 Irys 节点原生支持 Sui 链上的 SUI 代币，但暂不直接支持 Sui 上的 USDT/USDC 充值：
-| 步骤 | 动作 | 说明 |
-| :--- | :--- | :--- |
-| 1 | **Exchange SDK** | 在 Sui 链内将 **USDT/USDC** 兑换为 **SUI**。 |
-| 2 | **Irys Service** | 使用 **SUI** 为 Irys 充值。 |
-| 3 | **存储** | 将文件上传至 Arweave。 |
+
+| 步骤 | 动作             | 说明                                         |
+| :--- | :--------------- | :------------------------------------------- |
+| 1    | **Exchange SDK** | 在 Sui 链内将 **USDT/USDC** 兑换为 **SUI**。 |
+| 2    | **Irys Service** | 使用 **SUI** 为 Irys 充值。                  |
+| 3    | **存储**         | 将文件上传至 Arweave。                       |
 
 ### 2.4 L2 EVM 链上的稳定币路径 (例如 Base, Arbitrum, Optimism, Polygon)
 

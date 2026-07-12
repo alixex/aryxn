@@ -54,7 +54,9 @@ export function viewerLink(chain: Chain, txId: string, keyB64: string): string {
 }
 
 /** Encrypt a file → `nonce || ciphertext` blob + a random base64 key. */
-async function encryptFile(file: File): Promise<{ data: Uint8Array; keyB64: string }> {
+async function encryptFile(
+  file: File,
+): Promise<{ data: Uint8Array; keyB64: string }> {
   const raw = new Uint8Array(await file.arrayBuffer())
   const key = crypto.getRandomValues(new Uint8Array(32))
   const { ciphertext, nonce } = await encryptData(raw, key)
@@ -78,7 +80,9 @@ function makeRecord(
     size,
     timestamp: Date.now(),
     chain,
-    url: encKey ? viewerLink(chain, txId, encKey) : `${chainGateway(chain)}/${txId}`,
+    url: encKey
+      ? viewerLink(chain, txId, encKey)
+      : `${chainGateway(chain)}/${txId}`,
     encrypted: !!encKey,
     encKey,
   }
@@ -213,8 +217,7 @@ export async function listArweaveByOwner(
   const json = await res.json()
   const edges: Array<{ node: GqlNode }> = json?.data?.transactions?.edges ?? []
   return edges.map(({ node }) => {
-    const tag = (n: string) =>
-      node.tags.find((t) => t.name === n)?.value ?? ""
+    const tag = (n: string) => node.tags.find((t) => t.name === n)?.value ?? ""
     return {
       txId: node.id,
       fileName: tag("File-Name") || node.id,
@@ -259,8 +262,7 @@ export async function listIrysByOwner(
   const json = await res.json()
   const edges: Array<{ node: IrysNode }> = json?.data?.transactions?.edges ?? []
   return edges.map(({ node }) => {
-    const tag = (n: string) =>
-      node.tags.find((t) => t.name === n)?.value ?? ""
+    const tag = (n: string) => node.tags.find((t) => t.name === n)?.value ?? ""
     return {
       txId: node.id,
       fileName: tag("File-Name") || node.id,
