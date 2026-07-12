@@ -55,13 +55,26 @@ export function viewerLink(chain: Chain, txId: string, keyB64: string): string {
   return `${location.origin}${base}#/view/${chain}/${txId}/${encodeURIComponent(keyB64)}`
 }
 
-/** Encrypt a file → `nonce || ciphertext` blob + a random base64 key. */
-async function encryptFile(
+/**
+ * Encrypt a file into a `nonce || ciphertext` blob. The plaintext is an envelope
+ * `[4-byte metaLen][meta JSON][file bytes]`, so the original name/type travel
+ * INSIDE the ciphertext — never as public on-chain tags. Only holders of the
+ * fragment key can recover them. Returns the blob + a random base64 key.
+ * Exported for the roundtrip test.
+ */
+export async function encryptFile(
   file: File,
 ): Promise<{ data: Uint8Array; keyB64: string }> {
   const raw = new Uint8Array(await file.arrayBuffer())
+  const meta = new TextEncoder().encode(
+    JSON.stringify({ n: file.name, t: file.type || "application/octet-stream" }),
+  )
+  const plain = new Uint8Array(4 + meta.length + raw.length)
+  new DataView(plain.buffer).setUint32(0, meta.length) // big-endian meta length
+  plain.set(meta, 4)
+  plain.set(raw, 4 + meta.length)
   const key = crypto.getRandomValues(new Uint8Array(32))
-  const { ciphertext, nonce } = await encryptData(raw, key)
+  const { ciphertext, nonce } = await encryptData(plain, key)
   const blob = new Uint8Array(nonce.length + ciphertext.length)
   blob.set(nonce, 0)
   blob.set(ciphertext, nonce.length)
@@ -112,11 +125,11 @@ export async function uploadArweave(
     encKey = enc.keyB64
     contentType = "application/octet-stream"
     tags["Encrypted"] = "1"
-    tags["File-Type"] = file.type || "application/octet-stream"
+    // Real name/type ride inside the ciphertext (encryptFile), not public tags.
   }
   const { txId, finalSize } = await uploadToArweave(
     data,
-    file.name,
+    opts.encrypt ? "encrypted" : file.name, // don't leak the real name on-chain
     contentType,
     jwk, // local account JWK, or null → external wallet
     undefined, // encryption done app-side (fragment-key model)
@@ -172,18 +185,19 @@ export async function uploadIrys(
   const contentType = file.type || "application/octet-stream"
   const tags = [
     { name: "App-Name", value: APP_NAME },
-    { name: "Content-Type", value: contentType },
-    { name: "File-Name", value: file.name },
+    {
+      name: "Content-Type",
+      value: opts.encrypt ? "application/octet-stream" : contentType,
+    },
   ]
   if (opts.encrypt) {
     const enc = await encryptFile(file)
     data = enc.data
     encKey = enc.keyB64
-    tags[1] = { name: "Content-Type", value: "application/octet-stream" }
-    tags.push(
-      { name: "Encrypted", value: "1" },
-      { name: "File-Type", value: contentType },
-    )
+    tags.push({ name: "Encrypted", value: "1" })
+    // Real name/type ride inside the ciphertext, not public tags.
+  } else {
+    tags.push({ name: "File-Name", value: file.name })
   }
   opts.onProgress?.({ stage: "上传到 Irys…", progress: 60 })
   const receipt = await irys.upload(Buffer.from(data), { tags })
@@ -199,44 +213,86 @@ interface GqlNode {
   block: { timestamp: number } | null
 }
 
+/** Options shared by the paginated tag-index queries. */
+export interface ListOpts {
+  /** Stop once this txId is reached — the high-water mark from a prior sync. */
+  until?: string
+  /** Per-request page size (gateways cap at 100). */
+  pageSize?: number
+}
+
 /**
- * List a wallet's previously uploaded Aryxn assets from Arweave (backward
- * compatible: this is exactly how the old app persisted files — App-Name tag).
+ * Walk a tag-index GraphQL connection page by page (newest-first), mapping each
+ * node to an AssetRecord. Stops when the gateway reports no next page, or early
+ * when it reaches `opts.until` (the watermark) — so a steady-state sync is ~1
+ * request while a cold start paginates the whole history.
+ * See docs/resource-index-design.md.
  */
-export async function listArweaveByOwner(
-  address: string,
-  limit = 100,
+async function graphqlPages<N extends { id: string }>(
+  endpoint: string,
+  buildBody: (after: string | null) => object,
+  toRecord: (node: N) => AssetRecord,
+  opts: ListOpts,
 ): Promise<AssetRecord[]> {
-  const query = {
-    query: `query($owner:[String!]!,$app:[String!]!,$n:Int!){
-      transactions(owners:$owner, tags:[{name:"App-Name", values:$app}], first:$n, sort:HEIGHT_DESC){
-        edges{ node{ id tags{ name value } data{ size } block{ timestamp } } }
-      }
-    }`,
-    variables: { owner: [address], app: [APP_NAME], n: limit },
-  }
-  const res = await fetch(AR_GRAPHQL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(query),
-  })
-  if (!res.ok) throw new Error(`Arweave GraphQL ${res.status}`)
-  const json = await res.json()
-  const edges: Array<{ node: GqlNode }> = json?.data?.transactions?.edges ?? []
-  return edges.map(({ node }) => {
-    const tag = (n: string) => node.tags.find((t) => t.name === n)?.value ?? ""
-    return {
-      txId: node.id,
-      fileName: tag("File-Name") || node.id,
-      contentType: tag("Content-Type") || "application/octet-stream",
-      size: Number(node.data?.size ?? 0),
-      timestamp: (node.block?.timestamp ?? 0) * 1000,
-      chain: "arweave" as const,
-      url: gatewayUrl(node.id),
-      encrypted: tag("Encrypted") === "1",
-      owner: address,
+  const out: AssetRecord[] = []
+  let after: string | null = null
+  for (;;) {
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(buildBody(after)),
+    })
+    if (!res.ok) throw new Error(`GraphQL ${res.status}`)
+    const json = await res.json()
+    const conn = json?.data?.transactions
+    const edges: Array<{ cursor: string; node: N }> = conn?.edges ?? []
+    for (const { node } of edges) {
+      if (opts.until && node.id === opts.until) return out // hit the watermark
+      out.push(toRecord(node))
     }
-  })
+    if (!conn?.pageInfo?.hasNextPage || edges.length === 0) return out
+    after = edges[edges.length - 1].cursor
+  }
+}
+
+/**
+ * List a wallet's Aryxn assets from Arweave (backward compatible: the App-Name
+ * tag is exactly how the old app persisted files). Paginates newest-first until
+ * exhausted or `opts.until`.
+ */
+export function listArweaveByOwner(
+  address: string,
+  opts: ListOpts = {},
+): Promise<AssetRecord[]> {
+  const n = opts.pageSize ?? 100
+  return graphqlPages<GqlNode>(
+    AR_GRAPHQL,
+    (after) => ({
+      query: `query($owner:[String!]!,$app:[String!]!,$n:Int!,$after:String){
+        transactions(owners:$owner, tags:[{name:"App-Name", values:$app}], first:$n, sort:HEIGHT_DESC, after:$after){
+          pageInfo{ hasNextPage }
+          edges{ cursor node{ id tags{ name value } data{ size } block{ timestamp } } }
+        }
+      }`,
+      variables: { owner: [address], app: [APP_NAME], n, after },
+    }),
+    (node) => {
+      const tag = (k: string) =>
+        node.tags.find((t) => t.name === k)?.value ?? ""
+      return {
+        txId: node.id,
+        fileName: tag("File-Name") || node.id,
+        contentType: tag("Content-Type") || "application/octet-stream",
+        size: Number(node.data?.size ?? 0),
+        timestamp: (node.block?.timestamp ?? 0) * 1000,
+        chain: "arweave" as const,
+        url: gatewayUrl(node.id),
+        encrypted: tag("Encrypted") === "1",
+        owner: address,
+      }
+    },
+    opts,
+  )
 }
 
 interface IrysNode {
@@ -246,81 +302,50 @@ interface IrysNode {
 }
 
 /**
- * List a wallet's previously uploaded Aryxn assets from Irys (by the paying EVM
- * address). Same tag contract; Irys `timestamp` is already in milliseconds.
+ * List a wallet's Aryxn assets from Irys (by the paying EVM address). Same tag
+ * contract; Irys `timestamp` is already ms. `order:DESC` gives newest-first so
+ * the watermark stop is correct.
  */
-export async function listIrysByOwner(
+export function listIrysByOwner(
   address: string,
-  limit = 100,
+  opts: ListOpts = {},
 ): Promise<AssetRecord[]> {
-  const query = {
-    query: `query($owner:[String!]!,$app:[String!]!,$n:Int!){
-      transactions(owners:$owner, tags:[{name:"App-Name", values:$app}], first:$n){
-        edges{ node{ id timestamp tags{ name value } } }
+  const n = opts.pageSize ?? 100
+  return graphqlPages<IrysNode>(
+    IRYS_GRAPHQL,
+    (after) => ({
+      query: `query($owner:[String!]!,$app:[String!]!,$n:Int!,$after:String){
+        transactions(owners:$owner, tags:[{name:"App-Name", values:$app}], first:$n, order:DESC, after:$after){
+          pageInfo{ hasNextPage }
+          edges{ cursor node{ id timestamp tags{ name value } } }
+        }
+      }`,
+      variables: { owner: [address], app: [APP_NAME], n, after },
+    }),
+    (node) => {
+      const tag = (k: string) =>
+        node.tags.find((t) => t.name === k)?.value ?? ""
+      return {
+        txId: node.id,
+        fileName: tag("File-Name") || node.id,
+        contentType: tag("Content-Type") || "application/octet-stream",
+        size: 0,
+        timestamp: node.timestamp ?? 0,
+        chain: "irys" as const,
+        url: `${IRYS_GATEWAY}/${node.id}`,
+        encrypted: tag("Encrypted") === "1",
+        owner: address,
       }
-    }`,
-    variables: { owner: [address], app: [APP_NAME], n: limit },
-  }
-  const res = await fetch(IRYS_GRAPHQL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(query),
-  })
-  if (!res.ok) throw new Error(`Irys GraphQL ${res.status}`)
-  const json = await res.json()
-  const edges: Array<{ node: IrysNode }> = json?.data?.transactions?.edges ?? []
-  return edges.map(({ node }) => {
-    const tag = (n: string) => node.tags.find((t) => t.name === n)?.value ?? ""
-    return {
-      txId: node.id,
-      fileName: tag("File-Name") || node.id,
-      contentType: tag("Content-Type") || "application/octet-stream",
-      size: 0,
-      timestamp: node.timestamp ?? 0,
-      chain: "irys" as const,
-      url: `${IRYS_GATEWAY}/${node.id}`,
-      encrypted: tag("Encrypted") === "1",
-      owner: address,
-    }
-  })
+    },
+    opts,
+  )
 }
 
-/** Best-effort fetch of File-Name / original File-Type tags (for download naming). */
-async function fetchAssetMeta(
-  chain: Chain,
-  txId: string,
-): Promise<{ fileName: string; contentType: string }> {
-  const isIrys = chain === "irys"
-  const query = isIrys
-    ? {
-        query: `query($id:[String!]!){ transactions(ids:$id, first:1){ edges{ node{ tags{ name value } } } } }`,
-        variables: { id: [txId] },
-      }
-    : {
-        query: `query($id:ID!){ transaction(id:$id){ tags{ name value } } }`,
-        variables: { id: txId },
-      }
-  try {
-    const res = await fetch(isIrys ? IRYS_GRAPHQL : AR_GRAPHQL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(query),
-    })
-    const json = await res.json()
-    const tags: Array<{ name: string; value: string }> = isIrys
-      ? (json?.data?.transactions?.edges?.[0]?.node?.tags ?? [])
-      : (json?.data?.transaction?.tags ?? [])
-    const tag = (n: string) => tags.find((t) => t.name === n)?.value ?? ""
-    return {
-      fileName: tag("File-Name") || txId,
-      contentType: tag("File-Type") || "application/octet-stream",
-    }
-  } catch {
-    return { fileName: txId, contentType: "application/octet-stream" }
-  }
-}
-
-/** Fetch an encrypted asset's ciphertext and decrypt it with the fragment key. */
+/**
+ * Fetch an encrypted asset's ciphertext and decrypt it with the fragment key.
+ * The name/type come from the decrypted envelope (see encryptFile) — no public
+ * metadata lookup, so nothing about the file leaks on-chain.
+ */
 export async function decryptAsset(
   chain: Chain,
   txId: string,
@@ -332,7 +357,15 @@ export async function decryptAsset(
   const nonce = blob.slice(0, NONCE_LEN)
   const ciphertext = blob.slice(NONCE_LEN)
   const key = fromBase64(decodeURIComponent(keyB64))
-  const bytes = await decryptData(ciphertext, nonce, key)
-  const meta = await fetchAssetMeta(chain, txId)
-  return { bytes, ...meta }
+  const plain = await decryptData(ciphertext, nonce, key)
+  // Envelope: [4-byte metaLen][meta JSON][file bytes] — see encryptFile.
+  const metaLen = new DataView(plain.buffer, plain.byteOffset, 4).getUint32(0)
+  const meta = JSON.parse(
+    new TextDecoder().decode(plain.subarray(4, 4 + metaLen)),
+  ) as { n?: string; t?: string }
+  return {
+    bytes: plain.subarray(4 + metaLen),
+    fileName: meta.n || txId,
+    contentType: meta.t || "application/octet-stream",
+  }
 }
