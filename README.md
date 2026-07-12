@@ -112,7 +112,6 @@ See also: [apps/README.md](apps/README.md)
 - **arweave/** (`@alixex/arweave`): Arweave uploads, fee estimation, (de)compression, and GraphQL search + cache
 - **crypto/** (`@alixex/crypto`): symmetric encryption (libsodium) and encoding/PBKDF2 helpers
 - **storage/** (`@alixex/storage`): encrypted `localStorage` cache + IndexedDB key-value helpers
-- **changelogs/**: package-level changelog assets
 
 See also: [packages/README.md](packages/README.md)
 
@@ -122,12 +121,10 @@ See also: [packages/README.md](packages/README.md)
 aryxn/
 ├── apps/
 │   └── link/             # The permanent-links web app (@alixex/link)
-├── packages/
-│   ├── arweave/          # Arweave upload / fee / compression / search
-│   ├── crypto/           # Encryption + encoding helpers
-│   ├── storage/          # Local cache (localStorage + IndexedDB)
-│   └── changelogs/       # Changelog assets
-└── scripts/              # Automation and setup scripts
+└── packages/
+    ├── arweave/          # Arweave upload / fee / compression / search
+    ├── crypto/           # Encryption + encoding helpers
+    └── storage/          # Local cache (localStorage + IndexedDB)
 ```
 
 ## Open Source

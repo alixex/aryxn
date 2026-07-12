@@ -109,7 +109,6 @@ pnpm deploy:cloudflare
 - **arweave/**（`@alixex/arweave`）：Arweave 上传、费用估算、（解）压缩，以及 GraphQL 搜索 + 缓存
 - **crypto/**（`@alixex/crypto`）：对称加密（libsodium）与编码 / PBKDF2 辅助
 - **storage/**（`@alixex/storage`）：加密的 `localStorage` 缓存 + IndexedDB 键值辅助
-- **changelogs/**：包级变更说明资产
 
 ### 仓库结构（概览）
 
@@ -117,12 +116,10 @@ pnpm deploy:cloudflare
 aryxn/
 ├── apps/
 │   └── link/             # 永久链接 Web 应用（@alixex/link）
-├── packages/
-│   ├── arweave/          # Arweave 上传 / 费用 / 压缩 / 搜索
-│   ├── crypto/           # 加密 + 编码辅助
-│   ├── storage/          # 本地缓存（localStorage + IndexedDB）
-│   └── changelogs/       # 变更说明资产
-└── scripts/              # 自动化与初始化脚本
+└── packages/
+    ├── arweave/          # Arweave 上传 / 费用 / 压缩 / 搜索
+    ├── crypto/           # 加密 + 编码辅助
+    └── storage/          # 本地缓存（localStorage + IndexedDB）
 ```
 
 ## 开源
