@@ -27,6 +27,8 @@ export interface AssetRecord {
   encrypted?: boolean
   /** Base64 symmetric key, kept locally so the owner can re-open; never on-chain. */
   encKey?: string
+  /** The address that uploaded this asset — AR address for arweave, EVM address for irys. */
+  owner: string
 }
 
 export interface UploadOpts {
@@ -71,6 +73,7 @@ function makeRecord(
   txId: string,
   file: File,
   size: number,
+  owner: string,
   encKey?: string,
 ): AssetRecord {
   return {
@@ -85,6 +88,7 @@ function makeRecord(
       : `${chainGateway(chain)}/${txId}`,
     encrypted: !!encKey,
     encKey,
+    owner,
   }
 }
 
@@ -122,7 +126,7 @@ export async function uploadArweave(
     tags,
     opts.onProgress,
   )
-  return makeRecord("arweave", txId, file, finalSize, encKey)
+  return makeRecord("arweave", txId, file, finalSize, ownerAddress, encKey)
 }
 
 /**
@@ -159,6 +163,9 @@ export async function uploadIrys(
   const irys = await WebUploader(WebEthereum).withAdapter(
     EthersV6Adapter(provider),
   )
+  const evmAddress: string = await provider
+    .getSigner()
+    .then((s: any) => s.getAddress())
 
   let data: Uint8Array = new Uint8Array(await file.arrayBuffer())
   let encKey: string | undefined
@@ -182,7 +189,7 @@ export async function uploadIrys(
   const receipt = await irys.upload(Buffer.from(data), { tags })
   opts.onProgress?.({ stage: "完成", progress: 100 })
 
-  return makeRecord("irys", receipt.id, file, data.length, encKey)
+  return makeRecord("irys", receipt.id, file, data.length, evmAddress, encKey)
 }
 
 interface GqlNode {
@@ -227,6 +234,7 @@ export async function listArweaveByOwner(
       chain: "arweave" as const,
       url: gatewayUrl(node.id),
       encrypted: tag("Encrypted") === "1",
+      owner: address,
     }
   })
 }
@@ -272,6 +280,7 @@ export async function listIrysByOwner(
       chain: "irys" as const,
       url: `${IRYS_GATEWAY}/${node.id}`,
       encrypted: tag("Encrypted") === "1",
+      owner: address,
     }
   })
 }
