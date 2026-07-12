@@ -15,5 +15,8 @@
   ],
   "dependencies": {
     "@alixex/crypto": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1"
   }
 }

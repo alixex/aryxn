@@ -31,7 +31,7 @@
     "@irys/web-upload-ethereum": "^0.0.16",
     "@irys/web-upload-ethereum-ethers-v6": "^0.0.16",
     "ethers": "^6.17.0",
-    "ranui": "0.2.0-alpha.6"
+    "ranui": "0.2.0-alpha.7"
   },
   "devDependencies": {
     "typescript": "~7.0.2",

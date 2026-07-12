@@ -5,17 +5,8 @@
   },
   "files": [],
   "references": [
-    { "path": "./apps/vault" },
-    { "path": "./packages/chain-constants" },
-    { "path": "./packages/wallet-core" },
     { "path": "./packages/crypto" },
     { "path": "./packages/storage" },
-    { "path": "./packages/arweave" },
-    { "path": "./packages/query-chain" },
-    { "path": "./packages/cross-chain" },
-    { "path": "./packages/swap-ethereum" },
-    { "path": "./packages/swap-solana" },
-    { "path": "./packages/swap-multichain" },
-    { "path": "./packages/exchange-chain" }
+    { "path": "./packages/arweave" }
   ]
 }
