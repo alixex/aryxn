@@ -1,16 +1,14 @@
-export { db, initDatabase, initializeDatabase } from "./database"
-export {
-  listOpfsFiles,
-  getOpfsFilesWithSize,
-  deleteOpfsDatabaseFile,
-} from "./opfs"
-export { getStorageInfo, clearAllApplicationData } from "./browser"
-export type {
-  SqlValue,
-  OpfsFileInfo,
-  DbRow,
-  SqliteWorkerResponse,
-  SqlitePromiser,
-} from "./types"
+// Lightweight browser persistence for aryxn.
+// - Small encrypted state (search cache, connection flags) → localStorage + WebCrypto.
+// - Lists/records (e.g. "my links" cache) → IndexedDB keyval.
+// Chain (Arweave/Irys) remains the source of truth; this is only a local cache.
 
 export { persistEncrypted, loadEncrypted } from "./encrypted-cache"
+export {
+  idbGet,
+  idbSet,
+  idbDel,
+  idbKeys,
+  idbValues,
+  idbClear,
+} from "./idb"

@@ -1,4 +1,4 @@
-import { type ArweaveJWK } from "@alixex/wallet-core"
+import { type ArweaveJWK } from "./types"
 import { encryptData, toBase64 } from "@alixex/crypto"
 import { compressData } from "./compression"
 import { arweave } from "./wallet"

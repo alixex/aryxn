@@ -124,7 +124,6 @@ export const fromBase64 = (base64: string) => {
   return Uint8Array.from(atob(base64), (c) => c.charCodeAt(0))
 }
 
-export * from "./keys"
-export * from "./bitcoin-transfer"
-export * from "./mnemonic"
+// Multi-chain key derivation (keys/bitcoin-transfer/mnemonic) was removed to slim
+// the bundle — this app only needs symmetric encryption + encoding helpers.
 export * from "./encryption"

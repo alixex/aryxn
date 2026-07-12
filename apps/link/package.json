@@ -1,0 +1,43 @@
+{
+  "name": "@alixex/link",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "aryxn — minimal, open-source permanent file links on Arweave & Irys. Upload a file, get a link that lasts forever.",
+  "keywords": [
+    "aryxn",
+    "permanent-storage",
+    "permanent-link",
+    "arweave",
+    "irys",
+    "file-sharing",
+    "web3",
+    "open-source"
+  ],
+  "license": "AGPL-3.0-or-later",
+  "author": "chaxus",
+  "homepage": "https://aryxn.com/",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@alixex/arweave": "workspace:*",
+    "@alixex/crypto": "workspace:*",
+    "@alixex/storage": "workspace:*",
+    "@irys/web-upload": "^0.0.15",
+    "@irys/web-upload-ethereum": "^0.0.16",
+    "@irys/web-upload-ethereum-ethers-v6": "^0.0.16",
+    "ethers": "^6.17.0",
+    "ranui": "latest",
+    "ranuts": "latest"
+  },
+  "devDependencies": {
+    "typescript": "~7.0.2",
+    "vite": "^8.1.4",
+    "vite-plugin-node-polyfills": "^0.28.0",
+    "vite-plugin-wasm": "^3.6.0"
+  }
+}
