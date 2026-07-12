@@ -111,8 +111,6 @@ pnpm deploy:cloudflare
 - **storage/**（`@alixex/storage`）：加密的 `localStorage` 缓存 + IndexedDB 键值辅助
 - **changelogs/**：包级变更说明资产
 
-> pnpm workspace 还 glob 了 `contracts/*`，为链上合约预留——当前为空。
-
 ### 仓库结构（概览）
 
 ```
@@ -124,7 +122,6 @@ aryxn/
 │   ├── crypto/           # 加密 + 编码辅助
 │   ├── storage/          # 本地缓存（localStorage + IndexedDB）
 │   └── changelogs/       # 变更说明资产
-├── contracts/            # 预留（空）
 ├── docs/                 # 笔记与规划文档
 └── scripts/              # 自动化与初始化脚本
 ```

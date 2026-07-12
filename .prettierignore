@@ -21,6 +21,3 @@ pnpm-lock.yaml
 # System
 .DS_Store
 *.local
-
-# Contracts (managed by Foundry)
-/contracts/
