@@ -116,8 +116,6 @@ See also: [apps/README.md](apps/README.md)
 
 See also: [packages/README.md](packages/README.md)
 
-> The pnpm workspace also globs `contracts/*`, reserved for on-chain contracts — currently empty.
-
 ### Repository Layout (High-Level)
 
 ```
@@ -129,7 +127,6 @@ aryxn/
 │   ├── crypto/           # Encryption + encoding helpers
 │   ├── storage/          # Local cache (localStorage + IndexedDB)
 │   └── changelogs/       # Changelog assets
-├── contracts/            # Reserved (empty)
 ├── docs/                 # Notes and planning docs
 └── scripts/              # Automation and setup scripts
 ```

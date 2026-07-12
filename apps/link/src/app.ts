@@ -120,7 +120,7 @@ export function renderApp(root: HTMLElement): () => void {
         Div()
           .class("nav-inner")
           .children(
-            Div().class("brand").text("aryxn"),
+            Div().class("brand").text("ark"),
             Div()
               .class("nav-actions")
               .children(themeSwitch, langBtn, connectBtn),
@@ -309,7 +309,7 @@ function buildAccountBody(): HTMLElement {
             .on("click", () => {
               const jwk = accounts.exportKeyfile()
               if (jwk)
-                downloadText(jwk, `aryxn-${acc.address.slice(0, 8)}.json`)
+                downloadText(jwk, `ark-${acc.address.slice(0, 8)}.json`)
             }),
           Div()
             .class("acct-field")
@@ -325,7 +325,7 @@ function buildAccountBody(): HTMLElement {
                       if (blob)
                         downloadText(
                           blob,
-                          `aryxn-${acc.address.slice(0, 8)}.enc.json`,
+                          `ark-${acc.address.slice(0, 8)}.enc.json`,
                         )
                     }),
                 ),

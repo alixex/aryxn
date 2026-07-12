@@ -27,7 +27,7 @@ export async function connectArweave(): Promise<string> {
   if (!w) {
     throw new Error("未检测到 Arweave 钱包，请安装 Wander（原 ArConnect）扩展")
   }
-  await w.connect(PERMISSIONS, { name: "aryxn" })
+  await w.connect(PERMISSIONS, { name: "ark" })
   return w.getActiveAddress()
 }
 
