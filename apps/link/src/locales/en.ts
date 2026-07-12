@@ -69,4 +69,20 @@ export const en: Record<string, string> = {
   "toast.unlocked": "Account unlocked",
   "toast.disconnected": "Wallet disconnected",
   "toast.copied": "Link copied to clipboard",
+
+  "account.manage": "Accounts",
+  "account.unlockVault": "Unlock vault",
+  "account.unlockFirst": "Unlock the vault to switch to this account",
+  "account.typeLocal": "local",
+  "account.typeWander": "Wander",
+  "account.typeEvm": "EVM",
+  "account.usage": "{count} files · ~{size}",
+  "account.remove": "Remove",
+  "account.confirmRemove":
+    "Remove this account? Local keys are erased — back up first.",
+  "account.connectEvm": "Connect EVM wallet",
+  "account.locked": "Locked",
+  "account.empty": "No accounts yet",
+  "account.emptyHint":
+    "Create a local account or connect a wallet to get started.",
 }

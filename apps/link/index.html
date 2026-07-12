@@ -691,6 +691,111 @@
         width: auto;
       }
 
+      /* ── Accounts page ──────────────────────────────────── */
+      .acct-page {
+        padding-top: clamp(28px, 6vw, 48px);
+      }
+      .acct-page h1 {
+        font-size: clamp(24px, 4vw, 32px);
+        letter-spacing: -0.03em;
+        margin: 0 0 20px;
+      }
+      .acct-add {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        background: var(--ran-color-bg-elevated, #fff);
+        border: 1px solid var(--ran-color-border, #ebebeb);
+        border-radius: var(--ran-radius-lg, 16px);
+        padding: clamp(14px, 3.5vw, 22px);
+        margin-bottom: 24px;
+      }
+      .acct-banner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 12px 14px;
+        margin-bottom: 16px;
+        border: 1px solid var(--ran-color-border, #ebebeb);
+        border-radius: var(--ran-radius-md, 12px);
+        background: var(--ran-color-bg-muted, #f4f4f4);
+      }
+      .acct-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 14px;
+        border: 1px solid var(--ran-color-border, #ebebeb);
+        border-radius: var(--ran-radius-md, 12px);
+        background: var(--ran-color-bg-elevated, #fff);
+        cursor: pointer;
+        transition:
+          border-color 0.14s ease,
+          background 0.14s ease;
+      }
+      .acct-row:hover {
+        border-color: var(--ran-color-border-hover, #d4d4d4);
+        background: var(--ran-color-bg-subtle, #fafafa);
+      }
+      .acct-row.active {
+        border-color: var(--ran-color-primary, #0070f3);
+      }
+      .acct-dot {
+        flex: none;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--ran-color-border, #dcdcdc);
+      }
+      .acct-dot.active {
+        background: var(--ran-color-primary, #0070f3);
+      }
+      .acct-meta {
+        min-width: 0;
+        flex: 1;
+      }
+      .acct-balance,
+      .acct-usage {
+        flex: none;
+        font-family: var(--ran-font-mono, ui-monospace, monospace);
+        font-size: 12px;
+        color: var(--ran-color-text-secondary, #777);
+        white-space: nowrap;
+      }
+      .acct-actions {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex: none;
+      }
+      .acct-badge {
+        font-family: var(--ran-font-mono, ui-monospace, monospace);
+        font-size: 10.5px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--ran-color-text-secondary, #777);
+        border: 1px solid var(--ran-color-border, #e6e6e6);
+        border-radius: 6px;
+        padding: 2px 7px;
+        white-space: nowrap;
+      }
+      @media (max-width: 640px) {
+        .acct-row {
+          flex-wrap: wrap;
+        }
+        .acct-balance,
+        .acct-usage {
+          margin-left: 20px;
+        }
+        .acct-actions {
+          margin-left: 20px;
+          flex-wrap: wrap;
+        }
+      }
+
       /* staggered page-load reveal */
       @keyframes reveal-in {
         from {
