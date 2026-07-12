@@ -116,10 +116,11 @@ pnpm deploy:cloudflare
 aryxn/
 ├── apps/
 │   └── link/             # 永久链接 Web 应用（@alixex/link）
-└── packages/
-    ├── arweave/          # Arweave 上传 / 费用 / 压缩 / 搜索
-    ├── crypto/           # 加密 + 编码辅助
-    └── storage/          # 本地缓存（localStorage + IndexedDB）
+├── packages/
+│   ├── arweave/          # Arweave 上传 / 费用 / 压缩 / 搜索
+│   ├── crypto/           # 加密 + 编码辅助
+│   └── storage/          # 本地缓存（localStorage + IndexedDB）
+└── docs/                 # 设计文档
 ```
 
 ## 开源
