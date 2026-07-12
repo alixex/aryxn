@@ -14,9 +14,8 @@
     "src"
   ],
   "dependencies": {
-    "@alixex/chain-constants": "workspace:*",
     "@alixex/crypto": "workspace:*",
     "@alixex/storage": "workspace:*",
-    "@alixex/wallet-core": "workspace:*"
+    "arweave": "^1.15.7"
   }
 }

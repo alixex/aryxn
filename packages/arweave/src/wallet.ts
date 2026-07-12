@@ -1,8 +1,13 @@
-import { initArweave } from "@alixex/wallet-core"
+import Arweave from "arweave"
 import { t } from "./i18n"
 
-// Initialize Arweave
-export const arweave = initArweave()
+// Arweave client (mainnet gateway). Was `initArweave()` from @alixex/wallet-core;
+// inlined so this package is self-contained (no multi-chain wallet dependency).
+export const arweave = Arweave.init({
+  host: "arweave.net",
+  port: 443,
+  protocol: "https",
+})
 
 /**
  * 生成一个新的 Arweave 钱包

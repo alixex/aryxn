@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>aryxn — permanent file links</title>
+    <meta
+      name="description"
+      content="Upload a file, get a link that lasts forever. Minimal, open-source permanent storage on Arweave & Irys."
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: var(--ran-color-background, #fff);
+        color: var(--ran-color-foreground, #000);
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+          Arial, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      #app {
+        min-height: 100vh;
+      }
+      .wrap {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 24px 20px 80px;
+      }
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 40px;
+      }
+      .brand {
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+      }
+      .topbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .hero {
+        margin-bottom: 28px;
+      }
+      .hero h1 {
+        font-size: clamp(28px, 5vw, 40px);
+        line-height: 1.1;
+        letter-spacing: -0.03em;
+        margin: 0 0 10px;
+        font-weight: 600;
+      }
+      .hero p {
+        margin: 0;
+        color: var(--ran-color-foreground-muted, #666);
+        font-size: 16px;
+      }
+      .drop {
+        border: 1.5px dashed var(--ran-color-border, #d4d4d4);
+        border-radius: 12px;
+        padding: 44px 24px;
+        text-align: center;
+        cursor: pointer;
+        transition: border-color 160ms, background 160ms;
+        background: var(--ran-color-background-secondary, #fafafa);
+      }
+      .drop.drag,
+      .drop:hover {
+        border-color: var(--ran-color-foreground, #000);
+      }
+      .drop-hint {
+        color: var(--ran-color-foreground-muted, #666);
+        font-size: 14px;
+        margin-top: 8px;
+      }
+      .muted {
+        color: var(--ran-color-foreground-muted, #666);
+        font-size: 13px;
+      }
+      .row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .space {
+        margin-top: 16px;
+      }
+      .links {
+        margin-top: 44px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .link-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 14px;
+        border: 1px solid var(--ran-color-border, #eaeaea);
+        border-radius: 10px;
+      }
+      .link-meta {
+        min-width: 0;
+      }
+      .link-name {
+        font-weight: 500;
+        font-size: 14px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .badge {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--ran-color-foreground-muted, #666);
+        border: 1px solid var(--ran-color-border, #eaeaea);
+        border-radius: 999px;
+        padding: 1px 8px;
+      }
+      .hidden {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
