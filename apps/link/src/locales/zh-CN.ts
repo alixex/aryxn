@@ -67,4 +67,18 @@ export const zhCN: Record<string, string> = {
   "toast.unlocked": "账户已解锁",
   "toast.disconnected": "钱包已断开",
   "toast.copied": "链接已复制到剪贴板",
+
+  "account.manage": "账户",
+  "account.unlockVault": "解锁保险库",
+  "account.unlockFirst": "请先解锁保险库再切换到该账户",
+  "account.typeLocal": "本地",
+  "account.typeWander": "Wander",
+  "account.typeEvm": "EVM",
+  "account.usage": "{count} 个文件 · ~{size}",
+  "account.remove": "移除",
+  "account.confirmRemove": "移除此账户？本地密钥将被抹除——请先备份。",
+  "account.connectEvm": "连接 EVM 钱包",
+  "account.locked": "未解锁",
+  "account.empty": "还没有账户",
+  "account.emptyHint": "创建本地账户或连接钱包以开始使用。",
 }
