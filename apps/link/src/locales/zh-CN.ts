@@ -1,0 +1,22 @@
+export const zhCN: Record<string, string> = {
+  connect: "连接钱包",
+  "hero.title": "永久文件链接",
+  "hero.subtitle":
+    "上传一个文件，得到一条永不失效的链接。开源，极简，存于 Arweave & Irys。",
+  "links.title": "我的链接",
+  "links.empty": "还没有链接。上传一个文件试试。",
+  "drop.title": "点击或拖拽文件到此处",
+  "drop.hint": "上传后得到一条永久链接",
+  "upload.cta": "上传并生成永久链接",
+  "upload.preparing": "准备中…",
+  "upload.done": "永久链接已生成：",
+  "upload.failed": "上传失败：{msg}",
+  "chain.pickEvm": "选择用于 Irys 付费的 EVM 钱包：",
+  "action.copy": "复制",
+  "action.copied": "已复制",
+  "action.open": "打开",
+  "err.noArWallet": "未检测到 Arweave 钱包，请安装 Wander（原 ArConnect）扩展",
+  "err.connectArFirst": "请先连接 Arweave 钱包",
+  "err.noEvmWallet": "未检测到 EVM 钱包（如 MetaMask）——Irys 需要它来支付上传",
+  "lang.toggle": "EN",
+}

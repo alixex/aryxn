@@ -1,4 +1,6 @@
-import { setTheme } from "ranui"
+import { View, Div, Span, signal, createEffect, createRoot } from "ranui/builder"
+import { setTheme } from "ranui/theme"
+import { t, i18n } from "./i18n"
 import {
   connectArweave,
   disconnectArweave,
@@ -17,29 +19,17 @@ import {
 import { cacheAsset, cacheAssets, cachedAssets } from "./cache"
 import { discoverEvmWallets, type EvmWallet } from "./wallet-evm"
 
-// ── State ────────────────────────────────────────────────────────────────
-let address: string | null = null
-let chain: Chain = "arweave"
-let file: File | null = null
+// ── Reactive state ─────────────────────────────────────────────────────────
+const [locale, setLocale] = signal(i18n.getLocale())
+const [address, setAddress] = signal<string | null>(null)
+const [balance, setBalance] = signal<string | null>(null)
+const [chain, setChain] = signal<Chain>("arweave")
+const [links, setLinks] = signal<AssetRecord[]>([])
 
-// ── Tiny DOM helper ──────────────────────────────────────────────────────
-function h<K extends keyof HTMLElementTagNameMap>(
-  tag: K,
-  props: Partial<Record<string, unknown>> = {},
-  children: (Node | string)[] = [],
-): HTMLElementTagNameMap[K] {
-  const node = document.createElement(tag)
-  for (const [k, v] of Object.entries(props)) {
-    if (k === "class") node.className = String(v)
-    else if (k === "text") node.textContent = String(v)
-    else if (k.startsWith("on") && typeof v === "function") {
-      node.addEventListener(k.slice(2).toLowerCase(), v as EventListener)
-    } else if (v !== undefined && v !== null) {
-      node.setAttribute(k, String(v))
-    }
-  }
-  for (const c of children) node.append(c)
-  return node
+// Reactive translate: reads the locale signal so getter bindings re-run on switch.
+const tr = (key: string, params?: Record<string, string | number>): string => {
+  locale()
+  return t(key, params)
 }
 
 function fmtSize(bytes: number): string {
@@ -48,88 +38,104 @@ function fmtSize(bytes: number): string {
   return `${(bytes / 1024 / 1024).toFixed(2)} MB`
 }
 
-// ── Refs updated across renders ──────────────────────────────────────────
-let connectBtn: HTMLElement
-let dropZone: HTMLElement
+// The upload panel is rebuilt imperatively across the async flow; kept out of the
+// reactive tree (plain values, re-rendered on state change) to avoid orphaned effects.
 let uploadPanel: HTMLElement
-let linksEl: HTMLElement
+let currentFile: File | null = null
 
-export function renderApp(root: HTMLElement): void {
-  const themeSwitch = h("r-theme-switch")
-  themeSwitch.addEventListener("change", (e: Event) => {
-    const t = (e as CustomEvent<{ theme: string }>).detail?.theme
-    if (t) setTheme(t as "system" | "light" | "dark")
+/** Build the app once inside a reactive scope. Returns its dispose (MPA-ready). */
+export function renderApp(root: HTMLElement): () => void {
+  return createRoot((dispose) => {
+    const themeSwitch = View("r-theme-switch")
+      .on("change", (e: Event) => {
+        const theme = (e as CustomEvent<{ theme: string }>).detail?.theme
+        if (theme) setTheme(theme as "system" | "light" | "dark")
+      })
+      .build()
+
+    const langBtn = View("r-button")
+      .text(() => tr("lang.toggle"))
+      .on("click", () => {
+        const next = i18n.getLocale() === "en" ? "zh-CN" : "en"
+        i18n.setLocale(next)
+        setLocale(next)
+      })
+      .build()
+
+    const connectBtn = View("r-button")
+      .attr("type", "primary")
+      .text(() => connectLabel())
+      .on("click", () => void onConnectToggle())
+      .build()
+
+    const topbar = Div()
+      .class("topbar")
+      .children(
+        Div().class("brand").text("aryxn"),
+        Div().class("topbar-actions").children(themeSwitch, langBtn, connectBtn),
+      )
+      .build()
+
+    const hero = Div()
+      .class("hero")
+      .children(
+        View("h1").text(() => tr("hero.title")),
+        View("p").text(() => tr("hero.subtitle")),
+      )
+      .build()
+
+    const dropZone = renderDropZone()
+    uploadPanel = Div().build()
+
+    const linksEl = Div().class("links").build()
+    createEffect(() => renderLinks(linksEl, links()))
+
+    const linksSection = Div()
+      .children(View("h2").class("section-title").text(() => tr("links.title")), linksEl)
+      .build()
+
+    root.replaceChildren(
+      Div().class("wrap").children(topbar, hero, dropZone, uploadPanel, linksSection).build(),
+    )
+
+    void refreshLinks()
+    return dispose
   })
-
-  connectBtn = h("r-button", { type: "primary", text: "连接钱包" })
-  connectBtn.addEventListener("click", onConnectToggle)
-
-  const topbar = h("div", { class: "topbar" }, [
-    h("div", { class: "brand", text: "aryxn" }),
-    h("div", { class: "topbar-actions" }, [themeSwitch, connectBtn]),
-  ])
-
-  const hero = h("div", { class: "hero" }, [
-    h("h1", { text: "永久文件链接" }),
-    h("p", {
-      text: "上传一个文件，得到一条永不失效的链接。开源，极简，存于 Arweave & Irys。",
-    }),
-  ])
-
-  dropZone = renderDropZone()
-  uploadPanel = h("div")
-  linksEl = h("div", { class: "links" })
-
-  const linksSection = h("div", {}, [
-    h("r-section", { heading: "我的链接" }),
-    linksEl,
-  ])
-
-  root.replaceChildren(
-    h("div", { class: "wrap" }, [
-      topbar,
-      hero,
-      dropZone,
-      uploadPanel,
-      linksSection,
-    ]),
-  )
-
-  refreshConnectBtn()
-  void refreshLinks()
 }
 
 // ── Connect ──────────────────────────────────────────────────────────────
+function connectLabel(): string {
+  const a = address()
+  if (!a) return tr("connect")
+  const short = `${a.slice(0, 5)}…${a.slice(-4)}`
+  const b = balance()
+  return b ? `${short} · ${b} AR` : short
+}
+
 async function onConnectToggle(): Promise<void> {
-  if (address) {
+  if (address()) {
     await disconnectArweave()
-    address = null
-    refreshConnectBtn()
+    setAddress(null)
+    setBalance(null)
     return
   }
   if (!hasArweaveWallet()) {
-    alert("未检测到 Arweave 钱包，请安装 Wander（原 ArConnect）扩展")
+    alert(tr("err.noArWallet"))
     return
   }
   try {
-    address = await connectArweave()
-    refreshConnectBtn()
+    const a = await connectArweave()
+    setAddress(a)
+    void loadBalance(a)
     void refreshLinks()
   } catch (e) {
     alert((e as Error).message)
   }
 }
 
-async function refreshConnectBtn(): Promise<void> {
-  if (!address) {
-    connectBtn.textContent = "连接钱包"
-    return
-  }
-  const short = `${address.slice(0, 5)}…${address.slice(-4)}`
-  connectBtn.textContent = short
+async function loadBalance(a: string): Promise<void> {
   try {
-    const bal = await getArBalance(address)
-    connectBtn.textContent = `${short} · ${bal} AR`
+    setBalance(await getArBalance(a))
   } catch {
     /* balance is best-effort */
   }
@@ -137,19 +143,19 @@ async function refreshConnectBtn(): Promise<void> {
 
 // ── Upload ───────────────────────────────────────────────────────────────
 function renderDropZone(): HTMLElement {
-  const input = h("input", {
-    type: "file",
-    class: "hidden",
-  }) as HTMLInputElement
+  const input = View<HTMLInputElement>("input").attr("type", "file").class("hidden").build()
   input.addEventListener("change", () => {
     if (input.files && input.files[0]) selectFile(input.files[0])
   })
 
-  const zone = h("div", { class: "drop" }, [
-    h("div", { text: "点击或拖拽文件到此处" }),
-    h("div", { class: "drop-hint", text: "上传后得到一条永久链接" }),
-    input,
-  ])
+  const zone = Div()
+    .class("drop")
+    .children(
+      Div().text(() => tr("drop.title")),
+      Div().class("drop-hint").text(() => tr("drop.hint")),
+      input,
+    )
+    .build()
   zone.addEventListener("click", () => input.click())
   zone.addEventListener("dragover", (e) => {
     e.preventDefault()
@@ -165,152 +171,161 @@ function renderDropZone(): HTMLElement {
   return zone
 }
 
-function chainSelector(): HTMLElement {
-  const mk = (value: Chain, label: string) => {
-    const b = h("r-button", {
-      type: chain === value ? "primary" : "",
-      text: label,
-    })
-    b.addEventListener("click", () => {
-      chain = value
-      selectFile(file!)
-    })
-    return b
-  }
-  return h("div", { class: "row" }, [mk("arweave", "Arweave"), mk("irys", "Irys")])
+function selectFile(f: File): void {
+  currentFile = f
+  renderFilePanel()
 }
 
-function selectFile(f: File): void {
-  file = f
-  const uploadBtn = h("r-button", { type: "primary", text: "上传并生成永久链接" })
-  uploadBtn.addEventListener("click", () => void doUpload())
+function chainBtn(value: Chain, label: string): HTMLElement {
+  return View("r-button")
+    .attr("type", chain() === value ? "primary" : "")
+    .text(label)
+    .on("click", () => {
+      setChain(value)
+      renderFilePanel()
+    })
+    .build()
+}
 
+function renderFilePanel(): void {
+  const f = currentFile
+  if (!f) return
   uploadPanel.replaceChildren(
-    h("div", { class: "space" }, [
-      h("div", { class: "row" }, [
-        h("div", { class: "link-meta" }, [
-          h("div", { class: "link-name", text: f.name }),
-          h("div", { class: "muted", text: fmtSize(f.size) }),
-        ]),
-      ]),
-      file ? chainSelector() : h("span"),
-      h("div", { class: "space" }, [uploadBtn]),
-    ]),
+    Div()
+      .class("space")
+      .children(
+        Div()
+          .class("row")
+          .children(
+            Div()
+              .class("link-meta")
+              .children(
+                Div().class("link-name").text(f.name),
+                Div().class("muted").text(fmtSize(f.size)),
+              ),
+          ),
+        Div().class("row").children(chainBtn("arweave", "Arweave"), chainBtn("irys", "Irys")),
+        Div()
+          .class("space")
+          .children(
+            View("r-button")
+              .attr("type", "primary")
+              .text(tr("upload.cta"))
+              .on("click", () => void doUpload()),
+          ),
+      )
+      .build(),
   )
 }
 
 async function doUpload(): Promise<void> {
-  if (!file) return
-  if (chain === "arweave" && !address) {
-    alert("请先连接 Arweave 钱包")
+  const f = currentFile
+  if (!f) return
+  if (chain() === "arweave" && !address()) {
+    alert(tr("err.connectArFirst"))
     return
   }
 
   let evmProvider: unknown
-  if (chain === "irys") {
+  if (chain() === "irys") {
     try {
       evmProvider = await resolveEvmProvider()
     } catch (e) {
-      uploadPanel.replaceChildren(
-        h("div", { class: "space muted", text: (e as Error).message }),
-      )
+      uploadPanel.replaceChildren(Div().class("space muted").text((e as Error).message).build())
       return
     }
   }
 
-  const progress = h("r-progress", { total: "100" })
+  const progress = View("r-progress").attr("total", "100").build()
   ;(progress as unknown as { percent: string }).percent = "0"
-  const stage = h("div", { class: "muted space", text: "准备中…" })
-  uploadPanel.replaceChildren(h("div", { class: "space" }, [stage, progress]))
+  const stage = Div().class("muted space").text(tr("upload.preparing")).build()
+  uploadPanel.replaceChildren(Div().class("space").children(stage, progress).build())
+
+  const onProgress = (p: { stage: string; progress: number }): void => {
+    stage.textContent = p.stage
+    ;(progress as unknown as { percent: string }).percent = String(Math.round(p.progress))
+  }
 
   try {
-    let record: AssetRecord
-    if (chain === "irys") {
-      record = await uploadIrys(
-        file,
-        {
-          onProgress: (p) => {
-            stage.textContent = p.stage
-            ;(progress as unknown as { percent: string }).percent = String(
-              Math.round(p.progress),
-            )
-          },
-        },
-        evmProvider,
-      )
-    } else {
-      record = await uploadArweave(file, address!, {
-        onProgress: (p) => {
-          stage.textContent = p.stage
-          ;(progress as unknown as { percent: string }).percent = String(
-            Math.round(p.progress),
-          )
-        },
-      })
-    }
+    const record =
+      chain() === "irys"
+        ? await uploadIrys(f, { onProgress }, evmProvider)
+        : await uploadArweave(f, address()!, { onProgress })
     await cacheAsset(record)
     showResult(record)
-    file = null
+    currentFile = null
     void refreshLinks()
   } catch (e) {
     uploadPanel.replaceChildren(
-      h("div", { class: "space muted", text: `上传失败：${(e as Error).message}` }),
+      Div().class("space muted").text(tr("upload.failed", { msg: (e as Error).message })).build(),
     )
   }
 }
 
-// Pick the EVM wallet to pay Irys with (EIP-6963). One → use it; many → let the
-// user choose; none → error.
+// Pick the EVM wallet to pay Irys with (EIP-6963). One → use it; many → choose.
 async function resolveEvmProvider(): Promise<unknown> {
   const wallets = await discoverEvmWallets()
-  if (wallets.length === 0) {
-    throw new Error("未检测到 EVM 钱包（如 MetaMask）——Irys 需要它来支付上传")
-  }
+  if (wallets.length === 0) throw new Error(tr("err.noEvmWallet"))
   if (wallets.length === 1) return wallets[0].provider
   return chooseWallet(wallets)
 }
 
 function chooseWallet(wallets: EvmWallet[]): Promise<unknown> {
   return new Promise((resolve) => {
-    const buttons = wallets.map((w) => {
-      const b = h("r-button", { text: w.info.name })
-      b.addEventListener("click", () => resolve(w.provider))
-      return b
-    })
+    const buttons = wallets.map((w) =>
+      View("r-button")
+        .text(w.info.name)
+        .on("click", () => resolve(w.provider))
+        .build(),
+    )
     uploadPanel.replaceChildren(
-      h("div", { class: "space" }, [
-        h("div", { class: "muted", text: "选择用于 Irys 付费的 EVM 钱包：" }),
-        h("div", { class: "row space" }, buttons),
-      ]),
+      Div()
+        .class("space")
+        .children(
+          Div().class("muted").text(tr("chain.pickEvm")),
+          Div().class("row space").children(buttons),
+        )
+        .build(),
     )
   })
 }
 
+function copyButton(url: string, variant = ""): HTMLElement {
+  const btn = View("r-button")
+    .attr("type", variant)
+    .text(tr("action.copy"))
+    .on("click", () => {
+      void navigator.clipboard.writeText(url)
+      btn.textContent = tr("action.copied")
+      setTimeout(() => (btn.textContent = tr("action.copy")), 1500)
+    })
+    .build()
+  return btn
+}
+
 function showResult(record: AssetRecord): void {
-  const link = h("r-link", { href: record.url, text: record.url })
-  const copy = h("r-button", { text: "复制" })
-  copy.addEventListener("click", () => {
-    void navigator.clipboard.writeText(record.url)
-    copy.textContent = "已复制"
-    setTimeout(() => (copy.textContent = "复制"), 1500)
-  })
   uploadPanel.replaceChildren(
-    h("div", { class: "space" }, [
-      h("div", { class: "muted", text: "永久链接已生成：" }),
-      h("div", { class: "row space" }, [link, copy]),
-    ]),
+    Div()
+      .class("space")
+      .children(
+        Div().class("muted").text(tr("upload.done")),
+        Div()
+          .class("row space")
+          .children(View("r-link").attr("href", record.url).text(record.url), copyButton(record.url)),
+      )
+      .build(),
   )
 }
 
 // ── My links ─────────────────────────────────────────────────────────────
 async function refreshLinks(): Promise<void> {
-  // Local cache is shown first (instant); then merge chain history from both
-  // networks (backward compatible): Arweave by AR address, Irys by EVM address.
-  renderLinks(await cachedAssets())
-
-  if (address) {
+  // Chain history from both networks (backward compatible): Arweave by AR
+  // address, Irys by the connected EVM address. Local cache shows instantly.
+  setLinks(await cachedAssets())
+  const a = address()
+  if (a) {
     try {
-      await cacheAssets(await listArweaveByOwner(address))
+      await cacheAssets(await listArweaveByOwner(a))
     } catch {
       /* offline / gateway hiccup — cache still shows */
     }
@@ -323,36 +338,34 @@ async function refreshLinks(): Promise<void> {
       /* Irys gateway hiccup — cache still shows */
     }
   }
-  renderLinks(await cachedAssets())
+  setLinks(await cachedAssets())
 }
 
-function renderLinks(records: AssetRecord[]): void {
+function renderLinks(container: HTMLElement, records: AssetRecord[]): void {
   if (records.length === 0) {
-    linksEl.replaceChildren(
-      h("div", { class: "muted", text: "还没有链接。上传一个文件试试。" }),
-    )
+    container.replaceChildren(Div().class("muted").text(tr("links.empty")).build())
     return
   }
-  linksEl.replaceChildren(
-    ...records.map((r) => {
-      const open = h("r-link", { href: r.url, text: "打开" })
-      const copy = h("r-button", { type: "text", text: "复制" })
-      copy.addEventListener("click", () => {
-        void navigator.clipboard.writeText(r.url)
-        copy.textContent = "已复制"
-        setTimeout(() => (copy.textContent = "复制"), 1500)
-      })
-      return h("div", { class: "link-item" }, [
-        h("div", { class: "link-meta" }, [
-          h("div", { class: "link-name", text: r.fileName }),
-          h("div", { class: "muted", text: fmtSize(r.size) }),
-        ]),
-        h("div", { class: "row" }, [
-          h("span", { class: "badge", text: r.chain }),
-          open,
-          copy,
-        ]),
-      ])
-    }),
+  container.replaceChildren(
+    ...records.map((r) =>
+      Div()
+        .class("link-item")
+        .children(
+          Div()
+            .class("link-meta")
+            .children(
+              Div().class("link-name").text(r.fileName),
+              Div().class("muted").text(fmtSize(r.size)),
+            ),
+          Div()
+            .class("row")
+            .children(
+              Span().class("badge").text(r.chain),
+              View("r-link").attr("href", r.url).text(tr("action.open")),
+              copyButton(r.url, "text"),
+            ),
+        )
+        .build(),
+    ),
   )
 }
