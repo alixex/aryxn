@@ -1,13 +1,15 @@
-import { View, Div, Span, signal, createEffect, createRoot } from "ranui/builder"
+import {
+  View,
+  Div,
+  Span,
+  signal,
+  createEffect,
+  createRoot,
+  type ElementBuilder,
+} from "ranui/builder"
 import { setTheme } from "ranui/theme"
 import { t, i18n } from "./i18n"
-import {
-  connectArweave,
-  disconnectArweave,
-  getArBalance,
-  getConnectedEvmAddress,
-  hasArweaveWallet,
-} from "./wallet"
+import { getArBalance, getConnectedEvmAddress, hasArweaveWallet } from "./wallet"
 import {
   uploadArweave,
   uploadIrys,
@@ -18,13 +20,27 @@ import {
 } from "./storage"
 import { cacheAsset, cacheAssets, cachedAssets } from "./cache"
 import { discoverEvmWallets, type EvmWallet } from "./wallet-evm"
+import * as accounts from "./account"
+import type { Account } from "./account"
 
 // ── Reactive state ─────────────────────────────────────────────────────────
 const [locale, setLocale] = signal(i18n.getLocale())
-const [address, setAddress] = signal<string | null>(null)
+const [account, setAccount] = signal<Account>(null)
 const [balance, setBalance] = signal<string | null>(null)
+
+/** Active account address (reactive — reads the account signal). */
+function address(): string | null {
+  return account()?.address ?? null
+}
 const [chain, setChain] = signal<Chain>("arweave")
 const [links, setLinks] = signal<AssetRecord[]>([])
+const [query, setQuery] = signal("")
+const [encrypt, setEncrypt] = signal(false)
+
+function filterLinks(records: AssetRecord[], q: string): AssetRecord[] {
+  const s = q.trim().toLowerCase()
+  return s ? records.filter((r) => r.fileName.toLowerCase().includes(s)) : records
+}
 
 // Reactive translate: reads the locale signal so getter bindings re-run on switch.
 const tr = (key: string, params?: Record<string, string | number>): string => {
@@ -41,6 +57,7 @@ function fmtSize(bytes: number): string {
 // The upload panel is rebuilt imperatively across the async flow; kept out of the
 // reactive tree (plain values, re-rendered on state change) to avoid orphaned effects.
 let uploadPanel: HTMLElement
+let accountModal: HTMLElement
 let currentFile: File | null = null
 
 /** Build the app once inside a reactive scope. Returns its dispose (MPA-ready). */
@@ -65,7 +82,12 @@ export function renderApp(root: HTMLElement): () => void {
     const connectBtn = View("r-button")
       .attr("type", "primary")
       .text(() => connectLabel())
-      .on("click", () => void onConnectToggle())
+      .on("click", () => openAccountModal())
+      .build()
+
+    accountModal = View("r-modal")
+      .attr("title", tr("account.title"))
+      .attr("closable", "")
       .build()
 
     const topbar = Div()
@@ -88,14 +110,26 @@ export function renderApp(root: HTMLElement): () => void {
     uploadPanel = Div().build()
 
     const linksEl = Div().class("links").build()
-    createEffect(() => renderLinks(linksEl, links()))
+    createEffect(() => renderLinks(linksEl, filterLinks(links(), query())))
+
+    const search = View<HTMLInputElement>("r-input")
+      .attr("placeholder", () => tr("links.search"))
+      .build()
+    search.addEventListener("input", (e) =>
+      setQuery((e as unknown as CustomEvent<{ value: string }>).detail?.value ?? ""),
+    )
 
     const linksSection = Div()
-      .children(View("h2").class("section-title").text(() => tr("links.title")), linksEl)
+      .children(
+        View("h2").class("section-title").text(() => tr("links.title")),
+        search,
+        linksEl,
+      )
       .build()
 
     root.replaceChildren(
       Div().class("wrap").children(topbar, hero, dropZone, uploadPanel, linksSection).build(),
+      accountModal,
     )
 
     void refreshLinks()
@@ -103,7 +137,7 @@ export function renderApp(root: HTMLElement): () => void {
   })
 }
 
-// ── Connect ──────────────────────────────────────────────────────────────
+// ── Account ────────────────────────────────────────────────────────────────
 function connectLabel(): string {
   const a = address()
   if (!a) return tr("connect")
@@ -112,33 +146,188 @@ function connectLabel(): string {
   return b ? `${short} · ${b} AR` : short
 }
 
-async function onConnectToggle(): Promise<void> {
-  if (address()) {
-    await disconnectArweave()
-    setAddress(null)
-    setBalance(null)
-    return
-  }
-  if (!hasArweaveWallet()) {
-    alert(tr("err.noArWallet"))
-    return
-  }
-  try {
-    const a = await connectArweave()
-    setAddress(a)
-    void loadBalance(a)
-    void refreshLinks()
-  } catch (e) {
-    alert((e as Error).message)
-  }
-}
-
 async function loadBalance(a: string): Promise<void> {
   try {
     setBalance(await getArBalance(a))
   } catch {
     /* balance is best-effort */
   }
+}
+
+function applyAccount(acc: Account): void {
+  setAccount(acc)
+  if (acc) {
+    void loadBalance(acc.address)
+    void refreshLinks()
+  } else {
+    setBalance(null)
+  }
+}
+
+function setModalOpen(open: boolean): void {
+  ;(accountModal as unknown as { open: boolean }).open = open
+}
+
+function openAccountModal(): void {
+  accountModal.replaceChildren(buildAccountBody())
+  setModalOpen(true)
+}
+
+/** Read the `value` of an r-input (custom element). */
+function val(el: HTMLElement): string {
+  return (el as unknown as { value?: string }).value ?? ""
+}
+
+function pwdField(): HTMLElement {
+  return View("r-input").attr("type", "password").attr("placeholder", tr("account.password")).build()
+}
+
+async function runAccount(fn: () => Promise<void>): Promise<void> {
+  try {
+    await fn()
+  } catch (e) {
+    alert((e as Error).message)
+  }
+}
+
+function downloadText(text: string, name: string): void {
+  const url = URL.createObjectURL(new Blob([text], { type: "application/json" }))
+  const a = document.createElement("a")
+  a.href = url
+  a.download = name
+  a.click()
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
+}
+
+function buildAccountBody(): HTMLElement {
+  const acc = account()
+  const rows: Array<ElementBuilder<HTMLDivElement> | null> = []
+
+  if (acc) {
+    rows.push(
+      Div().class("muted").text(tr(acc.kind === "local" ? "account.local" : "account.external")),
+      Div().class("link-name").text(acc.address),
+    )
+    if (acc.kind === "local") {
+      rows.push(
+        Div().class("row space").children(
+          View("r-button")
+            .text(tr("account.export"))
+            .on("click", () => {
+              const jwk = accounts.exportKeyfile()
+              if (jwk) downloadText(jwk, `aryxn-${acc.address.slice(0, 8)}.json`)
+            }),
+        ),
+      )
+      const encPwd = pwdField()
+      rows.push(
+        Div().class("row space").children(
+          encPwd,
+          View("r-button")
+            .text(tr("account.exportEnc"))
+            .on("click", () =>
+              void runAccount(async () => {
+                const blob = await accounts.exportEncrypted(val(encPwd))
+                if (blob) downloadText(blob, `aryxn-${acc.address.slice(0, 8)}.enc.json`)
+              }),
+            ),
+        ),
+      )
+    }
+    rows.push(
+      Div().class("row space").children(
+        View("r-button")
+          .attr("type", "warning")
+          .text(tr("account.disconnect"))
+          .on("click", () =>
+            void runAccount(async () => {
+              await accounts.disconnect()
+              applyAccount(null)
+              setModalOpen(false)
+            }),
+          ),
+      ),
+    )
+    return Div().class("space").children(rows).build()
+  }
+
+  // Not connected: connect external, create, import, or unlock a stored account.
+  if (hasArweaveWallet()) {
+    rows.push(
+      Div().class("row space").children(
+        View("r-button")
+          .attr("type", "primary")
+          .text(tr("account.connectWander"))
+          .on("click", () =>
+            void runAccount(async () => {
+              applyAccount(await accounts.connectExternal())
+              setModalOpen(false)
+            }),
+          ),
+      ),
+    )
+  }
+
+  const createPwd = pwdField()
+  rows.push(
+    Div().class("row space").children(
+      createPwd,
+      View("r-button")
+        .text(tr("account.create"))
+        .on("click", () =>
+          void runAccount(async () => {
+            const p = val(createPwd)
+            if (!p) throw new Error(tr("account.needPassword"))
+            applyAccount(await accounts.createLocal(p))
+            setModalOpen(false)
+          }),
+        ),
+    ),
+  )
+
+  const fileInput = View<HTMLInputElement>("input")
+    .attr("type", "file")
+    .attr("accept", ".json,application/json")
+    .build()
+  const importPwd = pwdField()
+  rows.push(
+    Div().class("row space").children(
+      fileInput,
+      importPwd,
+      View("r-button")
+        .text(tr("account.import"))
+        .on("click", () =>
+          void runAccount(async () => {
+            const f = fileInput.files?.[0]
+            if (!f) throw new Error(tr("account.pickFile"))
+            const p = val(importPwd)
+            if (!p) throw new Error(tr("account.needPassword"))
+            applyAccount(await accounts.importKeyfile(await f.text(), p))
+            setModalOpen(false)
+          }),
+        ),
+    ),
+  )
+
+  if (accounts.hasStoredAccount()) {
+    const unlockPwd = pwdField()
+    rows.push(
+      Div().class("row space").children(
+        unlockPwd,
+        View("r-button")
+          .attr("type", "primary")
+          .text(tr("account.unlock"))
+          .on("click", () =>
+            void runAccount(async () => {
+              applyAccount(await accounts.unlock(val(unlockPwd)))
+              setModalOpen(false)
+            }),
+          ),
+      ),
+    )
+  }
+
+  return Div().class("space").children(rows).build()
 }
 
 // ── Upload ───────────────────────────────────────────────────────────────
@@ -187,6 +376,14 @@ function chainBtn(value: Chain, label: string): HTMLElement {
     .build()
 }
 
+function encryptToggle(): HTMLElement {
+  const cb = View("r-checkbox").boolAttr("checked", encrypt()).text(tr("upload.encrypt")).build()
+  cb.addEventListener("change", (e) =>
+    setEncrypt((e as unknown as CustomEvent<{ checked: boolean }>).detail?.checked ?? false),
+  )
+  return cb
+}
+
 function renderFilePanel(): void {
   const f = currentFile
   if (!f) return
@@ -205,6 +402,7 @@ function renderFilePanel(): void {
               ),
           ),
         Div().class("row").children(chainBtn("arweave", "Arweave"), chainBtn("irys", "Irys")),
+        encryptToggle(),
         Div()
           .class("space")
           .children(
@@ -249,8 +447,13 @@ async function doUpload(): Promise<void> {
   try {
     const record =
       chain() === "irys"
-        ? await uploadIrys(f, { onProgress }, evmProvider)
-        : await uploadArweave(f, address()!, { onProgress })
+        ? await uploadIrys(f, { onProgress, encrypt: encrypt() }, evmProvider)
+        : await uploadArweave(
+            f,
+            address()!,
+            { onProgress, encrypt: encrypt() },
+            accounts.activeJwk(),
+          )
     await cacheAsset(record)
     showResult(record)
     currentFile = null
@@ -361,6 +564,7 @@ function renderLinks(container: HTMLElement, records: AssetRecord[]): void {
             .class("row")
             .children(
               Span().class("badge").text(r.chain),
+              r.encrypted ? Span().class("badge").text("🔒") : null,
               View("r-link").attr("href", r.url).text(tr("action.open")),
               copyButton(r.url, "text"),
             ),
