@@ -1,7 +1,7 @@
 # 资源索引设计（Resource Index Design）
 
 - **Date**: 2026-07-12
-- **Status**: Approved (design)，分层实施
+- **Status**: **P0 + P1 已实现（2026-07-12）**；P2 为条件项，未做。见 §7
 - **Scope**: `apps/link`，与 [multi-account-design.md](./multi-account-design.md) 配套
 - **前置变更**: 本地层已从 **SQLite 换成 IndexedDB**。当前用 `@alixex/storage` 的
   KV 接口（`idbGet/idbSet/idbDel/idbKeys/idbValues/idbClear`），搜索是对
@@ -63,10 +63,11 @@ GraphQL schema，查询同款，但**两条路径并不对称**：
 
 **当前策略的 4 个真实缺口：**
 
-1. **first:100 封顶、无分页** → 新设备/清缓存后看不到第 100 条以外的旧文件（唯一
-   的真 bug，P1 解决）。
-2. **Irys size=0** → 跨设备对账回来的 Irys 文件显示「0 B」（上传当次缓存有真值，
-   跨设备丢失）。
+1. ~~**first:100 封顶、无分页**~~ → **✅ 已由 P1 修复**（游标分页拉全 + 水位增量）。
+2. **Irys size=0**（已定性，非可查缺陷）→ 官方 SDK schema 确认 Irys transaction node
+   **无 size 字段**（可查字段只有 id/receipt/tags/address/token/signature/timestamp），
+   与 Arweave 的 `data{size}` 不同。跨设备对账回来的 Irys 文件只能显示「0 B」，除非对
+   每个文件发 HEAD 请求读 `Content-Length`；上传当次本地缓存已有真值。
 3. **双地址割裂** → AR 文件按 AR 地址查、Irys 按 EVM 地址查；只连一个身份就看不到
    另一条链的文件。「我的链接」要完整需两个身份都连上。
 4. **搜索是本地-only** → 是优点（秒回、离线、零网关依赖）也是局限（只能搜已进缓存
@@ -148,13 +149,16 @@ added[], updated[], deleted[] }`，只装差量；tag `App-Name: Aryxn-Manifest`
 
 ## 7. 分层实施
 
-### P0（立即做）修文件名泄露
+### P0 ✅ 已实现（2026-07-12）修文件名泄露
 
-加密上传时 `File-Name` **不写明文**（占位 `encrypted` 或省略），真实名放进
-`AssetRecord` / 加密内容里。见 `storage.ts` 的 `uploadArweave` L115、`uploadIrys`
-L169。
+**加密信封**：`encryptFile` 把 `{名, 类型}` 打进密文——明文结构
+`[4字节长度][meta JSON][文件字节]` 整体加密，名字/类型**藏在密文里、永不上链**。加密
+上传不再写 `File-Name`/`File-Type` 公开 tag（Arweave 传占位名 `"encrypted"`，Irys 不加
+File-Name）；`decryptAsset` 从信封还原，删掉了 `fetchAssetMeta`。落地：`storage.ts` 的
+`encryptFile` / `decryptAsset` / `uploadArweave` / `uploadIrys`；测试 `storage.test.ts`
+（信封往返 + 断言密文不含明文名）。
 
-### P1（查询正解）标签查询加分页 + 水位
+### P1 ✅ 已实现（2026-07-12）标签查询加分页 + 水位
 
 **分页 = 冷启动能拉全**（修完整性）；**水位 = 热刷新不白拉**（修效率）。
 
@@ -198,14 +202,22 @@ GraphQL 多取两个字段：`pageInfo{ hasNextPage }` 与 `edges{ cursor node{.
 | 首次/新设备（无水位） | 分页拉到底           | O(总数 / 100) |
 | 日常刷新（有水位）    | 拉最新页，撞水位即停 | **≈1 次请求** |
 
-**两个必须注意点：**
+**落地**：`graphqlPages`（通用游标分页 + `until` 水位停）驱动 `listArweaveByOwner` /
+`listIrysByOwner`；`sync.ts` 管水位（`sync:<chain>:<addr>`）+ 缓存；`app.ts` 的
+`refreshLinks` 调 `syncArweaveAssets` / `syncIrysAssets`。测试 `storage.test.ts`（分页
+拉全 + 水位停止）。
 
-1. **水位按（链 + 地址）分别存**：`sync:arweave:<arAddr>`、`sync:irys:<evmAddr>`
-   （两个独立索引器 + 两种 owner 身份）。存 IndexedDB meta 键即可。
-2. **Irys 必须补显式排序**：`listIrysByOwner` 现在**无 sort**（`storage.ts` L250），
-   水位依赖「最新在前」，得加按 timestamp/height 降序；AR 已有 `HEIGHT_DESC`。
+**注意点（落地状态）：**
 
-顺带可修缺口 2（Irys `size`：GraphQL 补取 size 字段，或对账时保留上传当次的真值）。
+1. ✅ **水位按（链 + 地址）分别存**：`sync:arweave:<arAddr>`、`sync:irys:<evmAddr>`。
+2. ✅ **Irys 已补显式排序**：`listIrysByOwner` 加了 `order:DESC`（水位依赖最新在前）。
+   字段已按**官方 SDK 源码**（`Irys-xyz/query` `src/queries/irys/transactions.ts`）核对
+   正确：`order`（枚举）/`first`/`after`/`owners`/`pageInfo{hasNextPage}`/`edges{cursor}`
+   全对。仅建议真机 smoke 一次确认运行时，非"可能写错"。
+
+**缺口 2（Irys `size=0`）已定性、不可靠 GraphQL 修**：官方 schema 里 Irys transaction
+node **无 size 字段**（有 id/receipt/tags/address/token/signature/timestamp）。要跨设备
+显示大小只能对每个文件发 HEAD 读 `Content-Length`，或沿用上传当次的本地缓存值（现状）。
 
 ### P2（条件项，非待办）加密可变索引
 
@@ -231,4 +243,4 @@ GraphQL 多取两个字段：`pageInfo{ hasNextPage }` 与 `edges{ cursor node{.
 override** 顶上；只有「跨设备私密管理」成为明确需求时，再上加密清单（P2 条件项，配合
 多账户设计）。
 
-节奏：**P0 立即，P1 解决规模，P2 按需再定。**
+节奏：**P0 ✅ + P1 ✅ 已落地（2026-07-12，待真机验 Irys 查询 + size）；P2 按需再定。**
