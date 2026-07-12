@@ -43,9 +43,9 @@ A unified account record (no plaintext private key):
 interface AccountRecord {
   id: string            // stable, generated
   type: "local" | "wander" | "evm"
-  chain: "arweave" | "evm"
-  address: string
-  label: string         // user-editable, defaults to a shortened address
+  network: "arweave" | "evm"
+  address: string       // "" until known (a migrated local account is empty until first unlock — see §4)
+  label: string         // user-editable; defaults to a shortened address, or a generic name while address is unknown
   createdAt: number
 }
 ```
@@ -53,6 +53,18 @@ interface AccountRecord {
 - `local` — an Arweave keyfile; ciphertext held in the vault (see §4).
 - `wander` — external Arweave wallet (Wander/ArConnect); reference only, no key stored.
 - `evm` — external EVM wallet address (funds Irys); reference only, no key stored.
+
+**`network` vs `AssetRecord.chain`.** An account's `network` is `"arweave" | "evm"`; a cached
+resource's `chain` (storage.ts) is `"arweave" | "irys"`. They are deliberately distinct fields —
+map account → asset chain explicitly:
+
+```ts
+const ASSET_CHAIN = { arweave: "arweave", evm: "irys" } as const  // network → AssetRecord.chain
+```
+
+An account with an empty `address` is in a **locked/unknown** state (cannot scope resources or show
+a balance) until its address is resolved — for `local` on unlock (§4), for `evm` from the connected
+wallet address, for `wander` on connect.
 
 ---
 
@@ -79,26 +91,40 @@ crypto primitive (`encryptStringForStorage` / `decryptStringFromStorage` from
   inherit their old password `P`; brand-new users set it when creating their first local
   account (same as today's "create with password").
 - Adding further local accounts does **not** prompt for a new password — it encrypts under the
-  session-unlocked master password. Trade-off: all local accounts share one password (accepted).
+  session-unlocked master password. **Requires the vault to be unlocked this session**; if it is
+  locked (or empty of a session master), `addLocal` / `importLocal` prompts for the master password
+  once (unlock), then proceeds. Trade-off: all local accounts share one password (accepted).
 - **Unlock** = try to `decryptStringFromStorage` any vault entry with the entered password; if it
   succeeds the password is correct and becomes the session master. The migrated account is the
   verification anchor.
 
 ### Seamless migration (no re-encryption, no password prompt)
 
-On first load of the new version, reshape storage silently — it only moves **ciphertext**, so
-no password is required:
+The old `account.ts` stores **only** the encrypted JWK under `aryxn:account` — the address is not
+persisted anywhere (it is derivable only by decrypting the JWK, which needs the password). So the
+migration moves ciphertext silently but **cannot know the address until the user unlocks**:
 
 ```
 read aryxn:account (ciphertext) ─move→ aryxn:vault[id] = same ciphertext (verbatim)
-                                        aryxn:accounts = [{ id, type:"local", chain:"arweave", address, label }]
-                                        aryxn:active   = id
+                                        aryxn:accounts = [{ id, type:"local", network:"arweave",
+                                                            address:"", label:"Local account", createdAt }]
+                                        aryxn:active   = id            // active, but in the locked/unknown state
 delete aryxn:account
 ```
 
-The user's unlock password is unchanged (`decryptStringFromStorage(vault[id], P)` — same
-function, same ciphertext). Nothing is re-keyed; upgrading is invisible until the user unlocks
-to use the account (exactly as before).
+- The reshape moves only **ciphertext**, so it needs **no password**. `address` starts empty and
+  `label` is a generic placeholder.
+- The migrated account is active but **locked** (empty address ⇒ §6 shows no resources, §7 no
+  balance) — identical to how the old app behaved on reload (it showed "Unlock" and had no active
+  key until the password was entered).
+- **Address backfill happens in `unlockVault(P)`**: after a successful decrypt, for every vault
+  entry whose record `address` is empty, derive it via `arweave.wallets.jwkToAddress(jwk)` and set
+  `address` (and, if the label is still the placeholder, a shortened-address label). Resources and
+  balance then scope normally.
+
+The user's unlock password is unchanged (`decryptStringFromStorage(vault[id], P)` — same function,
+same ciphertext). Nothing is re-keyed; upgrading is invisible until the user unlocks (exactly as
+before), at which point the address resolves.
 
 ---
 
@@ -114,11 +140,11 @@ activeId(): string | null
 activeAccount(): AccountRecord | null // derived
 
 setActive(id): Promise<void>
-addLocal(): Promise<AccountRecord>            // uses session master password
-importLocal(jwkJson): Promise<AccountRecord>
+addLocal(): Promise<AccountRecord>            // requires unlocked session (prompts master pw once if locked)
+importLocal(jwkJson): Promise<AccountRecord>  // same unlock requirement
 connectWander(): Promise<AccountRecord>
-connectEvm(provider, address): Promise<AccountRecord>
-removeAccount(id): void
+connectEvm(provider, address): Promise<AccountRecord>  // address from getConnectedEvmAddress() (wallet.ts) — no extra prompt
+removeAccount(id): void                       // deletes the vault entry (local) + re-derives active pointer (§10)
 
 unlockVault(masterPassword): Promise<void>
 isVaultUnlocked(): boolean
@@ -155,9 +181,11 @@ Result: switching to an Arweave account shows only its Arweave resources; switch
 account shows only its Irys resources — one cache, cleanly sliced by account.
 
 **Legacy cache self-heal**: old records have no `owner`. They are re-stamped on the next
-successful network reconcile of that owner. Until then, a legacy (owner-less) record is shown
-when its `chain` matches the active account's chain — so nothing disappears, and cross-account
-leakage is negligible because the old app was effectively single-account. No cache wipe needed.
+successful network reconcile of that owner. Until then, a legacy (owner-less) record is shown when
+its `chain` matches the active account's mapped asset chain — i.e. `record.chain ===
+ASSET_CHAIN[activeAccount.network]` (§2), so an active `evm` account (`ASSET_CHAIN.evm === "irys"`)
+still shows its owner-less `irys` links. Nothing disappears, and cross-account leakage is negligible
+because the old app was effectively single-account. No cache wipe needed.
 
 ---
 
@@ -174,6 +202,11 @@ leakage is negligible because the old app was effectively single-account. No cac
 
 - Per account: reduce the owner-filtered records → `{ count, totalBytes }` from
   `cachedAssets(owner)`. Reflects "known uploads"; completeness self-heals with reconcile.
+- **Caveat**: `listIrysByOwner` reconciles Irys records with `size: 0` (the Irys GraphQL query does
+  not fetch data size, storage.ts). So `totalBytes` for Irys is accurate only for uploads performed
+  in-app on this device (where the size is known at upload time); Irys links reconciled from the
+  network contribute 0 bytes. `count` is always accurate; Arweave reconcile carries real sizes. The
+  usage label should read as an approximate total (e.g. "N files · ~X MB"), not an exact quota.
 
 ---
 
@@ -231,6 +264,10 @@ Keep upload behavior close to current, sourcing the signer from the active accou
   password"), no state change.
 - **Remove active account** → clear active pointer, fall back to the next account (or "no account"
   empty state); local removal also deletes its vault entry (irreversible without a backup — confirm).
+  Owner-scoped cached links for the removed account are **left in place** (harmless — they simply
+  stop displaying with no matching account, and reappear if the account is re-added); no cache purge.
+- **Add / import a local account while the vault is locked** → `addLocal` / `importLocal` first
+  prompt for the master password (unlock this session), then create/import under it (§4).
 - **EVM address changes** in the wallet (account/chain switch) → re-read on focus/`accountsChanged`;
   the `evm` record's address updates and resources re-scope.
 - **Balance fetch failure / offline** → leave balance blank (best-effort); cached links still show.
