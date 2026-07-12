@@ -114,6 +114,24 @@ export function activeJwk(): ArweaveJWK | null {
   return a && a.type === "local" ? (jwkCache.get(a.id) ?? null) : null
 }
 
+/** Export a local account's keyfile as plain JWK JSON. Requires the account to be unlocked
+ *  this session (its jwk is in the cache); returns null otherwise (e.g. locked, or not local). */
+export function exportKeyfile(id: string): string | null {
+  const jwk = jwkCache.get(id)
+  return jwk ? JSON.stringify(jwk) : null
+}
+
+/** Export a local account's keyfile ENCRYPTED under `password` (safe to store). Returns null
+ *  if the account's jwk isn't loaded (locked / not local). */
+export async function exportEncrypted(
+  id: string,
+  password: string,
+): Promise<string | null> {
+  const jwk = jwkCache.get(id)
+  if (!jwk) return null
+  return JSON.stringify(await encryptStringForStorage(JSON.stringify(jwk), password))
+}
+
 // ── Legacy migration + unlock ───────────────────────────────────────────────
 
 /** One-time reshape of the old single-slot account into the book. Moves ciphertext only. */
