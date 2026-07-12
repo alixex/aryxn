@@ -41,11 +41,11 @@ A unified account record (no plaintext private key):
 
 ```ts
 interface AccountRecord {
-  id: string            // stable, generated
+  id: string // stable, generated
   type: "local" | "wander" | "evm"
   network: "arweave" | "evm"
-  address: string       // "" until known (a migrated local account is empty until first unlock — see §4)
-  label: string         // user-editable; defaults to a shortened address, or a generic name while address is unknown
+  address: string // "" until known (a migrated local account is empty until first unlock — see §4)
+  label: string // user-editable; defaults to a shortened address, or a generic name while address is unknown
   createdAt: number
 }
 ```
@@ -59,7 +59,7 @@ resource's `chain` (storage.ts) is `"arweave" | "irys"`. They are deliberately d
 map account → asset chain explicitly:
 
 ```ts
-const ASSET_CHAIN = { arweave: "arweave", evm: "irys" } as const  // network → AssetRecord.chain
+const ASSET_CHAIN = { arweave: "arweave", evm: "irys" } as const // network → AssetRecord.chain
 ```
 
 An account with an empty `address` is in a **locked/unknown** state (cannot scope resources or show
@@ -171,7 +171,9 @@ Module map:
 Add an owner to every cached record and filter the view by the active account's address.
 
 ```ts
-interface AssetRecord { /* …existing… */ owner: string }
+interface AssetRecord {
+  /* …existing… */ owner: string
+}
 ```
 
 - On upload: `owner = uploading account address` (AR address for `arweave`, EVM address for `irys`).
