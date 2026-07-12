@@ -1,7 +1,7 @@
 # Two-Channel Encrypted Sharing (Hybrid) — Design
 
 - **Date**: 2026-07-12
-- **Status**: Draft (design), pending review
+- **Status**: Approved (design) — crypto core reviewed sound; pending user sign-off + scheduling
 - **Scope**: `@alixex/crypto`, `apps/link` (storage, viewer, upload UI). Independent of the account model.
 - **Relation**: extends the existing encrypted-link feature; companion to
   [multi-account-design.md](./2026-07-12-multi-account-design.md). Schedules AFTER the routing/viewer/home
@@ -188,11 +188,14 @@ that a _weak_ password on a leaked link is brute-forceable over time.
 
 ## 10. Testing
 
-- **crypto**: Argon2id determinism (same pw+salt → same `P`); `combineKeyHalves` determinism; different password →
-  different `K`; base64url round-trip.
+- **crypto**: Argon2id determinism (same pw+salt → same `P`); `combineKeyHalves` determinism **and orientation**
+  (`combine(R,P) ≠ combine(P,R)`); different password → different `K`; base64url round-trip; NFC — a decomposed vs
+  precomposed spelling of the same password derives the same `P`.
 - **storage**: password-mode `encryptFile` → `decryptAsset` with the correct password recovers bytes **and** the
-  metadata envelope (name/type); wrong password throws a distinct error; missing password on a `p1.` payload throws
-  `PASSWORD_REQUIRED`; **plain mode unchanged**; fragment payload round-trips for both modes.
+  metadata envelope (name/type); wrong password throws a distinct "wrong password" error; missing password on a `p1.`
+  payload throws `PASSWORD_REQUIRED`; **malformed `p1.` payloads** (part count ≠ 3, `R` not 32 bytes, `salt` not 16
+  bytes) throw `MALFORMED_LINK` and are **distinct from wrong-password**; **plain mode unchanged**; fragment payload
+  round-trips for both modes.
 - **backward compat**: an existing plain `#/view/<chain>/<txId>/<standardBase64Key>` still decrypts.
 - **viewer** (manual/e2e): password prompt appears only for `p1.` links; wrong password shows a retryable error; low
   memory surfaces the clear error.
