@@ -16,6 +16,7 @@
   "dependencies": {
     "@alixex/crypto": "workspace:*",
     "@alixex/storage": "workspace:*",
-    "arweave": "^1.15.7"
+    "arweave": "^1.15.7",
+    "fflate": "^0.8.3"
   }
 }
