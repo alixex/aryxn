@@ -94,6 +94,19 @@ describe("crud", () => {
   })
 })
 
+describe("vault lock signal", () => {
+  it("isVaultUnlocked reflects establish / unlock / lock transitions", async () => {
+    const { addLocal, lockVault, unlockVault, isVaultUnlocked } = await fresh()
+    expect(isVaultUnlocked()).toBe(false) // fresh session
+    await addLocal("MASTER") // establishes master
+    expect(isVaultUnlocked()).toBe(true)
+    lockVault()
+    expect(isVaultUnlocked()).toBe(false)
+    await unlockVault("MASTER") // re-unlock the persisted vault
+    expect(isVaultUnlocked()).toBe(true)
+  })
+})
+
 describe("export", () => {
   it("exportKeyfile returns the jwk JSON for a created (unlocked) local account", async () => {
     const { addLocal, exportKeyfile } = await fresh()

@@ -101,13 +101,15 @@ function persistActive(id: string | null): void {
 // ── Session (never persisted) ──────────────────────────────────────────────
 let masterPw: string | null = null
 const jwkCache = new Map<string, ArweaveJWK>()
+const [vaultUnlockedSig, setVaultUnlockedSig] = signal(false)
 
 export function isVaultUnlocked(): boolean {
-  return masterPw !== null
+  return vaultUnlockedSig()
 }
 export function lockVault(): void {
   masterPw = null
   jwkCache.clear()
+  setVaultUnlockedSig(false)
 }
 export function activeJwk(): ArweaveJWK | null {
   const a = activeAccount()
@@ -189,6 +191,7 @@ export async function unlockVault(pw: string): Promise<void> {
   }
   if (entries.length > 0 && ok === 0) throw new Error("Wrong password")
   masterPw = pw
+  setVaultUnlockedSig(true)
 }
 
 // ── CRUD ─────────────────────────────────────────────────────────────────
@@ -198,6 +201,7 @@ function resolveMaster(password?: string): string {
   if (masterPw !== null) return masterPw
   if (Object.keys(readVault()).length === 0 && password) {
     masterPw = password
+    setVaultUnlockedSig(true)
     return password
   }
   throw new Error("VAULT_LOCKED") // caller must unlockVault() first
