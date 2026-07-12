@@ -201,7 +201,6 @@ export async function addLocal(password?: string): Promise<AccountRecord> {
 
 /** Import an Arweave keyfile. `password` required only when establishing the master. */
 export async function importLocal(jwkJson: string, password?: string): Promise<AccountRecord> {
-  const pw = resolveMaster(password)
   let jwk: ArweaveJWK
   try {
     jwk = JSON.parse(jwkJson) as ArweaveJWK
@@ -209,6 +208,7 @@ export async function importLocal(jwkJson: string, password?: string): Promise<A
     throw new Error("Invalid keyfile: not valid JSON")
   }
   if (!jwk || jwk.kty !== "RSA" || !jwk.n) throw new Error("Invalid keyfile: not an Arweave JWK")
+  const pw = resolveMaster(password)
   return persistLocal(jwk, pw)
 }
 
@@ -270,6 +270,6 @@ export async function setActive(id: string): Promise<void> {
       if (!rec.address) await backfillAddress(id, jwk)
     }
   }
-  if (rec.type === "wander") await connectArweave().catch(() => {})
+  if (rec.type === "wander") await connectArweave() // throws if the extension is locked/unavailable → switch aborts
   persistActive(id)
 }
