@@ -179,9 +179,9 @@ export async function uploadIrys(
   const irys = await WebUploader(WebEthereum).withAdapter(
     EthersV6Adapter(provider),
   )
-  const evmAddress: string = await provider
-    .getSigner()
-    .then((s: any) => s.getAddress())
+  const evmAddress: string = (
+    await provider.getSigner().then((s: any) => s.getAddress())
+  ).toLowerCase()
 
   let data: Uint8Array = new Uint8Array(await file.arrayBuffer())
   let encKey: string | undefined
@@ -352,7 +352,7 @@ export function listIrysByOwner(
         chain: "irys" as const,
         url: `${IRYS_GATEWAY}/${node.id}`,
         encrypted: tag("Encrypted") === "1",
-        owner: address,
+        owner: address.toLowerCase(),
       }
     },
     opts,

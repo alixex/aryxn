@@ -13,6 +13,7 @@ import {
   connectEvm,
   removeAccount,
   unlockVault,
+  lockVault,
   isVaultUnlocked,
   exportKeyfile,
   exportEncrypted,
@@ -145,6 +146,11 @@ async function handleUnlock(pwEl: HTMLInputElement): Promise<void> {
   } catch (e) {
     toast("error", (e as Error).message)
   }
+}
+
+function handleLock(): void {
+  lockVault()
+  toast("info", t("toast.locked"))
 }
 
 function handleExport(a: AccountRecord): void {
@@ -293,6 +299,21 @@ function renderBanner(accs: AccountRecord[]): HTMLElement | null {
     .build()
 }
 
+/** Small "Lock vault" control — shown once a local account has been unlocked
+ * this session, so the user can clear the in-memory keys without a reload.
+ * Reuses the vault-banner styling/slot (mutually exclusive with the unlock
+ * banner: one is locked-with-local, the other unlocked-with-local). */
+function renderLockControl(accs: AccountRecord[]): HTMLElement | null {
+  const hasLocal = accs.some((a) => a.type === "local")
+  if (!isVaultUnlocked() || !hasLocal) return null
+  const btn = View("r-button")
+    .attr("type", "text")
+    .text(() => t("account.lock"))
+    .on("click", () => handleLock())
+    .build()
+  return Div().class("acct-banner").children(btn).build()
+}
+
 // ── Account list ─────────────────────────────────────────────────────────────
 function balanceText(a: AccountRecord, bal: Record<string, string | null>): string {
   if (!a.address) return t("account.locked")
@@ -417,16 +438,19 @@ export function renderAccountsPage(host: HTMLElement): void {
   createRoot(() => {
     const addActionsEl = Div().build()
     const bannerEl = Div().build()
+    const lockEl = Div().build()
     const listEl = Div().class("links").build()
 
-    // Rebuild the add-actions card + vault banner whenever the account book
-    // changes (covers both CRUD and the address/list backfill that unlockVault
-    // triggers — see accounts.ts backfillAddress).
+    // Rebuild the add-actions card + vault banner + lock control whenever the
+    // account book changes (covers both CRUD and the address/list backfill
+    // that unlockVault triggers — see accounts.ts backfillAddress).
     createEffect(() => {
       const accs = accounts()
       addActionsEl.replaceChildren(renderAddActions(accs))
       const banner = renderBanner(accs)
       bannerEl.replaceChildren(...(banner ? [banner] : []))
+      const lock = renderLockControl(accs)
+      lockEl.replaceChildren(...(lock ? [lock] : []))
     })
 
     // Rebuild the row list whenever accounts, the active id, balances, or
@@ -464,6 +488,7 @@ export function renderAccountsPage(host: HTMLElement): void {
           View("h1").text(() => t("account.manage")),
           addActionsEl,
           bannerEl,
+          lockEl,
           listEl,
         )
         .build(),

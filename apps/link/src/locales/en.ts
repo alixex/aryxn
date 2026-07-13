@@ -15,8 +15,6 @@ export const en: Record<string, string> = {
   "action.copy": "Copy",
   "action.copied": "Copied",
   "action.open": "Open",
-  "err.noArWallet":
-    "No Arweave wallet found. Install the Wander (formerly ArConnect) extension.",
   "err.connectArFirst": "Connect your Arweave wallet first",
   "err.noEvmWallet":
     "No EVM wallet (e.g. MetaMask) found — Irys needs it to pay for the upload",
@@ -27,25 +25,14 @@ export const en: Record<string, string> = {
   "view.decrypting": "Decrypting…",
   "view.download": "Download",
   "view.failed": "Failed to decrypt:",
-  "account.title": "Account",
-  "account.local": "Local account",
-  "account.external": "Connected wallet",
   "account.connectWander": "Connect Wander",
   "account.create": "Create local account",
   "account.import": "Import keyfile",
   "account.unlock": "Unlock",
   "account.export": "Export keyfile",
   "account.exportEnc": "Encrypted export",
-  "account.disconnect": "Disconnect",
   "account.password": "Password",
-  "account.needPassword": "Enter a password",
-  "account.pickFile": "Choose a keyfile",
-  "account.chooseFile": "Choose keyfile",
-  "account.noFile": "No file chosen",
   "account.or": "or",
-  "account.backup": "Back up this account",
-  "account.newLocal": "New local account",
-  "account.stored": "Unlock stored account",
 
   "hero.eyebrow": "Permanent · Arweave + Irys",
   "feat.encrypted": "Client-side encryption",
@@ -67,7 +54,6 @@ export const en: Record<string, string> = {
   "toast.created": "Local account created",
   "toast.imported": "Keyfile imported",
   "toast.unlocked": "Account unlocked",
-  "toast.disconnected": "Wallet disconnected",
   "toast.copied": "Link copied to clipboard",
 
   "account.manage": "Accounts",
@@ -85,4 +71,6 @@ export const en: Record<string, string> = {
   "account.empty": "No accounts yet",
   "account.emptyHint":
     "Create a local account or connect a wallet to get started.",
+  "account.lock": "Lock vault",
+  "toast.locked": "Vault locked",
 }
