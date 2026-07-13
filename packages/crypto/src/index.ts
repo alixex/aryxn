@@ -1,4 +1,8 @@
-import sodium from "libsodium-wrappers"
+// NB: the plain `libsodium-wrappers` build does not compile in crypto_pwhash
+// (Argon2id) — only the "sumo" build does. Since sumo is a strict superset
+// (secretbox/generichash/etc. all still present), we depend on it exclusively
+// rather than shipping both builds.
+import sodium from "libsodium-wrappers-sumo"
 
 type Sodium = typeof sodium
 
@@ -122,6 +126,37 @@ export const toBase64 = (bytes: Uint8Array) => {
 
 export const fromBase64 = (base64: string) => {
   return Uint8Array.from(atob(base64), (c) => c.charCodeAt(0))
+}
+
+/** Argon2id13 key derivation at the pinned `p1` limits (MODERATE). salt MUST be 16 bytes. */
+export const deriveArgon2idKey = async (password: string, salt: Uint8Array): Promise<Uint8Array> => {
+  const s = await initSodium()
+  return s.crypto_pwhash(
+    32,
+    password.normalize("NFC"),
+    salt,
+    s.crypto_pwhash_OPSLIMIT_MODERATE,
+    s.crypto_pwhash_MEMLIMIT_MODERATE,
+    s.crypto_pwhash_ALG_ARGON2ID13,
+  )
+}
+
+/** Combine the link-half R and password-half P into the file key K = BLAKE2b(R‖P). */
+export const combineKeyHalves = async (r: Uint8Array, p: Uint8Array): Promise<Uint8Array> => {
+  const s = await initSodium()
+  const buf = new Uint8Array(r.length + p.length)
+  buf.set(r, 0)
+  buf.set(p, r.length)
+  return s.crypto_generichash(32, buf, null)
+}
+
+/** URL-safe base64 without padding (for R/salt in the URL fragment). */
+export const toBase64Url = (bytes: Uint8Array): string =>
+  btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "")
+
+export const fromBase64Url = (s: string): Uint8Array => {
+  const b64 = s.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat((4 - (s.length % 4)) % 4)
+  return Uint8Array.from(atob(b64), (c) => c.charCodeAt(0))
 }
 
 // Multi-chain key derivation (keys/bitcoin-transfer/mnemonic) was removed to slim
