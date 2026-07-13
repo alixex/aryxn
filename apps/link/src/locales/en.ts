@@ -25,6 +25,13 @@ export const en: Record<string, string> = {
   "view.decrypting": "Decrypting…",
   "view.download": "Download",
   "view.failed": "Failed to decrypt:",
+  "view.needsPassword": "This file is password-protected",
+  "view.password": "Password",
+  "view.open": "Open",
+  "view.wrongPassword": "Wrong password — try again",
+  "view.malformed": "This link is corrupt or incomplete",
+  "view.lowMemory":
+    "This device may not have enough memory to open a password-protected file",
   "account.connectWander": "Connect Wander",
   "account.create": "Create local account",
   "account.import": "Import keyfile",
