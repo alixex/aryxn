@@ -39,7 +39,7 @@ describe("encrypt envelope (P0: no on-chain filename leak)", () => {
         type: "application/pdf",
       },
     )
-    const { data, keyB64 } = await encryptFile(file)
+    const { data, payload } = await encryptFile(file)
 
     // The blob is opaque bytes — the plaintext name must not appear in it.
     expect(new TextDecoder().decode(data)).not.toContain("secret.pdf")
@@ -49,7 +49,7 @@ describe("encrypt envelope (P0: no on-chain filename leak)", () => {
       "fetch",
       vi.fn(async () => ({ ok: true, arrayBuffer: async () => data.buffer })),
     )
-    const out = await decryptAsset("arweave", "TX", encodeURIComponent(keyB64))
+    const out = await decryptAsset("arweave", "TX", encodeURIComponent(payload))
     expect(out.fileName).toBe("secret.pdf")
     expect(out.contentType).toBe("application/pdf")
     expect(new TextDecoder().decode(out.bytes)).toBe("hello world")
@@ -90,4 +90,77 @@ describe("listArweaveByOwner (P1: pagination + watermark)", () => {
     expect(recs.map((r) => r.txId)).toEqual(["a"]) // stopped at "b"
     expect(fetchMock).toHaveBeenCalledTimes(1) // never fetched page 2
   })
+})
+
+function stubFetch(body: Uint8Array) {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async () => ({
+      ok: true,
+      arrayBuffer: async () => body.slice().buffer,
+    })),
+  )
+}
+
+describe("two-channel password mode", () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  it("plain mode payload is standard base64 and still round-trips (backward compat)", async () => {
+    const file = new File(
+      [new TextEncoder().encode("plain data")],
+      "p.txt",
+      { type: "text/plain" },
+    )
+    const { data, payload } = await encryptFile(file)
+    expect(payload.startsWith("p1.")).toBe(false)
+    stubFetch(data)
+    const out = await decryptAsset("arweave", "TX", payload)
+    expect(new TextDecoder().decode(out.bytes)).toBe("plain data")
+    expect(out.fileName).toBe("p.txt")
+  })
+
+  it("password roundtrip recovers bytes + metadata (slow: Argon2id)", async () => {
+    const file = new File(
+      [new TextEncoder().encode("secret bytes")],
+      "s.txt",
+      { type: "text/plain" },
+    )
+    const { data, payload } = await encryptFile(file, "hunter2")
+    expect(payload.startsWith("p1.")).toBe(true)
+    stubFetch(data)
+    const out = await decryptAsset("arweave", "TX", payload, "hunter2")
+    expect(new TextDecoder().decode(out.bytes)).toBe("secret bytes")
+    expect(out.fileName).toBe("s.txt")
+    expect(out.contentType).toBe("text/plain")
+  }, 30000)
+
+  it("wrong password throws (not MALFORMED) (slow: Argon2id)", async () => {
+    const { data, payload } = await encryptFile(
+      new File([new Uint8Array([1, 2, 3])], "f"),
+      "right",
+    )
+    stubFetch(data)
+    await expect(
+      decryptAsset("arweave", "TX", payload, "wrong"),
+    ).rejects.toThrow()
+  }, 30000)
+
+  it("MALFORMED_LINK for a p1 payload with the wrong part count", async () => {
+    await expect(
+      decryptAsset("arweave", "TX", "p1.onlytwo", "x"),
+    ).rejects.toThrow("MALFORMED_LINK")
+  })
+
+  it("PASSWORD_REQUIRED when a well-formed p1 payload has no password", async () => {
+    // Build a well-formed p1 payload (R=32B, salt=16B) so it passes the length check and
+    // reaches the password-presence check.
+    const { payload } = await encryptFile(
+      new File([new Uint8Array([9])], "g"),
+      "pw",
+    )
+    expect(payload.startsWith("p1.")).toBe(true)
+    await expect(decryptAsset("arweave", "TX", payload)).rejects.toThrow(
+      "PASSWORD_REQUIRED",
+    )
+  }, 30000)
 })
