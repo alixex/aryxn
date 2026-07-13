@@ -25,6 +25,13 @@ export const en: Record<string, string> = {
   "view.decrypting": "Decrypting…",
   "view.download": "Download",
   "view.failed": "Failed to decrypt:",
+  "view.needsPassword": "This file is password-protected",
+  "view.password": "Password",
+  "view.open": "Open",
+  "view.wrongPassword": "Wrong password — try again",
+  "view.malformed": "This link is corrupt or incomplete",
+  "view.lowMemory":
+    "This device may not have enough memory to open a password-protected file",
   "account.connectWander": "Connect Wander",
   "account.create": "Create local account",
   "account.import": "Import keyfile",
@@ -73,4 +80,12 @@ export const en: Record<string, string> = {
     "Create a local account or connect a wallet to get started.",
   "account.lock": "Lock vault",
   "toast.locked": "Vault locked",
+
+  "upload.passwordOptional": "Password (optional — two-channel sharing)",
+  "upload.encWarning":
+    "Anyone with this link can open the file, permanently — it can't be revoked, and the link stays in your browser history. Share it only through trusted channels. Add a password for two-channel sharing: the recipient then needs both the link and the password (shared separately).",
+  "upload.pwHint":
+    "Use a strong password — the file is public and permanent, so a weak password can be brute-forced.",
+  "upload.pwReminder":
+    "You'll need this password to open the file later, too — it can't be recovered.",
 }
