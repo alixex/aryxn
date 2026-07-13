@@ -140,14 +140,27 @@ describe("two-channel password mode", () => {
       "right",
     )
     stubFetch(data)
-    await expect(
-      decryptAsset("arweave", "TX", payload, "wrong"),
-    ).rejects.toThrow()
+    // Capture the rejection once (one Argon2id run) and assert it's a genuine
+    // decrypt failure, distinct from the structural errors.
+    const err = await decryptAsset("arweave", "TX", payload, "wrong").catch(
+      (e) => e,
+    )
+    expect(err).toBeInstanceOf(Error)
+    expect(String(err.message)).not.toContain("MALFORMED_LINK")
+    expect(String(err.message)).not.toContain("PASSWORD_REQUIRED")
   }, 30000)
 
   it("MALFORMED_LINK for a p1 payload with the wrong part count", async () => {
     await expect(
       decryptAsset("arweave", "TX", "p1.onlytwo", "x"),
+    ).rejects.toThrow("MALFORMED_LINK")
+  })
+
+  it("MALFORMED_LINK for a p1 payload with 3 parts but wrong R/salt length", async () => {
+    // 3 dot-separated parts, but R decodes to <32 bytes → length guard trips
+    // (must fire before the password check, even WITH a password supplied).
+    await expect(
+      decryptAsset("arweave", "TX", "p1.AAAA.BBBBBBBBBBBBBBBBBBBBBB", "anypw"),
     ).rejects.toThrow("MALFORMED_LINK")
   })
 
