@@ -720,16 +720,13 @@
         flex-direction: column;
         gap: 10px;
       }
-      .enc-extra.hidden {
-        display: none;
-      }
       .enc-warning {
         font-size: 12.5px;
         line-height: 1.5;
-        color: var(--ran-color-text-secondary);
-        background: var(--ran-color-bg-muted);
-        border: 1px solid var(--ran-color-border);
-        border-radius: var(--ran-radius-md);
+        color: var(--ran-color-text-secondary, #666);
+        background: var(--ran-color-bg-muted, #f4f4f4);
+        border: 1px solid var(--ran-color-border, #ebebeb);
+        border-radius: var(--ran-radius-md, 12px);
         padding: 10px 12px;
       }
       .enc-extra r-input {
