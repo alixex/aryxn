@@ -120,8 +120,22 @@ export function renderViewer(
       }
     }
 
+    // Re-entrancy guard: the real concurrency gate (the r-button's `disabled`
+    // attr does NOT block native clicks, and the Enter handler bypasses the
+    // button entirely). A plain closure boolean, checked inside attemptOpen,
+    // covers rapid clicks AND Enter.
+    let busy = false
+
     const attemptOpen = (): void => {
-      const password = pwEl.value
+      if (busy) return
+      const password = pwEl.value ?? ""
+      if (!password.trim()) {
+        // Empty submit: hint instead of a wasted Argon2id run that would throw
+        // PASSWORD_REQUIRED and leave the user staring at nothing.
+        errEl.textContent = t("view.needsPassword")
+        return
+      }
+      busy = true
       setBusy(true)
       errEl.textContent = ""
       void (async () => {
@@ -136,16 +150,23 @@ export function renderViewer(
         } catch (e) {
           const msg = (e as Error).message
           if (msg.includes("MALFORMED_LINK")) {
+            // Not retryable — the link itself is broken. Keep the button
+            // visually disabled (the busy flag is cleared below regardless).
             errEl.textContent = t("view.malformed")
           } else if (msg.includes("memory") || msg.includes("allocation")) {
             errEl.textContent = t("view.lowMemory")
             setBusy(false)
           } else if (msg.includes("PASSWORD_REQUIRED")) {
+            // Guarded above, so effectively unreachable — keep a message so it's
+            // never a silent no-op if it somehow fires.
+            errEl.textContent = t("view.needsPassword")
             setBusy(false)
           } else {
             errEl.textContent = t("view.wrongPassword")
             setBusy(false)
           }
+        } finally {
+          busy = false // always clear the concurrency flag so we never wedge
         }
       })()
     }
