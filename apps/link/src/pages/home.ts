@@ -24,6 +24,7 @@ const [chain, setChain] = signal<Chain>("arweave")
 const [links, setLinks] = signal<AssetRecord[]>([])
 const [query, setQuery] = signal("")
 const [encrypt, setEncrypt] = signal(false)
+const [encPassword, setEncPassword] = signal("")
 
 function filterLinks(records: AssetRecord[], q: string): AssetRecord[] {
   const s = q.trim().toLowerCase()
@@ -200,6 +201,32 @@ function encryptToggle(): HTMLElement {
   return cb
 }
 
+function renderEncExtra(): HTMLElement {
+  const pwEl = View<HTMLInputElement>("r-input")
+    .attr("type", "password")
+    .attr("placeholder", () => t("upload.passwordOptional"))
+    .attr("value", encPassword())
+    .on("input", (e) =>
+      setEncPassword(
+        (e as unknown as CustomEvent<{ value: string }>).detail?.value ?? "",
+      ),
+    )
+    .build()
+
+  return Div()
+    .class(() => (encrypt() ? "enc-extra" : "enc-extra hidden"))
+    .children(
+      Div()
+        .class("enc-warning")
+        .text(() => t("upload.encWarning")),
+      pwEl,
+      Div()
+        .class("muted")
+        .text(() => t("upload.pwHint")),
+    )
+    .build()
+}
+
 function renderFilePanel(): void {
   const f = currentFile
   if (!f) return
@@ -236,6 +263,7 @@ function renderFilePanel(): void {
               ),
           ),
         Div().class("ctl-row").children(encryptToggle()),
+        renderEncExtra(),
         Div()
           .class("cta")
           .children(
@@ -291,15 +319,27 @@ async function doUpload(): Promise<void> {
   try {
     const record =
       chain() === "irys"
-        ? await uploadIrys(f, { onProgress, encrypt: encrypt() }, evmProvider)
+        ? await uploadIrys(
+            f,
+            {
+              onProgress,
+              encrypt: encrypt(),
+              password: encPassword() || undefined,
+            },
+            evmProvider,
+          )
         : await uploadArweave(
             f,
             activeAccount()!.address,
-            { onProgress, encrypt: encrypt() },
+            {
+              onProgress,
+              encrypt: encrypt(),
+              password: encPassword() || undefined,
+            },
             activeJwk(),
           )
     await cacheAsset(record)
-    showResult(record)
+    showResult(record, !!(encrypt() && encPassword()))
     currentFile = null
     void refreshLinks()
   } catch (e) {
@@ -352,7 +392,7 @@ function copyButton(url: string, variant = ""): HTMLElement {
   return btn
 }
 
-function showResult(record: AssetRecord): void {
+function showResult(record: AssetRecord, wasPasswordMode: boolean): void {
   uploadPanel.replaceChildren(
     Div()
       .children(
@@ -371,6 +411,9 @@ function showResult(record: AssetRecord): void {
               .text(record.url),
             copyButton(record.url, "contrast"),
           ),
+        wasPasswordMode
+          ? Div().class("muted").text(t("upload.pwReminder"))
+          : null,
         Div()
           .class("cta")
           .children(
