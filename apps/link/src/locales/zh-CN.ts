@@ -76,4 +76,10 @@ export const zhCN: Record<string, string> = {
   "account.emptyHint": "创建本地账户或连接钱包以开始使用。",
   "account.lock": "锁定保险库",
   "toast.locked": "保险库已锁定",
+
+  "upload.passwordOptional": "密码（可选——双通道分享）",
+  "upload.encWarning":
+    "任何拿到此链接的人都能永久打开该文件——无法撤销，链接也会留在浏览器历史里。请只通过可信渠道分享。加上密码即为双通道分享：对方需要同时拿到链接和（另行告知的）密码才能打开。",
+  "upload.pwHint": "请使用强密码——文件公开且永久，弱密码可能被暴力破解。",
+  "upload.pwReminder": "以后你自己打开也需要这个密码——它无法找回。",
 }
