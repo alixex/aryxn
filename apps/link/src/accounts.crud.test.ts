@@ -107,6 +107,14 @@ describe("vault lock signal", () => {
   })
 })
 
+describe("evm address casing", () => {
+  it("connectEvm stores the address lowercased", async () => {
+    const { connectEvm } = await fresh()
+    const rec = connectEvm("0xAbCdEf0000000000000000000000000000000123")
+    expect(rec.address).toBe("0xabcdef0000000000000000000000000000000123")
+  })
+})
+
 describe("export", () => {
   it("exportKeyfile returns the jwk JSON for a created (unlocked) local account", async () => {
     const { addLocal, exportKeyfile } = await fresh()

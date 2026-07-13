@@ -275,17 +275,17 @@ export async function connectWander(): Promise<AccountRecord> {
 }
 
 export function connectEvm(address: string): AccountRecord {
+  const addr = address.toLowerCase()
   const existing = accounts().find(
-    (a) =>
-      a.type === "evm" && a.address.toLowerCase() === address.toLowerCase(),
+    (a) => a.type === "evm" && a.address.toLowerCase() === addr,
   )
   if (existing) return existing
   const rec: AccountRecord = {
     id: newId(),
     type: "evm",
     network: "evm",
-    address,
-    label: shorten(address),
+    address: addr,
+    label: shorten(addr),
     createdAt: Date.now(),
   }
   persistAccounts([...accounts(), rec])
