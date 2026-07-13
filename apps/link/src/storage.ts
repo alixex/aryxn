@@ -3,7 +3,16 @@
 // by the existing `App-Name: Aryxn` scheme (backward compatible with prior users).
 
 import { uploadToArweave, type ArweaveJWK } from "@alixex/arweave"
-import { encryptData, decryptData, toBase64, fromBase64 } from "@alixex/crypto"
+import {
+  encryptData,
+  decryptData,
+  toBase64,
+  fromBase64,
+  deriveArgon2idKey,
+  combineKeyHalves,
+  toBase64Url,
+  fromBase64Url,
+} from "@alixex/crypto"
 
 export const APP_NAME = "Aryxn"
 export const AR_GATEWAY = "https://arweave.net"
@@ -35,6 +44,8 @@ export interface UploadOpts {
   onProgress?: (p: { stage: string; progress: number }) => void
   /** Client-side encrypt before upload (fragment-key model). */
   encrypt?: boolean
+  /** Optional password → two-channel mode (link half in fragment + password out-of-band). */
+  password?: string
 }
 
 function chainGateway(chain: Chain): string {
@@ -64,7 +75,8 @@ export function viewerLink(chain: Chain, txId: string, keyB64: string): string {
  */
 export async function encryptFile(
   file: File,
-): Promise<{ data: Uint8Array; keyB64: string }> {
+  password?: string,
+): Promise<{ data: Uint8Array; payload: string }> {
   const raw = new Uint8Array(await file.arrayBuffer())
   const meta = new TextEncoder().encode(
     JSON.stringify({
@@ -76,12 +88,24 @@ export async function encryptFile(
   new DataView(plain.buffer).setUint32(0, meta.length) // big-endian meta length
   plain.set(meta, 4)
   plain.set(raw, 4 + meta.length)
-  const key = crypto.getRandomValues(new Uint8Array(32))
+
+  let key: Uint8Array
+  let payload: string
+  if (password) {
+    const r = crypto.getRandomValues(new Uint8Array(32))
+    const salt = crypto.getRandomValues(new Uint8Array(16))
+    const p = await deriveArgon2idKey(password, salt)
+    key = await combineKeyHalves(r, p)
+    payload = `p1.${toBase64Url(r)}.${toBase64Url(salt)}`
+  } else {
+    key = crypto.getRandomValues(new Uint8Array(32))
+    payload = toBase64(key) // standard base64 — plain mode unchanged
+  }
   const { ciphertext, nonce } = await encryptData(plain, key)
   const blob = new Uint8Array(nonce.length + ciphertext.length)
   blob.set(nonce, 0)
   blob.set(ciphertext, nonce.length)
-  return { data: blob, keyB64: toBase64(key) }
+  return { data: blob, payload }
 }
 
 function makeRecord(
@@ -123,9 +147,9 @@ export async function uploadArweave(
   let encKey: string | undefined
   const tags: Record<string, string> = { "App-Name": APP_NAME }
   if (opts.encrypt) {
-    const enc = await encryptFile(file)
+    const enc = await encryptFile(file, opts.password)
     data = enc.data
-    encKey = enc.keyB64
+    encKey = enc.payload
     contentType = "application/octet-stream"
     tags["Encrypted"] = "1"
     // Real name/type ride inside the ciphertext (encryptFile), not public tags.
@@ -194,9 +218,9 @@ export async function uploadIrys(
     },
   ]
   if (opts.encrypt) {
-    const enc = await encryptFile(file)
+    const enc = await encryptFile(file, opts.password)
     data = enc.data
-    encKey = enc.keyB64
+    encKey = enc.payload
     tags.push({ name: "Encrypted", value: "1" })
     // Real name/type ride inside the ciphertext, not public tags.
   } else {
@@ -367,22 +391,40 @@ export function listIrysByOwner(
 export async function decryptAsset(
   chain: Chain,
   txId: string,
-  keyB64: string,
+  payload: string,
+  password?: string,
 ): Promise<{ bytes: Uint8Array; fileName: string; contentType: string }> {
+  let key: Uint8Array
+  const raw = decodeURIComponent(payload)
+  if (raw.startsWith("p1.")) {
+    const parts = raw.split(".")
+    if (parts.length !== 3) throw new Error("MALFORMED_LINK")
+    const r = fromBase64Url(parts[1])
+    const salt = fromBase64Url(parts[2])
+    if (r.length !== 32 || salt.length !== 16) throw new Error("MALFORMED_LINK")
+    if (!password) throw new Error("PASSWORD_REQUIRED")
+    const p = await deriveArgon2idKey(password, salt)
+    key = await combineKeyHalves(r, p)
+  } else {
+    key = fromBase64(raw) // plain: standard base64, unchanged
+  }
   const res = await fetch(`${chainGateway(chain)}/${txId}`)
   if (!res.ok) throw new Error(`fetch ${res.status}`)
   const blob = new Uint8Array(await res.arrayBuffer())
   const nonce = blob.slice(0, NONCE_LEN)
   const ciphertext = blob.slice(NONCE_LEN)
-  const key = fromBase64(decodeURIComponent(keyB64))
-  const plain = await decryptData(ciphertext, nonce, key)
+  const decrypted = await decryptData(ciphertext, nonce, key) // wrong pw → Poly1305 fail → throws
   // Envelope: [4-byte metaLen][meta JSON][file bytes] — see encryptFile.
-  const metaLen = new DataView(plain.buffer, plain.byteOffset, 4).getUint32(0)
+  const metaLen = new DataView(
+    decrypted.buffer,
+    decrypted.byteOffset,
+    4,
+  ).getUint32(0)
   const meta = JSON.parse(
-    new TextDecoder().decode(plain.subarray(4, 4 + metaLen)),
+    new TextDecoder().decode(decrypted.subarray(4, 4 + metaLen)),
   ) as { n?: string; t?: string }
   return {
-    bytes: plain.subarray(4 + metaLen),
+    bytes: decrypted.subarray(4 + metaLen),
     fileName: meta.n || txId,
     contentType: meta.t || "application/octet-stream",
   }
