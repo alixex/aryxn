@@ -172,6 +172,7 @@ function renderDropZone(): HTMLElement {
 
 function selectFile(f: File): void {
   currentFile = f
+  setEncPassword("")
   renderFilePanel()
 }
 
@@ -192,19 +193,20 @@ function encryptToggle(): HTMLElement {
     .boolAttr("checked", encrypt())
     .text(t("upload.encrypt"))
     .build()
-  cb.addEventListener("change", (e) =>
+  cb.addEventListener("change", (e) => {
     setEncrypt(
       (e as unknown as CustomEvent<{ checked: boolean }>).detail?.checked ??
         false,
-    ),
-  )
+    )
+    renderFilePanel()
+  })
   return cb
 }
 
 function renderEncExtra(): HTMLElement {
   const pwEl = View<HTMLInputElement>("r-input")
     .attr("type", "password")
-    .attr("placeholder", () => t("upload.passwordOptional"))
+    .attr("placeholder", t("upload.passwordOptional"))
     .attr("value", encPassword())
     .on("input", (e) =>
       setEncPassword(
@@ -214,15 +216,11 @@ function renderEncExtra(): HTMLElement {
     .build()
 
   return Div()
-    .class(() => (encrypt() ? "enc-extra" : "enc-extra hidden"))
+    .class(encrypt() ? "enc-extra" : "enc-extra hidden")
     .children(
-      Div()
-        .class("enc-warning")
-        .text(() => t("upload.encWarning")),
+      Div().class("enc-warning").text(t("upload.encWarning")),
       pwEl,
-      Div()
-        .class("muted")
-        .text(() => t("upload.pwHint")),
+      Div().class("muted").text(t("upload.pwHint")),
     )
     .build()
 }
