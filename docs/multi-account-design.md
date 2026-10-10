@@ -1,7 +1,11 @@
 # Multi-Account Management — Design
 
 - **Date**: 2026-07-12
-- **Status**: Approved (design), pending implementation plan
+- **Status**: ✅ **Implemented (2026-07-13)** — Scheme A master vault, seamless single→multi
+  migration, owner-scoped links/balances/usage, `/accounts` page + nav quick-switch, and
+  signer resolution on upload all landed on `main`. Store: `apps/link/src/accounts.ts`
+  (covered by `accounts.test.ts` + `accounts.crud.test.ts`). Pending: manual e2e in
+  light/dark × narrow/wide per §11.
 - **Scope**: `apps/link` only. No changes to upload/encryption business logic.
 
 ---

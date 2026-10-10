@@ -1,6 +1,18 @@
 # Two-Channel Encrypted Sharing — Implementation Plan
 
-> **For agentic workers:** implement task-by-task; each step is bite-sized; steps use `- [ ]`.
+> **Status: ✅ Implemented & merged to `main` (2026-07-13, commit `9a3d134`).** All tasks
+> E1–E5 done; the full suite is green (42 tests pass, incl. the Argon2id `argon.test.ts` +
+> the two-channel `storage.test.ts` cases) and workspace `type-check` passes.
+>
+> **One deviation from the plan (allowed by E1):** `@alixex/crypto` has no vitest runner, so
+> the primitive tests live at `apps/link/src/argon.test.ts` (importing from `@alixex/crypto`)
+> rather than in the crypto package. The `p1` limits are pinned to Argon2id **MODERATE** as
+> specified — no INTERACTIVE fallback was needed.
+>
+> **Not yet done (out of plan scope):** real-device e2e (E5 step 3) — verify the mobile-memory
+> caveat (Argon2id MODERATE ~256 MiB) against an actual phone.
+
+> **For agentic workers:** implement task-by-task; each step is bite-sized; steps use `- [x]`.
 
 **Goal:** Add an OPTIONAL password mode to encrypted uploads so access requires BOTH the link (random `R` in the fragment) AND an out-of-band password (Argon2id). Default plain mode (random key in fragment) is unchanged.
 
@@ -18,7 +30,7 @@
 
 **Files:** Modify `packages/crypto/src/index.ts`; Test `packages/crypto/src/argon.test.ts` (new — check if the crypto package has a test runner; if not, add these tests under `apps/link` instead and note it, OR add vitest to the crypto package mirroring apps/link's setup).
 
-- [ ] **Step 1: Add the primitives to `packages/crypto/src/index.ts`** (uses the existing `initSodium`):
+- [x] **Step 1: Add the primitives to `packages/crypto/src/index.ts`** (uses the existing `initSodium`):
 ```ts
 /** Argon2id13 key derivation at the pinned `p1` limits (MODERATE). salt must be 16 bytes. */
 export const deriveArgon2idKey = async (password: string, salt: Uint8Array): Promise<Uint8Array> => {
@@ -52,7 +64,7 @@ export const fromBase64Url = (s: string): Uint8Array => {
 }
 ```
 
-- [ ] **Step 2: Tests** — create the test file (fast tests first):
+- [x] **Step 2: Tests** — create the test file (fast tests first):
 ```ts
 import { describe, it, expect } from "vitest"
 import { combineKeyHalves, toBase64Url, fromBase64Url, deriveArgon2idKey } from "../src/index"
@@ -91,7 +103,7 @@ describe("deriveArgon2idKey", () => {
 ```
 If the crypto package has no vitest, place these under `apps/link/src/argon.test.ts` importing from `@alixex/crypto`, and say so.
 
-- [ ] **Step 3: Verify + commit** — run the crypto tests + `pnpm --filter=@alixex/link type-check`. Commit `feat(crypto): Argon2id key derivation, key combiner, base64url helpers`.
+- [x] **Step 3: Verify + commit** — run the crypto tests + `pnpm --filter=@alixex/link type-check`. Commit `feat(crypto): Argon2id key derivation, key combiner, base64url helpers`.
 
 ---
 
@@ -99,13 +111,13 @@ If the crypto package has no vitest, place these under `apps/link/src/argon.test
 
 **Files:** Modify `apps/link/src/storage.ts` (`UploadOpts`, `encryptFile`, `decryptAsset`, the two upload call sites); Test `apps/link/src/storage.test.ts` (append).
 
-- [ ] **Step 1: `UploadOpts` gains `password?: string`** (near line 34):
+- [x] **Step 1: `UploadOpts` gains `password?: string`** (near line 34):
 ```ts
   /** Optional password → two-channel mode (link half in fragment + password out-of-band). */
   password?: string
 ```
 
-- [ ] **Step 2: `encryptFile(file, password?)` → `{ data, payload }`** — keep the metadata envelope + `encryptData`; only derive K + encode payload by mode. Import `deriveArgon2idKey, combineKeyHalves, toBase64Url` from `@alixex/crypto` (alongside existing imports):
+- [x] **Step 2: `encryptFile(file, password?)` → `{ data, payload }`** — keep the metadata envelope + `encryptData`; only derive K + encode payload by mode. Import `deriveArgon2idKey, combineKeyHalves, toBase64Url` from `@alixex/crypto` (alongside existing imports):
 ```ts
 export async function encryptFile(
   file: File,
@@ -140,9 +152,9 @@ export async function encryptFile(
 }
 ```
 
-- [ ] **Step 3: Update the two upload call sites** — both `uploadArweave` and `uploadIrys` currently do `const enc = await encryptFile(file); ...; encKey = enc.keyB64`. Change to `const enc = await encryptFile(file, opts.password); ...; encKey = enc.payload`. (Grep for `encryptFile(file)` — there are exactly two call sites.)
+- [x] **Step 3: Update the two upload call sites** — both `uploadArweave` and `uploadIrys` currently do `const enc = await encryptFile(file); ...; encKey = enc.keyB64`. Change to `const enc = await encryptFile(file, opts.password); ...; encKey = enc.payload`. (Grep for `encryptFile(file)` — there are exactly two call sites.)
 
-- [ ] **Step 4: `decryptAsset(chain, txId, payload, password?)`** — parse + validate + derive. Import `deriveArgon2idKey, combineKeyHalves, fromBase64Url` too:
+- [x] **Step 4: `decryptAsset(chain, txId, payload, password?)`** — parse + validate + derive. Import `deriveArgon2idKey, combineKeyHalves, fromBase64Url` too:
 ```ts
 export async function decryptAsset(
   chain: Chain,
@@ -184,7 +196,7 @@ export async function decryptAsset(
 ```
 Note: validation happens BEFORE the network fetch so a MALFORMED_LINK/PASSWORD_REQUIRED fails fast.
 
-- [ ] **Step 5: Tests** (append to storage.test.ts; mock `fetch`). Cover: plain roundtrip unchanged; password roundtrip recovers bytes+meta (mock fetch to return the `data` from encryptFile); wrong password throws (not MALFORMED); `PASSWORD_REQUIRED` when a `p1.` payload has no password; `MALFORMED_LINK` for bad part-count / wrong R length / wrong salt length. Keep the Argon2id-exercising roundtrip+wrong-pw to 2 tests total. Example skeleton:
+- [x] **Step 5: Tests** (append to storage.test.ts; mock `fetch`). Cover: plain roundtrip unchanged; password roundtrip recovers bytes+meta (mock fetch to return the `data` from encryptFile); wrong password throws (not MALFORMED); `PASSWORD_REQUIRED` when a `p1.` payload has no password; `MALFORMED_LINK` for bad part-count / wrong R length / wrong salt length. Keep the Argon2id-exercising roundtrip+wrong-pw to 2 tests total. Example skeleton:
 ```ts
 import { encryptFile, decryptAsset } from "./storage"
 // helper: stub fetch to return a given Uint8Array body
@@ -212,7 +224,7 @@ it("PASSWORD_REQUIRED / MALFORMED_LINK", async () => {
 ```
 (For the MALFORMED length checks, note `p1.AAAA.BBBB` decodes R/salt to <32/<16 bytes → the length guard should also fire; order the checks so PASSWORD_REQUIRED vs MALFORMED match the code path — the code validates length BEFORE the password check, so `p1.AAAA.BBBB` with no password throws MALFORMED first. Adjust the test's expected error to match the actual code order, or feed a validly-sized R/salt for the PASSWORD_REQUIRED case. Make the tests match the implementation's check order exactly.)
 
-- [ ] **Step 6: Verify + commit** — full suite + type-check + build green. Commit `feat(storage): optional password (two-channel) mode for encrypted uploads`.
+- [x] **Step 6: Verify + commit** — full suite + type-check + build green. Commit `feat(storage): optional password (two-channel) mode for encrypted uploads`.
 
 ---
 
@@ -220,10 +232,10 @@ it("PASSWORD_REQUIRED / MALFORMED_LINK", async () => {
 
 **Files:** Modify `apps/link/src/pages/viewer.ts`.
 
-- [ ] **Step 1:** In `renderViewer`, detect password mode: `const raw = decodeURIComponent(payload); const needsPw = raw.startsWith("p1.")`. If `needsPw`, do NOT auto-decrypt — render a password `r-input` + an "Open" button; on submit call `decryptAsset(chain, txId, payload, pw)` and handle the result (download + optional image preview, same as the plain path). If not, keep the current auto-decrypt behavior.
-- [ ] **Step 2: Error handling** — map thrown errors to messages: `MALFORMED_LINK` → `t("view.malformed")`; `PASSWORD_REQUIRED` (shouldn't happen once we prompt, but guard) → prompt; a decrypt failure with a password present → `t("view.wrongPassword")` with the input kept for retry; a `crypto_pwhash` memory failure → `t("view.lowMemory")`. Plain-mode decrypt failure keeps the existing generic error.
-- [ ] **Step 3: locales** — add `view.password` (field label), `view.open`, `view.wrongPassword`, `view.malformed`, `view.lowMemory` to `en.ts` + `zh-CN.ts`.
-- [ ] **Step 4: Verify + commit** — type-check + build; the viewer isn't unit-tested (DOM) — verify by building. Commit `feat(viewer): password prompt for two-channel encrypted links`.
+- [x] **Step 1:** In `renderViewer`, detect password mode: `const raw = decodeURIComponent(payload); const needsPw = raw.startsWith("p1.")`. If `needsPw`, do NOT auto-decrypt — render a password `r-input` + an "Open" button; on submit call `decryptAsset(chain, txId, payload, pw)` and handle the result (download + optional image preview, same as the plain path). If not, keep the current auto-decrypt behavior.
+- [x] **Step 2: Error handling** — map thrown errors to messages: `MALFORMED_LINK` → `t("view.malformed")`; `PASSWORD_REQUIRED` (shouldn't happen once we prompt, but guard) → prompt; a decrypt failure with a password present → `t("view.wrongPassword")` with the input kept for retry; a `crypto_pwhash` memory failure → `t("view.lowMemory")`. Plain-mode decrypt failure keeps the existing generic error.
+- [x] **Step 3: locales** — add `view.password` (field label), `view.open`, `view.wrongPassword`, `view.malformed`, `view.lowMemory` to `en.ts` + `zh-CN.ts`.
+- [x] **Step 4: Verify + commit** — type-check + build; the viewer isn't unit-tested (DOM) — verify by building. Commit `feat(viewer): password prompt for two-channel encrypted links`.
 
 ---
 
@@ -231,21 +243,21 @@ it("PASSWORD_REQUIRED / MALFORMED_LINK", async () => {
 
 **Files:** Modify `apps/link/src/pages/home.ts`; `apps/link/index.html` (small CSS); locales.
 
-- [ ] **Step 1:** In the file panel (where the `encrypt` checkbox lives), when `encrypt()` is true, reveal an OPTIONAL password `r-input` (placeholder `t("upload.passwordOptional")`) plus a **security warning** block (`t("upload.encWarning")`) and a minimum-length hint (`t("upload.pwHint")`). Store the value in a signal `encPassword`. Empty → plain mode; non-empty → password mode.
-- [ ] **Step 2:** In `doUpload`, pass the password: add `password: encPassword() || undefined` to the `UploadOpts` for BOTH the Arweave and Irys upload calls (they already pass `{ onProgress, encrypt: encrypt() }`).
-- [ ] **Step 3:** When showing the result for a password-mode upload, add a note (`t("upload.pwReminder")`: "You'll need this password to open it later, too — we can't recover it.").
-- [ ] **Step 4: CSS** — a `.enc-warning` block using semantic tokens (muted bg, small text) and layout for the password field; follow existing `.ctl-row`/`.muted` patterns. No non-token colors.
-- [ ] **Step 5: locales** — `upload.passwordOptional`, `upload.encWarning`, `upload.pwHint`, `upload.pwReminder` in en + zh.
-- [ ] **Step 6: Verify + commit** — type-check + test + build; screenshot the encrypt-on state (headless). Commit `feat(upload): optional two-channel password + security warning`.
+- [x] **Step 1:** In the file panel (where the `encrypt` checkbox lives), when `encrypt()` is true, reveal an OPTIONAL password `r-input` (placeholder `t("upload.passwordOptional")`) plus a **security warning** block (`t("upload.encWarning")`) and a minimum-length hint (`t("upload.pwHint")`). Store the value in a signal `encPassword`. Empty → plain mode; non-empty → password mode.
+- [x] **Step 2:** In `doUpload`, pass the password: add `password: encPassword() || undefined` to the `UploadOpts` for BOTH the Arweave and Irys upload calls (they already pass `{ onProgress, encrypt: encrypt() }`).
+- [x] **Step 3:** When showing the result for a password-mode upload, add a note (`t("upload.pwReminder")`: "You'll need this password to open it later, too — we can't recover it.").
+- [x] **Step 4: CSS** — a `.enc-warning` block using semantic tokens (muted bg, small text) and layout for the password field; follow existing `.ctl-row`/`.muted` patterns. No non-token colors.
+- [x] **Step 5: locales** — `upload.passwordOptional`, `upload.encWarning`, `upload.pwHint`, `upload.pwReminder` in en + zh.
+- [x] **Step 6: Verify + commit** — type-check + test + build; screenshot the encrypt-on state (headless). Commit `feat(upload): optional two-channel password + security warning`.
 
 ---
 
 ## Task E5: verification
 
-- [ ] **Step 1:** `pnpm --filter=@alixex/link type-check && pnpm --filter=@alixex/link test && pnpm --filter=@alixex/link build` — all green (incl. crypto tests).
-- [ ] **Step 2: backward compat** — construct a plain-mode link (`encryptFile(file)` → `toBase64(K)` payload) and confirm `decryptAsset(chain, txId, payload)` (no password) still decrypts (a test already covers this; re-confirm).
-- [ ] **Step 3: e2e (manual/headless)** — upload with a password → open the resulting `#/view/...p1...` link → password prompt appears → correct pw decrypts, wrong pw shows a retryable error. Note the mobile-memory caveat (Argon2id MODERATE ~256 MiB) for a real-device check.
-- [ ] **Step 4:** Commit any verification tweaks.
+- [x] **Step 1:** `pnpm --filter=@alixex/link type-check && pnpm --filter=@alixex/link test && pnpm --filter=@alixex/link build` — all green (incl. crypto tests).
+- [x] **Step 2: backward compat** — construct a plain-mode link (`encryptFile(file)` → `toBase64(K)` payload) and confirm `decryptAsset(chain, txId, payload)` (no password) still decrypts (a test already covers this; re-confirm).
+- [x] **Step 3: e2e (manual/headless)** — upload with a password → open the resulting `#/view/...p1...` link → password prompt appears → correct pw decrypts, wrong pw shows a retryable error. Note the mobile-memory caveat (Argon2id MODERATE ~256 MiB) for a real-device check.
+- [x] **Step 4:** Commit any verification tweaks.
 
 ---
 
